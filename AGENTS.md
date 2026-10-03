@@ -2,8 +2,8 @@
 
 ## Trạng thái và quyền thực hiện
 
-- **Phase hiện tại: 2. Trạng thái: code Phase 2 đã bàn giao, chờ anh duyệt nội dung Q&A; G2 chưa chốt.** Phase 1 đã được duyệt. Q&A dùng nội dung mô phỏng; điện thoại thật/iOS chưa kiểm tra; audit còn cảnh báo.
-- **Implementation approved: Phase 2 (R2.01–R2.04).** Người dùng nói “Tôi duyệt phase 1. Hãy triển khai phase 2 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.” Phase 3–7/voice chưa được duyệt.
+- **Phase hiện tại: 3. Trạng thái: Phase 2 đã được người dùng duyệt; đang chốt quy tắc gợi ý điểm trước khi code.** Phase 1–2 đã duyệt, nội dung vẫn là mô phỏng; điện thoại thật/iOS chưa kiểm tra; audit còn cảnh báo.
+- **Implementation approved: Phase 3 (R3.01–R3.03).** Người dùng nói “Tôi duyệt phase [2]. Hãy triển khai phase 3 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.” Phase 4–7/voice chưa được duyệt.
 - Công cụ đang dùng: **OpenCode**. Trình độ A/B/C của người dùng chưa xác định; không suy từ vai trò “người A”.
 - Đọc `MEMORY.md` trước khi làm việc để biết nhiệm vụ, bằng chứng duyệt và bước tiếp theo.
 
@@ -40,8 +40,8 @@ Giữ các hướng dẫn đang có, kể cả hướng dẫn toàn cục. Nếu
 | --- | --- | --- |
 | 0 | Chốt hành vi, kiến trúc, sơ đồ, hợp đồng; review tài liệu (G0) | Đã được người dùng duyệt |
 | 1 | Khung native, Home fixture, demo/live, Expo Go (G1) | **Đã được người dùng duyệt 03/10/2026**; emulator có bằng chứng, điện thoại thật/iOS chưa thử |
-| 2 | Giới thiệu, Q&A cố định có nguồn, hỏi tiếp (G2) | Code + nội dung mô phỏng đã bàn giao; chờ anh duyệt nội dung Q&A |
-| 3 | Chủ đề/quỹ thời gian, tối đa ba điểm có lý do (G3) | Chưa bắt đầu |
+| 2 | Giới thiệu, Q&A cố định có nguồn, hỏi tiếp (G2) | **Đã được người dùng duyệt 03/10/2026** (nội dung vẫn mô phỏng) |
+| 3 | Chủ đề/quỹ thời gian, tối đa ba điểm có lý do (G3) | Được phép triển khai; quy tắc đã chốt 03/10 |
 | 4 | Camera, QR, 2D placeholder + caption, chọn tay (G4) | Chưa bắt đầu |
 | 5 | GPS candidate, xác nhận/chọn lại (G5) | Chưa bắt đầu |
 | 6 | API/dataset thật được duyệt, handoff data/UI (G6) | Chưa bắt đầu |
