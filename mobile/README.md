@@ -1,6 +1,6 @@
 # Ngõ Kể — khung native Phase 1
 
-**Bàn giao code Phase 1–4.** Phase 1 đã được người dùng duyệt. Phase 2 thêm giới thiệu và hỏi đáp cố định; Phase 3 thêm chọn chủ đề, quỹ thời gian và gợi ý tối đa ba điểm kèm lý do; Phase 4 thêm camera xin quyền đúng lúc, quét QR của điểm đã biết, lớp người kể 2D tạm + caption và chọn điểm bằng tay. Nội dung đang là **mô phỏng**, chờ người dùng duyệt. GPS và backend live thuộc phase sau chưa triển khai.
+**Bàn giao code Phase 1–5.** Phase 1 đã được người dùng duyệt. Phase 2 thêm giới thiệu và hỏi đáp cố định; Phase 3 thêm chọn chủ đề, quỹ thời gian và gợi ý tối đa ba điểm kèm lý do; Phase 4 thêm camera xin quyền đúng lúc, quét QR của điểm đã biết, lớp người kể 2D tạm + caption và chọn điểm bằng tay; Phase 5 thêm lấy vị trí **một lần** theo thao tác, gợi ý **một** candidate kèm khoảng cách/accuracy, và chỉ xác nhận của người dùng mới đổi điểm hiện tại. Nội dung và tọa độ đang là **mô phỏng**. Backend live thuộc phase sau chưa triển khai.
 
 ## Yêu cầu và mở app
 
@@ -29,11 +29,12 @@ Không ghép `--offline` với `--localhost`/`--lan`: Expo CLI không cho dùng 
 ## Anh có thể review gì?
 
 1. Home mặc định **Demo**, báo “Đã nạp 6 điểm mô phỏng”; cuộn xem “Điểm demo 01–06”, nhãn “điểm khởi đầu” và disclaimer không phải địa điểm thật.
+4. Bấm **Tìm điểm gần nhất bằng GPS và xác nhận**: bấm **Lấy vị trí của tôi** (chỉ xin quyền lúc này), xem “có thể là…” + khoảng cách + độ chính xác, rồi bấm **Xác nhận điểm này** hoặc chọn tay.
 3. Bấm **Mở camera, quét QR và xem người kể**: camera **tắt** cho tới khi bấm nút xin quyền; quét mã `ngo-ke://node/<id>` để xác nhận điểm; xem người kể 2D tạm và caption; hoặc chọn điểm bằng tay.
 2. Bấm **Chọn chủ đề và xem gợi ý điểm**: chọn ẩm thực/chuyện xưa/khám phá tự do, chọn hoặc gõ khoảng thời gian, xem tối đa 3 điểm kèm lý do và thời lượng.
 1b. Bấm **Bắt đầu nghe giới thiệu và hỏi đáp**: xem lời giới thiệu + nguồn, chọn chip câu hỏi hoặc gõ câu hỏi của bạn, đọc đáp án kèm nguồn và 1–2 câu hỏi tiếp. Gõ câu ngoài danh sách sẽ báo “Chưa có dữ liệu”.
 2. Chuyển **Live**: báo “Live chưa được cấu hình”, không nạp hoặc tự đổi sang demo.
-3. Mở từng màn placeholder: giới thiệu/Q&A, chọn trải nghiệm, camera/người kể, GPS; màn ghi rõ phase chưa triển khai, không xin quyền thiết bị.
+3. Màn nào còn placeholder: không còn; Q&A, chọn trải nghiệm, camera/người kể và GPS đều đã có tính năng. Kiểm tra Home hiện “Điểm hiện tại”.
 4. Dùng Back native hoặc “Về Home”; mode đã chọn phải được giữ trong phiên. Mở lại app sẽ trở về Demo (chưa có persistence).
 5. Kiểm tra notch/safe areas, màn nhỏ, xoay ngang và tăng cỡ chữ hệ thống; nội dung phải cuộn được, nút có phản hồi và không che thao tác.
 
@@ -96,7 +97,7 @@ npm audit
 
 `build:android`/`build:ios` chỉ **xuất JavaScript/Hermes bundle bằng Metro**, không tạo APK/IPA, store build hoặc deploy. Artifact ở `dist/` (gitignored). Test dùng Node built-in, chỉ kiểm tra ranh giới nguồn, không render UI/thiết bị.
 
-Kết quả/log mới nhất ở [bàn giao Phase 4](../agent_docs/phase_4_review.md). Tests69/69, typecheck/lint/dependency/Doctor21/21 và export Android/iOS đạt; emulator19/19 ở Phase 4. Audit03/10 còn23 cảnh báo (7 moderate,16 high); không dùng `--force` để downgrade Expo/RN. Chi tiết/giới hạn ở gói review.
+Kết quả/log mới nhất ở [bàn giao Phase 5](../agent_docs/phase_5_review.md). Tests81/81, typecheck/lint/dependency/Doctor21/21 và export Android/iOS đạt. Ở Phase 5, emulator đạt 6/6 ca cho nhánh quyền bị từ chối và chọn tay; **nhánh candidate/outside-cluster không kiểm được** vì máy ảo không cấp fix GPS. Audit03/10 còn23 cảnh báo (7 moderate,16 high); không dùng `--force` để downgrade Expo/RN. Chi tiết/giới hạn ở gói review.
 
 ## Fixture ban đầu và logic phase sau
 
@@ -115,6 +116,7 @@ src/qa/match.ts                 # Normalize câu hỏi + khớp exact/alias/unkn
 src/recommendation/pick.ts      # Chủ đề, quỹ thời gian, chọn tối đa 3 điểm
 src/qr/parseQr.ts                # Đọc payload `ngo-ke://node/<id>`
 src/qr/confirmPoint.ts           # QR → node đã biết, chọn tay
+src/location/nearest.ts          # Haversine + chọn một candidate
 src/data/sourceState.ts         # Validate bundled demo (intro/qa/evidence); live empty
 src/screens/HomeScreen.tsx      # Home, source status, mode selector, links
 src/screens/PlaceholderScreen.tsx
@@ -122,11 +124,13 @@ metro.config.cjs                # Một fixture ngoài project root, không copy
 src/screens/QaScreen.tsx       # Giới thiệu, chip, nhập, đáp án + nguồn, hỏi tiếp
 src/screens/PlanScreen.tsx      # Chủ đề, thời gian, gợi ý điểm
 src/screens/CameraScreen.tsx     # Xin quyền, quét QR, người kể 2D, chọn tay
+src/screens/LocationScreen.tsx    # Một lần đọc vị trí, candidate, xác nhận/chọn tay
 tests/sourceState.test.mjs      # Validate dataset/demo-live
 tests/qa.test.mjs               # Khớp câu hỏi + hợp đồng nội dung
 tests/qaRegressions.test.mjs     # Hồi quy lỗi đã tìm trong review
 tests/recommendation.test.mjs    # Luật chọn điểm Phase 3
 tests/cameraQr.test.mjs           # Luật QR và chọn tay Phase 4
+tests/location.test.mjs           # Luật candidate GPS Phase 5
 ```
 
 Icon/asset app do Expo scaffold tạo, chưa phải bộ nhận diện được nhóm UI duyệt. Scaffold cũng tự tạo Git local ở `mobile/.git` với initial commit; chưa có remote, push hoặc commit tính năng của agent.

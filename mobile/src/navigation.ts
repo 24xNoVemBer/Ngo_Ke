@@ -5,6 +5,7 @@ export type RootStackParamList = {
   Qa: undefined;
   Plan: undefined;
   Camera: undefined;
+  Location: undefined;
   Placeholder: { area: Area };
 };
 
@@ -27,6 +28,6 @@ export const areas: Record<Area, { title: string; phase: number; detail: string 
   location: {
     title: 'Xác nhận điểm GPS',
     phase: 5,
-    detail: 'GPS chỉ gợi ý để người dùng xác nhận ở Phase 5. Màn này không lấy vị trí hay xin quyền.',
+    detail: 'Đã có trong Phase 5: lấy vị trí một lần khi bấm nút, gợi ý một candidate, người dùng xác nhận mới đổi điểm.',
   },
 };

@@ -1,0 +1,101 @@
+{
+  "date": "2026-10-03",
+  "phase": 5,
+  "commands": [
+    {
+      "label": "tests",
+      "command": "npm test",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 0.3,
+      "log": "tests.log"
+    },
+    {
+      "label": "typecheck",
+      "command": "npm run typecheck",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 1.7,
+      "log": "typecheck.log"
+    },
+    {
+      "label": "lint",
+      "command": "npm run lint",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 1.2,
+      "log": "lint.log"
+    },
+    {
+      "label": "dependencies",
+      "command": "npm run check:dependencies",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 0.7,
+      "log": "dependencies.log"
+    },
+    {
+      "label": "doctor",
+      "command": "npx --yes expo-doctor",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 2.9,
+      "log": "doctor.log"
+    },
+    {
+      "label": "build-android",
+      "command": "npm run build:android",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 6.3,
+      "log": "build-android.log"
+    },
+    {
+      "label": "build-ios",
+      "command": "npm run build:ios",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 6.3,
+      "log": "build-ios.log"
+    },
+    {
+      "label": "audit",
+      "command": "npm audit --json",
+      "cwd": "mobile/",
+      "exitCode": 1,
+      "seconds": 3.6,
+      "log": "audit.json",
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 7,
+        "high": 16,
+        "critical": 0,
+        "total": 23
+      }
+    }
+  ],
+  "emulatorChecksVerified": {
+    "passed": 6,
+    "total": 6,
+    "scope": "permission refused + manual choice; current point change"
+  },
+  "emulatorChecksNotPossible": {
+    "branches": [
+      "candidate",
+      "outside-cluster"
+    ],
+    "reason": "The emulator supplies no GPS fix: every provider reports last location=null, the console command \"geo fix\" returns OK but no provider receives it, and the app logs \"Current location is unavailable\".",
+    "evidence": "emulator-gps-limitation.txt",
+    "coveredBy": "mobile/tests/location.test.mjs (unit tests only)"
+  },
+  "device": {
+    "avd": "Medium_Phone",
+    "os": "Android 17 / API 37",
+    "expoGo": "57.0.9",
+    "adbSerial": "127.0.0.1:5555"
+  },
+  "physicalPhoneTested": false,
+  "iosRuntimeTested": false,
+  "fieldTested": false
+}

@@ -13,7 +13,8 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "Cho phép Ngõ Kể dùng camera để quét mã QR của điểm."
+        "NSCameraUsageDescription": "Cho phép Ngõ Kể dùng camera để quét mã QR của điểm.",
+        "NSLocationWhenInUseUsageDescription": "Cho phép Ngõ Kể đọc vị trí một lần để gợi ý điểm gần nhất. App không theo dõi vị trí nền."
       }
     },
     "android": {
@@ -24,7 +25,9 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "permissions": [
-        "android.permission.CAMERA"
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ],
       "predictiveBackGestureEnabled": true
     },
@@ -33,6 +36,12 @@
         "expo-camera",
         {
           "cameraPermission": "Cho phép Ngõ Kể dùng camera để quét mã QR của điểm."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Cho phép Ngõ Kể đọc vị trí một lần để gợi ý điểm gần nhất. App không theo dõi vị trí nền."
         }
       ]
     ]

@@ -16,6 +16,8 @@ export type DemoNode = {
   visited: boolean;
   story: string;
   caption: string;
+  latitude: number;
+  longitude: number;
 };
 
 export type DemoIntro = { text: string; evidence: string[] };
@@ -47,6 +49,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isNonemptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
+}
+
+function isCoordinate(value: unknown, limit: number): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && Math.abs(value) <= limit;
 }
 
 function isTopicList(value: unknown): value is Topic[] {
@@ -123,6 +129,7 @@ function isDemoDataset(value: unknown): value is DemoDataset {
       || !isNonemptyString(node.story) || !isNonemptyString(node.caption)
       || !isTopicList(node.tags) || typeof node.available !== 'boolean'
       || typeof node.visited !== 'boolean'
+      || !isCoordinate(node.latitude, 90) || !isCoordinate(node.longitude, 180)
       || !Number.isInteger(node.visitMinutes) || (node.visitMinutes as number) <= 0) {
       return false;
     }

@@ -6,9 +6,9 @@ import type { DemoNode } from '../data/sourceState';
 import { confirmByQr, selectManually } from '../qr/confirmPoint';
 import { colors } from '../theme';
 
-type Props = { nodes: DemoNode[] };
+type Props = { nodes: DemoNode[]; onConfirmNode: (nodeId: string) => void };
 
-export function CameraScreen({ nodes }: Props): ReactElement {
+export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
   const [permission, requestPermission] = useCameraPermissions();
   // The camera stays off until the user asks for it; opening the screen is not
   // consent to use the camera.
@@ -59,13 +59,22 @@ export function CameraScreen({ nodes }: Props): ReactElement {
   }
 
   function confirmPending(): void {
+    if (pending === undefined) {
+      return;
+    }
+    onConfirmNode(pending.id);
     setActive(pending);
     setPending(undefined);
   }
 
   function chooseManually(id: string): void {
+    const node = selectManually(nodes, id);
+    if (node === undefined) {
+      return;
+    }
+    onConfirmNode(node.id);
     setScanNote(undefined);
-    setActive(selectManually(nodes, id));
+    setActive(node);
   }
 
   function reset(): void {

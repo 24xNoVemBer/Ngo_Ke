@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "simulated",
-  "disclaimer": "Dữ liệu mô phỏng để kiểm tra giao diện. Các điểm không phải địa điểm thật.",
+  "disclaimer": "Dữ liệu mô phỏng để kiểm tra giao diện. Các điểm không phải địa điểm thật. Tọa độ trong bản demo là mô phỏng, không dùng để đi bộ ngoài thực địa.",
   "nodes": [
     {
       "id": "demo-01",
@@ -14,7 +14,9 @@
       "available": true,
       "visited": false,
       "story": "Bạn đang đứng ở điểm mở đầu của khu vực demo. Ở đây mình thường chào người mới và giới thiệu phần còn lại. Bản demo này chưa có nội dung thật nên mình chỉ nói về chính bản demo.",
-      "caption": "Bạn đang ở điểm mở đầu. Mình có thể trả lời các câu hỏi đã soạn sẵn."
+      "caption": "Bạn đang ở điểm mở đầu. Mình có thể trả lời các câu hỏi đã soạn sẵn.",
+      "latitude": 10.76,
+      "longitude": 106.68
     },
     {
       "id": "demo-02",
@@ -27,7 +29,9 @@
       "available": true,
       "visited": false,
       "story": "Điểm này trong bản demo được dành cho chuyện xưa. Khi có dữ liệu thật, mình sẽ kể ở đây và ghi rõ nguồn ở từng câu. Hiện tại mình không có câu chuyện đã duyệt để kể.",
-      "caption": "Điểm kể chuyện xưa. Bản demo chưa có nội dung đã duyệt."
+      "caption": "Điểm kể chuyện xưa. Bản demo chưa có nội dung đã duyệt.",
+      "latitude": 10.7609,
+      "longitude": 106.6806
     },
     {
       "id": "demo-03",
@@ -40,7 +44,9 @@
       "available": true,
       "visited": false,
       "story": "Điểm này trong bản demo được dành cho chuyện ẩm thực. Mình chưa có danh sách quán hay món ăn đã được duyệt, nên mình không đoán cho bạn. Khi có dữ liệu thật, mình sẽ giới thiệu tại đây.",
-      "caption": "Điểm ẩm thực. Mình chưa có danh sách quán đã duyệt."
+      "caption": "Điểm ẩm thực. Mình chưa có danh sách quán đã duyệt.",
+      "latitude": 10.7617,
+      "longitude": 106.6815
     },
     {
       "id": "demo-04",
@@ -54,7 +60,9 @@
       "available": true,
       "visited": false,
       "story": "Điểm này vừa có chuyện xưa vừa có ẩm thực trong bản demo. Bạn có thể hỏi cả hai hướng, nhưng nội dung vẫn đang chờ dữ liệu thật và người duyệt.",
-      "caption": "Điểm vừa có chuyện xưa vừa có ẩm thực trong bản demo."
+      "caption": "Điểm vừa có chuyện xưa vừa có ẩm thực trong bản demo.",
+      "latitude": 10.7596,
+      "longitude": 106.6818
     },
     {
       "id": "demo-05",
@@ -68,7 +76,9 @@
       "available": true,
       "visited": false,
       "story": "Điểm này được làm ngắn để bạn xem khi ít thời gian. Trong bản demo mình chưa có nội dung riêng, nên mình chỉ giới thiệu ngắn và hỏi bạn muốn xem tiếp phần nào.",
-      "caption": "Điểm xem nhanh, hợp khi ít thời gian."
+      "caption": "Điểm xem nhanh, hợp khi ít thời gian.",
+      "latitude": 10.7603,
+      "longitude": 106.6794
     },
     {
       "id": "demo-06",
@@ -81,7 +91,9 @@
       "available": true,
       "visited": false,
       "story": "Điểm này dành cho khám phá tự do trong bản demo. Nội dung sẽ cập nhật khi nhóm dữ liệu gửi lời kể kèm nguồn. Hiện tại bạn có thể tiếp tục hỏi ở đây bằng chữ.",
-      "caption": "Điểm khám phá tự do. Bạn hỏi tiếp bằng chữ được."
+      "caption": "Điểm khám phá tự do. Bạn hỏi tiếp bằng chữ được.",
+      "latitude": 10.7625,
+      "longitude": 106.6809
     }
   ],
   "intro": {

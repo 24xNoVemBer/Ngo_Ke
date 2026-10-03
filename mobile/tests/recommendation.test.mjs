@@ -75,8 +75,15 @@ test('suggestions carry no coordinates, distance or walking time', () => {
   const result = pickPoints(nodes, { topic: 'an thuc', budgetMinutes: 60 });
   assert.equal(result.kind, 'ok');
   for (const pick of result.picks) {
-    assert.deepEqual(Object.keys(pick.node).filter((key) => /lat|lng|dist|walk|eta|route/i.test(key)), []);
+    // Nodes carry coordinates since Phase 5, but a suggestion must not show
+    // distance or read like walking directions.
+    assert.deepEqual(
+      Object.keys(pick).filter((key) => /lat|lng|dist|walk|eta|route/i.test(key)),
+      [],
+    );
+    assert.equal(/\d+\s*m(?!ô ph)/i.test(pick.reason), false);
     assert.equal(/đi bộ|walking|directions|chỉ đường/i.test(pick.reason), false);
+    assert.deepEqual(Object.keys(pick).sort(), ['node', 'reason', 'visitMinutes']);
   }
 });
 

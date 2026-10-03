@@ -2,8 +2,8 @@
 
 ## Trạng thái và quyền thực hiện
 
-- **Phase hiện tại: 4. Trạng thái: code Phase 4 đã bàn giao, chờ anh duyệt vị trí/kích thước người kể và caption; G4 chưa chốt.** Phase 1–3 đã duyệt; nội dung vẫn là mô phỏng; quét QR thật chưa kiểm end-to-end; điện thoại thật/iOS chưa kiểm tra; audit còn cảnh báo.
-- **Implementation approved: Phase 4 (R4.01–R4.05).** Người dùng nói “Tôi duyệt phase [3]. Hãy triển khai phase 4 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.” Phase 5–7/voice chưa được duyệt. Sẽ thêm dependency `expo-camera` bằng `npx expo install` theo yêu cầu R4.01/R4.02.
+- **Phase hiện tại: 5. Trạng thái: code Phase 5 đã bàn giao; G5 chưa chốt.** Phase 1–4 đã duyệt; nội dung và tọa độ vẫn là mô phỏng; **nhánh GPS candidate/outside-cluster chưa kiểm được trên emulator** (máy ảo không cấp fix GPS); quét QR thật chưa kiểm end-to-end; điện thoại thật/iOS chưa kiểm tra; audit còn cảnh báo.
+- **Implementation approved: Phase 5 (R5.01–R5.03).** Người dùng nói “Tôi duyệt phase [4]. Hãy triển khai phase 5 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.” Phase 6–7/voice chưa được duyệt. Sẽ thêm dependency `expo-location` bằng `npx expo install`; không bật quyền nền.
 - Công cụ đang dùng: **OpenCode**. Trình độ A/B/C của người dùng chưa xác định; không suy từ vai trò “người A”.
 - Đọc `MEMORY.md` trước khi làm việc để biết nhiệm vụ, bằng chứng duyệt và bước tiếp theo.
 
@@ -26,6 +26,7 @@ Yêu cầu mới nhất của người dùng → `docs/TECH_DEMO_PLAN.md` → `d
 | Tiến độ, bằng chứng và nội dung cần duyệt của Phase 2 | `agent_docs/phase_2_review.md`, spec `docs/superpowers/specs/2026-10-03-phase-2-intro-qa-design.md` |
 | Tiến độ, bằng chứng và câu hỏi cần duyệt của Phase 3 | `agent_docs/phase_3_review.md`, spec `docs/superpowers/specs/2026-10-03-phase-3-recommendation-design.md` |
 | Tiến độ, bằng chứng và câu hỏi cần duyệt của Phase 4 | `agent_docs/phase_4_review.md`, spec `docs/superpowers/specs/2026-10-03-phase-4-camera-qa-design.md` |
+| Tiến độ, bằng chứng và câu hỏi cần duyệt của Phase 5 | `agent_docs/phase_5_review.md`, spec `docs/superpowers/specs/2026-10-03-phase-5-location-design.md` |
 
 Giữ các hướng dẫn đang có, kể cả hướng dẫn toàn cục. Nếu chúng mâu thuẫn với phạm vi hoặc cửa duyệt của dự án, báo rõ vị trí và dừng phần bị ảnh hưởng để người dùng quyết định; không âm thầm chọn một bên.
 
@@ -36,7 +37,7 @@ Giữ các hướng dẫn đang có, kể cả hướng dẫn toàn cục. Nếu
 1. **Chỉ thực hiện một phase mỗi lần. Chỉ bắt đầu phase sau khi người dùng duyệt rõ ràng phase đó.** Hoàn tất tài liệu, kiểm tra đạt hoặc nhận yêu cầu “chỉnh cho chuẩn” không phải quyền sang phase mới.
 2. Trước coding, đề xuất cách làm ngắn trong phase được phép và chờ duyệt. Duyệt plan Phase 0 là điều kiện trước khi tạo native project; chỉ triển khai Phase 1 khi người dùng cho phép rõ ràng. Một lần duyệt không mở tất cả các phase.
 3. Thực hiện từng tính năng trong phase; kiểm tra sau thay đổi, sửa lỗi trước khi tiếp tục. Chỉ sửa feedback trong phase hiện tại. Scope mới cần cập nhật plan và review trước coding.
-4. **Cuối phase báo: thay đổi, kết quả kiểm tra, phần chưa kiểm tra và nội dung cần review; sau đó dừng.** Dùng `REVIEW-CHECKLIST.md`, cập nhật `MEMORY.md` và chờ duyệt; không tự đánh dấu gate đã qua.
+4. **Cuối phase báo: thay đổi, kết quả kiểm tra, phần chưa kiểm tra và nội dung cần review; kèm mục “Việc cần anh quyết / việc anh tự làm” theo mục bắt buộc ở trên; sau đó dừng.** Dùng `REVIEW-CHECKLIST.md`, cập nhật `MEMORY.md` và chờ duyệt; không tự đánh dấu gate đã qua.
 
 | Phase | Phạm vi / cửa review | Trạng thái |
 | --- | --- | --- |
@@ -44,11 +45,20 @@ Giữ các hướng dẫn đang có, kể cả hướng dẫn toàn cục. Nếu
 | 1 | Khung native, Home fixture, demo/live, Expo Go (G1) | **Đã được người dùng duyệt 03/10/2026**; emulator có bằng chứng, điện thoại thật/iOS chưa thử |
 | 2 | Giới thiệu, Q&A cố định có nguồn, hỏi tiếp (G2) | **Đã được người dùng duyệt 03/10/2026** (nội dung vẫn mô phỏng) |
 | 3 | Chủ đề/quỹ thời gian, tối đa ba điểm có lý do (G3) | **Đã được người dùng duyệt 03/10/2026** |
-| 4 | Camera, QR, 2D placeholder + caption, chọn tay (G4) | Code đã bàn giao; chờ anh duyệt vị trí/kích thước người kể và câu xin quyền |
-| 5 | GPS candidate, xác nhận/chọn lại (G5) | Chưa bắt đầu |
+| 4 | Camera, QR, 2D placeholder + caption, chọn tay (G4) | **Đã được người dùng duyệt 03/10/2026** (quét QR thật vẫn chưa kiểm end-to-end) |
+| 5 | GPS candidate, xác nhận/chọn lại (G5) | Code đã bàn giao; chờ anh duyệt microcopy/quy trình và chốt việc đánh dấu “đã ghé thăm” |
 | 6 | API/dataset thật được duyệt, handoff data/UI (G6) | Chưa bắt đầu |
 | 7 | Offline, kiểm tra end-to-end, bàn giao core (G7) | Chưa bắt đầu |
 | Voice riêng | Sau core; duyệt riêng + connector/giọng người dùng chọn (GV) | Chưa được duyệt |
+
+## Việc cần người dùng quyết hoặc tự làm — bắt buộc note ra
+
+Mỗi lần bàn giao phải có mục riêng, không trộn vào phần đã làm và không viết chung chung. Với **mỗi** việc, ghi rõ:
+
+1. **Cần người dùng quyết** — câu hỏi cụ thể, lựa chọn em đề xuất, hệ quả nếu chưa chốt.
+2. **Cần người dùng tự làm** — việc chỉ người dùng làm được, **đánh dấu `[ngoài plan]`** nếu việc đó không nằm trong `docs/TECH_DEMO_PLAN.md`, kèm vì sao và hậu quả nếu chưa làm.
+
+Quy tắc: không tự quyết thay; không coi là đã xử lý; không giấu việc của người dùng trong báo cáo chung; việc `[ngoài plan]` không tự thêm vào plan mà phải nêu để người dùng chọn. Cập nhật cùng `MEMORY.md`.
 
 ## Sản phẩm và ranh giới không được tự mở rộng
 

@@ -18,6 +18,7 @@ const CHIP_COUNT = 4;
 
 type Props = {
   dataset: DemoDataset;
+  currentNodeId?: string;
 };
 
 function followUpEntries(entry: QaEntry, all: readonly QaEntry[]): QaEntry[] {
@@ -26,7 +27,7 @@ function followUpEntries(entry: QaEntry, all: readonly QaEntry[]): QaEntry[] {
     .filter((item): item is QaEntry => item !== undefined);
 }
 
-export function QaScreen({ dataset }: Props): ReactElement {
+export function QaScreen({ dataset, currentNodeId }: Props): ReactElement {
   const [input, setInput] = useState('');
   const [asked, setAsked] = useState<string | null>(null);
   const [match, setMatch] = useState<QaMatch | null>(null);
@@ -42,7 +43,7 @@ export function QaScreen({ dataset }: Props): ReactElement {
   }
 
   const intro = dataset.intro;
-  const startNode = dataset.nodes.find((node) => node.id === dataset.startNodeId);
+  const startNode = dataset.nodes.find((node) => node.id === currentNodeId);
   const entry = match?.status === 'matched' ? match.entry : null;
   const followUps = entry === null ? [] : followUpEntries(entry, dataset.qa);
 
@@ -64,7 +65,7 @@ export function QaScreen({ dataset }: Props): ReactElement {
             </Text>
             <Text style={styles.body}>{intro.text}</Text>
             {startNode !== undefined && (
-              <Text style={styles.meta}>Bắt đầu tại: {startNode.name}</Text>
+              <Text style={styles.meta}>Bạn đang ở: {startNode.name}</Text>
             )}
             <Text style={styles.source}>Nguồn: {intro.evidence.join(' · ')}</Text>
           </View>

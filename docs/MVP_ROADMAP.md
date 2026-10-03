@@ -97,7 +97,8 @@ Chi tiết cách thu: [DATA_COLLECTION_GUIDE.md](DATA_COLLECTION_GUIDE.md).
 
 ## 6. Kết quả kiểm tra hiện tại (03/10/2026)
 
-- `npm test` 69/69 đạt; typecheck, lint, dependency check, Expo Doctor 21/21 và xuất bundle Android/iOS đều đạt. Phase 4 thêm dependency `expo-camera` 57.0.6.
-- Trên máy ảo Android (Medium_Phone, Android 17/API 37, Expo Go 57.0.9): 13/13 ca Phase 2, 13/13 ca Phase 3 và 19/19 ca Phase 4 đạt; có ảnh trong `agent_docs/evidence/phase-2/`, `phase-3/` và `phase-4/`.
+- `npm test` 81/81 đạt; typecheck, lint, dependency check, Expo Doctor 21/21 và xuất bundle Android/iOS đều đạt. Phase 4 thêm `expo-camera`, Phase 5 thêm `expo-location`.
+- Trên máy ảo Android (Medium_Phone, Android 17/API 37, Expo Go 57.0.9): 13/13 ca Phase 2, 13/13 ca Phase 3, 19/19 ca Phase 4 và 6/6 ca Phase 5 đạt; có ảnh trong `agent_docs/evidence/phase-2/` đến `phase-5/`.
+- **Giới hạn môi trường:** máy ảo này không cấp được fix GPS (`geo fix` trả OK nhưng provider không nhận), nên hai nhánh candidate/outside-cluster của Phase 5 chỉ kiểm bằng unit test, chưa chạy thật trên thiết bị.
 - **Chưa kiểm tra:** điện thoại thật, iOS, offline khởi chạy từ trạng thái đã đóng, screen reader.
-- Báo cáo chi tiết: [Phase 1](../agent_docs/phase_1_completion.md), [Phase 2](../agent_docs/phase_2_review.md), [Phase 3](../agent_docs/phase_3_review.md), [Phase 4](../agent_docs/phase_4_review.md).
+- Báo cáo chi tiết: [Phase 1](../agent_docs/phase_1_completion.md), [Phase 2](../agent_docs/phase_2_review.md), [Phase 3](../agent_docs/phase_3_review.md), [Phase 4](../agent_docs/phase_4_review.md), [Phase 5](../agent_docs/phase_5_review.md).

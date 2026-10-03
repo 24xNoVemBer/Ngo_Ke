@@ -29,7 +29,7 @@ Mỗi điểm trong con ngõ là một "node" mà app điều hướng tới.
 | `summary` | Có | 1–2 câu mô tả ngắn nơi này. |
 | `story` | Có | Lời người kể 2–4 câu, viết như người kể đứng tại chỗ. |
 | `evidence` | Có | Danh sách nguồn cho `story`. |
-| `latitude` / `longitude` | Có | Tọa độ **đã khảo sát thực tế**, độ chính xác ≥5 m. Ghi thời điểm khảo sát. |
+| `latitude` / `longitude` | Có | Tọa độ **đã khảo sát thực tế**, độ chính xác ≥5 m. Ghi thời điểm khảo sát. Fixture hiện để **mô phỏng**; ngưỡng app dùng là cách ≤300 m, cần duyệt lại khi có tọa độ thật. |
 | — | Không cần | Mã QR **sinh từ `id`** theo công thức `ngo-ke://node/<id>`. Không lưu trường `qrPayload` để tránh trùng dữ liệu. |
 | `caption` | Có | Caption 1–2 câu trên camera, tối đa khoảng 220 ký tự. |
 | `visitMinutes` | Nếu dùng gợi ý | Số phút ước tính để xem tại điểm, là **ước tính trải nghiệm**, không phải thời gian đi bộ. |

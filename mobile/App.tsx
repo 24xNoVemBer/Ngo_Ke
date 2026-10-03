@@ -7,6 +7,7 @@ import { getSourceState, type Mode } from './src/data/sourceState';
 import { areas, type RootStackParamList } from './src/navigation';
 import { CameraScreen } from './src/screens/CameraScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
+import { LocationScreen } from './src/screens/LocationScreen';
 import { PlaceholderScreen } from './src/screens/PlaceholderScreen';
 import { PlanScreen } from './src/screens/PlanScreen';
 import { QaScreen } from './src/screens/QaScreen';
@@ -29,19 +30,35 @@ const navigationTheme = {
 
 export default function App(): ReactElement {
   const [mode, setMode] = useState<Mode>('demo');
+  const [currentNodeId, setCurrentNodeId] = useState<string | undefined>();
   const source = getSourceState(mode, demoData);
+  // Only the user can move the current point: GPS suggests, the user confirms.
+  const activeNodeId = source.status === 'ready'
+    ? (currentNodeId ?? source.dataset.startNodeId)
+    : undefined;
+  const confirmNode = (nodeId: string): void => setCurrentNodeId(nodeId);
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
       <NavigationContainer theme={navigationTheme}>
         <Stack.Navigator screenOptions={{ headerTintColor: colors.accent, headerShadowVisible: false }}>
           <Stack.Screen name="Home" options={{ title: 'Ngõ Kể' }}>
-            {(props) => <HomeScreen {...props} mode={mode} source={source} onModeChange={setMode} />}
+            {(
+              props
+            ) => (
+              <HomeScreen
+                {...props}
+                mode={mode}
+                source={source}
+                onModeChange={setMode}
+                currentNodeId={activeNodeId}
+              />
+            )}
           </Stack.Screen>
           <Stack.Screen name="Qa" options={{ title: 'Giới thiệu và hỏi đáp' }}>
             {() =>
               source.status === 'ready' ? (
-                <QaScreen dataset={source.dataset} />
+                <QaScreen dataset={source.dataset} currentNodeId={activeNodeId} />
               ) : (
                 <UnavailableScreen detail={source.detail} />
               )
@@ -59,7 +76,20 @@ export default function App(): ReactElement {
           <Stack.Screen name="Camera" options={{ title: 'Camera và người kể' }}>
             {() =>
               source.status === 'ready' ? (
-                <CameraScreen nodes={source.dataset.nodes} />
+                <CameraScreen nodes={source.dataset.nodes} onConfirmNode={confirmNode} />
+              ) : (
+                <UnavailableScreen detail={source.detail} />
+              )
+            }
+          </Stack.Screen>
+          <Stack.Screen name="Location" options={{ title: 'Xác nhận điểm GPS' }}>
+            {() =>
+              source.status === 'ready' && activeNodeId !== undefined ? (
+                <LocationScreen
+                  nodes={source.dataset.nodes}
+                  currentNodeId={activeNodeId}
+                  onConfirmNode={confirmNode}
+                />
               ) : (
                 <UnavailableScreen detail={source.detail} />
               )

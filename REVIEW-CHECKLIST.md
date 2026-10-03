@@ -47,7 +47,14 @@ Chỉ dùng các mục thuộc phase đang review; không đánh dấu phase tư
 - [x] **R4.04:** từ chối quyền hoặc QR lạ vẫn chọn điểm bằng tay và đọc nội dung bằng chữ. Đạt.
 - [ ] **R4.05:** chưa kiểm trên iPhone hay điện thoại thật.
 - [ ] **G4:** người dùng duyệt vị trí/kích thước người kể, câu xin quyền, định dạng QR.
-- [ ] **G5–G7/GV:** chưa được duyệt hoặc triển khai.
+- [x] **R5.01:** chỉ lấy vị trí khi bấm nút, đọc một lần, không watch; candidate kèm khoảng cách và accuracy, microcopy “có thể là…”. Đạt.
+- [x] **R5.02:** candidate không tự đổi node; `currentNodeId` chỉ đổi khi người dùng xác nhận (test chặn trạng thái “confirmed”); sau khi xác nhận có microcopy ưu tiên QR; chọn tay ghi rõ là mô phỏng. Đạt.
+- [x] **R5.03:** xử lý từ chối quyền, không có vị trí, không có tọa độ, accuracy kém, ngoài cụm; không nhánh nào tự xác nhận; luôn có chọn tay. Đạt.
+- [ ] **R5.05:** người dùng review microcopy và quy trình trước khi thử ngoài thực địa; **chưa kiểm trên iPhone hay điện thoại thật**.
+- [ ] **G5:** người dùng duyệt microcopy/quy trình; tọa độ vẫn mô phỏng.
+- [ ] **G6–G7/GV:** chưa được duyệt hoặc triển khai.
+
+Gói Phase 5: `agent_docs/phase_5_review.md`; tests81/81, typecheck/lint/dependency/Doctor21/21 và hai export đạt; emulator6/6 cho nhánh quyền bị từ chối; **nhánh candidate/outside-cluster không kiểm được trên emulator** (máy ảo không cấp fix GPS, xem `agent_docs/evidence/phase-5/emulator-gps-limitation.txt`); audit còn23 cảnh báo (7 moderate/16 high).
 
 Gói Phase 4: `agent_docs/phase_4_review.md`; tests69/69, typecheck/lint/dependency/Doctor21/21 và hai export đạt; emulator19/19; audit còn23 cảnh báo (7 moderate/16 high).
 

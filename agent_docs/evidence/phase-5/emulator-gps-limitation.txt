@@ -1,0 +1,35 @@
+Android emulator: Medium_Phone, Android 17 / API 37, Expo Go 57.0.9
+adb serial: 127.0.0.1:5557 (adb server port 5038)
+Emulator console "geo fix 106.6806 10.7609" returned OK twice, but no provider
+ever received a fix, and the app logged:
+  Error: Current location is unavailable. Make sure that location services are enabled
+So the emulator here cannot supply a GPS fix; the candidate and outside-cluster
+branches cannot be exercised on this device. They are covered by unit tests.
+
+--- dumpsys location (excerpt) ---
+    passive provider:
+      last location=null
+      enabled=true
+    network provider:
+      last location=null
+      enabled=true
+    fused provider:
+      last location=null
+      enabled=true
+    gps provider:
+      last location=null
+      enabled=true
+    10-03 18:30:50.480: passive provider [u0] enabled
+    10-03 18:30:52.191: gps provider [u0] enabled
+    10-03 18:30:52.243: network provider +registration 1000/android[GnssService]/1EF71AD5 -> Request[PASSIVE, minUpdateInterval=0, hiddenFromAppOps, WorkSource{1000 android}]
+    10-03 18:30:52.395: passive provider [u0] enabled
+    10-03 18:30:52.395: gps provider [u0] enabled
+    10-03 18:30:52.757: fused provider [u0] enabled
+    10-03 18:30:56.699: passive provider +registration 1000/android[SensorNotificationService]/A9318960 -> Request[PASSIVE, minUpdateInterval=+30m0s0ms, minUpdateDistance=100000.0, WorkSource{1000 android}]
+    10-03 18:30:56.704: passive provider request = ProviderRequest[@0]
+    10-03 18:30:56.705: passive provider +registration 1000/android[UwbCountryCode]/1636ACC2 -> Request[PASSIVE, minUpdateInterval=+1h0m0s0ms, minUpdateDistance=5000.0, WorkSource{1000 android}]
+    10-03 18:31:01.347: network provider [u0] enabled
+    10-03 18:31:05.285: passive provider +registration 10222/com.google.android.gms[fused_location_provider]/2972EA7B -> Request[@+24855d3h14m7s806ms BALANCED, minUpdateInterval=0, hiddenFromAppOps, WorkSource{10222 com.google.android.gms}]
+    10-03 18:31:10.890: network provider +registration 10149/com.google.android.as/2147EF25 -> Request[@+6h0m0s0ms BALANCED, minUpdateDistance=100000.0, WorkSource{10149 com.google.android.as}]
+    10-03 18:31:10.896: network provider request = ProviderRequest[@+6h0m0s0ms, WorkSource{10149 com.google.android.as}]
+    10-03 18:31:11.429: passive provider +registration 10222/com.google.android.gms[network_location_provider]/40EDA659 -> Request[PASSIVE, minUpdateInterval=0, hiddenFromAppOps, WorkSource{10222 com.google.android.gms}]

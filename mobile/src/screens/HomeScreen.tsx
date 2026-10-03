@@ -3,25 +3,28 @@ import type { ReactElement } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Mode, SourceState } from '../data/sourceState';
-import { areas, type Area, type RootStackParamList } from '../navigation';
+import type { RootStackParamList } from '../navigation';
 import { colors } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'> & {
   mode: Mode;
   source: SourceState;
   onModeChange: (mode: Mode) => void;
+  currentNodeId?: string;
 };
 
-const areaOrder: Area[] = ['location'];
+export function HomeScreen({ mode, source, onModeChange, currentNodeId, navigation }: Props): ReactElement {
+  const currentNode = source.status === 'ready'
+    ? source.dataset.nodes.find((node) => node.id === currentNodeId)
+    : undefined;
 
-export function HomeScreen({ mode, source, onModeChange, navigation }: Props): ReactElement {
   return (
     <SafeAreaView style={styles.screen} edges={['left', 'right', 'bottom']}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.phase}>Phase 1–4 · Hỏi đáp, gợi ý điểm, camera và người kể</Text>
+        <Text style={styles.phase}>Phase 1–5 · Hỏi đáp, gợi ý điểm, camera, người kể và GPS</Text>
         <Text accessibilityRole="header" style={styles.title}>Ngõ Kể</Text>
         <Text style={styles.body}>
-          Khung trải nghiệm khám phá con ngõ. Chọn chế độ, thử hỏi đáp, xem gợi ý điểm và thử camera với người kể.
+          Khung trải nghiệm khám phá con ngõ. Chọn chế độ, thử hỏi đáp, xem gợi ý điểm, thử camera với người kể và xác nhận điểm bằng GPS.
         </Text>
 
         <Text style={styles.label}>Nguồn dữ liệu</Text>
@@ -59,6 +62,12 @@ export function HomeScreen({ mode, source, onModeChange, navigation }: Props): R
         {source.status === 'ready' && (
           <View style={styles.demoList}>
             <Text accessibilityRole="header" style={styles.sectionTitle}>Điểm demo · {source.dataset.nodes.length} điểm</Text>
+            {currentNode !== undefined && (
+              <View style={styles.currentPoint}>
+                <Text style={styles.sourceMeta}>Điểm hiện tại</Text>
+                <Text style={styles.areaTitle}>{currentNode.name}</Text>
+              </View>
+            )}
             <Text style={styles.body}>{source.dataset.disclaimer}</Text>
             {source.dataset.nodes.map((node) => (
               <View key={node.id} style={styles.demoRow}>
@@ -94,23 +103,18 @@ export function HomeScreen({ mode, source, onModeChange, navigation }: Props): R
         >
           <Text style={styles.qaButtonText}>Mở camera, quét QR và xem người kể</Text>
         </Pressable>
-        <Text style={styles.body}>Các màn dưới đây chỉ là placeholder, chưa có tính năng.</Text>
-        <View style={styles.areaList}>
-          {areaOrder.map((area) => (
-              <Pressable
-                key={area}
-                accessibilityRole="button"
-                accessibilityLabel={`Xem placeholder ${areas[area].title}, Phase ${areas[area].phase}`}
-                onPress={() => navigation.navigate('Placeholder', { area })}
-                style={({ pressed }) => [styles.areaButton, pressed && styles.pressed]}
-              >
-                <Text style={styles.areaTitle}>{areas[area].title}</Text>
-                <Text style={styles.areaPhase}>Phase {areas[area].phase} · chưa triển khai</Text>
-              </Pressable>
-          ))}
-        </View>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => navigation.navigate('Location')}
+          style={({ pressed }) => [styles.qaButton, pressed && styles.pressed]}
+        >
+          <Text style={styles.qaButtonText}>Tìm điểm gần nhất bằng GPS và xác nhận</Text>
+        </Pressable>
+        <Text style={styles.body}>
+          Không còn màn placeholder nào: Q&A, gợi ý điểm, camera và GPS đều đã có tính năng.
+        </Text>
         <Text style={styles.note}>
-          Đây là bản demo chức năng. Hỏi đáp, gợi ý điểm và lời kể dùng dữ liệu mô phỏng; GPS và backend live thuộc các phase sau khi được duyệt.
+          Đây là bản demo chức năng. Hỏi đáp, gợi ý điểm, lời kể và tọa độ đều là dữ liệu mô phỏng; backend live thuộc phase sau khi được duyệt.
         </Text>
       </ScrollView>
     </SafeAreaView>
@@ -146,7 +150,7 @@ const styles = StyleSheet.create({
   qaButtonText: { fontSize: 17, fontWeight: '600', color: colors.surface },
   errorText: { color: colors.error },
   sectionTitle: { marginTop: 16, fontSize: 22, fontWeight: '600', color: colors.text },
-  areaList: { borderTopWidth: 1, borderColor: colors.border },
+  currentPoint: { padding: 16, borderRadius: 12, gap: 4, backgroundColor: colors.accentSoft },
   areaButton: { minHeight: 72, paddingVertical: 16, gap: 6, borderBottomWidth: 1, borderColor: colors.border },
   areaTitle: { fontSize: 17, fontWeight: '600', color: colors.text },
   areaPhase: { fontSize: 14, color: colors.muted },

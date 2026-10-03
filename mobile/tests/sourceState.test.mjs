@@ -11,12 +11,12 @@ const validFixture = {
   intro: { text: 'Chào bạn, đây là phần giới thiệu mô phỏng.', evidence: ['Nội dung demo kỹ thuật'] },
   startNodeId: 'demo-01',
   nodes: [
-    { id: 'demo-01', name: 'Điểm demo 01', summary: 'Mô tả 01.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 01.', caption: 'Caption 01.' },
-    { id: 'demo-02', name: 'Điểm demo 02', summary: 'Mô tả 02.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 02.', caption: 'Caption 02.' },
-    { id: 'demo-03', name: 'Điểm demo 03', summary: 'Mô tả 03.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 03.', caption: 'Caption 03.' },
-    { id: 'demo-04', name: 'Điểm demo 04', summary: 'Mô tả 04.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 04.', caption: 'Caption 04.' },
-    { id: 'demo-05', name: 'Điểm demo 05', summary: 'Mô tả 05.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 05.', caption: 'Caption 05.' },
-    { id: 'demo-06', name: 'Điểm demo 06', summary: 'Mô tả 06.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 06.', caption: 'Caption 06.' },
+    { id: 'demo-01', name: 'Điểm demo 01', summary: 'Mô tả 01.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 01.', caption: 'Caption 01.', latitude: 10.76, longitude: 106.68 },
+    { id: 'demo-02', name: 'Điểm demo 02', summary: 'Mô tả 02.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 02.', caption: 'Caption 02.', latitude: 10.76, longitude: 106.68 },
+    { id: 'demo-03', name: 'Điểm demo 03', summary: 'Mô tả 03.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 03.', caption: 'Caption 03.', latitude: 10.76, longitude: 106.68 },
+    { id: 'demo-04', name: 'Điểm demo 04', summary: 'Mô tả 04.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 04.', caption: 'Caption 04.', latitude: 10.76, longitude: 106.68 },
+    { id: 'demo-05', name: 'Điểm demo 05', summary: 'Mô tả 05.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 05.', caption: 'Caption 05.', latitude: 10.76, longitude: 106.68 },
+    { id: 'demo-06', name: 'Điểm demo 06', summary: 'Mô tả 06.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 06.', caption: 'Caption 06.', latitude: 10.76, longitude: 106.68 },
   ],
   qa: [
     {
@@ -89,6 +89,9 @@ test('invalid demo input returns error without partial dataset', async (t) => {
     ['blank caption', { ...validFixture, nodes: [{ ...validFixture.nodes[0], caption: '' }, ...validFixture.nodes.slice(1)] }],
     ['unknown topic', { ...validFixture, nodes: [{ ...validFixture.nodes[0], tags: ['dia diem that'] }, ...validFixture.nodes.slice(1)] }],
     ['zero minutes', { ...validFixture, nodes: [{ ...validFixture.nodes[0], visitMinutes: 0 }, ...validFixture.nodes.slice(1)] }],
+    ['latitude out of range', { ...validFixture, nodes: [{ ...validFixture.nodes[0], latitude: 91 }, ...validFixture.nodes.slice(1)] }],
+    ['longitude out of range', { ...validFixture, nodes: [{ ...validFixture.nodes[0], longitude: -181 }, ...validFixture.nodes.slice(1)] }],
+    ['missing coordinates', { ...validFixture, nodes: [{ ...validFixture.nodes[0], latitude: undefined }, ...validFixture.nodes.slice(1)] }],
     ['duplicate ids', { ...validFixture, nodes: [validFixture.nodes[1], ...validFixture.nodes.slice(1)] }],
   ];
   for (const [name, input] of invalidInputs) {
@@ -131,6 +134,8 @@ test('actual bundled fixture contains only six approved simulated point records'
       'available',
       'caption',
       'id',
+      'latitude',
+      'longitude',
       'name',
       'story',
       'summary',

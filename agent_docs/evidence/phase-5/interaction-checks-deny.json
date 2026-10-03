@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-03",
+  "stage": "deny",
+  "checks": [
+    {
+      "name": "System location dialog appears after the tap",
+      "passed": true
+    },
+    {
+      "name": "Refusal reports the situation instead of guessing a point",
+      "passed": true
+    },
+    {
+      "name": "Refusal offers manual choice",
+      "passed": true
+    },
+    {
+      "name": "Refusal never claims certainty",
+      "passed": true
+    },
+    {
+      "name": "Manual choice is reachable after refusal",
+      "passed": true
+    },
+    {
+      "name": "Manual confirmation moves the current point",
+      "passed": true
+    }
+  ]
+}
