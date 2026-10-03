@@ -1,6 +1,6 @@
 # Ngõ Kể — khung native Phase 1
 
-**Bàn giao code Phase 1–2.** Phase 1 đã được người dùng duyệt. Phase 2 thêm phần giới thiệu và hỏi đáp cố định; nội dung đang là **mô phỏng**, chờ người dùng duyệt. Gợi ý điểm, camera, GPS và backend live thuộc phase sau chưa triển khai.
+**Bàn giao code Phase 1–4.** Phase 1 đã được người dùng duyệt. Phase 2 thêm giới thiệu và hỏi đáp cố định; Phase 3 thêm chọn chủ đề, quỹ thời gian và gợi ý tối đa ba điểm kèm lý do; Phase 4 thêm camera xin quyền đúng lúc, quét QR của điểm đã biết, lớp người kể 2D tạm + caption và chọn điểm bằng tay. Nội dung đang là **mô phỏng**, chờ người dùng duyệt. GPS và backend live thuộc phase sau chưa triển khai.
 
 ## Yêu cầu và mở app
 
@@ -29,6 +29,8 @@ Không ghép `--offline` với `--localhost`/`--lan`: Expo CLI không cho dùng 
 ## Anh có thể review gì?
 
 1. Home mặc định **Demo**, báo “Đã nạp 6 điểm mô phỏng”; cuộn xem “Điểm demo 01–06”, nhãn “điểm khởi đầu” và disclaimer không phải địa điểm thật.
+3. Bấm **Mở camera, quét QR và xem người kể**: camera **tắt** cho tới khi bấm nút xin quyền; quét mã `ngo-ke://node/<id>` để xác nhận điểm; xem người kể 2D tạm và caption; hoặc chọn điểm bằng tay.
+2. Bấm **Chọn chủ đề và xem gợi ý điểm**: chọn ẩm thực/chuyện xưa/khám phá tự do, chọn hoặc gõ khoảng thời gian, xem tối đa 3 điểm kèm lý do và thời lượng.
 1b. Bấm **Bắt đầu nghe giới thiệu và hỏi đáp**: xem lời giới thiệu + nguồn, chọn chip câu hỏi hoặc gõ câu hỏi của bạn, đọc đáp án kèm nguồn và 1–2 câu hỏi tiếp. Gõ câu ngoài danh sách sẽ báo “Chưa có dữ liệu”.
 2. Chuyển **Live**: báo “Live chưa được cấu hình”, không nạp hoặc tự đổi sang demo.
 3. Mở từng màn placeholder: giới thiệu/Q&A, chọn trải nghiệm, camera/người kể, GPS; màn ghi rõ phase chưa triển khai, không xin quyền thiết bị.
@@ -76,7 +78,7 @@ Cổng ADB mặc định5037 hiện do O+Connect giữ bằng key tài khoản h
 
 IP WSL có thể đổi sau restart. Windows localhost chưa tới Metro WSL ở môi trường này; dùng IP WSL trực tiếp đã đạt, không cần đổi firewall/portproxy hoặc dừng O+Connect. Lần đầu Expo Go có developer-menu onboarding; bấm Continue rồi đóng menu.
 
-Đã thử Home fixture/Demo/Live,4 placeholder/Back, giữ mode trong navigation, cuộn đủ6 điểm, font1.5 và landscape. Phase 2: 13/13 ca trên emulator gồm giới thiệu, chip, đáp án có nguồn, hỏi tiếp, gõ tay alias, câu ngoài danh sách và xoá ô nhập sau khi hỏi. Sau nạp bundle, tắt Wi-Fi/data vẫn xem được fixture/chuyển mode. Đổi font có thể tái tạo Activity/reset state về Demo; state chỉ trong bộ nhớ. Mạng/font/rotation đã khôi phục. Emulator/Metro giữ mở lúc bàn giao; cần mở lại sau reboot. Chưa thử điện thoại thật/offline cold start.
+Đã thử Home fixture/Demo/Live,4 placeholder/Back, giữ mode trong navigation, cuộn đủ6 điểm, font1.5 và landscape. Phase 2: 13/13 ca trên emulator gồm giới thiệu, chip, đáp án có nguồn, hỏi tiếp, gõ tay alias, câu ngoài danh sách và xoá ô nhập sau khi hỏi. Phase 3: 13/13 ca gồm chip chủ đề/thời gian, nhắc khi thiếu lựa chọn, tối đa 3 điểm có lý do và thời lượng. Phase 4: 19/19 ca gồm camera tắt khi mở màn, xin quyền khi bấm nút, từ chối quyền vẫn chọn tay được, người kể + caption trên preview, và camera được trả về khi rời màn. **Quét QR thật chưa kiểm được trên emulator** vì máy ảo không nhận mã QR vào khung hình. Sau nạp bundle, tắt Wi-Fi/data vẫn xem được fixture/chuyển mode. Đổi font có thể tái tạo Activity/reset state về Demo; state chỉ trong bộ nhớ. Mạng/font/rotation đã khôi phục. Emulator/Metro giữ mở lúc bàn giao; cần mở lại sau reboot. Chưa thử điện thoại thật/offline cold start.
 
 ## Lệnh kiểm tra thật (cwd: `mobile/`)
 
@@ -94,7 +96,7 @@ npm audit
 
 `build:android`/`build:ios` chỉ **xuất JavaScript/Hermes bundle bằng Metro**, không tạo APK/IPA, store build hoặc deploy. Artifact ở `dist/` (gitignored). Test dùng Node built-in, chỉ kiểm tra ranh giới nguồn, không render UI/thiết bị.
 
-Kết quả/log mới nhất ở [bàn giao Phase 2](../agent_docs/phase_2_review.md). Tests48/48, typecheck/lint/dependency/Doctor21/21 và export Android/iOS đạt; emulator13/13. Audit03/10 còn23 cảnh báo (7 moderate,16 high); không dùng `--force` để downgrade Expo/RN. Chi tiết/giới hạn ở gói review.
+Kết quả/log mới nhất ở [bàn giao Phase 4](../agent_docs/phase_4_review.md). Tests69/69, typecheck/lint/dependency/Doctor21/21 và export Android/iOS đạt; emulator19/19 ở Phase 4. Audit03/10 còn23 cảnh báo (7 moderate,16 high); không dùng `--force` để downgrade Expo/RN. Chi tiết/giới hạn ở gói review.
 
 ## Fixture ban đầu và logic phase sau
 
@@ -110,14 +112,21 @@ index.ts                        # Expo root registration
 src/navigation.ts               # Route types + mô tả placeholder
 src/theme.ts                    # Token trình bày tạm, font hệ thống
 src/qa/match.ts                 # Normalize câu hỏi + khớp exact/alias/unknown
+src/recommendation/pick.ts      # Chủ đề, quỹ thời gian, chọn tối đa 3 điểm
+src/qr/parseQr.ts                # Đọc payload `ngo-ke://node/<id>`
+src/qr/confirmPoint.ts           # QR → node đã biết, chọn tay
 src/data/sourceState.ts         # Validate bundled demo (intro/qa/evidence); live empty
 src/screens/HomeScreen.tsx      # Home, source status, mode selector, links
 src/screens/PlaceholderScreen.tsx
 metro.config.cjs                # Một fixture ngoài project root, không copy
 src/screens/QaScreen.tsx       # Giới thiệu, chip, nhập, đáp án + nguồn, hỏi tiếp
+src/screens/PlanScreen.tsx      # Chủ đề, thời gian, gợi ý điểm
+src/screens/CameraScreen.tsx     # Xin quyền, quét QR, người kể 2D, chọn tay
 tests/sourceState.test.mjs      # Validate dataset/demo-live
 tests/qa.test.mjs               # Khớp câu hỏi + hợp đồng nội dung
 tests/qaRegressions.test.mjs     # Hồi quy lỗi đã tìm trong review
+tests/recommendation.test.mjs    # Luật chọn điểm Phase 3
+tests/cameraQr.test.mjs           # Luật QR và chọn tay Phase 4
 ```
 
 Icon/asset app do Expo scaffold tạo, chưa phải bộ nhận diện được nhóm UI duyệt. Scaffold cũng tự tạo Git local ở `mobile/.git` với initial commit; chưa có remote, push hoặc commit tính năng của agent.

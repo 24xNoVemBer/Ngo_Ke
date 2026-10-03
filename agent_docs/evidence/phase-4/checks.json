@@ -1,0 +1,109 @@
+{
+  "date": "2026-10-03",
+  "phase": 4,
+  "commands": [
+    {
+      "label": "tests",
+      "command": "npm test",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 0.4,
+      "log": "tests.log"
+    },
+    {
+      "label": "typecheck",
+      "command": "npm run typecheck",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 2.5,
+      "log": "typecheck.log"
+    },
+    {
+      "label": "lint",
+      "command": "npm run lint",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 1.6,
+      "log": "lint.log"
+    },
+    {
+      "label": "dependencies",
+      "command": "npm run check:dependencies",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 1.1,
+      "log": "dependencies.log"
+    },
+    {
+      "label": "doctor",
+      "command": "npx --yes expo-doctor",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 4.4,
+      "log": "doctor.log"
+    },
+    {
+      "label": "build-android",
+      "command": "npm run build:android",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 8.8,
+      "log": "build-android.log"
+    },
+    {
+      "label": "build-ios",
+      "command": "npm run build:ios",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 8.9,
+      "log": "build-ios.log"
+    },
+    {
+      "label": "audit",
+      "command": "npm audit --json",
+      "cwd": "mobile/",
+      "exitCode": 1,
+      "seconds": 3.6,
+      "log": "audit.json",
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 7,
+        "high": 16,
+        "critical": 0,
+        "total": 23
+      }
+    }
+  ],
+  "interactionChecks": 19,
+  "interactionTotal": 19,
+  "cameraRelease": [
+    {
+      "step": "Home loads",
+      "passed": true
+    },
+    {
+      "step": "Camera is active while the screen is open",
+      "passed": true,
+      "clients": "(Camera ID: 10, Cost: 100, PID: 28671, Score: 0, State: 2User Id: 0, Client Package Name: host.exp.exponent, Conflicting"
+    },
+    {
+      "step": "Back returns to Home",
+      "passed": false
+    },
+    {
+      "step": "Camera released after leaving the screen",
+      "passed": true,
+      "clients": ""
+    }
+  ],
+  "device": {
+    "avd": "Medium_Phone",
+    "os": "Android 17 / API 37",
+    "expoGo": "57.0.9"
+  },
+  "physicalPhoneTested": false,
+  "iosRuntimeTested": false,
+  "qrScanEndToEndTested": false,
+  "qrNote": "Máy ảo không đưa được mã QR vào khung hình camera nên nhánh quét thật chưa kiểm end-to-end; ánh xạ payload → node được kiểm bằng test."
+}

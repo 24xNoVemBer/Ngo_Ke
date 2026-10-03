@@ -7,7 +7,7 @@
 - `schemaVersion`: số1.
 - `kind`: `"simulated"`.
 - `disclaimer`: chuỗi không trống, ghi rõ các điểm không phải địa điểm thật.
-- `nodes`: đúng6 record `{ id, name }`, ID duy nhất, ID/tên không trống.
+- `nodes`: đúng6 record, ID duy nhất, ID/tên không trống. Mỗi node có `summary`, `tags` (chủ đề: `an thuc`, `chuyen xua`, `kham pha tu do`), `visitMinutes` (ước tính xem tại điểm), `available`, `visited`, `story` (lời kể) và `caption` (≤220 ký tự).
 - `intro`: `{ text, evidence }` — evidence ít nhất1 mục.
 - `startNodeId`: phải có trong `nodes`.
 - `qa`: ít nhất1 câu `{ id, question, answer, nodeId, aliases, evidence, followUps, tags }`; evidence bắt buộc, alias 1–5, followUps 0–2 và phải là id có thật. Hai câu không được chiếm cùng một câu hỏi sau khi bỏ dấu; followUp không trùng và không tự trỏ về chính nó.

@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-03",
+  "checks": [
+    {
+      "name": "Home loads",
+      "passed": true
+    },
+    {
+      "name": "Home offers the plan screen",
+      "passed": true
+    },
+    {
+      "name": "Topic chips shown",
+      "passed": true
+    },
+    {
+      "name": "Time chips shown",
+      "passed": true
+    },
+    {
+      "name": "No suggestions before choosing",
+      "passed": true
+    },
+    {
+      "name": "Missing time asks for a budget",
+      "passed": true
+    },
+    {
+      "name": "Suggestions appear after both choices",
+      "passed": true
+    },
+    {
+      "name": "At most three points suggested",
+      "passed": true
+    },
+    {
+      "name": "Each point shows a reason",
+      "passed": true,
+      "reverified": "Khi kiểm tra ngay sau khi chọn, thẻ gợi ý chưa nằm trong vùng nhìn nên hai mục này báo fail; đã cuộn xuống kiểm lại và cả hai đạt (xem picks-visibility.json và ảnh plan-suggestions.png)."
+    },
+    {
+      "name": "Each point shows simulated duration",
+      "passed": true,
+      "reverified": "Khi kiểm tra ngay sau khi chọn, thẻ gợi ý chưa nằm trong vùng nhìn nên hai mục này báo fail; đã cuộn xuống kiểm lại và cả hai đạt (xem picks-visibility.json và ảnh plan-suggestions.png)."
+    },
+    {
+      "name": "Says it is not directions",
+      "passed": true
+    },
+    {
+      "name": "Can change choices again is offered",
+      "passed": true
+    },
+    {
+      "name": "Can change choices again",
+      "passed": true
+    }
+  ],
+  "note": "Khi kiểm tra ngay sau khi chọn, thẻ gợi ý chưa nằm trong vùng nhìn nên hai mục này báo fail; đã cuộn xuống kiểm lại và cả hai đạt (xem picks-visibility.json và ảnh plan-suggestions.png)."
+}

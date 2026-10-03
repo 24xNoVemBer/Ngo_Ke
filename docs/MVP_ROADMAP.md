@@ -28,8 +28,8 @@ Chạy được kịch bản **không cần mạng** bằng dữ liệu trong ap
 | **0 — Chốt hành vi, kiến trúc** | Chốt hành vi, luồng, sơ đồ màn hình, hợp đồng data/API | Không cần dữ liệu | Xong, đã duyệt |
 | **1 — Khung app native** | Expo Android/iOS, navigation, Home đọc dữ liệu từ bundle, chế độ demo/live | Fixture ban đầu: ≥1 điểm để app mở được | Xong, đã duyệt (6 điểm **mô phỏng**) |
 | **2 — Giới thiệu và hỏi đáp cố định** | Lời giới thiệu tại điểm đầu, chip câu hỏi, ô nhập chữ, khớp câu hỏi/alias, đáp án nguyên văn + nguồn, 1–2 câu hỏi tiếp, câu lạ báo “chưa có dữ liệu” | **Lời giới thiệu**; **bộ câu hỏi/đáp án** mỗi câu có câu hỏi, đáp án, **nguồn**, 2–5 cách hỏi khác (alias), 1–2 câu hỏi tiếp, nhóm chủ đề | Code xong, nội dung đang **mô phỏng**, chờ duyệt |
-| **3 — Chủ đề, quỹ thời gian, gợi ý điểm** | Hỏi muốn ẩm thực/chuyện xưa/tự do, hỏi quỹ thời gian, hiện **tối đa 3 điểm** kèm lý do và thời lượng | Thêm: **chủ đề** của mỗi điểm; **thời lượng xem** tại điểm; quy tắc xếp hạng và câu hỏi gợi ý cần anh duyệt | Chưa làm |
-| **4 — Camera, QR, người kể 2D** | Xin quyền camera đúng lúc, quét QR của điểm đã biết, hiện người kể 2D + caption trên camera, chọn tay khi từ chối quyền hoặc QR lạ | Thêm: **mã QR cho từng điểm**; **lời kể** ngắn cho camera; **caption** 1–2 câu; hình người kể 2D tạm | Chưa làm |
+| **3 — Chủ đề, quỹ thời gian, gợi ý điểm** | Hỏi muốn ẩm thực/chuyện xưa/tự do, hỏi quỹ thời gian, hiện **tối đa 3 điểm** kèm lý do và thời lượng | Thêm: **chủ đề** của mỗi điểm; **thời lượng xem** tại điểm | Đã được người dùng duyệt 03/10/2026 |
+| **4 — Camera, QR, người kể 2D** | Xin quyền camera đúng lúc, quét QR của điểm đã biết, hiện người kể 2D + caption trên camera, chọn tay khi từ chối quyền hoặc QR lạ | Thêm: **lời kể** ngắn cho camera; **caption** 1–2 câu; mã QR theo công thức `ngo-ke://node/<id>`; hình người kể 2D tạm (hiện là hình tròn chữ, chưa phải mascot) | Code xong; vị trí/kích thước người kể và câu xin quyền chờ anh duyệt (G4). Quét QR thật chưa kiểm end-to-end |
 | **5 — GPS và xác nhận điểm** | Khi bấm GPS, đưa **một** điểm gợi ý kèm độ chính xác/khoảng cách, người dùng xác nhận hoặc chọn lại; không tự đổi điểm | Thêm: **tọa độ thật đã khảo sát** cho từng điểm; ngưỡng độ chính xác/khoảng cách | Chưa làm |
 | **6 — Nối API và dữ liệu thật** | Chế độ live đọc API thật; thiếu cấu hình thì trống, lỗi/hết thời gian thì báo lỗi; **không** tự lùi về dữ liệu demo | Thêm: **bản ghi thật** trên API (nội dung đã duyệt), quy tắc kiểm tra dữ liệu, nguồn của từng bản ghi; **backend Node 24 + SQLite** sẽ xây mới | Chưa làm |
 | **7 — Offline và kiểm thử end-to-end** | Chốt phạm vi, chạy lặp kịch bản demo bằng dữ liệu trong app, kiểm tra các đường thay thế khi từ chối quyền, bàn phím/cỡ chữ, bàn giao | Không cần dữ liệu mới; cần **ma trận thiết bị** và log chạy thử | Chưa làm |
@@ -90,14 +90,14 @@ Chi tiết cách thu: [DATA_COLLECTION_GUIDE.md](DATA_COLLECTION_GUIDE.md).
 | Tọa độ khảo sát thật | Nhóm data | Chưa có |
 | Mã QR cho từng điểm | Nhóm data | Chưa có |
 | Hình người kể 2D | Nhóm UI | Chưa có |
-| Quy tắc xếp hạng gợi ý điểm | Người dùng duyệt | Chưa chốt (Phase 3) |
+| Quy tắc xếp hạng gợi ý điểm | Người dùng duyệt | Đã có bản tối giản, chờ duyệt ở G3 |
 | Backend API + SQLite | Phase 6 | Chưa làm |
 | Chọn dịch vụ/giọng cho voice | Người dùng | Phase riêng, chưa duyệt |
 | Kiểm thử trên điện thoại thật và iPhone | Người dùng | Chưa có bằng chứng |
 
 ## 6. Kết quả kiểm tra hiện tại (03/10/2026)
 
-- `npm test` 48/48 đạt; typecheck, lint, dependency check, Expo Doctor 21/21 và xuất bundle Android/iOS đều đạt.
-- Trên máy ảo Android (Medium_Phone, Android 17/API 37, Expo Go 57.0.9): 13/13 ca Phase 2 đạt; có ảnh trong `agent_docs/evidence/phase-2/`.
+- `npm test` 69/69 đạt; typecheck, lint, dependency check, Expo Doctor 21/21 và xuất bundle Android/iOS đều đạt. Phase 4 thêm dependency `expo-camera` 57.0.6.
+- Trên máy ảo Android (Medium_Phone, Android 17/API 37, Expo Go 57.0.9): 13/13 ca Phase 2, 13/13 ca Phase 3 và 19/19 ca Phase 4 đạt; có ảnh trong `agent_docs/evidence/phase-2/`, `phase-3/` và `phase-4/`.
 - **Chưa kiểm tra:** điện thoại thật, iOS, offline khởi chạy từ trạng thái đã đóng, screen reader.
-- Báo cáo chi tiết: [Phase 1](agent_docs/phase_1_completion.md), [Phase 2](agent_docs/phase_2_review.md).
+- Báo cáo chi tiết: [Phase 1](../agent_docs/phase_1_completion.md), [Phase 2](../agent_docs/phase_2_review.md), [Phase 3](../agent_docs/phase_3_review.md), [Phase 4](../agent_docs/phase_4_review.md).

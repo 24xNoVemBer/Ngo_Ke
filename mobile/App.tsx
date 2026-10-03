@@ -5,8 +5,10 @@ import { useState, type ReactElement } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { getSourceState, type Mode } from './src/data/sourceState';
 import { areas, type RootStackParamList } from './src/navigation';
+import { CameraScreen } from './src/screens/CameraScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { PlaceholderScreen } from './src/screens/PlaceholderScreen';
+import { PlanScreen } from './src/screens/PlanScreen';
 import { QaScreen } from './src/screens/QaScreen';
 import { UnavailableScreen } from './src/screens/UnavailableScreen';
 import { colors } from './src/theme';
@@ -40,6 +42,24 @@ export default function App(): ReactElement {
             {() =>
               source.status === 'ready' ? (
                 <QaScreen dataset={source.dataset} />
+              ) : (
+                <UnavailableScreen detail={source.detail} />
+              )
+            }
+          </Stack.Screen>
+          <Stack.Screen name="Plan" options={{ title: 'Chọn trải nghiệm' }}>
+            {() =>
+              source.status === 'ready' ? (
+                <PlanScreen nodes={source.dataset.nodes} />
+              ) : (
+                <UnavailableScreen detail={source.detail} />
+              )
+            }
+          </Stack.Screen>
+          <Stack.Screen name="Camera" options={{ title: 'Camera và người kể' }}>
+            {() =>
+              source.status === 'ready' ? (
+                <CameraScreen nodes={source.dataset.nodes} />
               ) : (
                 <UnavailableScreen detail={source.detail} />
               )

@@ -1,0 +1,81 @@
+{
+  "date": "2026-10-03",
+  "checks": [
+    {
+      "name": "Home loads",
+      "passed": true
+    },
+    {
+      "name": "Camera is off when the screen opens",
+      "passed": true
+    },
+    {
+      "name": "Manual choice offered without camera",
+      "passed": true
+    },
+    {
+      "name": "Permission is requested only on tap",
+      "passed": true
+    },
+    {
+      "name": "System permission dialog appears",
+      "passed": true
+    },
+    {
+      "name": "Refusal keeps the camera off",
+      "passed": true
+    },
+    {
+      "name": "Refusal explains the fallback",
+      "passed": true
+    },
+    {
+      "name": "Manual choice works after refusal",
+      "passed": true
+    },
+    {
+      "name": "Story readable as text without camera",
+      "passed": true
+    },
+    {
+      "name": "Screen says it is reading as text",
+      "passed": true
+    },
+    {
+      "name": "Camera starts off even with permission granted",
+      "passed": true
+    },
+    {
+      "name": "Camera button shown when permission granted",
+      "passed": true
+    },
+    {
+      "name": "Camera turns on only after the user asks",
+      "passed": true
+    },
+    {
+      "name": "Manual list still reachable with camera on",
+      "passed": true
+    },
+    {
+      "name": "Caption of the point is shown",
+      "passed": true
+    },
+    {
+      "name": "Narrator placeholder is drawn",
+      "passed": true
+    },
+    {
+      "name": "Story shown next to the narrator",
+      "passed": true
+    },
+    {
+      "name": "Back leaves the camera screen",
+      "passed": true
+    },
+    {
+      "name": "Camera released after leaving the screen",
+      "passed": true
+    }
+  ]
+}

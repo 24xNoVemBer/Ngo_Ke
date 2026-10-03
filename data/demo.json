@@ -5,27 +5,83 @@
   "nodes": [
     {
       "id": "demo-01",
-      "name": "Điểm demo 01"
+      "name": "Điểm demo 01",
+      "summary": "Điểm mở đầu của khu vực demo, dùng để nghe giới thiệu và đặt câu hỏi.",
+      "tags": [
+        "kham pha tu do"
+      ],
+      "visitMinutes": 5,
+      "available": true,
+      "visited": false,
+      "story": "Bạn đang đứng ở điểm mở đầu của khu vực demo. Ở đây mình thường chào người mới và giới thiệu phần còn lại. Bản demo này chưa có nội dung thật nên mình chỉ nói về chính bản demo.",
+      "caption": "Bạn đang ở điểm mở đầu. Mình có thể trả lời các câu hỏi đã soạn sẵn."
     },
     {
       "id": "demo-02",
-      "name": "Điểm demo 02"
+      "name": "Điểm demo 02",
+      "summary": "Điểm tập trung về chuyện xưa trong bản demo.",
+      "tags": [
+        "chuyen xua"
+      ],
+      "visitMinutes": 15,
+      "available": true,
+      "visited": false,
+      "story": "Điểm này trong bản demo được dành cho chuyện xưa. Khi có dữ liệu thật, mình sẽ kể ở đây và ghi rõ nguồn ở từng câu. Hiện tại mình không có câu chuyện đã duyệt để kể.",
+      "caption": "Điểm kể chuyện xưa. Bản demo chưa có nội dung đã duyệt."
     },
     {
       "id": "demo-03",
-      "name": "Điểm demo 03"
+      "name": "Điểm demo 03",
+      "summary": "Điểm tập trung về ẩm thực trong bản demo.",
+      "tags": [
+        "an thuc"
+      ],
+      "visitMinutes": 20,
+      "available": true,
+      "visited": false,
+      "story": "Điểm này trong bản demo được dành cho chuyện ẩm thực. Mình chưa có danh sách quán hay món ăn đã được duyệt, nên mình không đoán cho bạn. Khi có dữ liệu thật, mình sẽ giới thiệu tại đây.",
+      "caption": "Điểm ẩm thực. Mình chưa có danh sách quán đã duyệt."
     },
     {
       "id": "demo-04",
-      "name": "Điểm demo 04"
+      "name": "Điểm demo 04",
+      "summary": "Điểm vừa có chuyện xưa vừa có ẩm thực trong bản demo.",
+      "tags": [
+        "chuyen xua",
+        "an thuc"
+      ],
+      "visitMinutes": 25,
+      "available": true,
+      "visited": false,
+      "story": "Điểm này vừa có chuyện xưa vừa có ẩm thực trong bản demo. Bạn có thể hỏi cả hai hướng, nhưng nội dung vẫn đang chờ dữ liệu thật và người duyệt.",
+      "caption": "Điểm vừa có chuyện xưa vừa có ẩm thực trong bản demo."
     },
     {
       "id": "demo-05",
-      "name": "Điểm demo 05"
+      "name": "Điểm demo 05",
+      "summary": "Điểm ngắn để xem khi ít thời gian.",
+      "tags": [
+        "an thuc",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 10,
+      "available": true,
+      "visited": false,
+      "story": "Điểm này được làm ngắn để bạn xem khi ít thời gian. Trong bản demo mình chưa có nội dung riêng, nên mình chỉ giới thiệu ngắn và hỏi bạn muốn xem tiếp phần nào.",
+      "caption": "Điểm xem nhanh, hợp khi ít thời gian."
     },
     {
       "id": "demo-06",
-      "name": "Điểm demo 06"
+      "name": "Điểm demo 06",
+      "summary": "Điểm dành cho khám phá tự do trong bản demo.",
+      "tags": [
+        "kham pha tu do"
+      ],
+      "visitMinutes": 30,
+      "available": true,
+      "visited": false,
+      "story": "Điểm này dành cho khám phá tự do trong bản demo. Nội dung sẽ cập nhật khi nhóm dữ liệu gửi lời kể kèm nguồn. Hiện tại bạn có thể tiếp tục hỏi ở đây bằng chữ.",
+      "caption": "Điểm khám phá tự do. Bạn hỏi tiếp bằng chữ được."
     }
   ],
   "intro": {

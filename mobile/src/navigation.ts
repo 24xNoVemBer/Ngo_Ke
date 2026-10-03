@@ -3,6 +3,8 @@ export type Area = 'qa' | 'recommendations' | 'camera' | 'location';
 export type RootStackParamList = {
   Home: undefined;
   Qa: undefined;
+  Plan: undefined;
+  Camera: undefined;
   Placeholder: { area: Area };
 };
 
@@ -15,12 +17,12 @@ export const areas: Record<Area, { title: string; phase: number; detail: string 
   recommendations: {
     title: 'Chọn trải nghiệm',
     phase: 3,
-    detail: 'Chủ đề, quỹ thời gian và gợi ý điểm sẽ được làm sau khi Phase 3 được duyệt. Không có dẫn đường.',
+    detail: 'Chủ đề, quỹ thời gian và gợi ý điểm đã có trong Phase 3.',
   },
   camera: {
     title: 'Camera và người kể',
     phase: 4,
-    detail: 'QR, người kể 2D và caption sẽ được làm sau khi Phase 4 được duyệt. Màn này không bật camera hay xin quyền.',
+    detail: 'Màn này đã có trong Phase 4: xin quyền đúng lúc, quét QR của điểm đã biết, lớp người kể 2D tạm kèm caption và chọn điểm bằng tay.',
   },
   location: {
     title: 'Xác nhận điểm GPS',

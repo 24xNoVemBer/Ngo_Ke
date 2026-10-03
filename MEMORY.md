@@ -7,10 +7,10 @@
 | Mục | Giá trị |
 | --- | --- |
 | Cập nhật | 03/10/2026 |
-| Phase hiện tại | **3 — chủ đề, quỹ thời gian, gợi ý điểm** |
-| Trạng thái | **Phase2 đã được người dùng duyệt; Phase3 được phép, đang chốt quy tắc gợi ý** |
+| Phase hiện tại | **4 — camera, QR và người kể 2D (đã bàn giao, chờ duyệt)** |
+| Trạng thái | **Phase4 code đã bàn giao; G4 chưa chốt** |
 | Native mobile | **Home fixture/khung đã chạy Android emulator và thử offline sau nạp bundle; điện thoại thật/iOS chưa kiểm tra** |
-| Implementation approved | **Phase 3 (R3.01–R3.03)** |
+| Implementation approved | **Phase 4 (R4.01–R4.05)** |
 | Công cụ đang dùng | OpenCode |
 | Trình độ A/B/C | Chưa xác định; “người A” trong plan là vai trò, không phải trình độ |
 | Gate G0 / quyền bắt đầu Phase 1 | Đã được người dùng duyệt rõ ràng; cho phép dựng khung trước khi có source |
@@ -28,6 +28,12 @@ Triển khai Phase2 (giới thiệu, Q&A cố định có nguồn, hỏi tiếp)
 - [x] **Phase1 được người dùng duyệt (G1) 03/10/2026.**
 - [x] Phase2 code: giới thiệu, chip, ô nhập, normalize+alias, nguồn, unknown, hỏi tiếp; tests48/48 + emulator13/13. Báo cáo `agent_docs/phase_2_review.md`.
 - [x] **Phase2 được người dùng duyệt 03/10/2026.** Nội dung Q&A vẫn là mô phỏng; khi thay bằng dữ liệu thật vẫn cần duyệt lại nội dung.
+- [x] Phase3 code: chủ đề/quỹ thời gian + tối đa 3 điểm có lý do; tests59/59 + emulator13/13. Báo cáo `agent_docs/phase_3_review.md`.
+- [x] **Phase3 được người dùng duyệt 03/10/2026.**
+- [x] **Phase3 được người dùng duyệt 03/10/2026.**
+- [x] Phase4 code: xin quyền đúng lúc → QR node đã biết → người kể 2D + caption → chọn tay → camera dừng khi rời màn; thêm dependency `expo-camera` 57.0.6. Tests69/69 + emulator19/19. Báo cáo `agent_docs/phase_4_review.md`.
+- [ ] Người dùng duyệt vị trí/kích thước người kể, câu xin quyền và định dạng mã QR của Phase4 (G4).
+- [ ] Chạy quét QR thật trên điện thoại thật (emulator không đưa được mã QR vào khung hình camera).
 - [ ] Điện thoại thật/iOS vẫn chưa kiểm tra ở bất kỳ phase nào; emulator không thay điều kiện đó.
 
 ## Bằng chứng duyệt
@@ -37,6 +43,9 @@ Triển khai Phase2 (giới thiệu, Q&A cố định có nguồn, hỏi tiếp)
 - Đính chính tiếp theo: **“anh không có mã nguồn em phải viết mã nguồn từ con số 0 á đây là dự án mới”**. Xác nhận greenfield, thay giả định chờ source gốc. Không suy đây là duyệt Phase2–7 hoặc duyệt nội dung lịch sử/evidence; tạo fixture/schema sẽ chốt theo đề xuất mới trước coding.
 - Người dùng đồng ý đề xuất sáu điểm mô phỏng: **“anh đồng ý hoàn thiện phase 1 đi”**. Cho phép tạo fixture/schema tối thiểu và hoàn thiện Home/kiểm tra trong Phase1 ngay ở phiên này. Không duyệt lịch sử/evidence thật hoặc Phase2.
 - 03/10/2026: **“Tôi duyệt phase 1. Hãy triển khai phase 2 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.”** G1 được duyệt; cho phép Phase2 (giới thiệu, Q&A cố định có nguồn, hỏi tiếp), cập nhật MEMORY/checklist theo bằng chứng rồi dừng trước phase sau. Không kèm duyệt Phase3–7/voice hay duyệt sẵn nội dung lịch sử.
+- 03/10/2026: anh thêm `expo-camera` 57.0.6 bằng `npx expo install`; mã QR theo công thức `ngo-ke://node/<id>` sinh từ `id`, không lưu trùng trong dataset.
+- 03/10/2026: **“Tôi duyệt phase [3]. Hãy triển khai phase 4 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.”** Cho phép Phase4; không kèm duyệt Phase5–7/voice.
+- 03/10/2026: anh chốt quy tắc Phase3 = **lọc theo chủ đề, bỏ điểm đã ghé/đóng, tối đa 3 điểm theo thời lượng tăng dần**; **quỹ thời gian bằng chip 15/30/45/60 phút, vẫn gõ tay được**.
 - 03/10/2026: **“Tôi duyệt phase [2]. Hãy triển khai phase 3 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.”** Cho phép Phase3; không kèm duyệt Phase4–7/voice.
 - 03/10/2026: anh chọn **“1”** = dựng Phase 2 với bộ Q&A mô phỏng tối thiểu để anh review luồng, sau đó thay bằng dữ liệu thật.
 - 03/10/2026: anh yêu cầu **“bỏ PWA và web trong plan, giữ lại API, thêm TTS STT”**. Agent báo xung đột với plan (voice phải duyệt riêng; STT cloud cần key/mạng); anh xác nhịn: **bỏ hẳn web/PWA, giữ API, voice vẫn là phase riêng (Phase2 làm text)**. Plan/PRD/TechDesign đã cập nhật X.07 và các dòng web/PWA. Đã tạo `docs/DATA_COLLECTION_GUIDE.md` để anh giao nhóm data.
@@ -56,7 +65,7 @@ Khi có duyệt mới, ghi ngày, trích yêu cầu, phase được phép và ph
 
 ## Bước tiếp theo và thông tin còn thiếu
 
-**Bước tiếp theo:** chốt quy tắc gợi ý điểm và cách nhập quỹ thời gian với người dùng, viết spec, triển khai Phase3 theo TDD, kiểm tra và bàn giao; dừng trước Phase4. Dữ liệu thật vẫn chờ nhóm data theo `docs/DATA_COLLECTION_GUIDE.md`.
+**Bước tiếp theo:** anh review `agent_docs/phase_4_review.md` (vị trí/kích thước người kể, có hiện lời kể đầy đủ không, câu xin quyền, định dạng mã QR), và thử quét mã thật trên điện thoại nếu có; sau đó mới quyết định sang Phase5. Dữ liệu thật vẫn chờ nhóm data theo `docs/DATA_COLLECTION_GUIDE.md`.
 
 **Còn thiếu:** điện thoại thật/iOS runtime/offline cold start/screen reader chưa thử; G1 cần điện thoại thật và review. Audit còn23 cảnh báo. Fixture/Home và offline sau tải bundle đã thử. Logic/Q&A/backend thuộc phase sau chưa duyệt, không phải blocker Phase1 chờ source.
 

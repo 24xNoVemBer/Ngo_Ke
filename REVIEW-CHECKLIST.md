@@ -37,7 +37,21 @@ Chỉ dùng các mục thuộc phase đang review; không đánh dấu phase tư
 - [x] **R2.03:** đáp án kèm nguồn; câu ngoài danh sách báo “Chưa có dữ liệu”; dataset thiếu evidence bị từ chối. Đạt.
 - [x] **R2.04:** 1–2 câu hỏi tiếp dùng chính cơ chế Q&A; chặn followUp trùng/tự trỏ. Đạt.
 - [ ] **G2:** người dùng duyệt nội dung Q&A mô phỏng; chưa có nội dung thật.
-- [ ] **G3–G7/GV:** chưa được duyệt hoặc triển khai; placeholder không phải tính năng hoàn tất.
+- [x] **R3.01:** hỏi chủ đề (chip + gõ) và quỹ thời gian (chip + gõ); thiếu lựa chọn thì yêu cầu chọn. Đạt.
+- [x] **R3.02:** tối đa 3 điểm, mỗi điểm có lý do và thời lượng mô phỏng; nêu rõ không phải đường đi. Đạt.
+- [x] **R3.03:** loại điểm đã ghé/đóng, báo khi không còn điểm phù hợp; ca kiểm thử interest/time/visited/available/empty/thứ tự ổn định. Đạt.
+- [ ] **G3:** người dùng duyệt luật xếp hạng, câu hỏi và câu lý do; dữ liệu vẫn mô phỏng.
+- [x] **R4.01:** camera tắt khi mở màn; bấm nút mới xin quyền và bật; `dumpsys media.camera` xác nhận camera được trả khi rời màn. Đạt.
+- [x] **R4.02:** chỉ nhận `ngo-ke://node/<id>` với node đã biết; QR lạ không được nhận. **Chưa kiểm end-to-end trên emulator.**
+- [x] **R4.03:** lớp người kể 2D tạm + caption của điểm trên preview, lời kể lấy từ dữ liệu Phase 2; không mascot hi-fi, không audio. Đạt, vị trí/kích thước chờ duyệt.
+- [x] **R4.04:** từ chối quyền hoặc QR lạ vẫn chọn điểm bằng tay và đọc nội dung bằng chữ. Đạt.
+- [ ] **R4.05:** chưa kiểm trên iPhone hay điện thoại thật.
+- [ ] **G4:** người dùng duyệt vị trí/kích thước người kể, câu xin quyền, định dạng QR.
+- [ ] **G5–G7/GV:** chưa được duyệt hoặc triển khai.
+
+Gói Phase 4: `agent_docs/phase_4_review.md`; tests69/69, typecheck/lint/dependency/Doctor21/21 và hai export đạt; emulator19/19; audit còn23 cảnh báo (7 moderate/16 high).
+
+Gói Phase 3: `agent_docs/phase_3_review.md`; tests59/59, typecheck/lint/dependency/Doctor21/21 và hai export đạt; emulator13/13; audit còn23 cảnh báo (7 moderate/16 high).
 
 Gói Phase 2: `agent_docs/phase_2_review.md`; tests48/48, typecheck/lint/Doctor21/21 và hai export đạt; emulator13/13; audit03/10 còn23 cảnh báo (7 moderate/16 high).
 

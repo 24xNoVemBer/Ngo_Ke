@@ -12,16 +12,16 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'> & {
   onModeChange: (mode: Mode) => void;
 };
 
-const areaOrder: Area[] = ['qa', 'recommendations', 'camera', 'location'];
+const areaOrder: Area[] = ['location'];
 
 export function HomeScreen({ mode, source, onModeChange, navigation }: Props): ReactElement {
   return (
     <SafeAreaView style={styles.screen} edges={['left', 'right', 'bottom']}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.phase}>Phase 1–2 · Khung app và hỏi đáp</Text>
+        <Text style={styles.phase}>Phase 1–4 · Hỏi đáp, gợi ý điểm, camera và người kể</Text>
         <Text accessibilityRole="header" style={styles.title}>Ngõ Kể</Text>
         <Text style={styles.body}>
-          Khung trải nghiệm khám phá con ngõ. Chọn chế độ, xem cấu trúc màn hình và thử phần hỏi đáp.
+          Khung trải nghiệm khám phá con ngõ. Chọn chế độ, thử hỏi đáp, xem gợi ý điểm và thử camera với người kể.
         </Text>
 
         <Text style={styles.label}>Nguồn dữ liệu</Text>
@@ -75,16 +75,28 @@ export function HomeScreen({ mode, source, onModeChange, navigation }: Props): R
             >
               <Text style={styles.qaButtonText}>Bắt đầu nghe giới thiệu và hỏi đáp</Text>
             </Pressable>
-            <Text style={styles.note}>Danh sách để review Home. Chưa có câu chuyện, hỏi đáp hoặc hành vi xác nhận điểm ngoài màn Q&A Phase 2.</Text>
+            <Text style={styles.note}>Danh sách để review Home. Lời kể và caption đã có ở màn camera Phase 4.</Text>
           </View>
         )}
 
         <Text accessibilityRole="header" style={styles.sectionTitle}>Cấu trúc màn hình</Text>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => navigation.navigate('Plan')}
+          style={({ pressed }) => [styles.qaButton, pressed && styles.pressed]}
+        >
+          <Text style={styles.qaButtonText}>Chọn chủ đề và xem gợi ý điểm</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => navigation.navigate('Camera')}
+          style={({ pressed }) => [styles.qaButton, pressed && styles.pressed]}
+        >
+          <Text style={styles.qaButtonText}>Mở camera, quét QR và xem người kể</Text>
+        </Pressable>
         <Text style={styles.body}>Các màn dưới đây chỉ là placeholder, chưa có tính năng.</Text>
         <View style={styles.areaList}>
-          {areaOrder
-            .filter((area) => area !== 'qa')
-            .map((area) => (
+          {areaOrder.map((area) => (
               <Pressable
                 key={area}
                 accessibilityRole="button"
@@ -95,10 +107,10 @@ export function HomeScreen({ mode, source, onModeChange, navigation }: Props): R
                 <Text style={styles.areaTitle}>{areas[area].title}</Text>
                 <Text style={styles.areaPhase}>Phase {areas[area].phase} · chưa triển khai</Text>
               </Pressable>
-            ))}
+          ))}
         </View>
         <Text style={styles.note}>
-          Đây là bản demo chức năng. Hỏi đáp dùng bộ câu trả lời mô phỏng; gợi ý điểm, camera và GPS sẽ làm ở các phase sau khi được duyệt.
+          Đây là bản demo chức năng. Hỏi đáp, gợi ý điểm và lời kể dùng dữ liệu mô phỏng; GPS và backend live thuộc các phase sau khi được duyệt.
         </Text>
       </ScrollView>
     </SafeAreaView>

@@ -30,7 +30,8 @@ Mỗi điểm trong con ngõ là một "node" mà app điều hướng tới.
 | `story` | Có | Lời người kể 2–4 câu, viết như người kể đứng tại chỗ. |
 | `evidence` | Có | Danh sách nguồn cho `story`. |
 | `latitude` / `longitude` | Có | Tọa độ **đã khảo sát thực tế**, độ chính xác ≥5 m. Ghi thời điểm khảo sát. |
-| `qrPayload` | Nếu dùng QR | Chuỗi mã định danh node, ví dụ `ngo-ke://node/diem-01`. Mỗi node một mã. |
+| — | Không cần | Mã QR **sinh từ `id`** theo công thức `ngo-ke://node/<id>`. Không lưu trường `qrPayload` để tránh trùng dữ liệu. |
+| `caption` | Có | Caption 1–2 câu trên camera, tối đa khoảng 220 ký tự. |
 | `visitMinutes` | Nếu dùng gợi ý | Số phút ước tính để xem tại điểm, là **ước tính trải nghiệm**, không phải thời gian đi bộ. |
 
 **Điểm đầu tiên** trong danh sách là nơi app bắt đầu. App cần biết rõ node khởi đầu; hiện chưa chốt trong PRD, cần người dùng xác nhận.
@@ -112,7 +113,7 @@ Cùng cấu trúc với fixture nhưng do backend phục vụ. Mỗi bản ghi p
 
 ### 3.5 Thu mã QR
 
-- Mỗi node một mã riêng, định dạng `ngo-ke://node/<id>`.
+- Mỗi node một mã riêng, định dạng `ngo-ke://node/<id>` (app tự sinh từ `id`, nhóm data chỉ cần in đúng công thức).
 - **Phải quét thử lại sau khi dán** để chắc chắn đúng node.
 - Lưu danh sách mã đã cấp, không dùng lại mã cũ.
 

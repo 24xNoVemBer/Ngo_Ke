@@ -2,7 +2,21 @@ export type Mode = 'demo' | 'live';
 
 import { normalizeQuestion, type QaEntry } from '../qa/match.ts';
 
-export type DemoNode = { id: string; name: string };
+export const TOPICS = ['an thuc', 'chuyen xua', 'kham pha tu do'] as const;
+
+export type Topic = (typeof TOPICS)[number];
+
+export type DemoNode = {
+  id: string;
+  name: string;
+  summary: string;
+  tags: Topic[];
+  visitMinutes: number;
+  available: boolean;
+  visited: boolean;
+  story: string;
+  caption: string;
+};
 
 export type DemoIntro = { text: string; evidence: string[] };
 
@@ -33,6 +47,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isNonemptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
+}
+
+function isTopicList(value: unknown): value is Topic[] {
+  return (
+    Array.isArray(value) &&
+    value.length >= 1 &&
+    value.length <= TOPICS.length &&
+    value.every((tag) => (TOPICS as readonly string[]).includes(tag))
+  );
 }
 
 function isStringList(value: unknown, min: number, max = Number.POSITIVE_INFINITY): value is string[] {
@@ -96,7 +119,11 @@ function isDemoDataset(value: unknown): value is DemoDataset {
   const ids = new Set<string>();
   for (const node of value.nodes) {
     if (!isRecord(node) || !isNonemptyString(node.id) || !isNonemptyString(node.name)
-      || ids.has(node.id)) {
+      || ids.has(node.id) || !isNonemptyString(node.summary)
+      || !isNonemptyString(node.story) || !isNonemptyString(node.caption)
+      || !isTopicList(node.tags) || typeof node.available !== 'boolean'
+      || typeof node.visited !== 'boolean'
+      || !Number.isInteger(node.visitMinutes) || (node.visitMinutes as number) <= 0) {
       return false;
     }
     ids.add(node.id);

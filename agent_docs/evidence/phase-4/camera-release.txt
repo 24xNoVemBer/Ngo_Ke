@@ -1,0 +1,66 @@
+=== while the camera screen is open ===
+
+== Service global info: ==
+
+Number of camera devices: 2
+Number of normal camera devices: 2
+Number of public camera devices visible to API1: 2
+    Device 0 maps to "1"
+    Device 1 maps to "10"
+Active Camera Clients:
+[
+(Camera ID: 10, Cost: 100, PID: 28671, Score: 0, State: 2User Id: 0, Client Package Name: host.exp.exponent, Conflicting Client Devices: {})
+]
+Allowed user IDs: 0
+Active Client listener PIDs: 686, 960, 1516, 28671
+
+== Camera service events log (most recent at top): ==
+  10-03 14:29:16 : CONNECT device 10 client for package host.exp.exponent (PID 28671)
+  10-03 14:28:20 : DISCONNECT device 10 client for package host.exp.exponent (PID 28221)
+  10-03 14:28:15 : CONNECT device 10 client for package host.exp.exponent (PID 28221)
+  10-03 14:28:03 : DISCONNECT device 10 client for package host.exp.exponent (PID 28221)
+  10-03 14:27:44 : CONNECT device 10 client for package host.exp.exponent (PID 28221)
+  10-03 14:23:12 : DISCONNECT device 10 client for package host.exp.exponent (PID 0)
+  10-03 14:21:57 : CONNECT device 10 client for package host.exp.exponent (PID 26433)
+  10-03 10:30:05 : USER_SWITCH previous allowed user IDs: <None>, current allowed user IDs: 0
+  10-03 10:29:52 : ADD device 10, reason: (Device added)
+  10-03 10:29:52 : ADD device 1, reason: (Device added)
+
+== Camera device 1 dynamic info: ==
+  Device 1 is closed, no client instance
+== Camera device 10 dynamic info: ==
+  10-03 14:29:23 : Device 10 is open. Client instance dump:
+    Client priority sco
+
+=== after leaving the screen ===
+
+== Service global info: ==
+
+Number of camera devices: 2
+Number of normal camera devices: 2
+Number of public camera devices visible to API1: 2
+    Device 0 maps to "1"
+    Device 1 maps to "10"
+Active Camera Clients:
+[]
+Allowed user IDs: 0
+Active Client listener PIDs: 686, 960, 1516, 28671
+
+== Camera service events log (most recent at top): ==
+  10-03 14:29:24 : DISCONNECT device 10 client for package host.exp.exponent (PID 28671)
+  10-03 14:29:16 : CONNECT device 10 client for package host.exp.exponent (PID 28671)
+  10-03 14:28:20 : DISCONNECT device 10 client for package host.exp.exponent (PID 28221)
+  10-03 14:28:15 : CONNECT device 10 client for package host.exp.exponent (PID 28221)
+  10-03 14:28:03 : DISCONNECT device 10 client for package host.exp.exponent (PID 28221)
+  10-03 14:27:44 : CONNECT device 10 client for package host.exp.exponent (PID 28221)
+  10-03 14:23:12 : DISCONNECT device 10 client for package host.exp.exponent (PID 0)
+  10-03 14:21:57 : CONNECT device 10 client for package host.exp.exponent (PID 26433)
+  10-03 10:30:05 : USER_SWITCH previous allowed user IDs: <None>, current allowed user IDs: 0
+  10-03 10:29:52 : ADD device 10, reason: (Device added)
+  10-03 10:29:52 : ADD device 1, reason: (Device added)
+
+== Camera device 1 dynamic info: ==
+  Device 1 is closed, no client instance
+== Camera device 10 dynamic info: ==
+  Device 10 is closed, no client instance
+== Camera Provider HAL android.hardware.camera.provider.ICameraProvider/internal/0-0 (v2.0, re

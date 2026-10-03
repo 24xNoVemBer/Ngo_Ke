@@ -11,12 +11,12 @@ const validFixture = {
   intro: { text: 'Chào bạn, đây là phần giới thiệu mô phỏng.', evidence: ['Nội dung demo kỹ thuật'] },
   startNodeId: 'demo-01',
   nodes: [
-    { id: 'demo-01', name: 'Điểm demo 01' },
-    { id: 'demo-02', name: 'Điểm demo 02' },
-    { id: 'demo-03', name: 'Điểm demo 03' },
-    { id: 'demo-04', name: 'Điểm demo 04' },
-    { id: 'demo-05', name: 'Điểm demo 05' },
-    { id: 'demo-06', name: 'Điểm demo 06' },
+    { id: 'demo-01', name: 'Điểm demo 01', summary: 'Mô tả 01.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 01.', caption: 'Caption 01.' },
+    { id: 'demo-02', name: 'Điểm demo 02', summary: 'Mô tả 02.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 02.', caption: 'Caption 02.' },
+    { id: 'demo-03', name: 'Điểm demo 03', summary: 'Mô tả 03.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 03.', caption: 'Caption 03.' },
+    { id: 'demo-04', name: 'Điểm demo 04', summary: 'Mô tả 04.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 04.', caption: 'Caption 04.' },
+    { id: 'demo-05', name: 'Điểm demo 05', summary: 'Mô tả 05.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 05.', caption: 'Caption 05.' },
+    { id: 'demo-06', name: 'Điểm demo 06', summary: 'Mô tả 06.', tags: ['an thuc'], visitMinutes: 10, available: true, visited: false, story: 'Lời kể 06.', caption: 'Caption 06.' },
   ],
   qa: [
     {
@@ -46,7 +46,10 @@ test('valid simulated fixture becomes demo ready with six points', () => {
   const source = getSourceState('demo', validFixture);
   assert.equal(source.mode, 'demo');
   assert.equal(source.status, 'ready');
-  assert.deepEqual(source.dataset.nodes, validFixture.nodes);
+  assert.deepEqual(
+    source.dataset.nodes.map((node) => ({ id: node.id, name: node.name })),
+    validFixture.nodes.map((node) => ({ id: node.id, name: node.name })),
+  );
   assert.equal(source.dataset.disclaimer, validFixture.disclaimer);
 });
 
@@ -79,9 +82,13 @@ test('invalid demo input returns error without partial dataset', async (t) => {
     ['empty nodes', { ...validFixture, nodes: [] }],
     ['five nodes', { ...validFixture, nodes: validFixture.nodes.slice(0, 5) }],
     ['null node', { ...validFixture, nodes: [null, ...validFixture.nodes.slice(1)] }],
-    ['blank name', { ...validFixture, nodes: [{ id: 'demo-01', name: ' ' }, ...validFixture.nodes.slice(1)] }],
-    ['non-string name', { ...validFixture, nodes: [{ id: 'demo-01', name: 1 }, ...validFixture.nodes.slice(1)] }],
-    ['invalid id', { ...validFixture, nodes: [{ id: null, name: 'Điểm demo 01' }, ...validFixture.nodes.slice(1)] }],
+    ['blank name', { ...validFixture, nodes: [{ ...validFixture.nodes[0], name: ' ' }, ...validFixture.nodes.slice(1)] }],
+    ['non-string name', { ...validFixture, nodes: [{ ...validFixture.nodes[0], name: 1 }, ...validFixture.nodes.slice(1)] }],
+    ['invalid id', { ...validFixture, nodes: [{ ...validFixture.nodes[0], id: null }, ...validFixture.nodes.slice(1)] }],
+    ['blank story', { ...validFixture, nodes: [{ ...validFixture.nodes[0], story: ' ' }, ...validFixture.nodes.slice(1)] }],
+    ['blank caption', { ...validFixture, nodes: [{ ...validFixture.nodes[0], caption: '' }, ...validFixture.nodes.slice(1)] }],
+    ['unknown topic', { ...validFixture, nodes: [{ ...validFixture.nodes[0], tags: ['dia diem that'] }, ...validFixture.nodes.slice(1)] }],
+    ['zero minutes', { ...validFixture, nodes: [{ ...validFixture.nodes[0], visitMinutes: 0 }, ...validFixture.nodes.slice(1)] }],
     ['duplicate ids', { ...validFixture, nodes: [validFixture.nodes[1], ...validFixture.nodes.slice(1)] }],
   ];
   for (const [name, input] of invalidInputs) {
@@ -106,7 +113,10 @@ test('actual bundled fixture contains only six approved simulated point records'
   const fixture = JSON.parse(readFileSync(new URL('../../data/demo.json', import.meta.url), 'utf8'));
   const source = getSourceState('demo', fixture);
   assert.equal(source.status, 'ready');
-  assert.deepEqual(source.dataset.nodes, validFixture.nodes);
+  assert.deepEqual(
+    source.dataset.nodes.map((node) => ({ id: node.id, name: node.name })),
+    validFixture.nodes.map((node) => ({ id: node.id, name: node.name })),
+  );
   assert.deepEqual(Object.keys(fixture).sort(), [
     'disclaimer',
     'intro',
@@ -117,6 +127,16 @@ test('actual bundled fixture contains only six approved simulated point records'
     'startNodeId',
   ]);
   for (const node of fixture.nodes) {
-    assert.deepEqual(Object.keys(node).sort(), ['id', 'name']);
+    assert.deepEqual(Object.keys(node).sort(), [
+      'available',
+      'caption',
+      'id',
+      'name',
+      'story',
+      'summary',
+      'tags',
+      'visitMinutes',
+      'visited',
+    ]);
   }
 });

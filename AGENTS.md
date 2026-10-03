@@ -2,8 +2,8 @@
 
 ## Trạng thái và quyền thực hiện
 
-- **Phase hiện tại: 3. Trạng thái: Phase 2 đã được người dùng duyệt; đang chốt quy tắc gợi ý điểm trước khi code.** Phase 1–2 đã duyệt, nội dung vẫn là mô phỏng; điện thoại thật/iOS chưa kiểm tra; audit còn cảnh báo.
-- **Implementation approved: Phase 3 (R3.01–R3.03).** Người dùng nói “Tôi duyệt phase [2]. Hãy triển khai phase 3 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.” Phase 4–7/voice chưa được duyệt.
+- **Phase hiện tại: 4. Trạng thái: code Phase 4 đã bàn giao, chờ anh duyệt vị trí/kích thước người kể và caption; G4 chưa chốt.** Phase 1–3 đã duyệt; nội dung vẫn là mô phỏng; quét QR thật chưa kiểm end-to-end; điện thoại thật/iOS chưa kiểm tra; audit còn cảnh báo.
+- **Implementation approved: Phase 4 (R4.01–R4.05).** Người dùng nói “Tôi duyệt phase [3]. Hãy triển khai phase 4 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.” Phase 5–7/voice chưa được duyệt. Sẽ thêm dependency `expo-camera` bằng `npx expo install` theo yêu cầu R4.01/R4.02.
 - Công cụ đang dùng: **OpenCode**. Trình độ A/B/C của người dùng chưa xác định; không suy từ vai trò “người A”.
 - Đọc `MEMORY.md` trước khi làm việc để biết nhiệm vụ, bằng chứng duyệt và bước tiếp theo.
 
@@ -24,6 +24,8 @@ Yêu cầu mới nhất của người dùng → `docs/TECH_DEMO_PLAN.md` → `d
 | Thu dữ liệu thật: cần gì và cách thu | `docs/DATA_COLLECTION_GUIDE.md` |
 | Tiến độ code, bằng chứng và phần còn thiếu Phase 1 | `agent_docs/phase_1_completion.md`, `mobile/README.md`; `phase_1_review.md` là lịch sử shell |
 | Tiến độ, bằng chứng và nội dung cần duyệt của Phase 2 | `agent_docs/phase_2_review.md`, spec `docs/superpowers/specs/2026-10-03-phase-2-intro-qa-design.md` |
+| Tiến độ, bằng chứng và câu hỏi cần duyệt của Phase 3 | `agent_docs/phase_3_review.md`, spec `docs/superpowers/specs/2026-10-03-phase-3-recommendation-design.md` |
+| Tiến độ, bằng chứng và câu hỏi cần duyệt của Phase 4 | `agent_docs/phase_4_review.md`, spec `docs/superpowers/specs/2026-10-03-phase-4-camera-qa-design.md` |
 
 Giữ các hướng dẫn đang có, kể cả hướng dẫn toàn cục. Nếu chúng mâu thuẫn với phạm vi hoặc cửa duyệt của dự án, báo rõ vị trí và dừng phần bị ảnh hưởng để người dùng quyết định; không âm thầm chọn một bên.
 
@@ -41,8 +43,8 @@ Giữ các hướng dẫn đang có, kể cả hướng dẫn toàn cục. Nếu
 | 0 | Chốt hành vi, kiến trúc, sơ đồ, hợp đồng; review tài liệu (G0) | Đã được người dùng duyệt |
 | 1 | Khung native, Home fixture, demo/live, Expo Go (G1) | **Đã được người dùng duyệt 03/10/2026**; emulator có bằng chứng, điện thoại thật/iOS chưa thử |
 | 2 | Giới thiệu, Q&A cố định có nguồn, hỏi tiếp (G2) | **Đã được người dùng duyệt 03/10/2026** (nội dung vẫn mô phỏng) |
-| 3 | Chủ đề/quỹ thời gian, tối đa ba điểm có lý do (G3) | Được phép triển khai; quy tắc đã chốt 03/10 |
-| 4 | Camera, QR, 2D placeholder + caption, chọn tay (G4) | Chưa bắt đầu |
+| 3 | Chủ đề/quỹ thời gian, tối đa ba điểm có lý do (G3) | **Đã được người dùng duyệt 03/10/2026** |
+| 4 | Camera, QR, 2D placeholder + caption, chọn tay (G4) | Code đã bàn giao; chờ anh duyệt vị trí/kích thước người kể và câu xin quyền |
 | 5 | GPS candidate, xác nhận/chọn lại (G5) | Chưa bắt đầu |
 | 6 | API/dataset thật được duyệt, handoff data/UI (G6) | Chưa bắt đầu |
 | 7 | Offline, kiểm tra end-to-end, bàn giao core (G7) | Chưa bắt đầu |
