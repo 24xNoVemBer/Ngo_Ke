@@ -2,8 +2,8 @@
 
 ## Trạng thái và quyền thực hiện
 
-- **Phase hiện tại: 6. Trạng thái: code Phase 6 đã bàn giao; G6 chưa chốt.** Phase 1–4 đã duyệt; nội dung và tọa độ vẫn là mô phỏng; **nhánh GPS candidate/outside-cluster chưa kiểm được trên emulator** (máy ảo không cấp fix GPS); quét QR thật chưa kiểm end-to-end; điện thoại thật/iOS chưa kiểm tra; audit còn cảnh báo.
-- **Implementation approved: Phase 6 (R6.01–R6.04).** Người dùng nói “Tôi duyệt phase [5]. Hãy triển khai phase 6 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.” Phase 7/voice chưa được duyệt. Ba quy tắc đã chốt 03/10: timeout **8 giây**; URL live từ **biến môi trường + app.json extra**; **adapter + máy chủ kiểm chứng cục bộ** (không dựng backend production).
+- **Phase hiện tại: 7. Trạng thái: kiểm thử và bàn giao Phase 7 đã xong; G7 chờ anh duyệt demo.** Phase 1–4 đã duyệt; nội dung và tọa độ vẫn là mô phỏng; **nhánh GPS candidate/outside-cluster chưa kiểm được trên emulator** (máy ảo không cấp fix GPS); quét QR thật chưa kiểm end-to-end; điện thoại thật/iOS chưa kiểm tra; audit còn cảnh báo.
+- **Implementation approved: Phase 7 (R7.01–R7.03).** Người dùng nói “Tôi duyệt phase [6]. Hãy triển khai phase 7 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.” Voice vẫn chưa được duyệt. Phase này **đóng băng scope**: chỉ kiểm thử, sửa lỗi trong phạm vi đã duyệt và viết bàn giao; không thêm tính năng, không tự thêm chuẩn accessibility định lượng.
 - Công cụ đang dùng: **OpenCode**. Trình độ A/B/C của người dùng chưa xác định; không suy từ vai trò “người A”.
 - Đọc `MEMORY.md` trước khi làm việc để biết nhiệm vụ, bằng chứng duyệt và bước tiếp theo.
 
@@ -28,6 +28,9 @@ Yêu cầu mới nhất của người dùng → `docs/TECH_DEMO_PLAN.md` → `d
 | Tiến độ, bằng chứng và câu hỏi cần duyệt của Phase 4 | `agent_docs/phase_4_review.md`, spec `docs/superpowers/specs/2026-10-03-phase-4-camera-qa-design.md` |
 | Tiến độ, bằng chứng và câu hỏi cần duyệt của Phase 5 | `agent_docs/phase_5_review.md`, spec `docs/superpowers/specs/2026-10-03-phase-5-location-design.md` |
 | Tiến độ, bằng chứng và câu hỏi cần duyệt của Phase 6 | `agent_docs/phase_6_review.md`, spec `docs/superpowers/specs/2026-10-03-phase-6-live-api-design.md` |
+| Tiến độ, bằng chứng và câu hỏi cần duyệt của Phase 7 | `agent_docs/phase_7_review.md`, spec `docs/superpowers/specs/2026-10-03-phase-7-offline-e2e-design.md` |
+| Ma trận thiết bị đã thử và phần chưa thử | `docs/TEST_REPORT.md` |
+| Handoff API và voice cho A/B/C | `docs/HANDOFF_API.md`, `docs/HANDOFF_VOICE.md` |
 | Handoff cho nhóm data và nhóm UI | `docs/HANDOFF_DATA.md`, `docs/HANDOFF_UI.md` |
 
 Giữ các hướng dẫn đang có, kể cả hướng dẫn toàn cục. Nếu chúng mâu thuẫn với phạm vi hoặc cửa duyệt của dự án, báo rõ vị trí và dừng phần bị ảnh hưởng để người dùng quyết định; không âm thầm chọn một bên.
@@ -49,9 +52,18 @@ Giữ các hướng dẫn đang có, kể cả hướng dẫn toàn cục. Nếu
 | 3 | Chủ đề/quỹ thời gian, tối đa ba điểm có lý do (G3) | **Đã được người dùng duyệt 03/10/2026** |
 | 4 | Camera, QR, 2D placeholder + caption, chọn tay (G4) | **Đã được người dùng duyệt 03/10/2026** (quét QR thật vẫn chưa kiểm end-to-end) |
 | 5 | GPS candidate, xác nhận/chọn lại (G5) | **Đã được người dùng duyệt 03/10/2026** (nhánh candidate/outside-cluster chưa chạy thật trên thiết bị) |
-| 6 | Live gọi API, tách demo/live, handoff data/UI (G6) | Code đã bàn giao; chờ anh duyệt câu chữ trạng thái và cách cấu hình URL |
-| 7 | Offline, kiểm tra end-to-end, bàn giao core (G7) | Chưa bắt đầu |
+| 6 | Live gọi API, tách demo/live, handoff data/UI (G6) | **Đã được người dùng duyệt 03/10/2026** (chưa có backend thật) |
+| 7 | Offline, kiểm thử end-to-end, bàn giao demo (G7) | Đã bàn giao; chờ anh xem demo và chốt mở phase backend |
+| 8 (chưa mở) | Backend Node 24 + SQLite, phạm vi toàn cục | Chờ anh duyệt scope; phải trình spec trước khi code |
 | Voice riêng | Sau core; duyệt riêng + connector/giọng người dùng chọn (GV) | Chưa được duyệt |
+
+## Backend và dữ liệu MVP — quyết định của người dùng (03/10/2026)
+
+- **Backend do dự án tự viết**, không chờ nhóm ngoài: Node 24 + JSON API + SQLite theo plan. Không có sẵn gì để dùng.
+- **Dữ liệu MVP do dự án sinh** và ghi rõ là **mô phỏng** (đã có trong `data/demo.json`). Khi nào có data thật thì thay sau, **không chặn** việc làm MVP.
+- Vì vậy `tools/mock-api/` chỉ là công cụ kiểm chứng tạm thời; backend thật là một **phase riêng**, cần người dùng duyệt trước khi code.
+- MVP được phép dùng dữ liệu mô phỏng, nhưng **không** được bịa lịch sử/nguồn/địa điểm thật và phải ghi rõ nguồn của mọi câu trả lời.
+- Hết phase core demo mới xét phase Voice, và cần người dùng dẫn dắt cùng connector/giọng do họ chọn.
 
 ## Việc cần người dùng quyết hoặc tự làm — bắt buộc note ra
 
@@ -61,6 +73,10 @@ Mỗi lần bàn giao phải có mục riêng, không trộn vào phần đã l�
 2. **Cần người dùng tự làm** — việc chỉ người dùng làm được, **đánh dấu `[ngoài plan]`** nếu việc đó không nằm trong `docs/TECH_DEMO_PLAN.md`, kèm vì sao và hậu quả nếu chưa làm.
 
 Quy tắc: không tự quyết thay; không coi là đã xử lý; không giấu việc của người dùng trong báo cáo chung; việc `[ngoài plan]` không tự thêm vào plan mà phải nêu để người dùng chọn. Cập nhật cùng `MEMORY.md`.
+
+## Đóng băng scope sau Phase 7
+
+Core demo đã qua đủ phase và bàn giao. Từ đây **không** mở thêm tính năng vào app khi chưa có phase mới được người dùng duyệt; muốn sửa hành vi đã duyệt thì ghi vào review và chờ quyết định.
 
 ## Sản phẩm và ranh giới không được tự mở rộng
 

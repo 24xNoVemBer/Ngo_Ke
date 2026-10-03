@@ -2,6 +2,17 @@
 
 **Bàn giao code Phase 1–6.** Phase 1 đã được người dùng duyệt. Phase 2 thêm giới thiệu và hỏi đáp cố định; Phase 3 thêm chọn chủ đề, quỹ thời gian và gợi ý tối đa ba điểm kèm lý do; Phase 4 thêm camera xin quyền đúng lúc, quét QR của điểm đã biết, lớp người kể 2D tạm + caption và chọn điểm bằng tay; Phase 5 thêm lấy vị trí **một lần** theo thao tác, gợi ý **một** candidate kèm khoảng cách/accuracy, và chỉ xác nhận của người dùng mới đổi điểm hiện tại. Phase 6 thêm chế độ live gọi `{base}/api/dataset` với timeout 8 giây và các trạng thái empty/error rõ ràng. Nội dung và tọa độ vẫn là **mô phỏng**; backend thật chưa có, máy chủ kiểm chứng cục bộ nằm ở `tools/mock-api/`.
 
+## Mở demo nhanh
+
+```bash
+cd mobile
+npm install
+npm test            # 90 ca, không cần mạng
+npm start           # rồi mở app bằng Expo Go
+```
+
+Demo đọc `data/demo.json` trong bundle: **không cần API, server hay API key**. Chế độ live thì cấu hình `EXPO_PUBLIC_NGOKE_API_BASE_URL=<url>`.
+
 ## Yêu cầu và mở app
 
 - Node 24 (đã dùng 24.19.0), npm (đã dùng 11.17.0).

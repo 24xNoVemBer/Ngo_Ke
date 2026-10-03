@@ -1,0 +1,21 @@
+Attempt: prove the demo runs with no network at all (R7.01).
+Steps: adb reverse tcp:8085 tcp:8085 (so the dev bundle is served over USB), then
+airplane mode on (Wi-Fi disabled), then open exp://127.0.0.1:8085 in Expo Go.
+
+Result: the project fails to load with
+  Uncaught Error: java.io.IOException: Failed to download remote update
+shown in the Expo Go error log. Expo Go downloads a remote update before it
+reads the dev server, so it needs internet even though the app data does not.
+
+Conclusion: true offline cannot be demonstrated with Expo Go. A standalone
+build (expo run:android / development build) would be needed, which is a
+scope decision for the user. What is proven instead: demo reads the bundled
+fixture, needs no API, server or key, and was verified with the local
+verification server stopped.
+
+--- expo log lines ---
+10-03 20:52:31.657 24862 24862 I AconfigPackage: com.android.nfc.module.nonexported.flags is mapped to com.android.nfcservices
+10-03 20:52:31.661 24862 24862 E FeatureFlagsImplExport: android.os.flagging.AconfigStorageReadException: ERROR_PACKAGE_NOT_FOUND: package android.xr cannot be found on the device
+10-03 20:52:32.681 24862 24862 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@120c7; boundsInParent: Rect(0, 0 - 1080, 2274); boundsInScreen: Rect(0, 63 - 0, 2337); boundsInWindow: Rect(0, 63 - 0, 2337); packageName: host.exp.exponent; className: android.widget.RelativeLayout; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+10-03 20:52:32.681 24862 24862 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@15916; boundsInParent: Rect(0, 0 - 0, 51); boundsInScreen: Rect(26, 330 - 26, 381); boundsInWindow: Rect(26, 330 - 26, 381); packageName: host.exp.exponent; className: android.widget.TextView; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: host.exp.exponent:id/error_console_item_stack_preview; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+10-03 20:53:10.356   545   545 I adbd    : adbd service requested 'shell,v2:export ANDROID_LOG_TAGS=''; exec logcat '-d' '-t' '400''

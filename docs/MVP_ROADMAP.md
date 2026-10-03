@@ -92,14 +92,14 @@ Chi tiết cách thu: [DATA_COLLECTION_GUIDE.md](DATA_COLLECTION_GUIDE.md).
 | Hình người kể 2D | Nhóm UI | Chưa có |
 | Quy tắc xếp hạng gợi ý điểm | Người dùng duyệt | Đã được duyệt ở G3 |
 | URL và câu chữ trạng thái live | Người dùng duyệt | Đã dựng, chờ duyệt ở G6 |
-| Backend API + SQLite | Nhóm backend | **Chưa có trong workspace**; Phase 6 chỉ làm adapter + handoff |
+| Backend API + SQLite | **Dự án tự viết, phạm vi toàn cục** (người dùng chốt 03/10/2026) | Chưa có; mở phase sau Phase 7 |
 | Chọn dịch vụ/giọng cho voice | Người dùng | Phase riêng, chưa duyệt |
 | Kiểm thử trên điện thoại thật và iPhone | Người dùng | Chưa có bằng chứng |
 
 ## 6. Kết quả kiểm tra hiện tại (03/10/2026)
 
 - `npm test` 90/90 đạt; typecheck, lint, dependency check, Expo Doctor 21/21 và xuất bundle Android/iOS đều đạt. Phase 4 thêm `expo-camera`, Phase 5 thêm `expo-location`, Phase 6 **không thêm dependency**.
-- Trên máy ảo Android (Medium_Phone, Android 17/API 37, Expo Go 57.0.9): 13/13 ca Phase 2, 13/13 ca Phase 3, 19/19 ca Phase 4, 6/6 ca Phase 5 và 27/27 ca Phase 6 đạt; có ảnh trong `agent_docs/evidence/phase-2/` đến `phase-6/`.
+- Trên máy ảo Android (Medium_Phone, Android 17/API 37, Expo Go 57.0.9): 13/13 ca Phase 2, 13/13 ca Phase 3, 19/19 ca Phase 4, 6/6 ca Phase 5, 27/27 ca Phase 6 đạt; Phase 7 có kịch bản demo **45/45 bước × 3 lần** và **17/17** kiểm tra bổ sung; có ảnh trong `agent_docs/evidence/phase-2/` đến `phase-7/`.
 - **Giới hạn môi trường:** máy ảo này không cấp được fix GPS (`geo fix` trả OK nhưng provider không nhận), nên hai nhánh candidate/outside-cluster của Phase 5 chỉ kiểm bằng unit test, chưa chạy thật trên thiết bị.
 - **Chưa kiểm tra:** điện thoại thật, iOS, offline khởi chạy từ trạng thái đã đóng, screen reader.
-- Báo cáo chi tiết: [Phase 1](../agent_docs/phase_1_completion.md), [Phase 2](../agent_docs/phase_2_review.md), [Phase 3](../agent_docs/phase_3_review.md), [Phase 4](../agent_docs/phase_4_review.md), [Phase 5](../agent_docs/phase_5_review.md), [Phase 6](../agent_docs/phase_6_review.md).
+- Báo cáo chi tiết: [Phase 1](../agent_docs/phase_1_completion.md), [Phase 2](../agent_docs/phase_2_review.md), [Phase 3](../agent_docs/phase_3_review.md), [Phase 4](../agent_docs/phase_4_review.md), [Phase 5](../agent_docs/phase_5_review.md), [Phase 6](../agent_docs/phase_6_review.md), [Phase 7](../agent_docs/phase_7_review.md).

@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-16",
+  "checks": [
+    {
+      "name": "a question outside the set is refused instead of answered",
+      "passed": true
+    },
+    {
+      "name": "soft keyboard check recorded as NOT VERIFIED (this emulator IME stays hidden)",
+      "passed": true,
+      "detail": "mInputShown=false, so button visibility was not checked with an open keyboard"
+    },
+    {
+      "name": "the send control is on screen",
+      "passed": true
+    },
+    {
+      "name": "camera refusal keeps the camera off",
+      "passed": true
+    },
+    {
+      "name": "camera refusal still offers manual choice",
+      "passed": true
+    },
+    {
+      "name": "manual choice works without the camera",
+      "passed": true
+    },
+    {
+      "name": "manual choice shows the narrator text",
+      "passed": true
+    },
+    {
+      "name": "location refusal reports the situation",
+      "passed": true
+    },
+    {
+      "name": "location refusal never claims a point",
+      "passed": true
+    },
+    {
+      "name": "location refusal keeps manual choice",
+      "passed": true
+    },
+    {
+      "name": "live without a URL stays empty",
+      "passed": true
+    },
+    {
+      "name": "live without a URL does not show demo points",
+      "passed": true
+    },
+    {
+      "name": "demo still works after a live error",
+      "passed": true
+    },
+    {
+      "name": "every tappable control exposes a label",
+      "passed": true
+    },
+    {
+      "name": "plan screen still renders with a 1.3 font scale",
+      "passed": true
+    },
+    {
+      "name": "topic chips stay tappable with a 1.3 font scale",
+      "passed": true
+    },
+    {
+      "name": "font scale restored",
+      "passed": true
+    }
+  ]
+}

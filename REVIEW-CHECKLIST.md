@@ -57,7 +57,14 @@ Chỉ dùng các mục thuộc phase đang review; không đánh dấu phase tư
 - [x] **R6.03:** demo đọc fixture trong bundle, không cần API/server/key; đã tắt máy chủ rồi kiểm lại demo vẫn chạy. Đạt.
 - [x] **R6.04:** `docs/HANDOFF_DATA.md` và `docs/HANDOFF_UI.md` có quy tắc, danh sách file không được sửa và checklist trước khi gửi. Đạt.
 - [ ] **G6:** người dùng duyệt câu chữ trạng thái, đường dẫn endpoint và cách cấu hình URL; **chưa có backend thật**.
-- [ ] **G7/GV:** chưa được duyệt hoặc triển khai.
+- [x] **R7.01:** kịch bản `giới thiệu → hỏi → chủ đề → nhận điểm → xác nhận → lời kể → hỏi tiếp` chạy **3 lần**, 45/45 bước, có log `scenario-runs.json`. Đạt.
+- [ ] **R7.01 (offline thật):** **không đạt** — Expo Go cần mạng để khởi động (`Failed to download remote update`); đã ghi bằng chứng `offline-limitation.txt`. Cần bản build standalone, là quyết định của người dùng.
+- [x] **R7.02:** fallback camera/vị trí, Q&A ngoài danh sách, chuyển demo/live, nhãn accessibility, cỡ chữ 1.3 — 17/17 đạt; live lỗi không chuyển thành demo. **Bàn phím mềm chưa kiểm được** (emulator không bật IME). Đạt, có giới hạn.
+- [x] **R7.03:** `docs/TEST_REPORT.md` (ma trận thiết bị, phần chưa thử), README mở demo, handoff API/data/voice/UI. Đạt; người dùng xem demo trước khi chốt tech demo.
+- [ ] **G7:** người dùng duyệt demo và mức độ hoàn tất.
+- [ ] **GV:** phase voice chưa mở, chưa có code.
+
+Gói Phase 7: `agent_docs/phase_7_review.md`; tests90/90, typecheck/lint/dependency/Doctor21/21 và hai export đạt; kịch bản 45/45 bước × 3 lần; 17/17 kiểm tra bổ sung; offline thật **không đạt**; audit còn23 cảnh báo (7 moderate/16 high).
 
 Gói Phase 6: `agent_docs/phase_6_review.md`; tests90/90, typecheck/lint/dependency/Doctor21/21 và hai export đạt; emulator27/27 với máy chủ kiểm chứng cục bộ; audit còn23 cảnh báo (7 moderate/16 high).
 

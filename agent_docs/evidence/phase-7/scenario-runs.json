@@ -1,0 +1,205 @@
+{
+  "date": "2026-10-16",
+  "scenario": "giới thiệu → hỏi → chủ đề → nhận điểm → xác nhận → lời kể → hỏi tiếp",
+  "runs": [
+    {
+      "run": 1,
+      "steps": [
+        {
+          "step": "app opens in demo mode",
+          "passed": true
+        },
+        {
+          "step": "demo dataset loaded",
+          "passed": true
+        },
+        {
+          "step": "open Q&A",
+          "passed": true
+        },
+        {
+          "step": "intro names the current point",
+          "passed": true
+        },
+        {
+          "step": "ask a sample question",
+          "passed": true
+        },
+        {
+          "step": "answer shows a source",
+          "passed": true
+        },
+        {
+          "step": "open the plan screen",
+          "passed": true
+        },
+        {
+          "step": "choose a topic",
+          "passed": true
+        },
+        {
+          "step": "choose a time budget",
+          "passed": true
+        },
+        {
+          "step": "receive at most three points",
+          "passed": true
+        },
+        {
+          "step": "open camera to confirm a point",
+          "passed": true
+        },
+        {
+          "step": "choose a point by hand",
+          "passed": true
+        },
+        {
+          "step": "narrator story is shown",
+          "passed": true
+        },
+        {
+          "step": "back to Q&A keeps the confirmed point",
+          "passed": true
+        },
+        {
+          "step": "follow-up question still answers with a source",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "run": 2,
+      "steps": [
+        {
+          "step": "app opens in demo mode",
+          "passed": true
+        },
+        {
+          "step": "demo dataset loaded",
+          "passed": true
+        },
+        {
+          "step": "open Q&A",
+          "passed": true
+        },
+        {
+          "step": "intro names the current point",
+          "passed": true
+        },
+        {
+          "step": "ask a sample question",
+          "passed": true
+        },
+        {
+          "step": "answer shows a source",
+          "passed": true
+        },
+        {
+          "step": "open the plan screen",
+          "passed": true
+        },
+        {
+          "step": "choose a topic",
+          "passed": true
+        },
+        {
+          "step": "choose a time budget",
+          "passed": true
+        },
+        {
+          "step": "receive at most three points",
+          "passed": true
+        },
+        {
+          "step": "open camera to confirm a point",
+          "passed": true
+        },
+        {
+          "step": "choose a point by hand",
+          "passed": true
+        },
+        {
+          "step": "narrator story is shown",
+          "passed": true
+        },
+        {
+          "step": "back to Q&A keeps the confirmed point",
+          "passed": true
+        },
+        {
+          "step": "follow-up question still answers with a source",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "run": 3,
+      "steps": [
+        {
+          "step": "app opens in demo mode",
+          "passed": true
+        },
+        {
+          "step": "demo dataset loaded",
+          "passed": true
+        },
+        {
+          "step": "open Q&A",
+          "passed": true
+        },
+        {
+          "step": "intro names the current point",
+          "passed": true
+        },
+        {
+          "step": "ask a sample question",
+          "passed": true
+        },
+        {
+          "step": "answer shows a source",
+          "passed": true
+        },
+        {
+          "step": "open the plan screen",
+          "passed": true
+        },
+        {
+          "step": "choose a topic",
+          "passed": true
+        },
+        {
+          "step": "choose a time budget",
+          "passed": true
+        },
+        {
+          "step": "receive at most three points",
+          "passed": true
+        },
+        {
+          "step": "open camera to confirm a point",
+          "passed": true
+        },
+        {
+          "step": "choose a point by hand",
+          "passed": true
+        },
+        {
+          "step": "narrator story is shown",
+          "passed": true
+        },
+        {
+          "step": "back to Q&A keeps the confirmed point",
+          "passed": true
+        },
+        {
+          "step": "follow-up question still answers with a source",
+          "passed": true
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "allRunsPassed": true
+}

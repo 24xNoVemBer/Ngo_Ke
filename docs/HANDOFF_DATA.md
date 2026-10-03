@@ -1,6 +1,8 @@
 # Handoff cho nhóm data — Ngõ Kể
 
-**Đọc trước khi gửi dữ liệu.** App không tự sinh nội dung và không hiện bản ghi chưa được duyệt. Mọi thay đổi ở đây đều cần người dùng duyệt trước khi nối vào app.
+**Đọc trước khi gửi dữ liệu.** App không tự sinh nội dung và không hiện bản ghi chưa được duyệt.
+
+**Quyết định 03/10/2026 của người dùng:** dữ liệu MVP **do dự án sinh** và ghi rõ là **mô phỏng** (đã có trong `data/demo.json`); khi nào có dữ liệu thật thì thay sau và **không chặn** việc làm MVP. Tài liệu này mô tả cách thay bằng dữ liệu thật mà không phá logic app.
 
 ## App cần gì
 

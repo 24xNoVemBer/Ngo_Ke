@@ -7,10 +7,10 @@
 | Mục | Giá trị |
 | --- | --- |
 | Cập nhật | 03/10/2026 |
-| Phase hiện tại | **6 — live gọi API, tách demo/live, handoff data/UI** |
-| Trạng thái | **Phase6 code đã bàn giao; G6 chưa chốt** |
+| Phase hiện tại | **7 — đã bàn giao, chờ G7; kế tiếp là phase backend** |
+| Trạng thái | **Phase7 kiểm thử xong, chờ anh duyệt demo; backend là phase kế tiếp** |
 | Native mobile | **Home fixture/khung đã chạy Android emulator và thử offline sau nạp bundle; điện thoại thật/iOS chưa kiểm tra** |
-| Implementation approved | **Phase 6 (R6.01–R6.04)** |
+| Implementation approved | **Phase 7 (R7.01–R7.03)** |
 | Công cụ đang dùng | OpenCode |
 | Trình độ A/B/C | Chưa xác định; “người A” trong plan là vai trò, không phải trình độ |
 | Gate G0 / quyền bắt đầu Phase 1 | Đã được người dùng duyệt rõ ràng; cho phép dựng khung trước khi có source |
@@ -38,7 +38,10 @@ Triển khai Phase2 (giới thiệu, Q&A cố định có nguồn, hỏi tiếp)
 - [x] **Phase5 được người dùng duyệt 03/10/2026.**
 - [x] **Phase5 được người dùng duyệt 03/10/2026.**
 - [x] Phase6 code: adapter live (timeout 8s, URL theo môi trường), 6 trạng thái empty/error, demo không cần mạng, máy chủ kiểm chứng cục bộ, tài liệu handoff data/UI. Tests90/90 + emulator27/27. Báo cáo `agent_docs/phase_6_review.md`.
-- [ ] Người dùng duyệt câu chữ trạng thái live, đường dẫn `/api/dataset`, việc có token không, và số điểm 6 cố định (G6).
+- [x] **Phase6 được người dùng duyệt 03/10/2026.**
+- [x] ~~Cung cấp URL backend thật~~ — anh quyết định 03/10/2026: **dự án tự viết backend**, không phải việc của anh.
+- [x] **Phase7:** kịch bản demo 45/45 bước × 3 lần; 17/17 kiểm tra fallback/mode/cỡ chữ/nhãn; bàn giao `docs/TEST_REPORT.md` + handoff API/data/voice/UI. **Offline thật không đạt** (Expo Go cần mạng để khởi động). Báo cáo `agent_docs/phase_7_review.md`.
+- [ ] Phase7 (cũ): kịch bản `giới thiệu → hỏi → chủ đề → nhận điểm → xác nhận → lời kể → hỏi tiếp` chạy lặp lại bằng fixture offline + log; kiểm fallback camera/GPS/QR, Q&A, chuyển mode, bàn phím, cỡ chữ; bàn giao API/data/voice và danh sách thiết bị.
 - [ ] Chạy quét QR thật trên điện thoại thật (emulator không đưa được mã QR vào khung hình camera).
 - [ ] Điện thoại thật/iOS vẫn chưa kiểm tra ở bất kỳ phase nào; emulator không thay điều kiện đó.
 
@@ -52,6 +55,8 @@ Triển khai Phase2 (giới thiệu, Q&A cố định có nguồn, hỏi tiếp)
 - 03/10/2026: **“Tôi duyệt phase [4]. Hãy triển khai phase 5 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.”** Cho phép Phase5; không kèm duyệt Phase6–7/voice.
 - 03/10/2026: anh yêu cầu **thêm rule bắt buộc**: mỗi lần bàn giao phải note riêng (1) việc chỉ người dùng quyết được, (2) việc người dùng phải tự làm — đánh dấu `[ngoài plan]` nếu không có trong `TECH_DEMO_PLAN.md`, kèm hệ quả nếu chưa làm. Rule nằm ở `AGENTS.md` § “Việc cần người dùng quyết hoặc tự làm”.
 - 03/10/2026: **“Tôi duyệt phase [5]. Hãy triển khai phase 6 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.”** Cho phép Phase6; không kèm duyệt Phase7/voice.
+- 03/10/2026: anh quyết định: **backend do em tự viết luôn** (không có sẵn gì, tự làm từ FE đến backend) và **em sinh data để làm MVP**, ghi rõ là mô phỏng; khi nào có data thật thì anh cập nhật sau. Hệ quả: cần một phase riêng cho backend Node 24 + SQLite + seed data, có duyệt trước; `tools/mock-api/` chỉ là công cụ kiểm chứng.
+- 03/10/2026: **“Tôi duyệt phase [6]. Hãy triển khai phase 7 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.”** Cho phép Phase7; voice vẫn chưa duyệt. Phase 7 đóng băng scope: chỉ kiểm thử, sửa lỗi trong phạm vi đã duyệt và bàn giao.
 - 03/10/2026: anh chốt Phase6 = **timeout 8 giây**; **URL live từ biến môi trường `EXPO_PUBLIC_NGOKE_API_BASE_URL` + `app.json extra.apiBaseUrl`**; **adapter + máy chủ kiểm chứng cục bộ**, không dựng backend production và không sinh dữ liệu thật.
 - 03/10/2026: anh chốt Phase5 = **accuracy > 50 m hoặc cách > 300 m thì không đưa candidate**, chỉ báo lý do + chọn tay; **thêm tọa độ mô phỏng** cho 6 điểm và ghi rõ là mô phỏng.
 - 03/10/2026: emulator **không cấp được fix GPS** (`geo fix` trả OK nhưng mọi provider `last location=null`, app log `Current location is unavailable`) → nhánh candidate/outside-cluster chỉ kiểm bằng unit test; cần điện thoại thật.
@@ -77,7 +82,7 @@ Khi có duyệt mới, ghi ngày, trích yêu cầu, phase được phép và ph
 
 ## Bước tiếp theo và thông tin còn thiếu
 
-**Bước tiếp theo:** anh review mục “Việc cần anh quyết / Việc anh tự làm” trong `agent_docs/phase_6_review.md`, đặc biệt cung cấp URL backend thật và gửi hai tài liệu handoff cho nhóm data và nhóm UI; sau đó mới quyết định sang Phase7. **Bước trước đó:** triển khai Phase6 theo TDD (adapter live với timeout 8s, cấu hình URL theo môi trường, máy chủ kiểm chứng cục bộ, tài liệu handoff data/UI), kiểm tra và bàn giao kèm mục việc cần anh quyết/tự làm; dừng trước Phase7. Dữ liệu thật và backend thật vẫn chờ anh.
+**Bước tiếp theo:** anh review `agent_docs/phase_7_review.md` và xem demo; sau đó em trình **spec phase backend** (phạm vi toàn cục) để anh duyệt trước khi code. Dữ liệu thật và voice vẫn chờ; `tools/mock-api/` giữ làm công cụ kiểm chứng. **Bước trước đó:** triển khai Phase7 theo TDD (adapter live với timeout 8s, cấu hình URL theo môi trường, máy chủ kiểm chứng cục bộ, tài liệu handoff data/UI), kiểm tra và bàn giao kèm mục việc cần anh quyết/tự làm; dừng trước Phase7. Dữ liệu thật và backend thật vẫn chờ anh.
 
 **Còn thiếu:** điện thoại thật/iOS runtime/offline cold start/screen reader chưa thử; G1 cần điện thoại thật và review. Audit còn23 cảnh báo. Fixture/Home và offline sau tải bundle đã thử. Logic/Q&A/backend thuộc phase sau chưa duyệt, không phải blocker Phase1 chờ source.
 

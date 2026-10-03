@@ -1,0 +1,111 @@
+{
+  "date": "2026-10-03",
+  "phase": 7,
+  "commands": [
+    {
+      "label": "tests",
+      "command": "npm test",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 0.4,
+      "log": "tests.log"
+    },
+    {
+      "label": "typecheck",
+      "command": "npm run typecheck",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 2.3,
+      "log": "typecheck.log"
+    },
+    {
+      "label": "lint",
+      "command": "npm run lint",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 2.3,
+      "log": "lint.log"
+    },
+    {
+      "label": "dependencies",
+      "command": "npm run check:dependencies",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 1.4,
+      "log": "dependencies.log"
+    },
+    {
+      "label": "doctor",
+      "command": "npx --yes expo-doctor",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 3.5,
+      "log": "doctor.log"
+    },
+    {
+      "label": "build-android",
+      "command": "npm run build:android",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 6.5,
+      "log": "build-android.log"
+    },
+    {
+      "label": "build-ios",
+      "command": "npm run build:ios",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 6.4,
+      "log": "build-ios.log"
+    },
+    {
+      "label": "audit",
+      "command": "npm audit --json",
+      "cwd": "mobile/",
+      "exitCode": 1,
+      "seconds": 5.5,
+      "log": "audit.json",
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 7,
+        "high": 16,
+        "critical": 0,
+        "total": 23
+      }
+    }
+  ],
+  "repeatableScenario": {
+    "runs": 3,
+    "stepsPerRun": 15,
+    "passed": 45,
+    "total": 45,
+    "allRunsPassed": true
+  },
+  "additionalChecks": {
+    "passed": 17,
+    "total": 17
+  },
+  "offlineRealTest": {
+    "passed": false,
+    "reason": "Expo Go needs the network to start (Failed to download remote update); evidence in offline-limitation.txt",
+    "provedInstead": "demo reads the bundled fixture, needs no API/server/key, and was verified with the verification server stopped"
+  },
+  "device": {
+    "avd": "Medium_Phone",
+    "os": "Android 17 / API 37",
+    "expoGo": "57.0.9"
+  },
+  "notTested": [
+    "iOS / iPhone",
+    "real device",
+    "QR scan end-to-end",
+    "GPS candidate and outside-cluster on device",
+    "soft keyboard (emulator IME stays hidden)",
+    "screen reader",
+    "standalone build offline",
+    "real data",
+    "backend",
+    "voice"
+  ]
+}
