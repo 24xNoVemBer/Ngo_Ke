@@ -1,6 +1,6 @@
 # Ngõ Kể — khung native Phase 1
 
-**Bàn giao code Phase 1–5.** Phase 1 đã được người dùng duyệt. Phase 2 thêm giới thiệu và hỏi đáp cố định; Phase 3 thêm chọn chủ đề, quỹ thời gian và gợi ý tối đa ba điểm kèm lý do; Phase 4 thêm camera xin quyền đúng lúc, quét QR của điểm đã biết, lớp người kể 2D tạm + caption và chọn điểm bằng tay; Phase 5 thêm lấy vị trí **một lần** theo thao tác, gợi ý **một** candidate kèm khoảng cách/accuracy, và chỉ xác nhận của người dùng mới đổi điểm hiện tại. Nội dung và tọa độ đang là **mô phỏng**. Backend live thuộc phase sau chưa triển khai.
+**Bàn giao code Phase 1–6.** Phase 1 đã được người dùng duyệt. Phase 2 thêm giới thiệu và hỏi đáp cố định; Phase 3 thêm chọn chủ đề, quỹ thời gian và gợi ý tối đa ba điểm kèm lý do; Phase 4 thêm camera xin quyền đúng lúc, quét QR của điểm đã biết, lớp người kể 2D tạm + caption và chọn điểm bằng tay; Phase 5 thêm lấy vị trí **một lần** theo thao tác, gợi ý **một** candidate kèm khoảng cách/accuracy, và chỉ xác nhận của người dùng mới đổi điểm hiện tại. Phase 6 thêm chế độ live gọi `{base}/api/dataset` với timeout 8 giây và các trạng thái empty/error rõ ràng. Nội dung và tọa độ vẫn là **mô phỏng**; backend thật chưa có, máy chủ kiểm chứng cục bộ nằm ở `tools/mock-api/`.
 
 ## Yêu cầu và mở app
 
@@ -28,6 +28,7 @@ Không ghép `--offline` với `--localhost`/`--lan`: Expo CLI không cho dùng 
 
 ## Anh có thể review gì?
 
+0. Chế độ live: `EXPO_PUBLIC_NGOKE_API_BASE_URL=<url> npm start` rồi bấm **Live**; không có URL thì hiện “Live chưa được cấu hình”.
 1. Home mặc định **Demo**, báo “Đã nạp 6 điểm mô phỏng”; cuộn xem “Điểm demo 01–06”, nhãn “điểm khởi đầu” và disclaimer không phải địa điểm thật.
 4. Bấm **Tìm điểm gần nhất bằng GPS và xác nhận**: bấm **Lấy vị trí của tôi** (chỉ xin quyền lúc này), xem “có thể là…” + khoảng cách + độ chính xác, rồi bấm **Xác nhận điểm này** hoặc chọn tay.
 3. Bấm **Mở camera, quét QR và xem người kể**: camera **tắt** cho tới khi bấm nút xin quyền; quét mã `ngo-ke://node/<id>` để xác nhận điểm; xem người kể 2D tạm và caption; hoặc chọn điểm bằng tay.
@@ -97,11 +98,11 @@ npm audit
 
 `build:android`/`build:ios` chỉ **xuất JavaScript/Hermes bundle bằng Metro**, không tạo APK/IPA, store build hoặc deploy. Artifact ở `dist/` (gitignored). Test dùng Node built-in, chỉ kiểm tra ranh giới nguồn, không render UI/thiết bị.
 
-Kết quả/log mới nhất ở [bàn giao Phase 5](../agent_docs/phase_5_review.md). Tests81/81, typecheck/lint/dependency/Doctor21/21 và export Android/iOS đạt. Ở Phase 5, emulator đạt 6/6 ca cho nhánh quyền bị từ chối và chọn tay; **nhánh candidate/outside-cluster không kiểm được** vì máy ảo không cấp fix GPS. Audit03/10 còn23 cảnh báo (7 moderate,16 high); không dùng `--force` để downgrade Expo/RN. Chi tiết/giới hạn ở gói review.
+Kết quả/log mới nhất ở [bàn giao Phase 6](../agent_docs/phase_6_review.md). Tests90/90, typecheck/lint/dependency/Doctor21/21 và export Android/iOS đạt. Emulator đạt 27/27 ca cho sáu trạng thái live và demo khi tắt máy chủ. Ở Phase 5, **nhánh candidate/outside-cluster GPS không kiểm được** vì máy ảo không cấp fix GPS. Audit03/10 còn23 cảnh báo (7 moderate,16 high); không dùng `--force` để downgrade Expo/RN. Chi tiết/giới hạn ở gói review.
 
 ## Fixture ban đầu và logic phase sau
 
-`../data/demo.json` là fixture kỹ thuật duy nhất được đồng ý tạo mới. [Schema](../data/README.md): version1/kind simulated/disclaimer/sáu nodeID+tên; không tọa độ/ETA/lịch sử/evidence. `src/data/sourceState.ts` kiểm tra shape và trả demo-ready/error hoặc live-empty. Xóa file tĩnh làm bundling fail; dữ liệu bundle sai shape làm Home báo lỗi.
+`../data/demo.json` là fixture kỹ thuật duy nhất được đồng ý tạo mới. [Schema](../data/README.md): version1/kind simulated/disclaimer/sáu node kèm chủ đề, thời lượng, lời kể, caption và tọa độ mô phỏng; evidence bắt buộc cho mỗi câu trả lời. `src/data/sourceState.ts` kiểm shape và trả demo-ready/error, live-empty hoặc live-error; demo và live dùng chung một validator. Xóa file tĩnh làm bundling fail; dữ liệu bundle sai shape làm Home báo lỗi.
 
 Metro dùng `metro.config.cjs` theo dõi riêng `../data`, không chép file vào mobile. Không có source cũ/`public/core.js` để tái dùng; logic và backend Node24/SQLite sẽ viết mới ở phase được duyệt. Phase1 chưa triển khai API/Q&A/recommendation/device. Chờ điện thoại thật/review G1 trước Phase2.
 
@@ -117,7 +118,8 @@ src/recommendation/pick.ts      # Chủ đề, quỹ thời gian, chọn tối �
 src/qr/parseQr.ts                # Đọc payload `ngo-ke://node/<id>`
 src/qr/confirmPoint.ts           # QR → node đã biết, chọn tay
 src/location/nearest.ts          # Haversine + chọn một candidate
-src/data/sourceState.ts         # Validate bundled demo (intro/qa/evidence); live empty
+src/data/sourceState.ts         # Validate dataset (intro/qa/evidence) + câu chữ trạng thái
+src/data/live.ts                 # Adapter live: URL theo môi trường, timeout 8s, empty/error
 src/screens/HomeScreen.tsx      # Home, source status, mode selector, links
 src/screens/PlaceholderScreen.tsx
 metro.config.cjs                # Một fixture ngoài project root, không copy
@@ -131,6 +133,7 @@ tests/qaRegressions.test.mjs     # Hồi quy lỗi đã tìm trong review
 tests/recommendation.test.mjs    # Luật chọn điểm Phase 3
 tests/cameraQr.test.mjs           # Luật QR và chọn tay Phase 4
 tests/location.test.mjs           # Luật candidate GPS Phase 5
+tests/live.test.mjs               # Luật live: cấu hình, timeout, shape, không fallback
 ```
 
 Icon/asset app do Expo scaffold tạo, chưa phải bộ nhận diện được nhóm UI duyệt. Scaffold cũng tự tạo Git local ở `mobile/.git` với initial commit; chưa có remote, push hoặc commit tính năng của agent.

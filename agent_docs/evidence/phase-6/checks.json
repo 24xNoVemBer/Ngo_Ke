@@ -1,0 +1,103 @@
+{
+  "date": "2026-10-03",
+  "phase": 6,
+  "commands": [
+    {
+      "label": "tests",
+      "command": "npm test",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 0.3,
+      "log": "tests.log"
+    },
+    {
+      "label": "typecheck",
+      "command": "npm run typecheck",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 1.7,
+      "log": "typecheck.log"
+    },
+    {
+      "label": "lint",
+      "command": "npm run lint",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 1.2,
+      "log": "lint.log"
+    },
+    {
+      "label": "dependencies",
+      "command": "npm run check:dependencies",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 0.7,
+      "log": "dependencies.log"
+    },
+    {
+      "label": "doctor",
+      "command": "npx --yes expo-doctor",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 3.5,
+      "log": "doctor.log"
+    },
+    {
+      "label": "build-android",
+      "command": "npm run build:android",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 6.1,
+      "log": "build-android.log"
+    },
+    {
+      "label": "build-ios",
+      "command": "npm run build:ios",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 6.1,
+      "log": "build-ios.log"
+    },
+    {
+      "label": "audit",
+      "command": "npm audit --json",
+      "cwd": "mobile/",
+      "exitCode": 1,
+      "seconds": 4.6,
+      "log": "audit.json",
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 7,
+        "high": 16,
+        "critical": 0,
+        "total": 23
+      }
+    }
+  ],
+  "emulatorChecks": {
+    "passed": 27,
+    "total": 27,
+    "note": "Live states verified against the local verification server; two checks re-run after fixing the script scroll logic (interaction-checks-followup.json)."
+  },
+  "liveStatesVerified": [
+    "no-config -> empty",
+    "empty dataset -> empty",
+    "broken shape -> error",
+    "HTTP 500 -> error",
+    "timeout at 8s -> error",
+    "valid payload -> ready",
+    "Q&A opens with live data"
+  ],
+  "demoWithoutServer": true,
+  "device": {
+    "avd": "Medium_Phone",
+    "os": "Android 17 / API 37",
+    "expoGo": "57.0.9",
+    "adbSerial": "127.0.0.1:5557"
+  },
+  "physicalPhoneTested": false,
+  "iosRuntimeTested": false,
+  "productionBackendTested": false,
+  "productionBackendNote": "No backend exists in this workspace; the local verification server is not a backend."
+}

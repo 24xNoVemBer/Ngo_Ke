@@ -7,10 +7,10 @@
 | Mục | Giá trị |
 | --- | --- |
 | Cập nhật | 03/10/2026 |
-| Phase hiện tại | **5 — GPS candidate và xác nhận điểm** |
-| Trạng thái | **Phase5 code đã bàn giao; G5 chưa chốt** |
+| Phase hiện tại | **6 — live gọi API, tách demo/live, handoff data/UI** |
+| Trạng thái | **Phase6 code đã bàn giao; G6 chưa chốt** |
 | Native mobile | **Home fixture/khung đã chạy Android emulator và thử offline sau nạp bundle; điện thoại thật/iOS chưa kiểm tra** |
-| Implementation approved | **Phase 5 (R5.01–R5.03)** |
+| Implementation approved | **Phase 6 (R6.01–R6.04)** |
 | Công cụ đang dùng | OpenCode |
 | Trình độ A/B/C | Chưa xác định; “người A” trong plan là vai trò, không phải trình độ |
 | Gate G0 / quyền bắt đầu Phase 1 | Đã được người dùng duyệt rõ ràng; cho phép dựng khung trước khi có source |
@@ -35,7 +35,10 @@ Triển khai Phase2 (giới thiệu, Q&A cố định có nguồn, hỏi tiếp)
 - [x] **Phase4 được người dùng duyệt 03/10/2026.**
 - [x] **Phase4 được người dùng duyệt 03/10/2026.**
 - [x] Phase5 code: lấy vị trí khi bấm nút → **một** candidate + accuracy + khoảng cách → microcopy “có thể là…” → chỉ xác nhận của người dùng mới đổi node → xử lý từ chối quyền/accuracy kém/ngoài cụm. Thêm dependency `expo-location`. Tests81/81; emulator 6/6 cho phần quyền bị từ chối + chọn tay. Báo cáo `agent_docs/phase_5_review.md`.
-- [ ] Người dùng duyệt microcopy/quy trình Phase5 (G5) và chốt có gắn “đã ghé thăm” theo phiên vào Phase5 hay để Phase6/7.
+- [x] **Phase5 được người dùng duyệt 03/10/2026.**
+- [x] **Phase5 được người dùng duyệt 03/10/2026.**
+- [x] Phase6 code: adapter live (timeout 8s, URL theo môi trường), 6 trạng thái empty/error, demo không cần mạng, máy chủ kiểm chứng cục bộ, tài liệu handoff data/UI. Tests90/90 + emulator27/27. Báo cáo `agent_docs/phase_6_review.md`.
+- [ ] Người dùng duyệt câu chữ trạng thái live, đường dẫn `/api/dataset`, việc có token không, và số điểm 6 cố định (G6).
 - [ ] Chạy quét QR thật trên điện thoại thật (emulator không đưa được mã QR vào khung hình camera).
 - [ ] Điện thoại thật/iOS vẫn chưa kiểm tra ở bất kỳ phase nào; emulator không thay điều kiện đó.
 
@@ -48,6 +51,8 @@ Triển khai Phase2 (giới thiệu, Q&A cố định có nguồn, hỏi tiếp)
 - 03/10/2026: **“Tôi duyệt phase 1. Hãy triển khai phase 2 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.”** G1 được duyệt; cho phép Phase2 (giới thiệu, Q&A cố định có nguồn, hỏi tiếp), cập nhật MEMORY/checklist theo bằng chứng rồi dừng trước phase sau. Không kèm duyệt Phase3–7/voice hay duyệt sẵn nội dung lịch sử.
 - 03/10/2026: **“Tôi duyệt phase [4]. Hãy triển khai phase 5 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.”** Cho phép Phase5; không kèm duyệt Phase6–7/voice.
 - 03/10/2026: anh yêu cầu **thêm rule bắt buộc**: mỗi lần bàn giao phải note riêng (1) việc chỉ người dùng quyết được, (2) việc người dùng phải tự làm — đánh dấu `[ngoài plan]` nếu không có trong `TECH_DEMO_PLAN.md`, kèm hệ quả nếu chưa làm. Rule nằm ở `AGENTS.md` § “Việc cần người dùng quyết hoặc tự làm”.
+- 03/10/2026: **“Tôi duyệt phase [5]. Hãy triển khai phase 6 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.”** Cho phép Phase6; không kèm duyệt Phase7/voice.
+- 03/10/2026: anh chốt Phase6 = **timeout 8 giây**; **URL live từ biến môi trường `EXPO_PUBLIC_NGOKE_API_BASE_URL` + `app.json extra.apiBaseUrl`**; **adapter + máy chủ kiểm chứng cục bộ**, không dựng backend production và không sinh dữ liệu thật.
 - 03/10/2026: anh chốt Phase5 = **accuracy > 50 m hoặc cách > 300 m thì không đưa candidate**, chỉ báo lý do + chọn tay; **thêm tọa độ mô phỏng** cho 6 điểm và ghi rõ là mô phỏng.
 - 03/10/2026: emulator **không cấp được fix GPS** (`geo fix` trả OK nhưng mọi provider `last location=null`, app log `Current location is unavailable`) → nhánh candidate/outside-cluster chỉ kiểm bằng unit test; cần điện thoại thật.
 - 03/10/2026: anh thêm `expo-camera` 57.0.6 bằng `npx expo install`; mã QR theo công thức `ngo-ke://node/<id>` sinh từ `id`, không lưu trùng trong dataset.
@@ -72,7 +77,7 @@ Khi có duyệt mới, ghi ngày, trích yêu cầu, phase được phép và ph
 
 ## Bước tiếp theo và thông tin còn thiếu
 
-**Bước tiếp theo:** anh review mục “Việc cần anh quyết / Việc anh tự làm” trong `agent_docs/phase_5_review.md` (ngưỡng 50/300 m khi có tọa độ thật, có gắn “đã ghé thăm” theo phiên không, câu xin quyền), và thử GPS thật ngoài trời nếu có điện thoại; sau đó mới quyết định sang Phase6. Dữ liệu thật vẫn chờ nhóm data theo `docs/DATA_COLLECTION_GUIDE.md`.
+**Bước tiếp theo:** anh review mục “Việc cần anh quyết / Việc anh tự làm” trong `agent_docs/phase_6_review.md`, đặc biệt cung cấp URL backend thật và gửi hai tài liệu handoff cho nhóm data và nhóm UI; sau đó mới quyết định sang Phase7. **Bước trước đó:** triển khai Phase6 theo TDD (adapter live với timeout 8s, cấu hình URL theo môi trường, máy chủ kiểm chứng cục bộ, tài liệu handoff data/UI), kiểm tra và bàn giao kèm mục việc cần anh quyết/tự làm; dừng trước Phase7. Dữ liệu thật và backend thật vẫn chờ anh.
 
 **Còn thiếu:** điện thoại thật/iOS runtime/offline cold start/screen reader chưa thử; G1 cần điện thoại thật và review. Audit còn23 cảnh báo. Fixture/Home và offline sau tải bundle đã thử. Logic/Q&A/backend thuộc phase sau chưa duyệt, không phải blocker Phase1 chờ source.
 

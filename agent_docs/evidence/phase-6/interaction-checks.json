@@ -1,0 +1,115 @@
+{
+  "date": "2026-10-03",
+  "checks": [
+    {
+      "name": "Mode switch reachable without configuration",
+      "passed": true
+    },
+    {
+      "name": "Live without a configured URL shows an empty state",
+      "passed": true
+    },
+    {
+      "name": "Live without a configured URL does not show demo points",
+      "passed": true
+    },
+    {
+      "name": "Live without a configured URL stays in live mode",
+      "passed": true
+    },
+    {
+      "name": "empty: mode switch reachable",
+      "passed": true
+    },
+    {
+      "name": "/empty/api/dataset endpoint shows \"Live chưa có dữ liệu\"",
+      "passed": true
+    },
+    {
+      "name": "/empty/api/dataset endpoint keeps live mode",
+      "passed": true
+    },
+    {
+      "name": "/empty/api/dataset endpoint never falls back to demo points",
+      "passed": true
+    },
+    {
+      "name": "broken: mode switch reachable",
+      "passed": true
+    },
+    {
+      "name": "/broken/api/dataset endpoint shows \"Dữ liệu live không đúng định dạng\"",
+      "passed": true
+    },
+    {
+      "name": "/broken/api/dataset endpoint keeps live mode",
+      "passed": true
+    },
+    {
+      "name": "/broken/api/dataset endpoint never falls back to demo points",
+      "passed": true
+    },
+    {
+      "name": "server-error: mode switch reachable",
+      "passed": true
+    },
+    {
+      "name": "/server-error/api/dataset endpoint shows \"Máy chủ live trả lỗi\"",
+      "passed": true
+    },
+    {
+      "name": "/server-error/api/dataset endpoint keeps live mode",
+      "passed": true
+    },
+    {
+      "name": "/server-error/api/dataset endpoint never falls back to demo points",
+      "passed": true
+    },
+    {
+      "name": "hang: mode switch reachable",
+      "passed": true
+    },
+    {
+      "name": "/hang/api/dataset endpoint shows \"Máy chủ live phản hồi quá chậm\"",
+      "passed": true
+    },
+    {
+      "name": "/hang/api/dataset endpoint keeps live mode",
+      "passed": true
+    },
+    {
+      "name": "/hang/api/dataset endpoint never falls back to demo points",
+      "passed": true
+    },
+    {
+      "name": "Mode switch reachable for the ready payload",
+      "passed": true
+    },
+    {
+      "name": "A valid payload shows live data as reviewed",
+      "passed": true
+    },
+    {
+      "name": "Live shows the number of points from the payload",
+      "passed": true
+    },
+    {
+      "name": "Q&A opens with live data",
+      "passed": true,
+      "reverified": "Bản chạy đầu báo fail vì nút Home chưa nằm trọn trong vùng nhìn nên tọa độ bấm rơi ra ngoài màn; đã sửa cách cuộn của script và kiểm lại — xem interaction-checks-followup.json."
+    },
+    {
+      "name": "Demo still loads with no server running",
+      "passed": true
+    },
+    {
+      "name": "Demo still shows its six simulated points",
+      "passed": true
+    },
+    {
+      "name": "Demo Q&A works with no server running",
+      "passed": true,
+      "reverified": "Bản chạy đầu báo fail vì nút Home chưa nằm trọn trong vùng nhìn nên tọa độ bấm rơi ra ngoài màn; đã sửa cách cuộn của script và kiểm lại — xem interaction-checks-followup.json."
+    }
+  ]
+}

@@ -69,7 +69,7 @@ Mỗi điểm trong con ngõ là một "node" mà app điều hướng tới.
 
 ### 2.5 Dữ liệu cho chế độ live
 
-Cùng cấu trúc với fixture nhưng do backend phục vụ. Mỗi bản ghi phải kèm `updatedAt` và `reviewStatus: approved` trước khi app dùng.
+Cùng cấu trúc với fixture nhưng do backend phục vụ tại `GET {base}/api/dataset`. Mỗi bản ghi phải kèm `updatedAt` và `reviewStatus: approved` trước khi app dùng. Adapter và cách kiểm từng trạng thái: [`HANDOFF_DATA.md`](HANDOFF_DATA.md).
 
 ## 3. Cách thu
 

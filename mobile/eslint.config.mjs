@@ -13,4 +13,11 @@ export default defineConfig(
     files: ['**/*.{ts,tsx,mjs}'],
     extends: [js.configs.recommended, tseslint.configs.recommended],
   },
+  {
+    // Tests exercise the live adapter with stubbed fetch/Response objects.
+    files: ['tests/**/*.mjs'],
+    languageOptions: {
+      globals: { Response: 'readonly', structuredClone: 'readonly', fetch: 'readonly', AbortController: 'readonly' },
+    },
+  },
 );

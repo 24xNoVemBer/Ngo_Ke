@@ -2,8 +2,8 @@
 
 ## Trạng thái và quyền thực hiện
 
-- **Phase hiện tại: 5. Trạng thái: code Phase 5 đã bàn giao; G5 chưa chốt.** Phase 1–4 đã duyệt; nội dung và tọa độ vẫn là mô phỏng; **nhánh GPS candidate/outside-cluster chưa kiểm được trên emulator** (máy ảo không cấp fix GPS); quét QR thật chưa kiểm end-to-end; điện thoại thật/iOS chưa kiểm tra; audit còn cảnh báo.
-- **Implementation approved: Phase 5 (R5.01–R5.03).** Người dùng nói “Tôi duyệt phase [4]. Hãy triển khai phase 5 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.” Phase 6–7/voice chưa được duyệt. Sẽ thêm dependency `expo-location` bằng `npx expo install`; không bật quyền nền.
+- **Phase hiện tại: 6. Trạng thái: code Phase 6 đã bàn giao; G6 chưa chốt.** Phase 1–4 đã duyệt; nội dung và tọa độ vẫn là mô phỏng; **nhánh GPS candidate/outside-cluster chưa kiểm được trên emulator** (máy ảo không cấp fix GPS); quét QR thật chưa kiểm end-to-end; điện thoại thật/iOS chưa kiểm tra; audit còn cảnh báo.
+- **Implementation approved: Phase 6 (R6.01–R6.04).** Người dùng nói “Tôi duyệt phase [5]. Hãy triển khai phase 6 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.” Phase 7/voice chưa được duyệt. Ba quy tắc đã chốt 03/10: timeout **8 giây**; URL live từ **biến môi trường + app.json extra**; **adapter + máy chủ kiểm chứng cục bộ** (không dựng backend production).
 - Công cụ đang dùng: **OpenCode**. Trình độ A/B/C của người dùng chưa xác định; không suy từ vai trò “người A”.
 - Đọc `MEMORY.md` trước khi làm việc để biết nhiệm vụ, bằng chứng duyệt và bước tiếp theo.
 
@@ -27,6 +27,8 @@ Yêu cầu mới nhất của người dùng → `docs/TECH_DEMO_PLAN.md` → `d
 | Tiến độ, bằng chứng và câu hỏi cần duyệt của Phase 3 | `agent_docs/phase_3_review.md`, spec `docs/superpowers/specs/2026-10-03-phase-3-recommendation-design.md` |
 | Tiến độ, bằng chứng và câu hỏi cần duyệt của Phase 4 | `agent_docs/phase_4_review.md`, spec `docs/superpowers/specs/2026-10-03-phase-4-camera-qa-design.md` |
 | Tiến độ, bằng chứng và câu hỏi cần duyệt của Phase 5 | `agent_docs/phase_5_review.md`, spec `docs/superpowers/specs/2026-10-03-phase-5-location-design.md` |
+| Tiến độ, bằng chứng và câu hỏi cần duyệt của Phase 6 | `agent_docs/phase_6_review.md`, spec `docs/superpowers/specs/2026-10-03-phase-6-live-api-design.md` |
+| Handoff cho nhóm data và nhóm UI | `docs/HANDOFF_DATA.md`, `docs/HANDOFF_UI.md` |
 
 Giữ các hướng dẫn đang có, kể cả hướng dẫn toàn cục. Nếu chúng mâu thuẫn với phạm vi hoặc cửa duyệt của dự án, báo rõ vị trí và dừng phần bị ảnh hưởng để người dùng quyết định; không âm thầm chọn một bên.
 
@@ -46,8 +48,8 @@ Giữ các hướng dẫn đang có, kể cả hướng dẫn toàn cục. Nếu
 | 2 | Giới thiệu, Q&A cố định có nguồn, hỏi tiếp (G2) | **Đã được người dùng duyệt 03/10/2026** (nội dung vẫn mô phỏng) |
 | 3 | Chủ đề/quỹ thời gian, tối đa ba điểm có lý do (G3) | **Đã được người dùng duyệt 03/10/2026** |
 | 4 | Camera, QR, 2D placeholder + caption, chọn tay (G4) | **Đã được người dùng duyệt 03/10/2026** (quét QR thật vẫn chưa kiểm end-to-end) |
-| 5 | GPS candidate, xác nhận/chọn lại (G5) | Code đã bàn giao; chờ anh duyệt microcopy/quy trình và chốt việc đánh dấu “đã ghé thăm” |
-| 6 | API/dataset thật được duyệt, handoff data/UI (G6) | Chưa bắt đầu |
+| 5 | GPS candidate, xác nhận/chọn lại (G5) | **Đã được người dùng duyệt 03/10/2026** (nhánh candidate/outside-cluster chưa chạy thật trên thiết bị) |
+| 6 | Live gọi API, tách demo/live, handoff data/UI (G6) | Code đã bàn giao; chờ anh duyệt câu chữ trạng thái và cách cấu hình URL |
 | 7 | Offline, kiểm tra end-to-end, bàn giao core (G7) | Chưa bắt đầu |
 | Voice riêng | Sau core; duyệt riêng + connector/giọng người dùng chọn (GV) | Chưa được duyệt |
 

@@ -37,11 +37,61 @@ type SourceDescription = {
   detail: string;
 };
 
+export type LiveReason = 'no-config' | 'no-data' | 'shape' | 'http' | 'network' | 'timeout';
+
 export type SourceState = SourceDescription & (
   | { mode: 'demo'; status: 'ready'; dataset: DemoDataset }
   | { mode: 'demo'; status: 'error' }
-  | { mode: 'live'; status: 'empty' }
+  | { mode: 'live'; status: 'ready'; dataset: DemoDataset }
+  | { mode: 'live'; status: 'empty'; reason?: LiveReason }
+  | { mode: 'live'; status: 'error'; reason?: LiveReason }
 );
+
+export const liveTitles: Record<LiveReason, { title: string; detail: string }> = {
+  'no-config': {
+    title: 'Live chưa được cấu hình',
+    detail:
+      'Chưa có URL backend cho chế độ live. App không tự chuyển sang dữ liệu demo và không tự tạo nội dung. Cấu hình EXPO_PUBLIC_NGOKE_API_BASE_URL hoặc app.json extra.apiBaseUrl rồi bấm “Thử lại”.',
+  },
+  'no-data': {
+    title: 'Live chưa có dữ liệu',
+    detail:
+      'Máy chủ trả về nhưng chưa có điểm nào đã duyệt. App giữ nguyên chế độ live và không nạp dữ liệu demo.',
+  },
+  shape: {
+    title: 'Dữ liệu live không đúng định dạng',
+    detail:
+      'Bản trả về không khớp schema phiên bản 1, hoặc thiếu nguồn của câu trả lời. App từ chối hiển thị thay vì hiện nội dung thiếu căn cứ.',
+  },
+  http: {
+    title: 'Máy chủ live trả lỗi',
+    detail: 'Máy chủ không trả về dữ liệu hợp lệ. Bấm “Thử lại” sau khi máy chủ sẵn sàng.',
+  },
+  network: {
+    title: 'Không kết nối được máy chủ live',
+    detail: 'Kiểm tra mạng hoặc URL backend rồi bấm “Thử lại”.',
+  },
+  timeout: {
+    title: 'Máy chủ live phản hồi quá chậm',
+    detail: 'Quá 8 giây không có phản hồi nên app dừng chờ. Bấm “Thử lại”.',
+  },
+};
+
+export const liveEmpty = (reason: LiveReason = 'no-config'): SourceState => ({
+  mode: 'live',
+  status: 'empty',
+  reason,
+  title: liveTitles[reason].title,
+  detail: liveTitles[reason].detail,
+});
+
+export const liveError = (reason: LiveReason): SourceState => ({
+  mode: 'live',
+  status: 'error',
+  reason,
+  title: liveTitles[reason].title,
+  detail: liveTitles[reason].detail,
+});
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -153,18 +203,18 @@ function isDemoDataset(value: unknown): value is DemoDataset {
   return value.qa.every((entry) => entry.followUps.every((followUp) => qaIds.has(followUp)));
 }
 
+/** The one dataset rule shared by demo and live. */
+export function parseDataset(value: unknown): DemoDataset | undefined {
+  return isDemoDataset(value) ? value : undefined;
+}
+
 export function getSourceState(mode: Mode, demoData?: unknown): SourceState {
   if (mode === 'live') {
-    return {
-      mode,
-      status: 'empty',
-      title: 'Live chưa được cấu hình',
-      detail:
-        'Chưa nối backend hoặc dataset thật. Chế độ vẫn là live; app không tự chuyển sang dữ liệu demo. Kết nối API thuộc Phase 6.',
-    };
+    return liveEmpty('no-config');
   }
 
-  if (!isDemoDataset(demoData)) {
+  const dataset = parseDataset(demoData);
+  if (dataset === undefined) {
     return {
       mode,
       status: 'error',
@@ -178,6 +228,6 @@ export function getSourceState(mode: Mode, demoData?: unknown): SourceState {
     status: 'ready',
     title: 'Đã nạp 6 điểm mô phỏng',
     detail: 'Nguồn: data/demo.json trong bundle. Không cần API, server hoặc API key để xem dữ liệu này.',
-    dataset: demoData,
+    dataset,
   };
 }

@@ -52,7 +52,14 @@ Chỉ dùng các mục thuộc phase đang review; không đánh dấu phase tư
 - [x] **R5.03:** xử lý từ chối quyền, không có vị trí, không có tọa độ, accuracy kém, ngoài cụm; không nhánh nào tự xác nhận; luôn có chọn tay. Đạt.
 - [ ] **R5.05:** người dùng review microcopy và quy trình trước khi thử ngoài thực địa; **chưa kiểm trên iPhone hay điện thoại thật**.
 - [ ] **G5:** người dùng duyệt microcopy/quy trình; tọa độ vẫn mô phỏng.
-- [ ] **G6–G7/GV:** chưa được duyệt hoặc triển khai.
+- [x] **R6.01:** live gọi `{base}/api/dataset` với URL từ biến môi trường, dự phòng `app.json extra`; kiểm shape và nguồn bằng validator chung với demo. Đạt.
+- [x] **R6.02:** thiếu cấu hình → empty; rỗng/404 → empty; sai shape/mất nguồn, HTTP lỗi, lỗi mạng, quá 8 giây → error; có nút “Thử lại”; không bao giờ nạp `data/demo.json`. Đạt, kiểm chứng từng trạng thái trên emulator.
+- [x] **R6.03:** demo đọc fixture trong bundle, không cần API/server/key; đã tắt máy chủ rồi kiểm lại demo vẫn chạy. Đạt.
+- [x] **R6.04:** `docs/HANDOFF_DATA.md` và `docs/HANDOFF_UI.md` có quy tắc, danh sách file không được sửa và checklist trước khi gửi. Đạt.
+- [ ] **G6:** người dùng duyệt câu chữ trạng thái, đường dẫn endpoint và cách cấu hình URL; **chưa có backend thật**.
+- [ ] **G7/GV:** chưa được duyệt hoặc triển khai.
+
+Gói Phase 6: `agent_docs/phase_6_review.md`; tests90/90, typecheck/lint/dependency/Doctor21/21 và hai export đạt; emulator27/27 với máy chủ kiểm chứng cục bộ; audit còn23 cảnh báo (7 moderate/16 high).
 
 Gói Phase 5: `agent_docs/phase_5_review.md`; tests81/81, typecheck/lint/dependency/Doctor21/21 và hai export đạt; emulator6/6 cho nhánh quyền bị từ chối; **nhánh candidate/outside-cluster không kiểm được trên emulator** (máy ảo không cấp fix GPS, xem `agent_docs/evidence/phase-5/emulator-gps-limitation.txt`); audit còn23 cảnh báo (7 moderate/16 high).
 

@@ -11,9 +11,19 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'> & {
   source: SourceState;
   onModeChange: (mode: Mode) => void;
   currentNodeId?: string;
+  liveBusy?: boolean;
+  onRetryLive?: () => void;
 };
 
-export function HomeScreen({ mode, source, onModeChange, currentNodeId, navigation }: Props): ReactElement {
+export function HomeScreen({
+  mode,
+  source,
+  onModeChange,
+  currentNodeId,
+  liveBusy = false,
+  onRetryLive,
+  navigation,
+}: Props): ReactElement {
   const currentNode = source.status === 'ready'
     ? source.dataset.nodes.find((node) => node.id === currentNodeId)
     : undefined;
@@ -21,10 +31,10 @@ export function HomeScreen({ mode, source, onModeChange, currentNodeId, navigati
   return (
     <SafeAreaView style={styles.screen} edges={['left', 'right', 'bottom']}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.phase}>Phase 1–5 · Hỏi đáp, gợi ý điểm, camera, người kể và GPS</Text>
+        <Text style={styles.phase}>Phase 1–6 · Hỏi đáp, gợi ý điểm, camera, GPS và dữ liệu live</Text>
         <Text accessibilityRole="header" style={styles.title}>Ngõ Kể</Text>
         <Text style={styles.body}>
-          Khung trải nghiệm khám phá con ngõ. Chọn chế độ, thử hỏi đáp, xem gợi ý điểm, thử camera với người kể và xác nhận điểm bằng GPS.
+          Khung trải nghiệm khám phá con ngõ. Chọn chế độ demo hoặc live, thử hỏi đáp, gợi ý điểm, camera với người kể và xác nhận điểm bằng GPS.
         </Text>
 
         <Text style={styles.label}>Nguồn dữ liệu</Text>
@@ -51,12 +61,32 @@ export function HomeScreen({ mode, source, onModeChange, currentNodeId, navigati
 
         <View style={styles.source} accessibilityLiveRegion="polite">
           <Text style={styles.sourceMeta}>
-            {source.mode === 'live' ? 'LIVE · trống' : source.status === 'ready' ? 'DEMO · fixture mô phỏng' : 'DEMO · lỗi fixture'}
+            {source.mode === 'live'
+              ? liveBusy
+                ? 'LIVE · đang tải'
+                : source.status === 'ready'
+                  ? 'LIVE · dữ liệu đã duyệt'
+                  : source.status === 'error'
+                    ? 'LIVE · lỗi'
+                    : 'LIVE · trống'
+              : source.status === 'ready'
+                ? 'DEMO · fixture mô phỏng'
+                : 'DEMO · lỗi fixture'}
           </Text>
           <Text style={[styles.sourceTitle, source.status === 'error' && styles.errorText]}>
-            {source.title}
+            {liveBusy ? 'Đang lấy dữ liệu live…' : source.title}
           </Text>
-          <Text style={styles.body}>{source.detail}</Text>
+          <Text style={styles.body}>{liveBusy ? 'Đang gọi máy chủ theo URL đã cấu hình.' : source.detail}</Text>
+          {source.mode === 'live' && source.status === 'error' && onRetryLive !== undefined && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Thử lại dữ liệu live"
+              onPress={onRetryLive}
+              style={({ pressed }) => [styles.retryButton, pressed && styles.pressed]}
+            >
+              <Text style={styles.retryText}>Thử lại</Text>
+            </Pressable>
+          )}
         </View>
 
         {source.status === 'ready' && (
@@ -114,7 +144,7 @@ export function HomeScreen({ mode, source, onModeChange, currentNodeId, navigati
           Không còn màn placeholder nào: Q&A, gợi ý điểm, camera và GPS đều đã có tính năng.
         </Text>
         <Text style={styles.note}>
-          Đây là bản demo chức năng. Hỏi đáp, gợi ý điểm, lời kể và tọa độ đều là dữ liệu mô phỏng; backend live thuộc phase sau khi được duyệt.
+          Demo đọc data/demo.json trong bundle nên không cần mạng. Live gọi máy chủ theo URL đã cấu hình và không bao giồ lấy dữ liệu demo.
         </Text>
       </ScrollView>
     </SafeAreaView>
@@ -137,6 +167,10 @@ const styles = StyleSheet.create({
   selected: { backgroundColor: colors.accent, borderColor: colors.accent },
   modeText: { fontSize: 16, fontWeight: '600', color: colors.text },
   selectedText: { color: colors.surface },
+  retryButton: {
+    minHeight: 48, paddingVertical: 12, justifyContent: 'center', alignItems: 'center',
+  },
+  retryText: { fontSize: 16, fontWeight: '600', color: colors.accent },
   pressed: { opacity: 0.72 },
   source: { padding: 20, borderRadius: 12, gap: 12, backgroundColor: colors.surface },
   sourceMeta: { fontSize: 13, fontWeight: '600', color: colors.muted },

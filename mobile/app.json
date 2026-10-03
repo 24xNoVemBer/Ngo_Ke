@@ -44,6 +44,9 @@
           "locationWhenInUsePermission": "Cho phép Ngõ Kể đọc vị trí một lần để gợi ý điểm gần nhất. App không theo dõi vị trí nền."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "apiBaseUrl": ""
+    }
   }
 }

@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-03",
+  "note": "retry of two checks that failed because the Home button was partly off screen",
+  "checks": [
+    {
+      "name": "Live payload is ready before opening Q&A",
+      "passed": true
+    },
+    {
+      "name": "Q&A action can be tapped when fully on screen",
+      "passed": true
+    },
+    {
+      "name": "Q&A opens with live data",
+      "passed": true
+    },
+    {
+      "name": "Demo loads with no server",
+      "passed": true
+    },
+    {
+      "name": "Demo Q&A action can be tapped",
+      "passed": true
+    },
+    {
+      "name": "Demo Q&A works with no server running",
+      "passed": true
+    }
+  ]
+}
