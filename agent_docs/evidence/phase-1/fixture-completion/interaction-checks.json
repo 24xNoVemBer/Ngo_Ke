@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-03",
+  "checks": [
+    {
+      "name": "Demo count and simulation disclaimer on Home",
+      "passed": true
+    },
+    {
+      "name": "All six actual fixture point names visible by scrolling",
+      "passed": true
+    },
+    {
+      "name": "Live empty, selected and no demo point rows",
+      "passed": true
+    },
+    {
+      "name": "Placeholder qa opens with unimplemented label",
+      "passed": true
+    },
+    {
+      "name": "Back from qa keeps live without demo list",
+      "passed": true
+    },
+    {
+      "name": "Placeholder recommendations opens with unimplemented label",
+      "passed": true
+    },
+    {
+      "name": "Back from recommendations keeps live without demo list",
+      "passed": true
+    },
+    {
+      "name": "Placeholder camera opens with unimplemented label",
+      "passed": true
+    },
+    {
+      "name": "Back from camera keeps live without demo list",
+      "passed": true
+    },
+    {
+      "name": "Placeholder gps opens with unimplemented label",
+      "passed": true
+    },
+    {
+      "name": "Back from gps keeps live without demo list",
+      "passed": true
+    },
+    {
+      "name": "Returning to demo restores ready fixture",
+      "passed": true
+    }
+  ],
+  "pointNamesSeen": [
+    "Điểm demo 01",
+    "Điểm demo 02",
+    "Điểm demo 03",
+    "Điểm demo 04",
+    "Điểm demo 05",
+    "Điểm demo 06"
+  ]
+}

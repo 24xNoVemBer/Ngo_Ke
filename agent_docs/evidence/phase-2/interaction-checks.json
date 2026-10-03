@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-03",
+  "checks": [
+    {
+      "name": "Intro with start node and source shown",
+      "passed": true
+    },
+    {
+      "name": "Sample question chips shown",
+      "passed": true
+    },
+    {
+      "name": "Chip returns approved answer with source",
+      "passed": true
+    },
+    {
+      "name": "Follow-up chips offered",
+      "passed": true
+    },
+    {
+      "name": "Follow-up answers through the same mechanism",
+      "passed": true
+    },
+    {
+      "name": "Typed off-list question reports no data",
+      "passed": true
+    },
+    {
+      "name": "Typed off-list shows the asked question",
+      "passed": true
+    },
+    {
+      "name": "Typed off-list leaks no answer",
+      "passed": true
+    },
+    {
+      "name": "Typed alias answered after normalization",
+      "passed": true
+    },
+    {
+      "name": "Typed alias shows source",
+      "passed": true
+    },
+    {
+      "name": "Input cleared after submit",
+      "passed": true
+    },
+    {
+      "name": "Back from Q&A returns Home",
+      "passed": true
+    },
+    {
+      "name": "No fatal or JS error in recent logcat",
+      "passed": true
+    }
+  ],
+  "note": "Back check verified by the Home node list visible after one BACK; the previous run only failed because Home was still scrolled below Nguồn dữ liệu."
+}

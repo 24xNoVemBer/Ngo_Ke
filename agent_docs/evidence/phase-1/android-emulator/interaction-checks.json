@@ -1,0 +1,78 @@
+[
+  {
+    "name": "Home demo missing fixture displayed",
+    "passed": true
+  },
+  {
+    "name": "Live empty displayed",
+    "passed": true
+  },
+  {
+    "name": "Live selected",
+    "passed": true
+  },
+  {
+    "name": "Open Giới thiệu và hỏi đáp",
+    "passed": true
+  },
+  {
+    "name": "Placeholder clearly unimplemented qa",
+    "passed": true
+  },
+  {
+    "name": "Back returns Home qa",
+    "passed": true
+  },
+  {
+    "name": "Live retained after qa",
+    "passed": true
+  },
+  {
+    "name": "Open Chọn trải nghiệm",
+    "passed": true
+  },
+  {
+    "name": "Placeholder clearly unimplemented recommendations",
+    "passed": true
+  },
+  {
+    "name": "Back returns Home recommendations",
+    "passed": true
+  },
+  {
+    "name": "Live retained after recommendations",
+    "passed": true
+  },
+  {
+    "name": "Open Camera và người kể",
+    "passed": true
+  },
+  {
+    "name": "Placeholder clearly unimplemented camera",
+    "passed": true
+  },
+  {
+    "name": "Back returns Home camera",
+    "passed": true
+  },
+  {
+    "name": "Live retained after camera",
+    "passed": true
+  },
+  {
+    "name": "Open Xác nhận điểm GPS",
+    "passed": true
+  },
+  {
+    "name": "Placeholder clearly unimplemented gps",
+    "passed": true
+  },
+  {
+    "name": "Back returns Home gps",
+    "passed": true
+  },
+  {
+    "name": "Live retained after gps",
+    "passed": true
+  }
+]

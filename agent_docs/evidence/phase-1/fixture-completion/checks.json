@@ -1,0 +1,237 @@
+{
+  "date": "2026-10-02",
+  "commands": [
+    {
+      "label": "dependencies",
+      "command": "npm run check:dependencies",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "log": "dependencies.log",
+      "seconds": 1.0
+    },
+    {
+      "label": "doctor",
+      "command": "npx --yes expo-doctor",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "log": "doctor.log",
+      "seconds": 3.3
+    },
+    {
+      "label": "build-android",
+      "command": "npm run build:android",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "log": "build-android.log",
+      "seconds": 10.3
+    },
+    {
+      "label": "build-ios",
+      "command": "npm run build:ios",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "log": "build-ios.log",
+      "seconds": 10.0
+    },
+    {
+      "label": "tests",
+      "date": "2026-10-03",
+      "command": "npm test",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "log": "tests.log"
+    },
+    {
+      "label": "typecheck",
+      "date": "2026-10-03",
+      "command": "npm run typecheck",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "label": "lint",
+      "date": "2026-10-03",
+      "command": "npm run lint",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "log": "lint.log"
+    }
+  ],
+  "completionDate": "2026-10-03",
+  "audit": {
+    "command": "npm audit --json",
+    "cwd": "mobile/",
+    "exitCode": 1,
+    "log": "audit.json",
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 7,
+      "high": 16,
+      "critical": 0,
+      "total": 23
+    }
+  },
+  "review": {
+    "critical": 0,
+    "important": 0,
+    "minor": 0,
+    "independentTests": "npm test exit0"
+  },
+  "runtime": {
+    "interaction": {
+      "date": "2026-10-03",
+      "checks": [
+        {
+          "name": "Demo count and simulation disclaimer on Home",
+          "passed": true
+        },
+        {
+          "name": "All six actual fixture point names visible by scrolling",
+          "passed": true
+        },
+        {
+          "name": "Live empty, selected and no demo point rows",
+          "passed": true
+        },
+        {
+          "name": "Placeholder qa opens with unimplemented label",
+          "passed": true
+        },
+        {
+          "name": "Back from qa keeps live without demo list",
+          "passed": true
+        },
+        {
+          "name": "Placeholder recommendations opens with unimplemented label",
+          "passed": true
+        },
+        {
+          "name": "Back from recommendations keeps live without demo list",
+          "passed": true
+        },
+        {
+          "name": "Placeholder camera opens with unimplemented label",
+          "passed": true
+        },
+        {
+          "name": "Back from camera keeps live without demo list",
+          "passed": true
+        },
+        {
+          "name": "Placeholder gps opens with unimplemented label",
+          "passed": true
+        },
+        {
+          "name": "Back from gps keeps live without demo list",
+          "passed": true
+        },
+        {
+          "name": "Returning to demo restores ready fixture",
+          "passed": true
+        }
+      ],
+      "pointNamesSeen": [
+        "Điểm demo 01",
+        "Điểm demo 02",
+        "Điểm demo 03",
+        "Điểm demo 04",
+        "Điểm demo 05",
+        "Điểm demo 06"
+      ]
+    },
+    "offline": {
+      "date": "2026-10-03",
+      "originalSettings": {
+        "wifi_on": "1",
+        "mobile_data": "1"
+      },
+      "checks": [
+        {
+          "name": "Emulator Wi-Fi disabled and no default network route",
+          "passed": true
+        },
+        {
+          "name": "Already-loaded Home fixture remains ready without network",
+          "passed": true
+        },
+        {
+          "name": "Offline Live stays empty without demo list",
+          "passed": true
+        },
+        {
+          "name": "Offline switch back reads bundled demo again",
+          "passed": true
+        },
+        {
+          "name": "All six bundled point names remain reachable offline",
+          "passed": true
+        }
+      ],
+      "routesBefore": "10.0.2.0/24 dev wlan0 proto kernel scope link src 10.0.2.16 \r\n10.0.2.0/24 dev eth0 proto kernel scope link src 10.0.2.15",
+      "routesOffline": "",
+      "wifiStatusOffline": "Wifi is disabled\r\nWifi scanning is only available when wifi is enabled",
+      "pointNamesSeenOffline": [
+        "Điểm demo 01",
+        "Điểm demo 02",
+        "Điểm demo 03",
+        "Điểm demo 04",
+        "Điểm demo 05",
+        "Điểm demo 06"
+      ],
+      "restoredSettings": {
+        "wifi_on": "1",
+        "mobile_data": "1"
+      },
+      "settingsRestored": true
+    },
+    "layout": {
+      "date": "2026-10-03",
+      "originalSettings": {
+        "font_scale": "1.0",
+        "accelerometer_rotation": "1",
+        "user_rotation": "0"
+      },
+      "settingsRestored": true,
+      "checks": [
+        {
+          "name": "Font1.5 fixture count reachable",
+          "passed": true
+        },
+        {
+          "name": "Font1.5 all six point names reachable",
+          "passed": true
+        },
+        {
+          "name": "Landscape fixture count reachable",
+          "passed": true
+        },
+        {
+          "name": "Landscape all six point names reachable",
+          "passed": true
+        }
+      ],
+      "note": "First automated fast swipe skipped point01 between frames; repeated with short slow swipes confirmed all6 visible. Rotation preserved scroll, so readiness first scrolls to top. No app code change.",
+      "largeFontPointNamesSeen": [
+        "Điểm demo 01",
+        "Điểm demo 02",
+        "Điểm demo 03",
+        "Điểm demo 04",
+        "Điểm demo 05",
+        "Điểm demo 06"
+      ]
+    }
+  },
+  "runtimeDevices": [
+    {
+      "type": "emulator",
+      "avd": "Medium_Phone",
+      "os": "Android17/API37",
+      "expoGo": "57.0.9"
+    }
+  ],
+  "physicalPhoneTested": false,
+  "iosRuntimeTested": false,
+  "offlineColdStartTested": false
+}

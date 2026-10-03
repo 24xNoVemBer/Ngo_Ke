@@ -1,0 +1,30 @@
+{
+  "android-version": {
+    "exitCode": 0,
+    "output": "17"
+  },
+  "api-level": {
+    "exitCode": 0,
+    "output": "37"
+  },
+  "model": {
+    "exitCode": 0,
+    "output": "sdk_gphone16k_x86_64"
+  },
+  "expo-go": {
+    "exitCode": 0,
+    "output": ""
+  },
+  "screen-size": {
+    "exitCode": 0,
+    "output": "Physical size: 1080x2400"
+  },
+  "density": {
+    "exitCode": 0,
+    "output": "Physical density: 420"
+  },
+  "font-scale": {
+    "exitCode": 0,
+    "output": "1.0"
+  }
+}

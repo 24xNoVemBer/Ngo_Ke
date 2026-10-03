@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-03",
+  "originalSettings": {
+    "wifi_on": "1",
+    "mobile_data": "1"
+  },
+  "checks": [
+    {
+      "name": "Emulator Wi-Fi disabled and no default network route",
+      "passed": true
+    },
+    {
+      "name": "Already-loaded Home fixture remains ready without network",
+      "passed": true
+    },
+    {
+      "name": "Offline Live stays empty without demo list",
+      "passed": true
+    },
+    {
+      "name": "Offline switch back reads bundled demo again",
+      "passed": true
+    },
+    {
+      "name": "All six bundled point names remain reachable offline",
+      "passed": true
+    }
+  ],
+  "routesBefore": "10.0.2.0/24 dev wlan0 proto kernel scope link src 10.0.2.16 \r\n10.0.2.0/24 dev eth0 proto kernel scope link src 10.0.2.15",
+  "routesOffline": "",
+  "wifiStatusOffline": "Wifi is disabled\r\nWifi scanning is only available when wifi is enabled",
+  "pointNamesSeenOffline": [
+    "Điểm demo 01",
+    "Điểm demo 02",
+    "Điểm demo 03",
+    "Điểm demo 04",
+    "Điểm demo 05",
+    "Điểm demo 06"
+  ],
+  "restoredSettings": {
+    "wifi_on": "1",
+    "mobile_data": "1"
+  },
+  "settingsRestored": true
+}

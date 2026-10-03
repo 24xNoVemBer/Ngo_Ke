@@ -1,0 +1,35 @@
+{
+  "name": "ngoke-mobile",
+  "type": "module",
+  "version": "0.1.0",
+  "main": "index.ts",
+  "dependencies": {
+    "@react-navigation/native": "^7.5.0",
+    "@react-navigation/native-stack": "^7.20.0",
+    "expo": "~57.0.26",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/react": "~19.2.2",
+    "eslint": "^10.11.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.0"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "node --test tests/*.test.mjs",
+    "check:dependencies": "expo install --check",
+    "build:android": "expo export --platform android --output-dir dist/android",
+    "build:ios": "expo export --platform ios --output-dir dist/ios"
+  },
+  "private": true
+}

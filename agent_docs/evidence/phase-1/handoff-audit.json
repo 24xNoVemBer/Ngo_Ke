@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-02",
+  "passed": true,
+  "checks": [
+    {
+      "check": "Original plan/PRD/Tech Design unchanged",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "All existing root/agent documents retained",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Internal Markdown references and fences",
+      "passed": true,
+      "detail": "30 links; broken=[]; fences=[]"
+    },
+    {
+      "check": "Recorded required code/tooling checks have exit0",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "No synthetic original fixture/core/backend",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Runtime acceptance not fabricated",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Audit failures explicitly retained",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Native export artifacts exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Scaffold did not add other-tool configs",
+      "passed": true,
+      "detail": ""
+    }
+  ]
+}

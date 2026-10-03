@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-03",
+  "changes": [
+    "web/PWA removed from plan/PRD/TechDesign/AGENTS",
+    "API+live kept",
+    "voice remains separate approved phase after core",
+    "docs/DATA_COLLECTION_GUIDE.md created"
+  ],
+  "checks": {
+    "linksValid": true,
+    "planNoPWA": true,
+    "prdX07": true,
+    "techDesign": true,
+    "apiKept": true,
+    "voiceSeparate": true,
+    "guideComplete": true,
+    "agentsRecords": true,
+    "memoryRecords": true,
+    "noWebProject": true
+  },
+  "brokenLinks": [],
+  "appCodeChanged": false
+}

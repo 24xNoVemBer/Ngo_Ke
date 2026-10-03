@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-03",
+  "originalSettings": {
+    "font_scale": "1.0",
+    "accelerometer_rotation": "1",
+    "user_rotation": "0"
+  },
+  "settingsRestored": true,
+  "checks": [
+    {
+      "name": "Font1.5 fixture count reachable",
+      "passed": true
+    },
+    {
+      "name": "Font1.5 all six point names reachable",
+      "passed": true
+    },
+    {
+      "name": "Landscape fixture count reachable",
+      "passed": true
+    },
+    {
+      "name": "Landscape all six point names reachable",
+      "passed": true
+    }
+  ],
+  "note": "First automated fast swipe skipped point01 between frames; repeated with short slow swipes confirmed all6 visible. Rotation preserved scroll, so readiness first scrolls to top. No app code change.",
+  "largeFontPointNamesSeen": [
+    "Điểm demo 01",
+    "Điểm demo 02",
+    "Điểm demo 03",
+    "Điểm demo 04",
+    "Điểm demo 05",
+    "Điểm demo 06"
+  ]
+}

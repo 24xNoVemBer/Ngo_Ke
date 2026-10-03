@@ -1,0 +1,14 @@
+{
+  "sdk-server-start": {
+    "exitCode": 0,
+    "output": "* daemon not running; starting now at tcp:5038\n* daemon started successfully\n"
+  },
+  "sdk-devices": {
+    "exitCode": 0,
+    "output": "List of devices attached\nemulator-5554          device product:sdk_gphone16k_x86_64 model:sdk_gphone16k_x86_64 device:emu64xa16k transport_id:1\n\n"
+  },
+  "sdk-server-status": {
+    "exitCode": 0,
+    "output": "usb_backend: LIBADBUSB\nmdns_backend: LIBADBMDNS\nversion: \"37.0.1\"\nbuild: \"15733141\"\nexecutable_absolute_path: \"D:\\\\Dev\\\\Android\\\\Sdk\\\\platform-tools\\\\adb.exe\"\nlog_absolute_path: \"C:\\\\Users\\\\Minec\\\\AppData\\\\Local\\\\Temp\\\\adb.log\"\nos: \"Windows 10.0.26300\"\ntrace_level: \"\"\nburst_mode: false\nmdns_enabled: true\nkeystore_path: \"C:\\\\Users\\\\Minec\\\\.android\\\\adbkey\"\nknown_hosts_path: \"C:\\\\Users\\\\Minec\\\\.android\\\\adb_known_hosts.pb\"\n"
+  }
+}

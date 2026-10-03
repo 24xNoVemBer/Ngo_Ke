@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-03",
+  "phase": 2,
+  "commands": [
+    {
+      "label": "dependencies",
+      "command": "npm run check:dependencies",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 1.3
+    },
+    {
+      "label": "doctor",
+      "command": "npx --yes expo-doctor",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 4.9
+    },
+    {
+      "label": "build-android",
+      "command": "npm run build:android",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 17.0,
+      "log": "build-android.log"
+    },
+    {
+      "label": "build-ios",
+      "command": "npm run build:ios",
+      "cwd": "mobile/",
+      "exitCode": 0,
+      "seconds": 14.3,
+      "log": "build-ios.log"
+    },
+    {
+      "label": "tests",
+      "exitCode": 0,
+      "log": "tests.log"
+    },
+    {
+      "label": "typecheck",
+      "exitCode": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "label": "lint",
+      "exitCode": 0,
+      "log": "lint.log"
+    },
+    {
+      "label": "audit",
+      "exitCode": 1,
+      "log": "audit.json"
+    }
+  ],
+  "runtime": {
+    "interactionChecks": 13,
+    "interactionPassed": 13,
+    "typedChecks": 5,
+    "typedPassed": 5
+  },
+  "reviewFocus": {
+    "findings": "not yet run for phase 2"
+  },
+  "review": {
+    "findings": "3 Important defects found by independent review, each pinned by a regression test and fixed: trailing-space normalize order, duplicate normalized question across entries, duplicate/self followUp",
+    "critical": 0,
+    "importantFixed": 3,
+    "minorFixed": [
+      "unknown card now shows the asked question",
+      "followUpEntries computed once",
+      "Home copy updated"
+    ]
+  }
+}

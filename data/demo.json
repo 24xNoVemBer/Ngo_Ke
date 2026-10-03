@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "kind": "simulated",
+  "disclaimer": "Dữ liệu mô phỏng để kiểm tra giao diện. Các điểm không phải địa điểm thật.",
+  "nodes": [
+    {
+      "id": "demo-01",
+      "name": "Điểm demo 01"
+    },
+    {
+      "id": "demo-02",
+      "name": "Điểm demo 02"
+    },
+    {
+      "id": "demo-03",
+      "name": "Điểm demo 03"
+    },
+    {
+      "id": "demo-04",
+      "name": "Điểm demo 04"
+    },
+    {
+      "id": "demo-05",
+      "name": "Điểm demo 05"
+    },
+    {
+      "id": "demo-06",
+      "name": "Điểm demo 06"
+    }
+  ],
+  "intro": {
+    "text": "Chào bạn, chúng ta đang ở Điểm demo 01 trong khu vực demo của Ngõ Kể. Ở đây mình có thể trả lời các câu hỏi viết sẵn và gợi ý câu hỏi tiếp theo. Nội dung trong bản demo là mô phỏng, chưa phải dữ liệu thật của con ngõ.",
+    "evidence": [
+      "Nội dung demo kỹ thuật — chưa phải dữ liệu thật"
+    ]
+  },
+  "startNodeId": "demo-01",
+  "qa": [
+    {
+      "id": "qa-01",
+      "question": "Đây là điểm nào?",
+      "answer": "Bạn đang đứng ở Điểm demo 01, điểm mở đầu của khu vực demo trong Ngõ Kể. Đây là dữ liệu mô phỏng để kiểm tra luồng, chưa phải địa điểm thật.",
+      "nodeId": "demo-01",
+      "aliases": [
+        "o dau",
+        "chung ta dang o dau",
+        "vi tri hien tai"
+      ],
+      "evidence": [
+        "Nội dung demo kỹ thuật — chưa phải dữ liệu thật"
+      ],
+      "followUps": [
+        "qa-02",
+        "qa-03"
+      ],
+      "tags": [
+        "gioi thieu"
+      ]
+    },
+    {
+      "id": "qa-02",
+      "question": "Con ngõ này có gì để xem?",
+      "answer": "Khu vực demo có sáu điểm được đánh số từ Điểm demo 01 đến Điểm demo 06. Ở giai đoạn này app mới chỉ liệt kê các điểm, chưa dẫn đường và chưa có nội dung thật cho từng điểm.",
+      "nodeId": "demo-01",
+      "aliases": [
+        "co gi de xem",
+        "ngo nay co gi",
+        "co bao nhieu diem"
+      ],
+      "evidence": [
+        "Nội dung demo kỹ thuật — chưa phải dữ liệu thật"
+      ],
+      "followUps": [
+        "qa-04"
+      ],
+      "tags": [
+        "gioi thieu"
+      ]
+    },
+    {
+      "id": "qa-03",
+      "question": "Có ăn gì ở đây không?",
+      "answer": "Trong bộ demo hiện chưa có dữ liệu ẩm thực. Nhóm dữ liệu sẽ bổ sung danh sách quán và món ăn kèm nguồn sau khi người dùng duyệt.",
+      "nodeId": "demo-01",
+      "aliases": [
+        "an gi",
+        "co quan an khong",
+        "mon an o day"
+      ],
+      "evidence": [
+        "Nội dung demo kỹ thuật — chưa phải dữ liệu thật"
+      ],
+      "followUps": [
+        "qa-05"
+      ],
+      "tags": [
+        "an thuc"
+      ]
+    },
+    {
+      "id": "qa-04",
+      "question": "Mình có thể hỏi gì tiếp?",
+      "answer": "Bạn có thể chọn một trong các câu hỏi mẫu, hoặc tự gõ câu hỏi. Nếu câu hỏi nằm trong danh sách đã soạn thì app trả lời nguyên văn kèm nguồn; câu nào ngoài danh sách sẽ báo chưa có dữ liệu.",
+      "nodeId": "demo-01",
+      "aliases": [
+        "hoi gi tiep",
+        "duoc hoi gi",
+        "co the hoi gi"
+      ],
+      "evidence": [
+        "Nội dung demo kỹ thuật — chưa phải dữ liệu thật"
+      ],
+      "followUps": [
+        "qa-02"
+      ],
+      "tags": [
+        "huong dan"
+      ]
+    },
+    {
+      "id": "qa-05",
+      "question": "Có chuyện xưa nào ở đây không?",
+      "answer": "Bản demo chưa có truyện kể hay chuyện xưa của con ngõ. Nhóm dữ liệu sẽ cung cấp lời người kể kèm nguồn để app hiển thị ở những phase sau.",
+      "nodeId": "demo-01",
+      "aliases": [
+        "co chuyen xua khong",
+        "co cau chuyen gi",
+        "chuyen xua o day"
+      ],
+      "evidence": [
+        "Nội dung demo kỹ thuật — chưa phải dữ liệu thật"
+      ],
+      "followUps": [
+        "qa-01"
+      ],
+      "tags": [
+        "chuyen xua"
+      ]
+    },
+    {
+      "id": "qa-06",
+      "question": "Điểm kế tiếp là điểm nào?",
+      "answer": "Phần gợi ý điểm thuộc phase sau và chưa được duyệt, nên app chưa tự chọn điểm tiếp theo. Bạn có thể xem các điểm trong danh sách để biết app có dữ liệu mô phỏng đến đâu.",
+      "nodeId": "demo-01",
+      "aliases": [
+        "diem ke tiep",
+        "diem tiep theo la gi",
+        "diem nao tiep"
+      ],
+      "evidence": [
+        "Nội dung demo kỹ thuật — chưa phải dữ liệu thật"
+      ],
+      "followUps": [
+        "qa-02"
+      ],
+      "tags": [
+        "huong dan"
+      ]
+    }
+  ]
+}

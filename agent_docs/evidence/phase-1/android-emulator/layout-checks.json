@@ -1,0 +1,31 @@
+{
+  "originalSettings": {
+    "font_scale": "1.0",
+    "accelerometer_rotation": "1",
+    "user_rotation": "0"
+  },
+  "restored": true,
+  "configurationChangeNote": "Changing system font size recreated Expo activity and reset in-memory mode to default demo; selected live again to test status. No persistence promised.",
+  "checks": [
+    {
+      "name": "Font scale1.5 Home displays source controls after activity recreation",
+      "passed": true
+    },
+    {
+      "name": "Font scale1.5 live empty status visible",
+      "passed": true
+    },
+    {
+      "name": "Font scale1.5 scroll reveals placeholder controls",
+      "passed": true
+    },
+    {
+      "name": "Landscape source controls visible",
+      "passed": true
+    },
+    {
+      "name": "Landscape content scroll reaches placeholders",
+      "passed": true
+    }
+  ]
+}

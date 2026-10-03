@@ -1,0 +1,69 @@
+# Review Checklist — Ngõ Kể
+
+> Checklist dự án dựa trên template Part 4 trong yêu cầu và gate của [plan](docs/TECH_DEMO_PLAN.md). Không có bản `/templates/REVIEW-CHECKLIST.md` để copy nguyên văn; nguồn và giới hạn ghi ở [setup_review.md](agent_docs/setup_review.md).
+
+Chỉ dùng các mục thuộc phase đang review; không đánh dấu phase tương lai. Checkbox là tiêu chí, không phải lịch sử duyệt. Bằng chứng người dùng duyệt ghi trong `MEMORY.md`.
+
+## 1. Trước thực hiện
+
+- [x] Đã đọc `AGENTS.md`, `MEMORY.md` và tài liệu liên quan.
+- [x] Người dùng duyệt G0/Phase1 rõ ràng, yêu cầu plan ngắn và thực hiện cùng lượt.
+- [x] Đã nêu cách làm; người dùng đính chính greenfield và đồng ý tạo fixture sáu điểm mô phỏng để hoàn thiện Phase1.
+- [x] Điểm lệch đường dẫn/trạng thái nguồn đã báo; giữ source hiện có, không mở phase sau.
+
+## 2. Gói bàn giao — cuối phase báo rồi dừng
+
+- [x] Nêu Phase1/R1.01–R1.03 và mức bàn giao khung; G1 chưa đạt đầy đủ.
+- [x] Liệt kê file/hành vi hiện hành trong `agent_docs/phase_1_completion.md`; report shell cũ là lịch sử.
+- [x] Có cách mở tại `mobile/README.md`, ảnh Home/placeholder Android emulator; **điện thoại thật/iOS chưa kiểm tra**.
+- [x] Có command/cwd/version/exit/log tại `agent_docs/evidence/phase-1/`; native exports không gọi runtime pass.
+- [x] Đã ghi điện thoại thật/iOS/cold start chưa thử; fixture không còn blocked. Audit mới23 cảnh báo chưa khắc phục hết.
+- [x] Nêu nội dung review và cập nhật `MEMORY.md`.
+- [x] Bàn giao khung và **dừng trước Phase2**; chờ review, chỉ sửa Phase1 khi được yêu cầu.
+
+## Bằng chứng gate hiện tại — 03/10/2026
+
+- [x] **G0:** người dùng duyệt rõ Phase0 và cho phép Phase1 trong tin nhắn hiện tại.
+- [x] **R1.01 phần code/tooling:** Expo native shell/skeleton/navigation và dependency/config/doctor/Metro export đã có bằng chứng.
+- [ ] **R1.01 phần thiết bị:** ≥1 điện thoại Expo Go + thao tác/ảnh — chưa kiểm tra.
+- [x] **R1.01 bằng chứng emulator bổ sung:** AVD Medium_Phone Android17/API37 + Expo Go57.0.9; Home/4 placeholder/mode/Back đã thử, có ảnh/XML. Không thay nghiệm thu điện thoại thật.
+- [x] **R1.02 phần mode:** demo-ready/error với input hợp lệ/sai; live empty không dataset/fallback; tests20/20.
+- [x] **R1.02 fixture Home:** người dùng đồng ý6 điểm mô phỏng; một JSON bundled qua Metro, Android runtime thấy đủ6 node; tắt Wi-Fi/data sau nạp bundle vẫn dùng được. Cold start offline chưa thử.
+- [x] **R1.03 phần code:** safe-area/scroll, màu/font/press/accessibility semantics đã có.
+- [x] **R1.03 emulator cơ bản:** cuộn, chữ hệ thống1.5, xoay ngang và Back đã thử; settings đã khôi phục.
+- [ ] **R1.03 review điện thoại thật và G1:** chưa thử trên điện thoại thật và chưa được người dùng chốt.
+- [x] **R2.01:** Home → giới thiệu ngắn + nguồn, chip câu hỏi mẫu, ô nhập chữ; kiểm tra emulator đạt.
+- [x] **R2.02:** exact/alias khớp sau khi bỏ dấu; không LLM. Unit + emulator đạt.
+- [x] **R2.03:** đáp án kèm nguồn; câu ngoài danh sách báo “Chưa có dữ liệu”; dataset thiếu evidence bị từ chối. Đạt.
+- [x] **R2.04:** 1–2 câu hỏi tiếp dùng chính cơ chế Q&A; chặn followUp trùng/tự trỏ. Đạt.
+- [ ] **G2:** người dùng duyệt nội dung Q&A mô phỏng; chưa có nội dung thật.
+- [ ] **G3–G7/GV:** chưa được duyệt hoặc triển khai; placeholder không phải tính năng hoàn tất.
+
+Gói Phase 2: `agent_docs/phase_2_review.md`; tests48/48, typecheck/lint/Doctor21/21 và hai export đạt; emulator13/13; audit03/10 còn23 cảnh báo (7 moderate/16 high).
+
+Gói mới nhất: `agent_docs/phase_1_completion.md`, `agent_docs/evidence/phase-1/fixture-completion/checks.json`. Emulator bản fixture12/12 thao tác,4/4 layout,5/5 offline sau nạp bundle; audit03/10 còn23 cảnh báo (7 moderate/16 high). Điện thoại thật và reviewG1 vẫn chưa tick.
+
+Các dấu tick ở đây ghi phần cụ thể có bằng chứng, không chuyển thành “Phase1 hoàn thành”.
+
+## 3. Điều kiện gate theo phase
+
+| Gate / yêu cầu | Điều kiện review |
+| --- | --- |
+| G0 — R0.01–R0.03 | Plan/PRD/Tech Design/sơ đồ, ranh giới và phần chưa xác minh được review; chưa tạo native project; chưa tự ghi pass |
+| G1 — R1.01–R1.03 | Home/skeleton, fixture/mode, dependency check/lệnh/ảnh; ≥1 điện thoại Expo Go; duyệt cấu trúc/trình bày |
+| G2 — R2.01–R2.04 | Intro/Q&A/alias/evidence/follow-up được duyệt; exact/alias/unknown/nguồn có bằng chứng; không LLM |
+| G3 — R3.01–R3.03 | Chuyện xưa/ẩm thực, thiếu điểm/thời gian, interest/budget/visited/unavailable/unreachable; ≤3 điểm có lý do/ETA; review câu hỏi/thứ tự/giải thích |
+| G4 — R4.01–R4.05 | Known QR đúng node, unknown/denied manual/chữ, camera theo thao tác/dừng khi rời màn; review 2D/caption, báo Android/iPhone nếu có |
+| G5 — R5.01–R5.03 | Candidate không tự xác nhận; denied/kém/ngoài cụm/nhầm; “có thể là…”; review flow trước thực địa; tọa độ khảo sát trước Ao Sen |
+| G6 — R6.01–R6.04 | Contract/API/record đã review; empty/error giữ live; demo độc lập mạng/key/server; review trước gắn data thật/hi-fi; handoff B/C |
+| G7 — R7.01–R7.03 | End-to-end lặp lại/log, fallback/mode/Q&A/bàn phím/chữ; ma trận thiết bị, README/handoff A/B/C; người dùng xem/chốt demo |
+| GV — RV.01–RV.03 | Sau core và duyệt riêng + connector/giọng; TTS/STT vẫn Q&A cố định, fallback chữ; báo engine/thiết bị/mạng/dữ liệu thật |
+
+## 4. Ranh giới và tính trung thực
+
+- [x] Không tự thêm LLM/chatbot, AR/3D/lip-sync/OCR, voice trong core, dẫn đường/tracking nền hoặc UI hi-fi.
+- [x] Không fixture gắn nhãn live, không fallback demo; không nhân bản thuật toán/fixture.
+- [x] Không API ghi từ mobile, schema/migration hoặc xóa source hiện có.
+- [x] Không push remote/deploy/store hoặc bypass test/hook. Git local do CLI tự tạo đã ghi rõ.
+- [x] Không ghi pass cho source/device/phần cứng chưa thử; không dùng web/mock thay nghiệm thu native.
+- [x] Có tests/TS/lint/bundle phù hợp khung; các giới hạn runtime/audit chưa đạt được ghi riêng.
