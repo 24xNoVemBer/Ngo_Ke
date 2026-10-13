@@ -30,6 +30,10 @@ yarn-error.*
 .env
 .env*.local
 
+# Local voice model environment and generated probe/catalogue files
+tools/voice/.venv/
+tools/voice/.cache/
+
 # OS
 .DS_Store
 Thumbs.db

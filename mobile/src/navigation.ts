@@ -1,9 +1,12 @@
 export type Area = 'qa' | 'recommendations' | 'camera' | 'location';
 
 export type RootStackParamList = {
-  Home: undefined;
+  Prologue: undefined;
+  Landing: undefined;
+  AlleySelect: undefined;
+  Home: { alleyId?: string } | undefined;
   Qa: undefined;
-  Plan: undefined;
+  Plan: { fromQa?: boolean } | undefined;
   Camera: undefined;
   Location: undefined;
   Placeholder: { area: Area };

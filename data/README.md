@@ -1,5 +1,11 @@
 # Fixture kỹ thuật Phase 1
 
+## Nội dung hiện hành — 13/10/2026
+
+Người dùng yêu cầu thay lời kể kỹ thuật bằng truyện giả hấp dẫn để thu voice. `demo.json` hiện chứa **truyện hư cấu “Bức thư cuối ngõ”**, 6 chương/điểm và 21 Q&A, có nhân vật và tình tiết liên kết. Nhãn/evidence/disclaimer ghi hư cấu trên UI; `intro.text`, `story`, `caption`, `answer` là lời đọc tự nhiên, không đọc thông báo “đây là dữ liệu demo”. Xem [kịch bản thu giọng](../docs/VOICE_FICTION_SCRIPT.md).
+
+Giữ `kind: simulated`, schema 1, ID `demo-01`–`demo-06`, tọa độ, trạng thái và phút ghé điểm; không biến câu chuyện thành lịch sử/địa điểm thật. Tên điểm hiện là Cổng ngõ, Hiên đồng hồ, Bếp đầu hè, Sân hoa giấy, Bậc thềm nắng, Đèn cuối ngõ. Phút ghé điểm không phải thời lượng audio.
+
 `demo.json` là **bản dữ liệu ban đầu của dự án mới**, được người dùng đồng ý tạo để review Home. Một nguồn duy nhất; `mobile/App.tsx` static import và Metro theo dõi `../data`.
 
 ## Schema phiên bản 1
@@ -14,7 +20,7 @@
 
 Chi tiết Phase 2 và các ca kiểm tra: [bàn giao Phase 2](../agent_docs/phase_2_review.md).
 
-ID hiện tại `demo-01`–`demo-06`, tên “Điểm demo 01”–“Điểm demo 06”. Không thêm lịch sử, evidence, tọa độ, ETA hoặc Q&A khi phase tương ứng chưa được duyệt. Các record này không dùng cho thực địa.
+ID hiện tại `demo-01`–`demo-06`; tên kỹ thuật “Điểm demo 01”–“Điểm demo 06” đã được thay bằng tên chương theo yêu cầu ngày 13/10/2026. Không tự thêm lịch sử/nguồn thật hoặc thay tọa độ/ETA. Các record này không dùng cho thực địa.
 
 Adapter `mobile/src/data/sourceState.ts` kiểm tra shape bằng type guard, không thư viện validation. Live không nhận fixture này kể cả khi App đã import; node rows chỉ render khi demo-ready. Test dùng file thật, kiểm tra toàn bộ6 tên và field set.
 

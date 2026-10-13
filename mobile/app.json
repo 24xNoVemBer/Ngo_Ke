@@ -8,7 +8,7 @@
       "ios"
     ],
     "orientation": "default",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon.expo.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
@@ -27,11 +27,23 @@
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION"
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
-      "predictiveBackGestureEnabled": true
+      "predictiveBackGestureEnabled": true,
+      "package": "com.valentino241.ngokedemo"
     },
     "plugins": [
+      "./plugins/withVoiceGatewayNetworkSecurity.cjs",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/icon.expo.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#1E6B4A"
+        }
+      ],
       [
         "expo-camera",
         {
@@ -43,10 +55,19 @@
         {
           "locationWhenInUsePermission": "Cho phép Ngõ Kể đọc vị trí một lần để gợi ý điểm gần nhất. App không theo dõi vị trí nền."
         }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Cho phép Ngõ Kể thu giọng nói để nhận câu hỏi của bạn.",
+          "enableBackgroundRecording": false,
+          "enableBackgroundPlayback": false
+        }
       ]
     ],
     "extra": {
-      "apiBaseUrl": ""
+      "apiBaseUrl": "",
+      "voiceApiBaseUrl": ""
     }
   }
 }

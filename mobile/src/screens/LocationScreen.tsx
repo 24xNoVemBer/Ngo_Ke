@@ -1,16 +1,18 @@
+import { useIsFocused } from '@react-navigation/native';
 import * as Location from 'expo-location';
-import { useState, type ReactElement } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { DemoNode } from '../data/sourceState';
 import { pickCandidate, type Candidate } from '../location/nearest';
-import { colors } from '../theme';
+import { getNodePhoto, getNodePhotographer } from '../assets/photoMap';
+import { colors, radius, spacing, typography } from '../theme';
 
 const LIMITS = { maxAccuracyMeters: 50, maxDistanceMeters: 300 };
 
 type Props = {
   nodes: DemoNode[];
-  currentNodeId: string;
+  currentNodeId?: string;
   onConfirmNode: (nodeId: string) => void;
 };
 
@@ -20,28 +22,42 @@ const meters = (value: number): string =>
 function explain(result: Candidate): string {
   switch (result.kind) {
     case 'poor-accuracy':
-      return `Tín hiệu GPS yếu (chính xác khoảng ${meters(result.accuracy)}), nên mình không đoán điểm nào. Hãy thử lại ở nơi trống trời hoặc chọn điểm bằng tay.`;
+      return `Tín hiệu GPS yếu (độ chính xác ~${meters(result.accuracy)}), nên app không đoán điểm nào. Hãy thử lại ở nơi thoáng trời hoặc chọn điểm bằng tay bên dưới.`;
     case 'outside-cluster':
-      return `Bạn đang cách điểm gần nhất khoảng ${meters(result.distanceMeters)}, vượt khỏi khu vực demo. Hãy chọn điểm bằng tay.`;
+      return `Bạn đang cách điểm gần nhất khoảng ${meters(result.distanceMeters)}, vượt ngoài phạm vi ngõ demo. Hãy chọn điểm bằng tay.`;
     case 'no-coordinates':
-      return 'Chưa có tọa độ khảo sát cho các điểm này. Hãy chọn điểm bằng tay.';
+      return 'Chưa có dữ liệu tọa độ khảo sát cho các điểm này. Hãy chọn điểm bằng tay.';
     case 'needs-position':
-      return 'Chưa lấy được vị trí. Hãy bấm lại hoặc chọn điểm bằng tay.';
+      return 'Chưa nhận được vị trí thiết bị. Vui lòng bấm thử lại hoặc chọn điểm bằng tay.';
     case 'candidate':
       return '';
   }
 }
 
 export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): ReactElement {
+  const focused = useIsFocused();
+  const request = useRef(0);
+  const waiting = useRef(false);
+  useEffect(() => {
+    request.current += 1;
+    waiting.current = false;
+    setBusy(false);
+    setResult(undefined);
+    return () => { request.current += 1; waiting.current = false; };
+  }, [focused, nodes]);
   const [result, setResult] = useState<Candidate | undefined>();
   const [busy, setBusy] = useState(false);
   const current = nodes.find((node) => node.id === currentNodeId);
 
-  // One reading, only after a tap; nothing runs in the background.
   async function readPosition(): Promise<void> {
+    if (!focused || waiting.current) return;
+    const id = ++request.current;
+    waiting.current = true;
     setBusy(true);
+    setResult(undefined);
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
+      if (id !== request.current) return;
       if (!permission.granted) {
         setResult({ kind: 'needs-position' });
         return;
@@ -49,6 +65,7 @@ export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): 
       const position = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
       });
+      if (id !== request.current) return;
       setResult(
         pickCandidate(
           nodes,
@@ -61,41 +78,72 @@ export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): 
         ),
       );
     } catch {
-      // A failed read is reported like a refusal: no point is guessed.
-      setResult({ kind: 'needs-position' });
+      if (id === request.current) setResult({ kind: 'needs-position' });
     } finally {
-      setBusy(false);
+      if (id === request.current) { waiting.current = false; setBusy(false); }
     }
   }
 
-  function confirm(node: DemoNode): void {
-    onConfirmNode(node.id);
+  function stopWaiting(): void {
+    request.current += 1;
+    waiting.current = false;
+    setBusy(false);
     setResult(undefined);
+  }
+
+  function confirm(node: DemoNode): void {
+    if (!node.available) return;
+    stopWaiting();
+    onConfirmNode(node.id);
   }
 
   return (
     <SafeAreaView style={styles.screen} edges={['left', 'right', 'bottom']}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.phase}>Phase 5 · GPS và xác nhận điểm</Text>
-
-        <View style={styles.card}>
-          <Text accessibilityRole="header" style={styles.sectionTitle}>
-            Điểm hiện tại
+        <View style={styles.headerBox}>
+          <Text style={styles.phase}>Định vị ngõ phố · Gợi ý GPS</Text>
+          <Text accessibilityRole="header" style={styles.mainTitle}>
+            Xác nhận điểm chạm
           </Text>
-          <Text style={styles.pointName}>{current?.name ?? currentNodeId}</Text>
-          <Text style={styles.body}>
-            GPS chỉ gợi ý một điểm, không tự đổi điểm của bạn. Chỉ khi bạn bấm xác nhận thì
-            điểm hiện tại mới đổi.
+          <Text style={styles.subtitle}>
+            App chỉ đọc GPS một lần khi bạn chạm nút để ước lượng con ngõ gần nhất, hoàn
+            toàn không theo dõi vị trí nền.
           </Text>
         </View>
 
+        {/* Thẻ điểm hiện tại */}
+        <View style={styles.currentCard}>
+          <View style={styles.currentRow}>
+            <Image
+              source={getNodePhoto(currentNodeId ?? '')}
+              style={styles.currentThumb}
+              resizeMode="cover"
+            />
+            <View style={styles.currentInfo}>
+              <Text style={styles.currentLabel}>Điểm hiện tại trên sổ tay:</Text>
+              <Text accessibilityRole="header" style={styles.currentName}>
+                {current?.name ?? 'Chưa xác nhận điểm'}
+              </Text>
+              <Text style={styles.currentPhotographer}>
+                Ảnh: {getNodePhotographer(currentNodeId ?? '')}
+              </Text>
+            </View>
+          </View>
+          <Text style={styles.currentNote}>
+            GPS chỉ gợi ý điểm kế cận, không bao giờ tự động chuyển điểm nếu không có sự
+            xác nhận của bạn.
+          </Text>
+        </View>
+
+        {/* Hộp quét GPS */}
         <View style={styles.card} accessibilityLiveRegion="polite">
           <Text accessibilityRole="header" style={styles.sectionTitle}>
-            Tìm điểm gần nhất
+            Tìm điểm ngõ gần nhất
           </Text>
           <Text style={styles.body}>
-            App chỉ lấy vị trí một lần khi bạn bấm nút, không theo dõi nền.
+            Chạm nút dưới đây để app lấy tọa độ một lần và gợi ý điểm ngõ tương ứng:
           </Text>
+
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Lấy vị trí của tôi"
@@ -103,79 +151,129 @@ export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): 
             disabled={busy}
             style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
           >
-            <Text style={styles.primaryText}>{busy ? 'Đang lấy vị trí…' : 'Lấy vị trí của tôi'}</Text>
+            <Text style={styles.primaryText}>
+              {busy ? 'Đang định vị vệ tinh…' : '📍 Lấy vị trí của tôi'}
+            </Text>
           </Pressable>
 
+          {busy && <Pressable accessibilityRole="button" accessibilityLabel="Dừng chờ GPS" onPress={stopWaiting}
+            style={styles.secondaryButton}><Text style={styles.secondaryText}>Dừng chờ GPS</Text></Pressable>}
+
+          {/* Ứng viên tìm thấy */}
           {result?.kind === 'candidate' && (
-            <View style={styles.candidate}>
-              <Text style={styles.candidateLabel}>Có thể là…</Text>
-              <Text style={styles.pointName}>{result.node.name}</Text>
-              <Text style={styles.body}>
-                Cách khoảng {meters(result.distanceMeters)} · GPS chính xác khoảng{' '}
-                {meters(result.accuracy)}
+            <View style={styles.candidateCard}>
+              <View style={styles.candidateTag}>
+                <Text style={styles.candidateTagText}>GỢI Ý TỪ GPS</Text>
+              </View>
+
+              <View style={styles.candidatePreviewRow}>
+                <Image
+                  source={getNodePhoto(result.node.id)}
+                  style={styles.candidateImage}
+                  resizeMode="cover"
+                />
+                <View style={styles.candidateDetails}>
+                  <Text style={styles.candidateTitle}>{result.node.name}</Text>
+                  <Text style={styles.candidateDistance}>
+                    Khoảng cách: ~{meters(result.distanceMeters)}
+                  </Text>
+                  <Text style={styles.candidateAccuracy}>
+                    Độ chính xác GPS: ±{meters(result.accuracy)}
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={styles.candidateNotice}>
+                Đây chỉ là đề xuất. Điểm hiện tại vẫn giữ nguyên cho tới khi bạn bấm xác
+                nhận.
               </Text>
-              <Text style={styles.body}>
-                Đây chỉ là gợi ý. Điểm hiện tại vẫn là {current?.name ?? currentNodeId}.
-              </Text>
-              <View style={styles.row}>
+
+              <View style={styles.buttonRow}>
                 <Pressable
                   accessibilityRole="button"
                   onPress={() => confirm(result.node)}
-                  style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
+                  style={({ pressed }) => [
+                    styles.primaryButton,
+                    styles.flex1,
+                    pressed && styles.pressed,
+                  ]}
                 >
                   <Text style={styles.primaryText}>Xác nhận điểm này</Text>
                 </Pressable>
                 <Pressable
                   accessibilityRole="button"
                   onPress={() => setResult(undefined)}
-                  style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+                  style={({ pressed }) => [
+                    styles.secondaryButton,
+                    styles.flex1,
+                    pressed && styles.pressed,
+                  ]}
                 >
-                  <Text style={styles.secondaryText}>Bỏ qua, chọn tay</Text>
+                  <Text style={styles.secondaryText}>Bỏ qua</Text>
                 </Pressable>
               </View>
             </View>
           )}
 
           {result !== undefined && result.kind !== 'candidate' && (
-            <Text style={styles.hint}>{explain(result)}</Text>
+            <View style={styles.hintBox}>
+              <Text style={styles.hint}>{explain(result)}</Text>
+            </View>
           )}
         </View>
 
-        {result?.kind === 'candidate' && (
-          <View style={styles.card}>
-            <Text style={styles.body}>
-              Ở điểm mới, hãy quét QR trước; chọn tay trong demo chỉ là mô phỏng.
-            </Text>
-          </View>
-        )}
-
+        {/* Chọn bằng tay */}
         <View style={styles.card}>
           <Text accessibilityRole="header" style={styles.sectionTitle}>
-            Chọn điểm bằng tay
+            Hoặc chọn điểm bằng tay
           </Text>
           <Text style={styles.body}>
-            Luôn dùng được, kể cả khi từ chối quyền, GPS yếu hoặc đứng ngoài khu vực demo.
+            Luôn luôn hoạt động trơn tru bất kể thiết bị có mở GPS hay không:
           </Text>
-          {nodes.map((node) => (
-            <Pressable
-              key={node.id}
-              accessibilityRole="button"
-              accessibilityLabel={`Chọn điểm ${node.name} bằng tay, mô phỏng`}
-              onPress={() => confirm(node)}
-              style={({ pressed }) => [styles.pointButton, pressed && styles.pressed]}
-            >
-              <Text style={styles.pointName}>{node.name}</Text>
-              <Text style={styles.pointMeta}>
-                {node.id} · mô phỏng{node.id === currentNodeId ? ' · đang là điểm hiện tại' : ''}
-              </Text>
-            </Pressable>
-          ))}
+
+          <View style={styles.manualList}>
+            {nodes.map((node) => {
+              const isCurrent = node.id === currentNodeId;
+              return (
+                <Pressable
+                  key={node.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Chọn điểm ${node.name} bằng tay, mô phỏng`}
+                  disabled={!node.available}
+                  onPress={() => confirm(node)}
+                  style={({ pressed }) => [
+                    styles.pointRow,
+                    isCurrent && styles.pointRowActive,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <Image
+                    source={getNodePhoto(node.id)}
+                    style={styles.thumbnail}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.pointInfo}>
+                    <Text style={styles.pointName}>{node.name}</Text>
+                    <Text style={styles.pointMeta}>
+                      {node.visitMinutes} phút mô phỏng
+                      {isCurrent ? ' · Đang là điểm hiện tại' : ''}
+                    </Text>
+                  </View>
+                  <Text style={[styles.selectAction, isCurrent && styles.selectActionActive]}>
+                    {!node.available ? 'Chưa mở' : isCurrent ? 'Hiện tại' : 'Chọn →'}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
 
-        <Text style={styles.note}>
-          Tọa độ trong bản demo là mô phỏng, không dùng để đi bộ ngoài thực địa. App không
-          chỉ đường và không theo dõi vị trí nền.
-        </Text>
+        <View style={styles.disclaimerBox}>
+          <Text style={styles.note}>
+            Tọa độ trong bản demo là mô phỏng, không dùng để đi bộ ngoài thực địa. App không
+            chỉ đường và không theo dõi vị trí nền.
+          </Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -183,30 +281,257 @@ export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): 
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 24, gap: 16, maxWidth: 640, width: '100%', alignSelf: 'center' },
-  phase: { fontSize: 14, color: colors.accent, fontWeight: '600' },
-  card: { padding: 20, borderRadius: 12, gap: 12, backgroundColor: colors.surface },
-  sectionTitle: { fontSize: 20, fontWeight: '600', color: colors.text },
-  body: { fontSize: 16, lineHeight: 24, color: colors.muted },
-  hint: { fontSize: 16, lineHeight: 24, color: colors.error },
+  content: {
+    padding: spacing.md,
+    gap: spacing.lg,
+    maxWidth: 640,
+    width: '100%',
+    alignSelf: 'center',
+    paddingBottom: 60,
+  },
+  headerBox: {
+    gap: spacing.xs,
+  },
+  phase: {
+    ...typography.label,
+    color: colors.terracotta,
+    textTransform: 'uppercase',
+  },
+  mainTitle: {
+    ...typography.titleLarge,
+    color: colors.text,
+  },
+  subtitle: {
+    ...typography.bodyMedium,
+    color: colors.muted,
+  },
+  currentCard: {
+    backgroundColor: colors.surfaceWarm,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: spacing.sm,
+  },
+  currentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  currentThumb: {
+    width: 60,
+    height: 60,
+    borderRadius: radius.md,
+    backgroundColor: colors.border,
+  },
+  currentInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  currentLabel: {
+    ...typography.micro,
+    color: colors.muted,
+    textTransform: 'uppercase',
+  },
+  currentName: {
+    ...typography.titleSmall,
+    color: colors.text,
+  },
+  currentPhotographer: {
+    ...typography.micro,
+    color: colors.muted,
+    fontStyle: 'italic',
+  },
+  currentNote: {
+    ...typography.bodySmall,
+    color: colors.muted,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.xs,
+  },
+  card: {
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  sectionTitle: {
+    ...typography.titleMedium,
+    color: colors.text,
+  },
+  body: {
+    ...typography.bodyMedium,
+    color: colors.muted,
+    lineHeight: 22,
+  },
   primaryButton: {
-    minHeight: 52, paddingHorizontal: 18, borderRadius: 12, marginTop: 4,
-    backgroundColor: colors.accent, justifyContent: 'center', alignItems: 'center',
+    minHeight: 52,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.md,
+    backgroundColor: colors.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  primaryText: { fontSize: 16, fontWeight: '600', color: colors.surface },
+  primaryText: {
+    ...typography.bodyMedium,
+    fontWeight: '600',
+    color: colors.surface,
+  },
   secondaryButton: {
-    minHeight: 48, paddingVertical: 12, justifyContent: 'center', alignItems: 'center',
+    minHeight: 48,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceWarm,
   },
-  secondaryText: { fontSize: 16, fontWeight: '600', color: colors.accent },
-  row: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'center' },
-  candidate: { gap: 8, padding: 16, borderRadius: 12, backgroundColor: colors.accentSoft },
-  candidateLabel: { fontSize: 14, fontWeight: '600', color: colors.accent },
-  pointButton: {
-    minHeight: 64, paddingVertical: 12, gap: 4, justifyContent: 'center',
-    borderBottomWidth: 1, borderColor: colors.border,
+  secondaryText: {
+    ...typography.bodyMedium,
+    fontWeight: '600',
+    color: colors.accent,
   },
-  pointName: { fontSize: 17, fontWeight: '600', color: colors.text },
-  pointMeta: { fontSize: 14, color: colors.muted },
-  pressed: { opacity: 0.72 },
-  note: { marginTop: 8, fontSize: 14, lineHeight: 22, color: colors.muted },
+  candidateCard: {
+    backgroundColor: colors.surfaceWarm,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1.5,
+    borderColor: colors.accent,
+    gap: spacing.md,
+    marginTop: spacing.xs,
+  },
+  candidateTag: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.accent,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: radius.sm,
+  },
+  candidateTagText: {
+    ...typography.micro,
+    color: colors.surface,
+    fontWeight: '700',
+  },
+  candidatePreviewRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  candidateImage: {
+    width: 80,
+    height: 80,
+    borderRadius: radius.md,
+    backgroundColor: colors.border,
+  },
+  candidateDetails: {
+    flex: 1,
+    justifyContent: 'center',
+    gap: 4,
+  },
+  candidateTitle: {
+    ...typography.titleSmall,
+    color: colors.text,
+  },
+  candidateDistance: {
+    ...typography.bodySmall,
+    color: colors.accent,
+    fontWeight: '600',
+  },
+  candidateAccuracy: {
+    ...typography.micro,
+    color: colors.muted,
+  },
+  candidateNotice: {
+    ...typography.micro,
+    color: colors.muted,
+    fontStyle: 'italic',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  flex1: {
+    flex: 1,
+  },
+  hintBox: {
+    backgroundColor: colors.surfaceWarm,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.terracotta,
+  },
+  hint: {
+    ...typography.bodySmall,
+    color: colors.terracotta,
+    lineHeight: 20,
+  },
+  manualList: {
+    gap: spacing.xs,
+  },
+  pointRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceWarm,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  pointRowActive: {
+    borderColor: colors.accent,
+    backgroundColor: colors.surface,
+  },
+  thumbnail: {
+    width: 52,
+    height: 52,
+    borderRadius: radius.sm,
+    backgroundColor: colors.border,
+  },
+  pointInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  pointName: {
+    ...typography.bodyMedium,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  pointMeta: {
+    ...typography.micro,
+    color: colors.muted,
+  },
+  selectAction: {
+    ...typography.micro,
+    fontWeight: '600',
+    color: colors.accent,
+    paddingRight: spacing.xs,
+  },
+  selectActionActive: {
+    color: colors.terracotta,
+  },
+  disclaimerBox: {
+    backgroundColor: colors.surfaceWarm,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  note: {
+    ...typography.bodySmall,
+    color: colors.muted,
+    lineHeight: 20,
+  },
+  pressed: {
+    opacity: 0.72,
+  },
 });

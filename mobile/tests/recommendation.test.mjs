@@ -110,3 +110,37 @@ test('repeated calls give the same order', () => {
   const second = pickPoints(nodes, { topic: 'chuyen xua', budgetMinutes: 60 });
   assert.deepEqual(first, second);
 });
+
+test('Vietnamese food labels work with and without accents', () => {
+  assert.equal(parseTopic('ẩm thực'), 'an thuc');
+  assert.equal(parseTopic('am thuc'), 'an thuc');
+  assert.equal(parseTopic('Mình thích ẩm thực'), 'an thuc');
+});
+
+test('half hours retain the number of hours and invalid durations are rejected', () => {
+  assert.equal(parseTimeBudget('1 tiếng rưỡi'), 90);
+  assert.equal(parseTimeBudget('2 tiếng rưỡi'), 150);
+  assert.equal(parseTimeBudget('1 giờ 30 phút'), 90);
+  assert.equal(parseTimeBudget('mười lăm phút'), 15);
+  assert.equal(parseTimeBudget('một trăm hai mươi phút'), 120);
+  assert.equal(parseTimeBudget('nửa tiếng'), 30);
+  for (const value of ['-5 phút', '0', '0 tiếng', '5.5 phút', 'điểm 5 phút nữa', '99999999999999999']) {
+    assert.equal(parseTimeBudget(value), undefined, value);
+  }
+});
+
+test('the total suggested stop time fits the budget', () => {
+  for (const budgetMinutes of [5, 15, 30, 45, 60]) {
+    const result = pickPoints(nodes, { topic: 'an thuc', budgetMinutes });
+    if (result.kind === 'ok') {
+      assert.ok(result.picks.reduce((sum, pick) => sum + pick.visitMinutes, 0) <= budgetMinutes);
+    } else assert.equal(result.kind, 'empty');
+  }
+  const short = pickPoints(nodes, { topic: 'an thuc', budgetMinutes: 15 });
+  assert.equal(short.kind, 'ok');
+  assert.deepEqual(short.picks.map((pick) => pick.node.id), ['demo-05']);
+  assert.equal(pickPoints(nodes, { topic: 'an thuc', budgetMinutes: 5 }).kind, 'empty');
+  for (const budgetMinutes of [0, -5, NaN, Infinity]) {
+    assert.equal(pickPoints(nodes, { topic: 'an thuc', budgetMinutes }).kind, 'needs-budget');
+  }
+});

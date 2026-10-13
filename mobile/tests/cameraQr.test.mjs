@@ -71,3 +71,9 @@ test('every point has narrator text and a caption', () => {
     assert.ok(node.caption.length <= 220, `${node.id} caption too long to read`);
   }
 });
+
+test('closed points cannot be confirmed by QR or manual selection', () => {
+  const closed = nodes.map((node) => ({ ...node, available: false }));
+  assert.equal(selectManually(closed, nodes[0].id), undefined);
+  assert.equal(confirmByQr(closed, `ngo-ke://node/${nodes[0].id}`).ok, false);
+});

@@ -1,57 +1,57 @@
 {
   "schemaVersion": 1,
   "kind": "simulated",
-  "disclaimer": "Dữ liệu mô phỏng để kiểm tra giao diện. Các điểm không phải địa điểm thật. Tọa độ trong bản demo là mô phỏng, không dùng để đi bộ ngoài thực địa.",
+  "disclaimer": "Truyện hư cấu “Bức thư cuối ngõ”. Nhân vật, tình tiết và các điểm trong truyện không phải tư liệu lịch sử hay địa điểm đã khảo sát. Ảnh chỉ minh họa; tọa độ và thời gian ghé điểm là mô phỏng, không dùng để đi thực địa.",
   "nodes": [
     {
       "id": "demo-01",
-      "name": "Điểm demo 01",
-      "summary": "Điểm mở đầu của khu vực demo, dùng để nghe giới thiệu và đặt câu hỏi.",
+      "name": "Cổng ngõ",
+      "summary": "Một chiếc chìa khóa, một lời hẹn và tiếng gọi quen sau nhiều năm xa nhà.",
       "tags": [
         "kham pha tu do"
       ],
       "visitMinutes": 5,
       "available": true,
       "visited": false,
-      "story": "Bạn đang đứng ở điểm mở đầu của khu vực demo. Ở đây mình thường chào người mới và giới thiệu phần còn lại. Bản demo này chưa có nội dung thật nên mình chỉ nói về chính bản demo.",
-      "caption": "Bạn đang ở điểm mở đầu. Mình có thể trả lời các câu hỏi đã soạn sẵn.",
+      "story": "Bạn thử hình dung một buổi chiều, khi tiếng xe ngoài phố vừa lùi xa. An dừng trước cổng ngõ, tay nắm chiếc chìa khóa mẹ gửi trong phong thư. Trên mảnh giấy chỉ có một dòng: \"Về trước lúc đèn cuối ngõ sáng nhé.\" Cô đã đi xa nhiều năm. Vậy mà bên trong, mùi lá nếp vẫn quen như thể chỉ mới hôm qua. Có ai đó gọi tên An. Giọng gọi không lớn, nhưng đủ khiến bàn tay đang siết chìa khóa khẽ buông lỏng.",
+      "caption": "An trở về với một chiếc chìa khóa và lời hẹn trước lúc đèn cuối ngõ sáng.",
       "latitude": 10.76,
       "longitude": 106.68
     },
     {
       "id": "demo-02",
-      "name": "Điểm demo 02",
-      "summary": "Điểm tập trung về chuyện xưa trong bản demo.",
+      "name": "Hiên đồng hồ",
+      "summary": "Ông Lâm giữ một chiếc đồng hồ cũ cùng lời hứa ngày An lên đường.",
       "tags": [
         "chuyen xua"
       ],
       "visitMinutes": 15,
       "available": true,
       "visited": false,
-      "story": "Điểm này trong bản demo được dành cho chuyện xưa. Khi có dữ liệu thật, mình sẽ kể ở đây và ghi rõ nguồn ở từng câu. Hiện tại mình không có câu chuyện đã duyệt để kể.",
-      "caption": "Điểm kể chuyện xưa. Bản demo chưa có nội dung đã duyệt.",
+      "story": "Ông Lâm ngẩng lên khỏi bàn sửa đồng hồ khi thấy An. Ông không hỏi cô đã đi đâu, chỉ kéo chiếc ghế gỗ ra như mọi buổi chiều cũ. Trên tường, chiếc đồng hồ An từng làm rơi vẫn đứng im. Hồi ấy cô sợ bị mắng, nhưng ông chỉ bảo: \"Có những thứ chậm một chút cũng không sao.\" Hôm nay, ông đặt vào tay cô một bánh răng nhỏ. \"Mẹ cháu gửi lại. Bảo cứ mang về, rồi mọi thứ sẽ chạy tiếp.\" An bật cười. Thì ra có người đã giữ hộ cô cả một lời hứa.",
+      "caption": "Chiếc đồng hồ ngừng chạy, nhưng ông Lâm vẫn giữ lời hứa cho An.",
       "latitude": 10.7609,
       "longitude": 106.6806
     },
     {
       "id": "demo-03",
-      "name": "Điểm demo 03",
-      "summary": "Điểm tập trung về ẩm thực trong bản demo.",
+      "name": "Bếp đầu hè",
+      "summary": "Gói xôi lá nếp của cô Hương đánh thức một ký ức tưởng đã quên.",
       "tags": [
         "an thuc"
       ],
       "visitMinutes": 20,
       "available": true,
       "visited": false,
-      "story": "Điểm này trong bản demo được dành cho chuyện ẩm thực. Mình chưa có danh sách quán hay món ăn đã được duyệt, nên mình không đoán cho bạn. Khi có dữ liệu thật, mình sẽ giới thiệu tại đây.",
-      "caption": "Điểm ẩm thực. Mình chưa có danh sách quán đã duyệt.",
+      "story": "Từ bếp đầu hè, cô Hương gọi An bằng cái tên hồi nhỏ: \"Bé con, lại đây ăn nóng.\" Hơi xôi bốc lên khỏi tàu lá chuối, mang theo mùi đỗ xanh và hành phi. An định nói mình không còn bé nữa, nhưng rồi lại thôi. Cô Hương vẫn nhớ cô thích phần cháy giòn ở đáy chõ, vẫn buộc gói xôi bằng một sợi dây xanh. Sợi dây giống hệt dải vải trên chiếc chìa khóa của mẹ. An nhìn hai thứ nằm cạnh nhau và chợt hiểu: những lời nhắn trong ngõ này không phải lúc nào cũng được viết bằng chữ.",
+      "caption": "Cô Hương vẫn nhớ phần xôi An thích, và sợi dây xanh mở thêm một lời nhắn.",
       "latitude": 10.7617,
       "longitude": 106.6815
     },
     {
       "id": "demo-04",
-      "name": "Điểm demo 04",
-      "summary": "Điểm vừa có chuyện xưa vừa có ẩm thực trong bản demo.",
+      "name": "Sân hoa giấy",
+      "summary": "Dưới giàn hoa giấy, một cốc chè gọi lại tiếng cười của những mùa hè cũ.",
       "tags": [
         "chuyen xua",
         "an thuc"
@@ -59,15 +59,15 @@
       "visitMinutes": 25,
       "available": true,
       "visited": false,
-      "story": "Điểm này vừa có chuyện xưa vừa có ẩm thực trong bản demo. Bạn có thể hỏi cả hai hướng, nhưng nội dung vẫn đang chờ dữ liệu thật và người duyệt.",
-      "caption": "Điểm vừa có chuyện xưa vừa có ẩm thực trong bản demo.",
+      "story": "Ở sân hoa giấy, bà Nhi kê hai chiếc ghế thấp và rót chè đỗ đen vào cốc. Cánh hoa mỏng rơi xuống bàn, đúng chỗ An từng ngồi tập viết tên mình. Giàn cây ấy do mẹ cô trồng, từ một cành nhỏ xin của bà Nhi. Ngày An lên đường, mẹ buộc lên giàn một dải vải xanh. \"Để khi về, con nhận ra nhà mình từ xa.\" An ngước nhìn. Dải vải đã bạc màu, nhưng nút thắt vẫn còn nguyên. Bà Nhi đẩy cốc chè về phía cô: \"Có người nhớ cháu lâu hơn cháu tưởng đấy.\"",
+      "caption": "Giàn hoa giấy giữ một dải vải xanh và lời nhắn của mẹ An.",
       "latitude": 10.7596,
       "longitude": 106.6818
     },
     {
       "id": "demo-05",
-      "name": "Điểm demo 05",
-      "summary": "Điểm ngắn để xem khi ít thời gian.",
+      "name": "Bậc thềm nắng",
+      "summary": "Chiếc hộp gỗ trên bậc thềm chờ đúng chiếc chìa khóa An mang về.",
       "tags": [
         "an thuc",
         "kham pha tu do"
@@ -75,31 +75,31 @@
       "visitMinutes": 10,
       "available": true,
       "visited": false,
-      "story": "Điểm này được làm ngắn để bạn xem khi ít thời gian. Trong bản demo mình chưa có nội dung riêng, nên mình chỉ giới thiệu ngắn và hỏi bạn muốn xem tiếp phần nào.",
-      "caption": "Điểm xem nhanh, hợp khi ít thời gian.",
+      "story": "Nắng cuối ngày nghiêng qua bậc thềm, vừa đủ soi chiếc hộp gỗ cạnh chậu cây. Trên nắp hộp là nét chữ của mẹ: \"Gửi An, khi con muốn trở về.\" Bên cạnh, bà Nhi để một đĩa bánh đậu xanh, món An từng giấu trong túi áo để ăn dọc đường. Cô tra chiếc chìa khóa vào ổ. Một tiếng tách rất khẽ. Bên trong không có món quà lớn, chỉ có lá thư gấp tư và một dải vải xanh mới. An mở thư. Lần này, cô đọc chậm.",
+      "caption": "Chiếc chìa khóa mở hộp thư của mẹ, cạnh một đĩa bánh đậu xanh.",
       "latitude": 10.7603,
       "longitude": 106.6794
     },
     {
       "id": "demo-06",
-      "name": "Điểm demo 06",
-      "summary": "Điểm dành cho khám phá tự do trong bản demo.",
+      "name": "Đèn cuối ngõ",
+      "summary": "Ánh đèn vàng và lá thư đưa An đến câu trả lời về đường trở về.",
       "tags": [
         "kham pha tu do"
       ],
       "visitMinutes": 30,
       "available": true,
       "visited": false,
-      "story": "Điểm này dành cho khám phá tự do trong bản demo. Nội dung sẽ cập nhật khi nhóm dữ liệu gửi lời kể kèm nguồn. Hiện tại bạn có thể tiếp tục hỏi ở đây bằng chữ.",
-      "caption": "Điểm khám phá tự do. Bạn hỏi tiếp bằng chữ được.",
+      "story": "Khi An đọc đến dòng cuối, ngọn đèn ở cuối ngõ vừa sáng. Mẹ viết: \"Đi đâu thì đi, nhớ để dành một lối về. Ở đây lúc nào cũng có phần xôi của con.\" An ngẩng lên. Mẹ ngồi ở chiếc ghế thấp dưới hiên, hai tay ôm chén trà, như thể chỉ vừa đợi cô đi chợ về. Không ai hỏi vì sao cô đi lâu thế. Cô Hương mang thêm bát, ông Lâm kéo ghế, bà Nhi nhích sang một chút. Con ngõ vẫn nhỏ như xưa. Chỉ có người đi xa là cần một vòng thật dài, mới nhận ra đường về nằm trong tiếng ai đó gọi tên mình.",
+      "caption": "Dưới ánh đèn cuối ngõ, An tìm thấy mẹ và một chỗ ngồi vẫn được để dành.",
       "latitude": 10.7625,
       "longitude": 106.6809
     }
   ],
   "intro": {
-    "text": "Chào bạn, chúng ta đang ở Điểm demo 01 trong khu vực demo của Ngõ Kể. Ở đây mình có thể trả lời các câu hỏi viết sẵn và gợi ý câu hỏi tiếp theo. Nội dung trong bản demo là mô phỏng, chưa phải dữ liệu thật của con ngõ.",
+    "text": "Có những con ngõ không giữ chân người ta bằng điều gì lớn lao. Chỉ một mùi xôi quen, một chiếc ghế còn để trống, hay tiếng gọi tên mình từ sau cánh cửa cũng đủ rồi. Chiều nay, An trở về với một chiếc chìa khóa mẹ gửi. Mình cùng cô ấy lần theo những lời nhắn nhỏ trong ngõ nhé. Trước khi ngọn đèn cuối ngõ sáng, một lá thư đang chờ được mở.",
     "evidence": [
-      "Nội dung demo kỹ thuật — chưa phải dữ liệu thật"
+      "Kịch bản hư cấu “Bức thư cuối ngõ” — sáng tác cho Ngõ Kể."
     ]
   },
   "startNodeId": "demo-01",
@@ -107,7 +107,7 @@
     {
       "id": "qa-01",
       "question": "Đây là điểm nào?",
-      "answer": "Bạn đang đứng ở Điểm demo 01, điểm mở đầu của khu vực demo trong Ngõ Kể. Đây là dữ liệu mô phỏng để kiểm tra luồng, chưa phải địa điểm thật.",
+      "answer": "Cổng ngõ là nơi An bắt đầu trở về. Cô mang theo chiếc chìa khóa mẹ gửi, nhưng chưa biết nó mở cánh cửa nào. Tiếng gọi quen từ bên trong là lời chào đầu tiên dành cho cô sau những năm xa nhà.",
       "nodeId": "demo-01",
       "aliases": [
         "o dau",
@@ -115,7 +115,7 @@
         "vi tri hien tai"
       ],
       "evidence": [
-        "Nội dung demo kỹ thuật — chưa phải dữ liệu thật"
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 1."
       ],
       "followUps": [
         "qa-02",
@@ -128,7 +128,7 @@
     {
       "id": "qa-02",
       "question": "Con ngõ này có gì để xem?",
-      "answer": "Khu vực demo có sáu điểm được đánh số từ Điểm demo 01 đến Điểm demo 06. Ở giai đoạn này app mới chỉ liệt kê các điểm, chưa dẫn đường và chưa có nội dung thật cho từng điểm.",
+      "answer": "Có một chiếc đồng hồ ngừng chạy, một gói xôi còn ấm và một hộp thư chưa mở. Mỗi nơi giữ một lời nhắn dành cho An. Đi hết con ngõ, cô sẽ biết vì sao mẹ gọi mình trở về.",
       "nodeId": "demo-01",
       "aliases": [
         "co gi de xem",
@@ -136,7 +136,7 @@
         "co bao nhieu diem"
       ],
       "evidence": [
-        "Nội dung demo kỹ thuật — chưa phải dữ liệu thật"
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 1."
       ],
       "followUps": [
         "qa-04"
@@ -148,7 +148,7 @@
     {
       "id": "qa-03",
       "question": "Có ăn gì ở đây không?",
-      "answer": "Trong bộ demo hiện chưa có dữ liệu ẩm thực. Nhóm dữ liệu sẽ bổ sung danh sách quán và món ăn kèm nguồn sau khi người dùng duyệt.",
+      "answer": "Cô Hương đang chờ An ở bếp đầu hè với gói xôi đỗ xanh còn nóng. Phần cháy giòn được để riêng, đúng như An thích hồi nhỏ. Có những người nhớ khẩu vị của mình lâu hơn cả mình nhớ.",
       "nodeId": "demo-01",
       "aliases": [
         "an gi",
@@ -156,7 +156,7 @@
         "mon an o day"
       ],
       "evidence": [
-        "Nội dung demo kỹ thuật — chưa phải dữ liệu thật"
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 1."
       ],
       "followUps": [
         "qa-05"
@@ -168,7 +168,7 @@
     {
       "id": "qa-04",
       "question": "Mình có thể hỏi gì tiếp?",
-      "answer": "Bạn có thể chọn một trong các câu hỏi mẫu, hoặc tự gõ câu hỏi. Nếu câu hỏi nằm trong danh sách đã soạn thì app trả lời nguyên văn kèm nguồn; câu nào ngoài danh sách sẽ báo chưa có dữ liệu.",
+      "answer": "Bạn có thể hỏi về chiếc chìa khóa, gói xôi buộc dây xanh, hoặc người đang đợi An ở cuối ngõ. Mỗi câu hỏi sẽ mở thêm một mảnh của lời nhắn mẹ gửi.",
       "nodeId": "demo-01",
       "aliases": [
         "hoi gi tiep",
@@ -176,7 +176,7 @@
         "co the hoi gi"
       ],
       "evidence": [
-        "Nội dung demo kỹ thuật — chưa phải dữ liệu thật"
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 1."
       ],
       "followUps": [
         "qa-02"
@@ -188,7 +188,7 @@
     {
       "id": "qa-05",
       "question": "Có chuyện xưa nào ở đây không?",
-      "answer": "Bản demo chưa có truyện kể hay chuyện xưa của con ngõ. Nhóm dữ liệu sẽ cung cấp lời người kể kèm nguồn để app hiển thị ở những phase sau.",
+      "answer": "Ngày An còn bé, tiếng đồng hồ của ông Lâm và mùi xôi của cô Hương đã theo cô qua mỗi buổi sáng. Sau này đi xa, An tưởng mình quên rồi. Chỉ đến chiều nay, một tiếng gọi quen mới khiến những ký ức ấy trở lại.",
       "nodeId": "demo-01",
       "aliases": [
         "co chuyen xua khong",
@@ -196,7 +196,7 @@
         "chuyen xua o day"
       ],
       "evidence": [
-        "Nội dung demo kỹ thuật — chưa phải dữ liệu thật"
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 1."
       ],
       "followUps": [
         "qa-01"
@@ -208,7 +208,7 @@
     {
       "id": "qa-06",
       "question": "Điểm kế tiếp là điểm nào?",
-      "answer": "Phần gợi ý điểm thuộc phase sau và chưa được duyệt, nên app chưa tự chọn điểm tiếp theo. Bạn có thể xem các điểm trong danh sách để biết app có dữ liệu mô phỏng đến đâu.",
+      "answer": "Phần kế tiếp của câu chuyện nằm ở Hiên đồng hồ. Ông Lâm đang giữ chiếc đồng hồ An từng làm rơi, cùng một bánh răng nhỏ mẹ cô gửi lại. Có lẽ chiếc chìa khóa không phải lời nhắn duy nhất.",
       "nodeId": "demo-01",
       "aliases": [
         "diem ke tiep",
@@ -216,13 +216,318 @@
         "diem nao tiep"
       ],
       "evidence": [
-        "Nội dung demo kỹ thuật — chưa phải dữ liệu thật"
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 1."
       ],
       "followUps": [
         "qa-02"
       ],
       "tags": [
         "huong dan"
+      ]
+    },
+    {
+      "id": "qa-clock",
+      "question": "Vì sao chiếc đồng hồ không chạy nữa?",
+      "answer": "Hồi nhỏ, An từng làm rơi chiếc đồng hồ ấy. Ông Lâm giữ nó lại, không phải để nhớ một lỗi lầm, mà để cô biết có những thứ hỏng rồi vẫn được người ta kiên nhẫn chờ sửa.",
+      "nodeId": "demo-02",
+      "aliases": [
+        "đồng hồ ngừng chạy",
+        "chuyện chiếc đồng hồ",
+        "vì sao đồng hồ đứng im"
+      ],
+      "evidence": [
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 2."
+      ],
+      "followUps": [
+        "qa-gear",
+        "qa-lam"
+      ],
+      "tags": [
+        "chuyen xua"
+      ]
+    },
+    {
+      "id": "qa-gear",
+      "question": "Bánh răng mẹ gửi có ý nghĩa gì?",
+      "answer": "Mẹ muốn An mang bánh răng trở về để cùng ông Lâm sửa chiếc đồng hồ. Đó là một lời nhắn nhỏ: chưa bao giờ là quá muộn để tiếp tục điều mình đã bỏ dở.",
+      "nodeId": "demo-02",
+      "aliases": [
+        "bánh răng nhỏ",
+        "mẹ gửi bánh răng",
+        "ý nghĩa bánh răng"
+      ],
+      "evidence": [
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 2."
+      ],
+      "followUps": [
+        "qa-lam"
+      ],
+      "tags": [
+        "chuyen xua"
+      ]
+    },
+    {
+      "id": "qa-lam",
+      "question": "Ông Lâm nhớ An ra sao?",
+      "answer": "Ông nhớ cô bé hay đứng bên bàn sửa đồng hồ, hỏi vì sao kim cứ đi mà chẳng bao giờ mỏi. Khi An lớn rồi trở lại, ông vẫn kéo ra chiếc ghế ngày ấy. Có những lời chào nằm trong một việc rất nhỏ.",
+      "nodeId": "demo-02",
+      "aliases": [
+        "ông Lâm và An",
+        "ông thợ đồng hồ",
+        "chiếc ghế của ông Lâm"
+      ],
+      "evidence": [
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 2."
+      ],
+      "followUps": [
+        "qa-clock"
+      ],
+      "tags": [
+        "chuyen xua"
+      ]
+    },
+    {
+      "id": "qa-xoi",
+      "question": "Gói xôi của cô Hương có gì đặc biệt?",
+      "answer": "Cô Hương gói xôi đỗ xanh bằng lá chuối, thêm hành phi và để riêng phần cháy giòn cho An. Điều đặc biệt không nằm ở món ăn cầu kỳ, mà ở chỗ có người vẫn nhớ một sở thích từ rất lâu.",
+      "nodeId": "demo-03",
+      "aliases": [
+        "gói xôi lá chuối",
+        "xôi của cô Hương",
+        "phần cháy giòn"
+      ],
+      "evidence": [
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 3."
+      ],
+      "followUps": [
+        "qa-ribbon",
+        "qa-huong"
+      ],
+      "tags": [
+        "an thuc"
+      ]
+    },
+    {
+      "id": "qa-ribbon",
+      "question": "Sợi dây xanh nối những điều gì?",
+      "answer": "Sợi dây buộc gói xôi có cùng màu với dải vải trên chìa khóa. Mẹ An nhờ những người trong ngõ giữ từng lời nhắn. Màu xanh giúp cô nhận ra chúng thuộc về cùng một câu chuyện.",
+      "nodeId": "demo-03",
+      "aliases": [
+        "sợi dây xanh",
+        "dải vải trên chìa khóa",
+        "ý nghĩa màu xanh"
+      ],
+      "evidence": [
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 3."
+      ],
+      "followUps": [
+        "qa-huong"
+      ],
+      "tags": [
+        "an thuc"
+      ]
+    },
+    {
+      "id": "qa-huong",
+      "question": "Vì sao cô Hương vẫn gọi An là bé con?",
+      "answer": "Với cô Hương, An vẫn là cô bé từng ôm gói xôi chạy qua đầu ngõ mỗi sáng. Tiếng gọi ấy không níu cô lại làm trẻ nhỏ; nó chỉ nhắc rằng có một nơi cô không cần giới thiệu mình từ đầu.",
+      "nodeId": "demo-03",
+      "aliases": [
+        "tiếng gọi bé con",
+        "cô Hương nhớ An",
+        "vì sao gọi bé con"
+      ],
+      "evidence": [
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 3."
+      ],
+      "followUps": [
+        "qa-xoi"
+      ],
+      "tags": [
+        "an thuc"
+      ]
+    },
+    {
+      "id": "qa-flowers",
+      "question": "Ai trồng giàn hoa giấy trong sân?",
+      "answer": "Mẹ An trồng giàn hoa giấy từ một cành nhỏ bà Nhi cho. Bà chăm cây, mẹ buộc dải vải xanh lên giàn. Qua nhiều mùa, cái cây lớn lên như một lời hẹn được cả hai cùng giữ.",
+      "nodeId": "demo-04",
+      "aliases": [
+        "giàn hoa giấy của mẹ",
+        "ai trồng hoa giấy",
+        "cành hoa bà Nhi cho"
+      ],
+      "evidence": [
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 4."
+      ],
+      "followUps": [
+        "qa-knot",
+        "qa-che"
+      ],
+      "tags": [
+        "chuyen xua"
+      ]
+    },
+    {
+      "id": "qa-knot",
+      "question": "Nút thắt trên giàn cây nhắc An điều gì?",
+      "answer": "Nó nhắc An lời mẹ nói ngày cô lên đường: để khi về, con nhận ra nhà mình từ xa. Dải vải có thể bạc màu, nhưng một nút thắt được giữ lại vẫn đủ khiến người đi xa thấy mình được đợi.",
+      "nodeId": "demo-04",
+      "aliases": [
+        "nút thắt cũ",
+        "dải vải ở sân",
+        "lời hẹn trên giàn cây"
+      ],
+      "evidence": [
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 4."
+      ],
+      "followUps": [
+        "qa-che"
+      ],
+      "tags": [
+        "chuyen xua"
+      ]
+    },
+    {
+      "id": "qa-che",
+      "question": "Cốc chè của bà Nhi gợi lại ký ức nào?",
+      "answer": "Đó là những buổi An ngồi ở chiếc bàn dưới giàn cây, tập viết tên mình rồi lén thổi cho cánh hoa bay lên. Chè đỗ đen không đổi vị nhiều. Chỉ người cầm cốc hôm nay đã lớn hơn.",
+      "nodeId": "demo-04",
+      "aliases": [
+        "chè đỗ đen",
+        "cốc chè bà Nhi",
+        "ký ức chiếc bàn"
+      ],
+      "evidence": [
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 4."
+      ],
+      "followUps": [
+        "qa-flowers"
+      ],
+      "tags": [
+        "an thuc"
+      ]
+    },
+    {
+      "id": "qa-box",
+      "question": "Chiếc chìa khóa mở được thứ gì?",
+      "answer": "Nó mở chiếc hộp gỗ trên bậc thềm. Trong hộp là lá thư mẹ gấp tư và một dải vải xanh mới. Mẹ đã để An tự mở, vì có những lời cần được đọc khi người nhận sẵn sàng.",
+      "nodeId": "demo-05",
+      "aliases": [
+        "chiếc hộp gỗ",
+        "chìa khóa mở gì",
+        "ổ khóa bậc thềm"
+      ],
+      "evidence": [
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 5."
+      ],
+      "followUps": [
+        "qa-envelope",
+        "qa-cake"
+      ],
+      "tags": [
+        "kham pha tu do"
+      ]
+    },
+    {
+      "id": "qa-envelope",
+      "question": "Vì sao An đọc lá thư thật chậm?",
+      "answer": "Trên nắp hộp, mẹ viết rằng lá thư dành cho ngày An muốn trở về. Cô chợt thấy mình không cần vội nữa. Mỗi dòng chữ là một người quen, một mùi vị cũ và một khoảng trống vẫn chờ cô lấp vào.",
+      "nodeId": "demo-05",
+      "aliases": [
+        "An đọc thư chậm",
+        "lá thư gấp tư",
+        "dòng chữ trên hộp"
+      ],
+      "evidence": [
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 5."
+      ],
+      "followUps": [
+        "qa-cake"
+      ],
+      "tags": [
+        "kham pha tu do"
+      ]
+    },
+    {
+      "id": "qa-cake",
+      "question": "Bà Nhi để món gì cạnh hộp thư?",
+      "answer": "Bà để một đĩa bánh đậu xanh, món An hay giấu trong túi áo hồi nhỏ. Bà không nói gì thêm. Cái đĩa nhỏ ấy đã nói hộ rằng chuyện cũ của An vẫn có người nhớ.",
+      "nodeId": "demo-05",
+      "aliases": [
+        "bánh trên bậc thềm",
+        "đĩa bánh đậu xanh",
+        "món cạnh hộp thư"
+      ],
+      "evidence": [
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 5."
+      ],
+      "followUps": [
+        "qa-box"
+      ],
+      "tags": [
+        "an thuc"
+      ]
+    },
+    {
+      "id": "qa-letter",
+      "question": "Mẹ viết gì ở cuối lá thư?",
+      "answer": "Mẹ viết: \"Đi đâu thì đi, nhớ để dành một lối về. Ở đây lúc nào cũng có phần xôi của con.\" Không phải lời trách vì An đi lâu, chỉ là lời nhắc rằng cô vẫn có một chỗ để trở về.",
+      "nodeId": "demo-06",
+      "aliases": [
+        "lời mẹ trong thư",
+        "dòng cuối lá thư",
+        "mẹ nhắn An gì"
+      ],
+      "evidence": [
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 6."
+      ],
+      "followUps": [
+        "qa-light",
+        "qa-home"
+      ],
+      "tags": [
+        "chuyen xua"
+      ]
+    },
+    {
+      "id": "qa-light",
+      "question": "Vì sao mẹ hẹn lúc đèn cuối ngõ sáng?",
+      "answer": "Đó là lúc mọi người trong ngõ thường kéo ghế ngồi lại bên nhau. Mẹ muốn An trở về đúng khoảnh khắc ấy, khi có đủ tiếng nói, mùi thức ăn và những gương mặt quen để cô thấy mình vẫn thuộc về nơi này.",
+      "nodeId": "demo-06",
+      "aliases": [
+        "ngọn đèn cuối ngõ",
+        "lời hẹn với ánh đèn",
+        "giờ mọi người ngồi lại"
+      ],
+      "evidence": [
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 6."
+      ],
+      "followUps": [
+        "qa-home"
+      ],
+      "tags": [
+        "kham pha tu do"
+      ]
+    },
+    {
+      "id": "qa-home",
+      "question": "An đã tìm thấy đường về như thế nào?",
+      "answer": "Không phải nhờ chiếc chìa khóa hay một tấm bản đồ. An nhận ra đường về trong cách cô Hương để phần xôi, ông Lâm kéo ghế và mẹ chờ dưới hiên. Được nhớ đến bằng những điều nhỏ như vậy, cô biết mình đã về nhà.",
+      "nodeId": "demo-06",
+      "aliases": [
+        "đường về của An",
+        "kết thúc câu chuyện",
+        "An có về nhà không"
+      ],
+      "evidence": [
+        "Truyện hư cấu “Bức thư cuối ngõ” · Chương 6."
+      ],
+      "followUps": [
+        "qa-letter"
+      ],
+      "tags": [
+        "kham pha tu do"
       ]
     }
   ]

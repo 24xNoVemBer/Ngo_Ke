@@ -1,4 +1,18 @@
-# Ngõ Kể — khung native Phase 1
+# Ngõ Kể — native app
+
+> **Voice preview hiện tại (13/10/2026):** APK Android ở [VOICE_HANDOFF.md](../docs/VOICE_HANDOFF.md), SHA-256 `159EE52016DCC4F5B5B5C9DC697AB4FD20B0294D99B13A64CC74B5DED38F6D98`, nhúng gateway `http://<DEV_LAN_IP>:8788`. Expo Go LAN: `exp://<DEV_LAN_IP>:8087`; Metro xác nhận iOS/Android bundles HTTP 200. APK đã cài/chạy trên Android API 37 AVD. App upload qua recorder thật, nhưng AVD chỉ có silence và STT trả `NO_SPEECH`; lời nói→transcript→Q&A và iOS native còn pending. Dùng Wi-Fi riêng, không public gateway.
+
+## Voice preview nội bộ — snapshot lịch sử trước khi đổi IP Wi‑Fi (đã supersede)
+
+Android release APK đã build và xác minh có URL `http://<DEV_LAN_IP>:8788`, accessibility labels và 34 MP3. File debug-signed nằm ở đường dẫn dưới (121,231,544 byte; SHA-256 `1020E39520285521871741E2BCE198D14E018DDEFC06B5A82258BBEE24773362`); ADB hiện không thấy thiết bị nên APK mới chưa cài lại. Gateway local đang chạy trên IP này; synthetic STT smoke đạt nhưng transcript có lỗi từ. Điện thoại thật/iOS chưa nghiệm thu.
+
+Trong snapshot đó Metro/Expo Go chưa chạy và không có ADB device. Trạng thái hiện tại nằm ở đoạn Voice preview đầu tài liệu. APK/gateway dùng HTTP, không có auth và chỉ dành cho Wi‑Fi riêng; không mở ra Internet hay Wi‑Fi công cộng. Địa chỉ LAN có thể đổi.
+
+Chi tiết luồng, giới hạn và kiểm thử còn lại: [VOICE_TEST_REPORT.md](../docs/VOICE_TEST_REPORT.md), [VOICE_HANDOFF.md](../docs/VOICE_HANDOFF.md).
+
+---
+
+## App core — lịch sử bàn giao trước Voice
 
 **Bàn giao code Phase 1–6.** Phase 1 đã được người dùng duyệt. Phase 2 thêm giới thiệu và hỏi đáp cố định; Phase 3 thêm chọn chủ đề, quỹ thời gian và gợi ý tối đa ba điểm kèm lý do; Phase 4 thêm camera xin quyền đúng lúc, quét QR của điểm đã biết, lớp người kể 2D tạm + caption và chọn điểm bằng tay; Phase 5 thêm lấy vị trí **một lần** theo thao tác, gợi ý **một** candidate kèm khoảng cách/accuracy, và chỉ xác nhận của người dùng mới đổi điểm hiện tại. Phase 6 thêm chế độ live gọi `{base}/api/dataset` với timeout 8 giây và các trạng thái empty/error rõ ràng. Nội dung và tọa độ vẫn là **mô phỏng**; backend thật chưa có, máy chủ kiểm chứng cục bộ nằm ở `tools/mock-api/`.
 
@@ -7,7 +21,7 @@
 ```bash
 cd mobile
 npm install
-npm test            # 90 ca, không cần mạng
+npm test            # test suite hiện tại
 npm start           # rồi mở app bằng Expo Go
 ```
 

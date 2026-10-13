@@ -13,5 +13,5 @@ export function confirmByQr(nodes: readonly DemoNode[], payload: string): QrConf
 }
 
 export function selectManually(nodes: readonly DemoNode[], id: string): DemoNode | undefined {
-  return nodes.find((node) => node.id === id);
+  return nodes.find((node) => node.id === id && node.available);
 }

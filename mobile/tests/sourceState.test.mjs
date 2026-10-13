@@ -112,13 +112,14 @@ test('switching back to demo revalidates current input instead of retaining old 
   assert.equal('dataset' in source, false);
 });
 
-test('actual bundled fixture contains only six approved simulated point records', () => {
+test('actual bundled fiction preserves six simulated point IDs and chapter names', () => {
   const fixture = JSON.parse(readFileSync(new URL('../../data/demo.json', import.meta.url), 'utf8'));
   const source = getSourceState('demo', fixture);
   assert.equal(source.status, 'ready');
   assert.deepEqual(
     source.dataset.nodes.map((node) => ({ id: node.id, name: node.name })),
-    validFixture.nodes.map((node) => ({ id: node.id, name: node.name })),
+    ['Cổng ngõ', 'Hiên đồng hồ', 'Bếp đầu hè', 'Sân hoa giấy', 'Bậc thềm nắng', 'Đèn cuối ngõ']
+      .map((name, index) => ({ id: `demo-0${index + 1}`, name })),
   );
   assert.deepEqual(Object.keys(fixture).sort(), [
     'disclaimer',

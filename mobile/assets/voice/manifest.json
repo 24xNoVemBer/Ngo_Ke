@@ -1,0 +1,329 @@
+{
+  "schemaVersion": 1,
+  "source": "data/demo.json",
+  "sourceDataSha256": "bdec1b7933a47c7c1b07a6adf5ccdf0c4ec6010a70b2b64055c3efa8b1f1fd46",
+  "voice": "Đoan Trang",
+  "tts": {
+    "sdk": "vieneu==3.7.1",
+    "backend": "onnx/cpu",
+    "model": "pnnbao-ump/VieNeu-TTS-v3-Turbo",
+    "modelRevision": "61b85e3d937fbbacb387714180e8182823512523",
+    "codec": "OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX",
+    "codecRevision": "ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae",
+    "license": "See mobile/assets/voice/LICENSES.md"
+  },
+  "format": {
+    "container": "mp3",
+    "codec": "mp3",
+    "sampleRateHz": 48000,
+    "channels": 1,
+    "bitrateKbps": 96
+  },
+  "entries": [
+    {
+      "id": "intro",
+      "kind": "intro",
+      "textSha256": "39efd9a80fb93faa0679672f66de3bec24dba4545f257343c9d2934a4d81c328",
+      "path": "mobile/assets/voice/intro.mp3",
+      "durationSeconds": 20.1,
+      "audioSha256": "769a6846696db4d187bf561b81c162f4054ad6997ecc91d2f63b28d80cb274e0"
+    },
+    {
+      "id": "demo-01-story",
+      "kind": "story",
+      "nodeId": "demo-01",
+      "textSha256": "aef24602381fa4d18715871ff8abe8ec1b219475b23a63387a9f0257a090f582",
+      "path": "mobile/assets/voice/demo-01-story.mp3",
+      "durationSeconds": 23.89,
+      "audioSha256": "ed9d388c772bf4fcb981e106dd678f27be77c08fb6a119273f3ca3ae122d2ca0"
+    },
+    {
+      "id": "demo-01-caption",
+      "kind": "caption",
+      "nodeId": "demo-01",
+      "textSha256": "2c730882ef89ae000010c30b376aef3322ce59be5579972dac43aea9be62bfa1",
+      "path": "mobile/assets/voice/demo-01-caption.mp3",
+      "durationSeconds": 4.16,
+      "audioSha256": "a662c14ca296e44e4d9aea42fe1352df71dd5c0348bbcbc1416c2b0e40dab8a2"
+    },
+    {
+      "id": "demo-02-story",
+      "kind": "story",
+      "nodeId": "demo-02",
+      "textSha256": "a3bbe78afc9702fcac71516c04f1a86a5b2c203134a65792520f7c5137d74a97",
+      "path": "mobile/assets/voice/demo-02-story.mp3",
+      "durationSeconds": 26.89,
+      "audioSha256": "8b358088ad7e6755be8f583f43c162a6fdfa1338c591a94eef46f71bb987e094"
+    },
+    {
+      "id": "demo-02-caption",
+      "kind": "caption",
+      "nodeId": "demo-02",
+      "textSha256": "ecfc3b8cae69242bcc2ee7b750671ebf1bf503bc75101975cb85c315a6fcbcd1",
+      "path": "mobile/assets/voice/demo-02-caption.mp3",
+      "durationSeconds": 3.76,
+      "audioSha256": "57c13eafb46d0649e8fc9052033e5a45242079e205b4efd777f6626201c6e23c"
+    },
+    {
+      "id": "demo-03-story",
+      "kind": "story",
+      "nodeId": "demo-03",
+      "textSha256": "7d5ecd607e4fe1f6eee3b3a2b80fc67492aba3c65d6a40cbc3ba406e1cafbd95",
+      "path": "mobile/assets/voice/demo-03-story.mp3",
+      "durationSeconds": 27.32,
+      "audioSha256": "208b10c7c2eaf060b2cce199012fd89d9d6a3a7bf8208ad620a0bbc27b3b371d"
+    },
+    {
+      "id": "demo-03-caption",
+      "kind": "caption",
+      "nodeId": "demo-03",
+      "textSha256": "e847007f329d7a4ee02b4f82180deb073c5bff1d38eac3b925d569c065160583",
+      "path": "mobile/assets/voice/demo-03-caption.mp3",
+      "durationSeconds": 4.4,
+      "audioSha256": "ea496006d969fcf135d5aa362df53172676b6d3ad1e544919cad18cb24d3b7e3"
+    },
+    {
+      "id": "demo-04-story",
+      "kind": "story",
+      "nodeId": "demo-04",
+      "textSha256": "39203add33b1e1c135a2b75572995b74c23f51687d31f6bbfd5d0cff10ca3800",
+      "path": "mobile/assets/voice/demo-04-story.mp3",
+      "durationSeconds": 25.94,
+      "audioSha256": "d6b261b0974d6f4451d61de8b1f4a57334583d9e6a692c8d6b487014486a677d"
+    },
+    {
+      "id": "demo-04-caption",
+      "kind": "caption",
+      "nodeId": "demo-04",
+      "textSha256": "59948c05bfa2f2a60dc414393253ea70aebaa869f8db9accfd73f6168fe6130f",
+      "path": "mobile/assets/voice/demo-04-caption.mp3",
+      "durationSeconds": 3.6,
+      "audioSha256": "5f2a49526ed0bac20d95d43594552f189e40362a994bfe097ff5a4a8e3eebdc7"
+    },
+    {
+      "id": "demo-05-story",
+      "kind": "story",
+      "nodeId": "demo-05",
+      "textSha256": "ec010d5b285dad5818f571c04f926581a1d8b4c56fd83273de0585999f2964e8",
+      "path": "mobile/assets/voice/demo-05-story.mp3",
+      "durationSeconds": 23.72,
+      "audioSha256": "73d0192650f0f2c632488506785ac05f2877f565680ae3178e46f6ad2ff6cb8e"
+    },
+    {
+      "id": "demo-05-caption",
+      "kind": "caption",
+      "nodeId": "demo-05",
+      "textSha256": "8ca91306973a43f00e0bc8ae074b4ef0252ad4863d08f497f90e85029c723ee4",
+      "path": "mobile/assets/voice/demo-05-caption.mp3",
+      "durationSeconds": 3.84,
+      "audioSha256": "2f80b6446e462cd3cd896da5adf6ef10668637dad15fcd3b2bbf61ea1ee7f08b"
+    },
+    {
+      "id": "demo-06-story",
+      "kind": "story",
+      "nodeId": "demo-06",
+      "textSha256": "bb2da49b9ee34a9a1514c2b03864831c08711eaedf18d4a996b1c1ca8723249e",
+      "path": "mobile/assets/voice/demo-06-story.mp3",
+      "durationSeconds": 28.61,
+      "audioSha256": "699c252b090918ab46f690c8461cffc2fe60db4975c7c8b23d0a9764c8d6252f"
+    },
+    {
+      "id": "demo-06-caption",
+      "kind": "caption",
+      "nodeId": "demo-06",
+      "textSha256": "27aee96eb6c8e6588beafc01f756bab1d52cae5feed59648b60f364b4e3987d2",
+      "path": "mobile/assets/voice/demo-06-caption.mp3",
+      "durationSeconds": 4.32,
+      "audioSha256": "1b3f6d6925d8972716dd0d6ea479298c11cd6c12fdd3a4a6227aba608fb1604c"
+    },
+    {
+      "id": "qa-01-answer",
+      "kind": "answer",
+      "nodeId": "demo-01",
+      "textSha256": "2a8eb7f20d53f6e796989e3987ca3c9c810f4f3191608d4f88004296484af6a5",
+      "path": "mobile/assets/voice/qa-01-answer.mp3",
+      "durationSeconds": 10.0,
+      "audioSha256": "13d5af6cca59909e993302413374fbd9f6ed35fd54168a8a96350ff8a84cfe8b"
+    },
+    {
+      "id": "qa-02-answer",
+      "kind": "answer",
+      "nodeId": "demo-01",
+      "textSha256": "3a184561a2fbadb3eb1bcf81f0541d5b3d741c0cc5aed1367603925a8cd9d12d",
+      "path": "mobile/assets/voice/qa-02-answer.mp3",
+      "durationSeconds": 9.92,
+      "audioSha256": "a49a83e8e182109a809302508533134ed22623e6ba31f655a7ce4cc7c75e00c7"
+    },
+    {
+      "id": "qa-03-answer",
+      "kind": "answer",
+      "nodeId": "demo-01",
+      "textSha256": "dc08e20105ba2f5b97d98e5fc3101efbf78a2c23c20e312371204f127c78a6d3",
+      "path": "mobile/assets/voice/qa-03-answer.mp3",
+      "durationSeconds": 9.92,
+      "audioSha256": "564e19c917c2d8d9cf542bf849ea79315c43396a0ca098ef061e80bf132f5c0e"
+    },
+    {
+      "id": "qa-04-answer",
+      "kind": "answer",
+      "nodeId": "demo-01",
+      "textSha256": "cccd5e08e62ab6f7dd9ce3fc14e29d7688bd213f859172ad9131b4b4a11ed30c",
+      "path": "mobile/assets/voice/qa-04-answer.mp3",
+      "durationSeconds": 8.96,
+      "audioSha256": "ac0ae87ea1d8f751ec3325149cd5756aa9cdd5ac201ede21e420fa4c1fb267ff"
+    },
+    {
+      "id": "qa-05-answer",
+      "kind": "answer",
+      "nodeId": "demo-01",
+      "textSha256": "c746abc90d92544a82555e1a22024fd2f8d7dbbf2958e5852c1ca446b764f148",
+      "path": "mobile/assets/voice/qa-05-answer.mp3",
+      "durationSeconds": 12.48,
+      "audioSha256": "0c7f753d96aa95c70e59eabc2ccf3d4a38f9a8823ec5f9196f36829b72f723fa"
+    },
+    {
+      "id": "qa-06-answer",
+      "kind": "answer",
+      "nodeId": "demo-01",
+      "textSha256": "52a3eb97252bc8b5814961953f3a8c6cd7142de32736e2beb8db34fc953b9dae",
+      "path": "mobile/assets/voice/qa-06-answer.mp3",
+      "durationSeconds": 10.24,
+      "audioSha256": "9bd64fd5a3ede6f08b7936cc5ee6dbce51632a0d73d868d448e56c3af5f3ad5e"
+    },
+    {
+      "id": "qa-clock-answer",
+      "kind": "answer",
+      "nodeId": "demo-02",
+      "textSha256": "aec16efea55ba1dbd7de85bc90b0736a58df719ad0d637500d01cfa1b1327a6e",
+      "path": "mobile/assets/voice/qa-clock-answer.mp3",
+      "durationSeconds": 9.68,
+      "audioSha256": "8d97a018607d30fd25e2b60e27d4661f40dc14d917046f0fd5e2f34a4c0eeb9b"
+    },
+    {
+      "id": "qa-gear-answer",
+      "kind": "answer",
+      "nodeId": "demo-02",
+      "textSha256": "5cab359cdfcf944583513bc08e1e39e8c82a962a57fb0cbc83f2b32cffd0375d",
+      "path": "mobile/assets/voice/qa-gear-answer.mp3",
+      "durationSeconds": 8.48,
+      "audioSha256": "6e94d6abfb2c9f73cf3398935eb7b4c70449c3f09b560a2ba30de1984045ed40"
+    },
+    {
+      "id": "qa-lam-answer",
+      "kind": "answer",
+      "nodeId": "demo-02",
+      "textSha256": "caab6fb2e0ca5a939b6300b5bcce211b32c7f3ffe2a820c91bf71075ef8a65d2",
+      "path": "mobile/assets/voice/qa-lam-answer.mp3",
+      "durationSeconds": 11.28,
+      "audioSha256": "b17b4c58fcff0bf71b61d3e9e948fe6048ddab41e36a1de6536fb6fdfe55fb87"
+    },
+    {
+      "id": "qa-xoi-answer",
+      "kind": "answer",
+      "nodeId": "demo-03",
+      "textSha256": "8fcf7ff4a5ef8d0392a7acc8c748a884dc95ace15241e8e045a496af7faf7d7c",
+      "path": "mobile/assets/voice/qa-xoi-answer.mp3",
+      "durationSeconds": 10.96,
+      "audioSha256": "f6fabe2c6cf9849c4e0a22bb98e7a78a9ae92f88b344ef364bfb44b0d674152d"
+    },
+    {
+      "id": "qa-ribbon-answer",
+      "kind": "answer",
+      "nodeId": "demo-03",
+      "textSha256": "e16c8f621d55b5e8efc7fe8fc4244d6d3ba47f48266a741cb9f2dc95d6c19332",
+      "path": "mobile/assets/voice/qa-ribbon-answer.mp3",
+      "durationSeconds": 10.16,
+      "audioSha256": "c2e8b7ecedb85112e5e20eba5a1d8516f01726a374228fa56deb6f4401e3fd24"
+    },
+    {
+      "id": "qa-huong-answer",
+      "kind": "answer",
+      "nodeId": "demo-03",
+      "textSha256": "40165ee16ebcb5b4295d9133a7ece5a458739f1be51b37ed5bdb15b372a017f7",
+      "path": "mobile/assets/voice/qa-huong-answer.mp3",
+      "durationSeconds": 10.4,
+      "audioSha256": "50b46d33168dddfe7e94b60bf1c36109b4990cddd10b9ddc3b5f36c0dbd4f2f5"
+    },
+    {
+      "id": "qa-flowers-answer",
+      "kind": "answer",
+      "nodeId": "demo-04",
+      "textSha256": "17c91f7cac78d0faa2577770b70bb6998c4e6a4a2bacff19c063ed6913dd4040",
+      "path": "mobile/assets/voice/qa-flowers-answer.mp3",
+      "durationSeconds": 9.6,
+      "audioSha256": "e7c409a50996cb6744fee4e915b25b19e86c4e616f34a80b9e719cf56b3b8e29"
+    },
+    {
+      "id": "qa-knot-answer",
+      "kind": "answer",
+      "nodeId": "demo-04",
+      "textSha256": "22be91961b9363fc2f55f3833b0e515d8d7e7c3b4086dd95b6c76c63e9824c62",
+      "path": "mobile/assets/voice/qa-knot-answer.mp3",
+      "durationSeconds": 10.32,
+      "audioSha256": "4d7b85e12ffc0e6cf39b052a48e436f2968a2bc7f6aa31f71331bd1e177fc921"
+    },
+    {
+      "id": "qa-che-answer",
+      "kind": "answer",
+      "nodeId": "demo-04",
+      "textSha256": "2541798e431029b09954c6b386792342651033ce8c75220c39f73e54a2d0e926",
+      "path": "mobile/assets/voice/qa-che-answer.mp3",
+      "durationSeconds": 10.4,
+      "audioSha256": "4d08ce58ee669082ba0d1ebefca15d96d86560c37d0c0aeceb620e56341d109e"
+    },
+    {
+      "id": "qa-box-answer",
+      "kind": "answer",
+      "nodeId": "demo-05",
+      "textSha256": "f8dba2453d39df7b17e100ec60397461c31dab35e4aaab59fbc905665d13216c",
+      "path": "mobile/assets/voice/qa-box-answer.mp3",
+      "durationSeconds": 10.48,
+      "audioSha256": "e824d9e65c29dff89bd90e0f2e886f02d430a8521c67ace7552ef6669a3b578e"
+    },
+    {
+      "id": "qa-envelope-answer",
+      "kind": "answer",
+      "nodeId": "demo-05",
+      "textSha256": "257fdef60b6a964a419e20a49244d35b4780aaf84557a54ac32239ea8f55b066",
+      "path": "mobile/assets/voice/qa-envelope-answer.mp3",
+      "durationSeconds": 10.64,
+      "audioSha256": "c147fd19485135795ce1834e001cf9a0e381287657063b646de7fa4dd420c0b8"
+    },
+    {
+      "id": "qa-cake-answer",
+      "kind": "answer",
+      "nodeId": "demo-05",
+      "textSha256": "7adcefe78c4945df621275952682f35ac8bd6e0416a94b9dc5f536eda727e8a6",
+      "path": "mobile/assets/voice/qa-cake-answer.mp3",
+      "durationSeconds": 9.6,
+      "audioSha256": "204867ad5bf113b6485f8b93111aae91ea942aa6ced471de39d08551166cd08f"
+    },
+    {
+      "id": "qa-letter-answer",
+      "kind": "answer",
+      "nodeId": "demo-06",
+      "textSha256": "641536c447750e73b3065bd614b4bf98c8f0c26540e1b00ce1dc63ccf0d50630",
+      "path": "mobile/assets/voice/qa-letter-answer.mp3",
+      "durationSeconds": 11.2,
+      "audioSha256": "04c42c44618623909aba189b98a9ebbcec74e61cc7e3d8c04de4d77b41cf447a"
+    },
+    {
+      "id": "qa-light-answer",
+      "kind": "answer",
+      "nodeId": "demo-06",
+      "textSha256": "289bb881d57ecbe4b3a5bba67600d96d6ac61a2bd87db9a305d038e69e5f1281",
+      "path": "mobile/assets/voice/qa-light-answer.mp3",
+      "durationSeconds": 11.52,
+      "audioSha256": "14b1dbfff4f6f07155f22fe26f77cc34791dd5a36e126c977741f569ed4c9205"
+    },
+    {
+      "id": "qa-home-answer",
+      "kind": "answer",
+      "nodeId": "demo-06",
+      "textSha256": "b69205b82abcb605627be3ee2dc340d99c9bdcc9f528404aa2842b9a72587eec",
+      "path": "mobile/assets/voice/qa-home-answer.mp3",
+      "durationSeconds": 11.44,
+      "audioSha256": "6c90549e74d32b31c0878d4f296e362eee0b4142a17597196e896bc77881f4a6"
+    }
+  ]
+}
