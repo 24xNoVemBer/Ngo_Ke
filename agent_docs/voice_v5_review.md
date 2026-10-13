@@ -1,8 +1,17 @@
 # Voice V5 — Q&A voice end-to-end
 
+## Two voice-turn UI regression — 14/10/2026
+
+- A two-callback UI regression sends the exact follow-up “Có chuyện xưa nào ở đây không?” after the first voice question and verifies that it selects and plays the matching `qa-05` answer track. This verifies Q&A routing across two transcript callbacks, not two native microphone submissions; physical follow-up remains pending.
+
+## Unmatched transcript feedback — 14/10/2026
+
+- Khi transcript không khớp Q&A, kết quả đã giữ `asked` nhưng bị ẩn nên người dùng chỉ thấy “Chưa có lời kể cho câu này”, không biết STT đã nghe gì. Thêm nút “Xem câu đã nhận dạng” cho voice và “Xem câu vừa hỏi” cho chữ; nội dung vẫn ẩn mặc định cho tới khi người dùng chạm theo spec.
+- UI regression xác nhận transcript unknown vẫn ẩn trước thao tác, rồi hiện đúng sau khi người dùng mở. Không đổi exact matcher, không fuzzy match. Sau reload Expo Go, người dùng xác nhận meter và câu trả lời chạy trong một lượt voice iPhone; chưa có transcript nguyên văn/log để xác minh câu được nhận khớp entry nào.
+
 ## Revalidation — 13/10/2026
 
-Bản thu từ recorder Android sau khi sửa đã tới STT worker thật. Vì AVD không có lời nói nên worker trả `NO_SPEECH`; app hiện **Thử lại bằng giọng nói** và không tạo câu trả lời từ audio rỗng. Điều này chỉ xác nhận nhánh không nghe thấy tiếng nói; transcript thật → Q&A cố định → audio đáp án vẫn pending, nên GV5 còn mở.
+Bản thu từ recorder Android sau khi sửa đã tới STT worker thật. Vì AVD không có lời nói nên worker trả `NO_SPEECH`; app hiện **Thử lại bằng giọng nói** và không tạo câu trả lời từ audio rỗng. Sau đó người dùng xác nhận một lượt voice iPhone có meter và câu trả lời hoạt động; chưa có transcript/log để xác minh exact matching độc lập, nên full 6 chương/21 Q&A và các nhánh follow-up/unknown vẫn pending, GV5 còn mở.
 
 ## Regression follow-up — 13/10/2026
 
@@ -30,6 +39,12 @@ Bản thu từ recorder Android sau khi sửa đã tới STT worker thật. Vì 
 - Chưa chạy câu nói từ điện thoại → upload → đúng transcript → đúng answer → phát clip trên thiết bị. Chưa kiểm alias bằng tiếng nói thực hoặc ASR ngoài phòng yên tĩnh.
 
 **Còn lại:** chạy vòng voice nhiều lượt ở cả sáu chương trên thiết bị; thử unknown, câu hỏi ngoài bộ, sửa transcript, đổi điểm khi đang nhận dạng và hủy/back để chứng minh không có response/audio cũ.
+
+## Regression Q&A cả sáu chương — 14/10/2026
+
+- UI test gửi đủ 21 câu canonical; với mỗi câu, gửi thêm follow-up đầu tiên trong cùng node. Cả 42 callback chọn đúng answer ID/text và audio track của chương hiện tại.
+- `node --test tests/uiFlows.test.mjs`: 23/23; `npm test`: 145/145; typecheck và lint đạt.
+- Đây là regression ở lớp UI với transcript có kiểm soát, không phải bằng chứng mic/STT thật. GV5 vẫn mở cho kiểm tra voice end-to-end trên thiết bị, gồm lượt hai người dùng vừa báo lỗi.
 
 ## Regression follow-up — 13/10/2026
 

@@ -77,6 +77,7 @@ export function QaScreen({
   const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
   const [asked, setAsked] = useState<string | null>(null);
+  const [askedSource, setAskedSource] = useState<'voice' | 'text' | 'chip' | null>(null);
   const [match, setMatch] = useState<QaMatch | null>(null);
   const [isInputDrawerVisible, setIsInputDrawerVisible] = useState(false);
   const [drawerText, setDrawerText] = useState('');
@@ -91,6 +92,7 @@ export function QaScreen({
 
   useEffect(() => {
     setAsked(null);
+    setAskedSource(null);
     setMatch(null);
     setDrawerText('');
     setIsInputDrawerVisible(false);
@@ -149,6 +151,7 @@ export function QaScreen({
     const target = dataset.nodes[index];
     if (target?.available) {
       setAsked(null);
+      setAskedSource(null);
       setMatch(null);
       setDrawerText('');
       setIsInputDrawerVisible(false);
@@ -168,6 +171,7 @@ export function QaScreen({
     }
     revealAnswer.current = true;
     setAsked(trimmed);
+    setAskedSource(source);
     const nextMatch = findAnswer(nodeQa, trimmed);
     setMatch(nextMatch);
     setDrawerText('');
@@ -187,11 +191,11 @@ export function QaScreen({
     } else {
       voiceOptionContext.current = null;
     }
-    voiceSession.stopPlayback();
+    const playbackStopped = Promise.resolve(voiceSession.stopPlayback());
     if (source === 'voice' && nextMatch.status === 'matched' && currentNode && mode === 'demo') {
       const id = `${nextMatch.entry.id}-answer`;
       lastTrack.current = { id, text: nextMatch.entry.answer, kind: 'answer', nodeId: currentNode.id, revision: datasetRevision };
-      void voiceSession.playTrack(id, nextMatch.entry.answer, 'answer', currentNode.id);
+      void playbackStopped.then(() => voiceSession.playTrack(id, nextMatch.entry.answer, 'answer', currentNode.id));
     } else if (source === 'voice' && nextMatch.status === 'matched') {
       lastTrack.current = null;
       setVoiceActionCard({ kind: 'notice', message: 'Câu trả lời đã khớp. Bản đọc chưa có trong chế độ Live; chạm “Xem lời kể bằng chữ” để mở nội dung.' });
@@ -290,7 +294,7 @@ export function QaScreen({
         requestTrack(storyTrackId, currentNode.story, 'story', currentNode.id, true);
       }
     } else if (intent.type === 'stop') {
-      voiceSession.stopPlayback();
+      void voiceSession.stopPlayback();
       setVoiceActionCard({ kind: 'notice', message: 'Đã dừng lời kể.' });
     } else {
       executeAction(intent.type, transcript);
@@ -625,11 +629,27 @@ export function QaScreen({
 
                 {entry === null ? (
                   <View style={styles.noDataBox}>
-                    <Text style={styles.noDataTitle}>Chưa có lời kể cho câu này</Text>
-                    <Text style={styles.noDataBody}>
-                      Chưa có dữ liệu cho câu hỏi này trong nguồn hiện tại. Bạn
-                      có thể chọn các câu hỏi mẫu bên dưới.
+                    <Text style={styles.noDataTitle}>
+                      {askedSource === 'voice' ? 'Câu hỏi chưa khớp' : 'Chưa có lời kể cho câu này'}
                     </Text>
+                    <Text style={styles.noDataBody}>
+                      {askedSource === 'voice'
+                        ? 'Người kể nhận được lời nói nhưng chưa khớp câu hỏi mẫu ở điểm này. Xem câu đã nhận dạng để kiểm tra, thử lại bằng mic hoặc chọn câu gợi ý bên dưới.'
+                        : 'Chưa có dữ liệu cho câu hỏi này trong nguồn hiện tại. Bạn có thể chọn các câu hỏi mẫu bên dưới.'}
+                    </Text>
+                    {asked && !isTextVisible && (
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={askedSource === 'voice' ? 'Xem câu đã nhận dạng' : 'Xem câu vừa hỏi'}
+                        onPress={() => setIsTextVisible(true)}
+                        style={({ pressed }) => [styles.readerToggle, pressed && styles.pressed]}
+                      >
+                        <AppIcon name="text" size={18} color="#F2C56B" />
+                        <Text style={styles.readerToggleText}>
+                          {askedSource === 'voice' ? 'Xem câu đã nhận dạng' : 'Xem câu vừa hỏi'}
+                        </Text>
+                      </Pressable>
+                    )}
                   </View>
                 ) : (
                   <View style={styles.verifiedBox}>
@@ -672,9 +692,10 @@ export function QaScreen({
                   accessibilityRole="button"
                   accessibilityLabel="Đặt câu hỏi khác"
                   onPress={() => {
-                    voiceSession.stopPlayback();
+                    void voiceSession.stopPlayback();
                     setMatch(null);
                     setAsked(null);
+                    setAskedSource(null);
                   }}
                   style={({ pressed }) => [styles.resetButton, pressed && styles.pressed]}
                 >

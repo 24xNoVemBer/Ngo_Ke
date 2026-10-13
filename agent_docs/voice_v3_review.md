@@ -1,5 +1,16 @@
 # Voice V3 — Microphone recorder
 
+## Recorder re-entry after second-turn report — 14/10/2026
+
+- User reported that the first iPhone voice turn worked but the second had no meter and failed. The exact second-turn transcript/device log is still unavailable; no iPhone reproduction is claimed.
+- Mic startup now waits for the native player's pause/seek before changing to recording mode. On Android API 37 with the current Expo Go bundle, an answer was playing before recording started; the meter appeared, the recording was canceled, and a second recording started with the meter again. That second clip was also canceled without upload. Evidence: `evidence/voice/android-emulator/android-api37-second-recording-2026-10-14.png`.
+- `npm test` 144/144, typecheck and lint pass. This only verifies Android emulator recorder re-entry after Cancel; submit→STT→answer→second mic and iPhone hardware remain unverified.
+
+## Báo lỗi iPhone và sửa hiển thị metering — 14/10/2026
+
+- Screenshot người dùng gửi cho thấy trạng thái recording 00:02 nhưng thanh mức âm không có fill; lượt trước trả Q&A unknown. Recorder đã cấu hình `isMeteringEnabled: true`, nhưng UI chỉ map từ −60 dB trở lên nên có thể giấu giọng nhỏ. Đổi dải hiển thị xuống −80 dB, vẫn chỉ dựa trên metering thật và không dựng waveform.
+- Thêm test cho các mức −160/−80/−60/−40/−10/0 dB cùng dữ liệu thiếu/NaN. Sau reload Expo Go, người dùng xác nhận meter và câu trả lời chạy trên iPhone trong một lượt thử. Chưa có giá trị metering/clip/log để xác nhận độc lập codec, mức tín hiệu hay file cleanup; lifecycle/error routes còn mở.
+
 ## Revalidation after recorder codec fix — 13/10/2026
 
 - Root cause found in the first app-to-gateway attempt: `prepareToRecordAsync({ isMeteringEnabled: true })` replaced the preset options, so Android fell back to AMR-NB despite the `.m4a` extension. The gateway correctly rejected that codec. The recorder now keeps `RecordingPresets.HIGH_QUALITY` plus metering at construction and prepares with no partial override.
@@ -7,7 +18,7 @@
 - This confirms supported recorder codec, multipart upload, server media probing and ASR handling on the emulator. The emulator supplied no intelligible speech, so this does not prove transcript accuracy, answer selection or a physical microphone. No personal audio was used.
 - Current checks: `npm test` 138/138; typecheck and lint pass; Android release build `BUILD SUCCESSFUL`. Full local gateway smoke test also passes.
 
-**Gate GV3 remains open:** test actual spoken audio, metering response, file cleanup, interruption routes and lifecycle on a physical phone. iOS hardware remains unavailable.
+**Gate GV3 remains open:** user reported one successful iPhone voice sample with active meter and an answer; test record/send/cancel cleanup, interruption, permissions and routes over repeated device runs.
 
 **Ngày:** 13/10/2026
 **Trạng thái:** recorder thật đã kiểm trên Android API 37 emulator: cấp quyền lần đầu bắt đầu thu ngay, tự dừng ở 19.5 giây để chừa 500ms trước hard limit gateway 20 giây, giữ thời lượng đo thật (`00:19`); Hủy và Back dừng thu. Chưa thử trên điện thoại thật.
@@ -30,3 +41,9 @@
 - Trước lần revalidation phía trên, chưa gửi clip mic vào gateway. Call, rút tai nghe, lock/background, metering với lời nói, hoặc 20 vòng lifecycle trên điện thoại thật vẫn pending.
 
 **Còn lại:** kiểm mic, codec, metering, file cleanup và các route âm thanh trên điện thoại thật; gửi clip chỉ sau khi người thử chủ động bấm Gửi. Chưa đóng GV3.
+
+## Lỗi meter ở lượt iPhone thứ hai — cập nhật 14/10/2026
+
+- Người dùng tiếp tục báo lượt đầu hoạt động nhưng lượt hai không có meter và thất bại. Chưa có log, transcript hay tái hiện độc lập trên iPhone.
+- Mỗi lượt giờ truyền lại đủ `RecordingPresets.HIGH_QUALITY` cùng `isMeteringEnabled: true` vào `prepareToRecordAsync`. Trong Expo Audio iOS, có options sẽ tạo `AVAudioRecorder` mới thay vì dùng lại recorder đã stop; unit regression kiểm tra hai lượt đều nhận options này.
+- Full suite **148/148**, typecheck, lint, `git diff --check` và iOS JS export đạt. Metro đang chứa sửa đổi mới. Đây chưa phải kiểm thử native iOS; cần xác nhận trên iPhone trước khi đóng GV3.

@@ -1,6 +1,6 @@
 # Ngõ Kể — Roadmap hoàn thiện luồng Voice
 
-**Cập nhật triển khai mới nhất 13/10/2026:** Gateway đang bind riêng IP Wi‑Fi `<DEV_LAN_IP>:8788`; Android LAN APK hiện tại có SHA-256 `6EFC984CA4689D48324EFBFDFC4C18790FED91CAB8F6D0B6E37FC1E6A75D2C17` (121,231,976 byte), đủ 34 MP3, accessibility labels và timeout fix. APK chưa cài lên thiết bị; app mic E2E, phone/iOS, nghe tay audio và GV5/GV7 vẫn pending. `npm test` 134/134, typecheck/lint/dependency check và gateway smoke đều pass. Các dòng V4/V7 bên dưới là snapshot lịch sử, không phải trạng thái hiện tại.
+**Cập nhật triển khai mới nhất 14/10/2026:** Gateway local `/health` trả `ready`; Metro `:8089` phục vụ iOS bundle. Android release APK hiện tại SHA-256 `20154EE9B845396E43ED7F76AAD5AFD9C3639A870E017D23FF670E469E531773` (121,235,376 byte), đã cài/mở và kiểm Q&A, chip không autoplay, answer playback/auto replay/Stop trên API 37 AVD. V1 validator đạt 34/34; `npm test` 148/148, typecheck/lint và iOS JS export đều đạt. UI regression chạy đủ 21 Q&A và một follow-up từ mỗi entry, đồng thời kiểm tra hỏi “chương kế là gì?” không chuyển chương nhưng lệnh “mở chương kế” có chuyển. Đây là kiểm UI với transcript có kiểm soát, không phải kiểm mic/STT thật. Người dùng báo lượt voice đầu trên iPhone chạy nhưng lượt hai lỗi/mất meter; recorder nay được chuẩn bị lại mỗi lượt với đủ preset + metering, còn cần retest trên iPhone. Home ở fontScale 2.0 chuyển sang danh sách điểm dọc có thể cuộn; các ảnh AVD nằm trong `agent_docs/evidence/voice/android-emulator/README.md`. iOS export không phải IPA; nghe tay, hardware voice, audio/accessibility và hiệu năng thực vẫn pending. GV5/GV7 còn mở.
 
 Probe STT V0 mới nhất trên 6 clip tổng hợp ghi nhận preset Đoan Trang 17/216 lỗi từ exact (WER 7.9%; 5.1% sau khi bỏ dấu), weighted RTF 0.213. Chưa có corpus lời nói ngoài đường hoặc đo mic thật; không xem số này là nghiệm thu nhận dạng thực địa.
 
@@ -15,13 +15,13 @@ Authorization mới nhất yêu cầu GV0–GV7 là quality gates nội bộ; ti
 | Phase | Trạng thái hiện tại | Cửa còn lại |
 | --- | --- | --- |
 | V0 | Probe local TTS/STT và chọn stack đã làm; Đoan Trang / faster-whisper-small local | Nghe người thật và corpus STT đa dạng hơn còn chờ |
-| V1 | Catalogue 34/34 clip, manifest/hash/format/duration/level tự động kiểm tra đạt | Nghe tay toàn bộ clip, sửa phát âm/nhịp còn chờ |
-| V2 | Native Android API 37 emulator: player controls/progress, offline bundled audio, hidden text, Back và đổi điểm đã kiểm bằng release APK | Nghe loa/tai nghe trên điện thoại thật và iOS còn chờ |
-| V3 | Permission-on-tap và từ chối quyền/fallback đã kiểm native trên emulator; background/permission race có regression tests | Ghi clip thật, codec/metering/file cleanup trên điện thoại còn chờ |
-| V4 | Node/Python gateway đang chạy bind riêng Wi‑Fi `<DEV_LAN_IP>:8788`; synthetic 18.81s POST → transcript/metadata echo HTTP 200; sai format 415 và 21s 400. Transcript còn lỗi từ | Upload từ recorder app, đánh giá chất lượng transcript và latency đầu-cuối còn chờ; public HTTPS/auth không nằm trong preview |
-| V5 | Fixed matcher/node guard đã test; chip Q&A trên emulator mở đúng answer card và không autoplay | Chưa có transcript mic thật → answer → playback trên điện thoại |
-| V6 | Intent/slot parser và inline Plan/QR/GPS actions đã nối, unit/UI tests đạt | Cách nói tự nhiên và hiểu thẻ chưa kiểm qua mic trên thiết bị |
-| V7 | Android release APK mới build và kiểm trực tiếp: SHA-256 `1020E39520285521871741E2BCE198D14E018DDEFC06B5A82258BBEE24773362`, endpoint Wi‑Fi/34 MP3/accessibility labels đúng; emulator evidence thuộc APK trước | ADB không thấy device nên chưa cài APK mới; phone/iOS, full voice E2E, nghe tay, accessibility/performance chưa kiểm; GV7 còn mở |
+| V1 | Revalidation ngày 14/10: catalogue 34/34 clip, manifest/hash/format/duration/level hợp lệ; ASR tự động chạy trên đủ 34 clip | Nghe tay toàn bộ clip và sửa những lỗi xác nhận được còn chờ; WER tự động không đánh giá độ tự nhiên |
+| V2 | Native Android API 37 AVD player/offline/hidden text/auto replay đạt; unknown transcript có nút mở chủ động. Stop player giờ pause mà không chờ seek native để tránh chặn khởi động mic | Fix lượt hai chưa xác nhận trên iPhone; player/ẩn chữ và audio route trên iPhone còn kiểm |
+| V3 | Recorder/permission và upload clip AVD đạt; meter dùng tín hiệu thật, UI scale mở rộng xuống −80 dB; người dùng xác nhận meter hoạt động trên iPhone | Cancel/interruption, input route và các trạng thái quyền còn cần kiểm trên máy thật |
+| V4 | Gateway local `/health` và synthetic STT/guards đạt; Metro iOS LAN bundle có URL gateway; người dùng báo lượt voice đầu trả lời thành công | Lượt hai vẫn lỗi theo người dùng; chưa có transcript/server log; iOS native build chưa tạo |
+| V5 | Fixed matcher/node guard; UI regression gửi 21 câu canonical và 21 follow-up đầu tiên, xác minh chính xác answer track của từng node; transcript unknown giữ kín mặc định | Chưa kiểm mic→STT→Q&A→audio thực ở cả 6 chương; sửa transcript, unknown, và nhiều lượt trên iPhone còn pending |
+| V6 | Intent/slot parser và inline Plan/QR/GPS actions đã nối; UI xác nhận câu hỏi về chương kế không điều hướng còn lệnh mở chương kế có điều hướng | Cách nói tự nhiên và hiểu thẻ chưa kiểm qua mic trên thiết bị |
+| V7 | Android release APK SHA-256 `20154EE9B845396E43ED7F76AAD5AFD9C3639A870E017D23FF670E469E531773` đã build/cài/mở trên API 37 AVD; sau reload Expo Go, người dùng xác nhận meter và câu trả lời chạy trên iPhone | Chưa có kiểm chứng độc lập/log; nghe tay, screen reader/audio routes, interruption và performance thật còn mở; GV7 còn mở |
 
 Các review từng phase: [`agent_docs/voice_v0_review.md`](../agent_docs/voice_v0_review.md) đến `voice_v7_review.md`. Không dùng export, test stub hay hình thiết kế thay proof native.
 

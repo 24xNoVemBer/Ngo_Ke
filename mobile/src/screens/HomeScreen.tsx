@@ -19,6 +19,7 @@ import { getNodePhoto, getNodePhotographer, getAlleyMeta } from '../assets/photo
 import { UnavailableScreen } from './UnavailableScreen';
 import { useMotionState } from '../hooks/MotionPreferences';
 import { CrossfadePhoto } from '../components/CrossfadePhoto';
+import { AlleyTrailView } from '../components/AlleyTrailView';
 import { AppIcon } from '../components/AppIcon';
 import { usePressSpring, usePulseLoop } from '../hooks/useMotion';
 import { radius, spacing } from '../theme';
@@ -250,6 +251,10 @@ export function HomeScreen({
 
         {/* 3. KHÔNG GIAN BẢN ĐỒ NGÕ: DẢI ĐƯỜNG MÒN PHÁT SÁNG & THẺ BƯU ẢNH SỔ TAY */}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }}>
+        {fontScale > 1.3 ? (
+          <AlleyTrailView nodes={nodes} currentNodeId={currentNode?.id} onSelectNode={handleSelectPin} />
+        ) : (
+          <>
         <View style={[styles.mapCanvas, { height: canvasHeight, width: canvasWidth }]}>
           {/* Lớp SVG đường mòn uốn lượn liên tục */}
           <Svg
@@ -471,6 +476,8 @@ export function HomeScreen({
               </View>
             </Animated.View>
           )}
+          </>
+        )}
         </ScrollView>
 
         {/* 4. THANH ĐIỀU HƯỚNG ĐÁY: 3 NÚT TRÒN TRÊN ĐẢO NỔI KÍNH MỜ */}

@@ -1,6 +1,6 @@
 # Voice V1 — Audio catalogue
 
-**Ngày:** 13/10/2026
+**Ngày:** 14/10/2026
 **Trạng thái:** catalogue tự động đạt; nghe/QC chủ quan còn chờ người nghe thật.
 **Gate GV1:** đạt phần integrity/format/độ phủ; chưa tuyên bố đã đạt chất lượng phát âm.
 
@@ -18,12 +18,14 @@ ASR tự động phát hiện một số sai khác đáng nghe lại: `qa-flower
 
 Re-run ngày 13/10/2026 bằng `tools/voice/.venv/Scripts/python.exe tools/voice/validate_catalogue_v1.py`: 34/34 clip decode/hash/text/node/revision/format/duration hợp lệ; 418.23 giây, 5,043,834 byte. Manifest SHA-256 `90747665D049CC3B4AF018672EF0935805F324236986D8F2047DC79B440113E9` trùng manifest hiện tại; WER cao nhất giữ nguyên như trên. Đây vẫn không thay QC nghe.
 
+Revalidation ngày 14/10/2026 bằng cùng validator: **34/34** clip hợp lệ; 418.23 giây, 5,043,834 byte. Mean level −21.0 đến −18.6 dBFS, peak −7.9 đến −3.4 dBFS. WER cao nhất: `qa-flowers-answer` 23.1%, `qa-cake-answer` 18.9%, `demo-01-caption` 17.6%. Các transcript sai khác được giữ làm tín hiệu cần nghe lại, không tự sửa text hoặc gọi là lỗi phát âm. Bản report máy sinh nằm trong cache bị ignore.
+
 ## Bằng chứng
 
 - Generator/QC: `tools/voice/generate_catalogue_v1.py`, `tools/voice/validate_catalogue_v1.py`.
 - Manifest và mapping native: `mobile/assets/voice/manifest.json`, `mobile/src/voice/catalog.ts`.
 - Checklist nghe từng clip, có đường dẫn MP3 và tiêu chí ghi lỗi: [voice_v1_listening_checklist.md](voice_v1_listening_checklist.md). Tất cả đang để trống đến khi có người nghe thật.
-- Test: `mobile/tests/voiceCatalogue.test.mjs` kiểm đúng 34 mục, ID, text hash, audio hash và static asset map; nằm trong kết quả mới nhất 131/131 test.
+- Test: `mobile/tests/voiceCatalogue.test.mjs` kiểm đúng 34 mục, ID, text hash, audio hash và static asset map; bộ test hiện tại 144/144 pass.
 - Raw report/model cache nằm trong `tools/voice/.cache/` và bị ignore; audio sản phẩm/license đi cùng `mobile/assets/voice/`.
 
 **Còn lại:** nghe tay toàn bộ 34 clip và đánh dấu/re-tạo chính xác clip nghe lỗi; nếu giọng đọc tên riêng hoặc độ tự nhiên không đạt thì cần chọn lại preset và tái tạo catalogue. Không dùng transcript ASR để gọi nội dung là QC âm học hoàn tất.

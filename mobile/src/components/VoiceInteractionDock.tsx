@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppIcon } from './AppIcon';
 import type { VoiceStage } from '../voice/useVoiceSession';
+import { meteringToLevel } from '../voice/metering';
 
 interface Props {
   stage: VoiceStage;
@@ -25,9 +26,7 @@ export function VoiceInteractionDock({
   stage, error, recordingDurationMs, metering, onStartRecording, onSubmitRecording,
   onCancel, onOpenInput, onQuickAction, quickActionLabel = 'Sổ tay',
 }: Props): ReactElement {
-  const level = typeof metering === 'number' && Number.isFinite(metering)
-    ? Math.max(0, Math.min(1, (metering + 60) / 60))
-    : 0;
+  const level = meteringToLevel(metering);
   const busy = stage === 'preparing' || stage === 'stopping' || stage === 'transcribing';
 
   return (
@@ -54,7 +53,13 @@ export function VoiceInteractionDock({
           {stage === 'recording' ? (
             <>
               <Text style={styles.title}>Đang thu · {formatDuration(recordingDurationMs)}</Text>
-              <View style={styles.meterTrack} accessible accessibilityLabel="Mức âm thanh đang thu">
+              <View
+                style={styles.meterTrack}
+                accessible
+                accessibilityRole="progressbar"
+                accessibilityLabel="Mức âm thanh đang thu"
+                accessibilityValue={{ min: 0, max: 100, now: Math.round(level * 100) }}
+              >
                 <View style={[styles.meterFill, { width: `${Math.round(level * 100)}%` }]} />
               </View>
             </>

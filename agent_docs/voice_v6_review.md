@@ -18,3 +18,8 @@
 - Đây là kiểm parser/UI với chuỗi test, không chứng minh ASR nhận tiếng Việt ngoài thực địa hay người dùng hiểu rõ thẻ hành động.
 
 **Còn lại:** thử câu hỏi và lệnh bằng giọng trên thiết bị, nhất là phủ định/“chương kế là gì?”/“mở chương kế”/hai slot/số tiếng Việt; rà các trường hợp mơ hồ và cách người dùng hiểu CTA QR/GPS.
+
+## Screen regression question vs command — 14/10/2026
+
+- QaScreen test confirms “Chương kế là gì?” and “Điểm kế tiếp là điểm nào?” do not change chapter; explicit “Mở chương kế” selects the next available chapter.
+- UI-flow tests pass 24/24; full suite passes 146/146; typecheck and lint pass. Transcript input is controlled, so actual Vietnamese speech recognition and user comprehension still need device testing.

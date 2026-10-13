@@ -14,6 +14,7 @@ test('cancellation after enabling audio skips recorder preparation and restores 
   const ready = await prepareVoiceRecorderForTurn({
     isCurrent: () => current,
     enableAudioMode: async () => { calls.push('enable'); current = false; },
+    recordingOptions: {},
     prepareRecorder: async () => calls.push('prepare'),
     stopRecorder: async () => calls.push('stop'),
     removeRecording: () => calls.push('remove'),
@@ -32,6 +33,7 @@ test('cancellation during native prepare stops and discards the prepared recorde
   const operation = prepareVoiceRecorderForTurn({
     isCurrent: () => current,
     enableAudioMode: async () => calls.push('enable'),
+    recordingOptions: {},
     prepareRecorder: () => { calls.push('prepare'); prepareStarted.resolve(); return prepareFinished.promise; },
     stopRecorder: async () => calls.push('stop'),
     removeRecording: () => calls.push('remove'),
@@ -52,6 +54,7 @@ test('a recorder preparation failure cleans native resources and preserves the e
   await assert.rejects(prepareVoiceRecorderForTurn({
     isCurrent: () => true,
     enableAudioMode: async () => calls.push('enable'),
+    recordingOptions: {},
     prepareRecorder: async () => { calls.push('prepare'); throw failure; },
     stopRecorder: async () => calls.push('stop'),
     removeRecording: () => calls.push('remove'),
@@ -66,6 +69,7 @@ test('a current recorder is not stopped or discarded after successful preparatio
   const ready = await prepareVoiceRecorderForTurn({
     isCurrent: () => true,
     enableAudioMode: async () => calls.push('enable'),
+    recordingOptions: {},
     prepareRecorder: async () => calls.push('prepare'),
     stopRecorder: async () => calls.push('stop'),
     removeRecording: () => calls.push('remove'),
@@ -74,4 +78,22 @@ test('a current recorder is not stopped or discarded after successful preparatio
 
   assert.equal(ready, true);
   assert.deepEqual(calls, ['enable', 'prepare']);
+});
+
+test('successive turns prepare fresh recorders with metering still enabled', async () => {
+  const recordingOptions = { isMeteringEnabled: true };
+  const preparedOptions = [];
+  const prepareTurn = () => prepareVoiceRecorderForTurn({
+    isCurrent: () => true,
+    enableAudioMode: async () => {},
+    recordingOptions,
+    prepareRecorder: async (options) => preparedOptions.push(options),
+    stopRecorder: async () => {},
+    removeRecording: () => {},
+    disableAudioMode: async () => {},
+  });
+
+  assert.equal(await prepareTurn(), true);
+  assert.equal(await prepareTurn(), true);
+  assert.deepEqual(preparedOptions, [recordingOptions, recordingOptions]);
 });

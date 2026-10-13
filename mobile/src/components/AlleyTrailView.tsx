@@ -100,7 +100,7 @@ export function AlleyTrailView({
                   )}
                 </View>
 
-                <Text style={styles.nodeSummary} numberOfLines={1}>
+                <Text style={styles.nodeSummary}>
                   {node.summary}
                 </Text>
 
@@ -138,8 +138,10 @@ const styles = StyleSheet.create({
   },
   progressInfo: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
+    gap: spacing.xs,
   },
   progressTitle: {
     ...typography.titleSmall,
@@ -165,17 +167,17 @@ const styles = StyleSheet.create({
   },
   stepRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'stretch',
     gap: spacing.md,
   },
   timelineColumn: {
     alignItems: 'center',
-    width: 36,
+    width: 48,
   },
   nodePin: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.pill,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: colors.surface,
     borderWidth: 2,
     borderColor: colors.borderStrong,
@@ -232,11 +234,14 @@ const styles = StyleSheet.create({
   },
   nodeHeaderRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: spacing.xs,
   },
   nodeName: {
     ...typography.bodyMedium,
+    flexShrink: 1,
     fontWeight: '600',
     color: colors.text,
   },
@@ -266,6 +271,7 @@ const styles = StyleSheet.create({
   },
   metaRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     gap: spacing.xs,
     marginTop: 2,

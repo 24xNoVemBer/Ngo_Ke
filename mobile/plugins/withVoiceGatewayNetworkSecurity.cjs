@@ -1,6 +1,8 @@
-const { AndroidConfig, withAndroidManifest } = require('@expo/config-plugins');
+const { AndroidConfig, withAndroidManifest, withInfoPlist } = require('@expo/config-plugins');
 const process = require('node:process');
 const { URL } = require('node:url');
+
+const LOCAL_NETWORK_DESCRIPTION = 'Ngõ Kể kết nối với máy chủ nhận dạng giọng nói trên cùng mạng Wi‑Fi để xử lý câu hỏi.';
 
 function privateIpv4Host(host) {
   if (host === 'localhost') return true;
@@ -19,20 +21,35 @@ function gatewayHost(config) {
   return url.hostname;
 }
 
+function configureLocalGatewayInfoPlist(infoPlist, allowLocalGateway) {
+  if (!allowLocalGateway) return infoPlist;
+  infoPlist.NSAppTransportSecurity = {
+    ...infoPlist.NSAppTransportSecurity,
+    NSAllowsLocalNetworking: true,
+  };
+  infoPlist.NSLocalNetworkUsageDescription ??= LOCAL_NETWORK_DESCRIPTION;
+  return infoPlist;
+}
+
 module.exports = function withVoiceGatewayNetworkSecurity(config) {
   const allowLocalGateway = Boolean(gatewayHost(config));
-  return withAndroidManifest(config, (mod) => {
+  const withAndroid = withAndroidManifest(config, (mod) => {
     const application = AndroidConfig.Manifest.getMainApplicationOrThrow(mod.modResults);
     delete application.$['android:networkSecurityConfig'];
     if (allowLocalGateway) {
-      // shortcut: Android's policy is app-wide; require HTTPS before a public build.
+      // shortcut: local HTTP exceptions are app-wide; require HTTPS before public release.
       application.$['android:usesCleartextTraffic'] = 'true';
     } else {
       delete application.$['android:usesCleartextTraffic'];
     }
     return mod;
   });
+  return withInfoPlist(withAndroid, (mod) => {
+    configureLocalGatewayInfoPlist(mod.modResults, allowLocalGateway);
+    return mod;
+  });
 };
 
 module.exports.privateIpv4Host = privateIpv4Host;
 module.exports.gatewayHost = gatewayHost;
+module.exports.configureLocalGatewayInfoPlist = configureLocalGatewayInfoPlist;

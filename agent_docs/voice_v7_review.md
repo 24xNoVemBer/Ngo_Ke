@@ -1,5 +1,26 @@
 # Voice V7 — Nghiệm thu và preview
 
+## Revalidation sau lỗi meter lượt hai và chữ lớn — 14/10/2026
+
+- `npm test` 148/148, typecheck, lint, `git diff --check` và iOS JS export đạt. Metro iOS bundle HTTP 200 (6,056,186 byte) có cấu hình recorder mới cho mỗi lượt; gateway `/health` trả ready.
+- Android API 37 AVD tại fontScale 2.0 dùng danh sách điểm dọc có thể cuộn, nhãn wrap và dock còn thao tác được; ảnh `android-api37-font-scale-200-home-trail-2026-10-14.png`. Landing được kiểm ở đầu và sau cuộn: `android-api37-font-scale-200-landing-top-2026-10-14.png`, `android-api37-font-scale-200-landing-scrolled-2026-10-14.png`.
+- Điện thoại iPhone chưa retest lỗi lượt hai; Expo JS export không thay cho iOS native/device proof. TalkBack/VoiceOver, Dynamic Type trên máy thật, audio routes và hiệu năng vẫn pending.
+
+## Expo Go gateway configuration and recorder re-entry — 14/10/2026
+
+- Detected that an initial Metro restart lacked `EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL`, leaving the Expo Go preview without a usable STT endpoint. Restarted Metro with `http://192.168.100.36:8788`; `/status` and gateway `/health` are ready. iOS and Android bundles both return HTTP 200 and include the configured gateway URL and awaited player stop.
+- Expo Go loaded on the Android API 37 AVD. Playing the answer then starting the recorder showed the meter; Cancel followed by another recorder start also showed the meter. Both clips were canceled and not submitted; no recent JS fatal/load error was found. Screenshots are in `agent_docs/evidence/voice/android-emulator/`.
+- Latest checks: `npm test` 144/144; typecheck, lint, `git diff --check`, and iOS JS export pass. This verifies Expo Go bundle delivery and Android emulator recorder re-entry after Cancel only.
+- **Still pending:** user-reported second-turn failure has not been retested on the physical iPhone; no spoken clip was submitted in this AVD run. Real iOS/Android speech→STT→exact follow-up→answer, routes/accessibility/performance, and human listening are not proven; GV5/GV7 remain open.
+
+## Revalidation sau auto replay — 14/10/2026
+
+- Android release APK hiện tại: 121,235,376 byte, SHA-256 `20154EE9B845396E43ED7F76AAD5AFD9C3639A870E017D23FF670E469E531773`; build thành công, cài và mở được trên Android API 37 AVD. Đã đi từ landing tới Q&A điểm 01, chọn chip hỏi và thấy answer player ở Ready, không tự phát; đã chủ động Play, quan sát audio 9 giây quay về 00:00 và tiếp tục phát, rồi Stop về Ready. Ảnh/chi tiết: `agent_docs/evidence/voice/android-emulator/README.md` và các file `android37-latest-build-*.png`. Không thấy marker fatal/ReactNativeJS error trong logcat 800 dòng gần nhất.
+- Auto replay/Stop 23 giây đã được kiểm trước đó trên AVD; bằng chứng: `agent_docs/evidence/voice/android-emulator/android37-auto-loop-after-one-pass-2026-10-14.png`, `android37-auto-loop-stop-2026-10-14.png`. Trên APK mới ở trên cũng đã xác nhận answer 9 giây tự lặp rồi Stop về Ready.
+- Sau sửa iOS/meter/transcript ngày 14/10: `npm test` 143/143, typecheck, lint, dependency check và Android/iOS JS exports pass. Gateway `/health` trả `ready`. Metro cổng 8089 hiện trả `/status`; iOS bundle tải thành công và có gateway LAN, thang meter mới và disclosure transcript. Đây là bằng chứng bundle local, chưa chứng minh iPhone đã tải hay gửi request.
+- Kiểm tra tiếp ngày 14/10: Expo dependency check và iOS JS export pass; V1 validator đạt 34/34 clip; local gateway smoke test pass. Đây là kiểm tự động, không phải IPA, kiểm thử iPhone hoặc nghe tay.
+- Sau khi reload Expo Go với bundle mới, người dùng xác nhận trên iPhone meter và câu trả lời đều chạy trong lần thử voice. Đây là happy path được người dùng báo lại; chưa có transcript nguyên văn, gateway log, OS/model iPhone hay video để đối chiếu độc lập. Audio route, accessibility trên iOS và performance vẫn pending; GV5/GV7 còn mở.
+
 ## Revalidation after Android codec fix — 13/10/2026
 
 - Current APK: 121,233,212 bytes, SHA-256 `159EE52016DCC4F5B5B5C9DC697AB4FD20B0294D99B13A64CC74B5DED38F6D98`; release build `BUILD SUCCESSFUL` (377 tasks; 26 executed, 351 up-to-date). It was installed on API 37 AVD and exercised through real recorder submit.

@@ -1,20 +1,21 @@
-type RecorderPreparation = {
+type RecorderPreparation<T> = {
   isCurrent: () => boolean;
   enableAudioMode: () => Promise<void>;
-  prepareRecorder: () => Promise<void>;
+  recordingOptions: T;
+  prepareRecorder: (options: T) => Promise<void>;
   stopRecorder: () => Promise<void>;
   removeRecording: () => void;
   disableAudioMode: () => Promise<void>;
 };
 
-async function discardPreparedRecorder(options: RecorderPreparation): Promise<void> {
+async function discardPreparedRecorder<T>(options: RecorderPreparation<T>): Promise<void> {
   try { await options.stopRecorder(); } catch { /* The native recorder may already have reset itself. */ }
   try { options.removeRecording(); } finally {
     try { await options.disableAudioMode(); } catch { /* Keep cancellation best-effort if the session is already inactive. */ }
   }
 }
 
-export async function prepareVoiceRecorderForTurn(options: RecorderPreparation): Promise<boolean> {
+export async function prepareVoiceRecorderForTurn<T>(options: RecorderPreparation<T>): Promise<boolean> {
   try {
     await options.enableAudioMode();
   } catch (error) {
@@ -29,7 +30,7 @@ export async function prepareVoiceRecorderForTurn(options: RecorderPreparation):
   }
 
   try {
-    await options.prepareRecorder();
+    await options.prepareRecorder(options.recordingOptions);
   } catch (error) {
     await discardPreparedRecorder(options);
     if (options.isCurrent()) throw error;

@@ -1,5 +1,20 @@
 # Voice V0–V7 — Báo cáo kiểm thử
 
+## Lỗi mất meter ở lượt iPhone thứ hai — cập nhật 14/10/2026
+
+- Người dùng xác nhận lượt đầu có meter và trả lời; lượt hai mất meter rồi lỗi. Chưa có log native/transcript nên nguyên nhân dưới đây vẫn là giả thuyết cần retest trên iPhone.
+- Mỗi lần thu giờ truyền lại đầy đủ `RecordingPresets.HIGH_QUALITY` và `isMeteringEnabled: true` vào `prepareToRecordAsync`. Expo Audio iOS tạo recorder mới khi có options; gọi không options có thể dùng lại recorder đã dừng. Test kiểm tra hai lượt chuẩn bị đều giữ options/meter.
+- `npm test` 148/148, typecheck, lint, `git diff --check` và iOS JS export đạt. Metro `exp://192.168.100.36:8089` trả iOS bundle HTTP 200 (6,056,186 byte), chứa options recorder mới và Home fallback cho cỡ chữ lớn; gateway `/health` sẵn sàng.
+- Đây chưa phải xác nhận iPhone đã sửa. Reload Expo Go, chạy xong câu đầu, chạm mic lần nữa và kiểm meter; hỏi “Có chuyện xưa nào ở đây không?” để xác nhận câu trả lời tiếp theo. GV3/GV5/GV7 vẫn mở.
+
+## Retest sau lỗi meter/transcript và kiểm tra preview — 14/10/2026
+
+- Meter dùng thang dBFS xuống −80 dB; transcript không khớp vẫn ẩn mặc định nhưng có nút **Xem câu đã nhận dạng**. Plugin iOS chỉ thêm policy local-network cho gateway HTTP private; không bật ATS toàn cục.
+- `npm test` hiện 148/148; typecheck, lint và iOS JS export pass. Gateway `/health` trả `ready` (Node 24.14.1, faster-whisper 1.2.1, model `Systran/faster-whisper-small`).
+- Metro `:8089` trả running; iOS bundle tải thành công và chứa gateway URL hiện tại, cấu hình recorder từng lượt và disclosure transcript. Người dùng từng xác nhận lượt đầu có meter và câu trả lời; lần retest sau đó mới phát hiện lượt hai lỗi như ghi ở mục trên.
+- Đây là happy path do người dùng xác nhận, chưa có transcript nguyên văn, server log hay model/OS iPhone để đối chiếu độc lập. Chưa bao phủ các chương/câu hỏi khác, lỗi mạng/quyền, cancel/interruption, audio route, accessibility hoặc hiệu năng. Nếu gặp unknown, mở **Xem câu đã nhận dạng** và gửi phần chữ; không cần gửi audio.
+- Android release build hoàn tất lại sau đó: APK 121,235,376 byte, SHA-256 `20154EE9B845396E43ED7F76AAD5AFD9C3639A870E017D23FF670E469E531773`. Đã cài/mở trên Android API 37 AVD, điều hướng tới Q&A điểm 01; chip hỏi không autoplay, answer 9 giây phát/lặp, Stop về Ready. Không có marker fatal/ReactNativeJS error trong 800 dòng logcat gần nhất. Không thu mic/gửi network trong lượt kiểm APK này.
+
 ## Revalidation mới nhất sau sửa codec recorder — 13/10/2026
 
 - Tìm ra nguyên nhân app-to-gateway bị `INVALID_AUDIO`: `prepareToRecordAsync({ isMeteringEnabled: true })` làm mất cấu hình preset AAC; Android ghi AMR-NB dù tên file là `.m4a`. Đã giữ nguyên preset `HIGH_QUALITY` + metering khi tạo recorder và gọi prepare không tham số.
@@ -92,3 +107,54 @@ Chi tiết theo gate: [V0](../agent_docs/voice_v0_review.md), [V1](../agent_docs
 - Verification: `npm test` **140/140**, typecheck, lint, Android release bundle and APK build pass. On the Android API 37 AVD, a 23-second story advanced from `00:22/00:23` to `00:04/00:23` still playing, then Stop returned it to Ready/00:23. Captures are listed in `agent_docs/evidence/voice/android-emulator/README.md`.
 - APK: 121,234,260 bytes, SHA-256 `7B39F4A7E14CF9F80D26F207E6E6150C9F0A8E8DCD744A939A7ACCB9151AF5D5`.
 - This verifies playback behavior in the emulator only; speaker/headphone routing and iOS are not tested.
+
+## Revalidation — 14/10/2026
+
+- Catalogue validator: **34/34** audio clips pass hash/text/node/revision, MP3 decode/format, duration and level checks; 418.23 seconds / 5,043,834 bytes. Local faster-whisper ran on all bundled clips. Highest WER: `qa-flowers-answer` 23.1%, `qa-cake-answer` 18.9%, `demo-01-caption` 17.6%. These synthetic-TTS transcripts are an automated content signal only; they do not prove or disprove pronunciation quality. Human listening remains open.
+- Mobile checks before the latest bugfix: `npm test` **140/140**, `npm run typecheck`, `npm run lint`, `npm run check:dependencies`, and `npm run build:ios` all pass. The iOS command produced a JavaScript/Hermes export only, not an IPA or native iOS test.
+- Gateway `/health` returned `ready`; `node tools/voice/gateway/smoke_test.mjs` passed on Node 24.14.1 / faster-whisper 1.2.1 with a 19.15-second local synthetic clip and invalid-format, duration, and silence guards.
+- Expo Go iPhone happy path đã được người dùng xác nhận sau reload: meter và câu trả lời chạy trong một lượt thử. Chưa có transcript nguyên văn/server log để đối chiếu độc lập; các câu hỏi/chương khác, lỗi, audio route và iOS native vẫn pending. Hướng dẫn retest ở [VOICE_HANDOFF.md](VOICE_HANDOFF.md).
+
+## iPhone recorder report and fixes — 14/10/2026
+
+- The user supplied an iPhone screenshot showing `Đang thu · 00:02`, a visually empty audio meter, and an unmatched Q&A result. The actual recognized phrase and gateway response were hidden/not provided, so this does not identify whether the audio input was silent, ASR mistranscribed, or the exact matcher rejected the phrase.
+- Meter review found `isMeteringEnabled: true`, but the UI mapped −60 dB to zero. The display now maps real dBFS from −80 dB to 0 dB; no animated or simulated waveform was added. A regression covers silence, quiet speech, louder values, missing data and invalid numbers.
+- Unknown Q&A still hides the recognized text by default; a new explicit “Xem câu đã nhận dạng” control opens it for diagnosis. Exact matcher behavior is unchanged.
+- Native iOS plugin now adds `NSAllowsLocalNetworking` and `NSLocalNetworkUsageDescription` only when the configured endpoint is a private IPv4 HTTP gateway. No broad arbitrary-load exception is added. Expo Go uses its own native Info.plist, so the plugin change does not prove that Expo Go will reach the local gateway.
+- After these changes: `npm test` **143/143**, typecheck, lint, Expo dependency check, Android export and iOS export pass. iPhone retest is required to verify real metering, speech transcript, Q&A match and answer playback.
+
+## iPhone consecutive-turn report — 14/10/2026
+
+- User confirmed the first iPhone voice turn worked, but the second turn showed no meter and failed. The exact screenshot/transcript/native error was not available, so the cause is not independently reproduced on iPhone.
+- Initial fix awaited the looping answer player's native seek before recorder preparation. The user then reported that the second turn still failed. Review found the seek is not needed to stop audio: the next Play replaces the track from its beginning. `stopAudioPlayer` now only disables looping and pauses, so microphone startup does not wait on a native seek callback.
+- Regression: playback-stop test verifies loop-off → pause and no seek. Full `npm test` **144/144**, typecheck, lint, `git diff --check`, and `npm run build:ios` pass. The iOS export bundles successfully; it is not an IPA or device test.
+- Metro is serving the fresh iOS bundle at `exp://192.168.100.36:8089`; `/status` is running and the current iOS bundle responds HTTP 200 (6,052,516 bytes). Gateway `/health` is ready at `192.168.100.36:8788`.
+- Retest on iPhone is still required: after the first answer appears/loops, tap mic, ask **“Có chuyện xưa nào ở đây không?”**, then Gửi. This change addresses a likely iOS audio-session race but is not yet confirmed on the physical device.
+- A Metro restart initially omitted the gateway environment variable; that left the preview unable to transcribe. It was restarted with `EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL=http://192.168.100.36:8788`; current iOS and Android bundles both return HTTP 200 and contain the gateway URL plus the stop/seek fix.
+- Expo Go on Android API 37 loaded the current bundle. After playing the bundled answer, recording started with a visible nonzero meter; Cancel then start again showed `00:02` and the meter again. The second recording was canceled without submission; no audio was sent and no recent JS fatal/load error appeared. This verifies Android recorder re-entry after cancel, not speech recognition or a post-transcription turn.
+- A UI regression now sends two transcript callbacks in sequence and verifies the second question **“Có chuyện xưa nào ở đây không?”** selects and plays the exact `qa-05` answer track. It does not replace the physical iPhone voice test.
+- Current reruns: `tools/voice/.venv/Scripts/python.exe tools/voice/validate_catalogue_v1.py` exited 0 after checking all **34 clips** (418.23 seconds / 5,043,834 bytes); local ASR highest WER remains `qa-flowers-answer` 23.1%, `qa-cake-answer` 18.9%, and `demo-01-caption` 17.6%. `node tools/voice/gateway/smoke_test.mjs` exited 0 on Node 24.14.1/faster-whisper 1.2.1 for the local synthetic clip and invalid-format/duration/silence guards. Neither result replaces human listening or phone speech testing.
+
+## iPhone second-turn follow-up — 14/10/2026
+
+- After the first awaited-seek patch, the user reported that the second voice turn still failed and the meter was absent. This narrows the defect to the physical iPhone flow, but no stage screenshot, transcript, or native error has been captured.
+- Removed the unnecessary native seek from the stop path. Stopping now pauses immediately and leaves the track inactive; the next playback loads from the beginning. This avoids gating microphone preparation on a seek callback and keeps replay behavior intact.
+- Regression, full suite **144/144**, typecheck, lint, iOS JS export and live Expo Go bundle fetch pass. Metro `exp://192.168.100.36:8089` and gateway `http://192.168.100.36:8788/health` are ready.
+- Physical iPhone retest is still required to confirm that the second recording starts, the live meter moves, and the follow-up reaches the matching answer.
+
+## UI route regression across all chapters — 14/10/2026
+
+- Expanded the Q&A screen regression to send each of the 21 canonical questions and then the first linked follow-up for that entry. All 42 transcript callbacks select the exact answer ID/text and chapter audio track; `node --test tests/uiFlows.test.mjs` passes 23/23 and full `npm test` passes 145/145. Typecheck and lint pass.
+- This verifies screen-level routing with a controlled transcript callback. It does not prove ASR accuracy, native recording, or a real microphone-to-audio conversation in any chapter; GV5 remains open until device tests cover those paths.
+
+## V6 question-versus-command screen regression — 14/10/2026
+
+- Added a screen-flow test proving “Chương kế là gì?” and “Điểm kế tiếp là điểm nào?” stay on the current chapter, while the explicit “Mở chương kế” command selects the next available chapter.
+- `node --test tests/uiFlows.test.mjs`: 24/24; full mobile suite: 146/146; typecheck and lint pass. This proves parser-to-screen behavior with supplied transcript text, not spoken intent recognition; GV6 remains open for device speech checks.
+
+## iPhone second-turn recorder reinitialization — 14/10/2026
+
+- Latest user report: first iPhone voice turn works, but the second fails without the live meter. The issue has not yet been reproduced or independently observed on the physical phone.
+- Expo Audio's iOS source replaces its underlying `AVAudioRecorder` when `prepareToRecordAsync` receives options. The app now passes the complete high-quality recording options, including `isMeteringEnabled: true`, on every turn so a stopped recorder is not reused after its submitted file is deleted.
+- Added a regression that runs two successful recorder preparations and checks both receive metering-enabled options. Full suite **147/147**, typecheck, lint, `git diff --check`, and `npm run build:ios` pass. Latest Metro iOS bundle at `exp://192.168.100.36:8089` returns HTTP 200 and includes the updated options; LAN gateway health is HTTP 200.
+- This is a targeted code fix, not proof that the iPhone issue is resolved. Reload Expo Go and test a second recording after the first answer: the meter should move and “Có chuyện xưa nào ở đây không?” should reach the linked answer. If it still fails, capture the visible error/transcript text; do not send audio. GV3/GV5/GV7 remain open.

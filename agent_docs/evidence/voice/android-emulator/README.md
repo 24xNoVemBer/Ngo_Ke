@@ -6,6 +6,13 @@
 
 These are screenshots of the native React Native app running on the emulator, not the SVG/PNG design comps. Playback duration/progress and recorder duration are native runtime values. The current mic lifecycle was tested, but no recorded audio was uploaded to the gateway.
 
+## Latest build launch smoke — 14/10/2026
+
+- APK: 121,235,376 bytes, SHA-256 `20154EE9B845396E43ED7F76AAD5AFD9C3639A870E017D23FF670E469E531773`.
+- Installed on the API 37 AVD, opened to the Ngõ Kể landing screen, then navigated through Home and AlleySelect to point 01. Screenshots: `android37-latest-build-launch-2026-10-14.png`, `android37-latest-build-home-2026-10-14.png`, `android37-latest-build-alleyselect-2026-10-14.png`, `android37-latest-build-qa-2026-10-14.png`.
+- Tapped the “Có ăn gì ở đây không?” suggestion; the answer player reached Ready (00:09) and did not autoplay. After explicitly pressing Play, the 9-second bundled clip looped to 00:00 while still playing; Stop returned it to Ready/00:09. Evidence: `android37-latest-build-suggested-answer-2026-10-14.png`, `android37-latest-build-auto-replay-2026-10-14.png`, `android37-latest-build-stop-2026-10-14.png`.
+- No `FATAL EXCEPTION` or `ReactNativeJS` error marker appeared in the latest 800 logcat lines. This emulator check did not exercise microphone or network; the separate iPhone happy-path result is user-reported in `docs/VOICE_TEST_REPORT.md`.
+
 ## Latest recorder regression — 13/10/2026
 
 - Current APK: SHA-256 `0E86AC88AE758A587EED292D7C1EACDC26855A9C56125E2308CA54F49C13D9CE`, 121,231,324 bytes; Android API 37, AVD `Medium_Phone_API_37.0`.
@@ -44,7 +51,8 @@ These are screenshots of the native React Native app running on the emulator, no
 - Typed `day la diem nao` and sent it. The app matched the fixed answer for point 01; the answer appeared with its bundled player ready and did not autoplay. Captures: `release-lan-fontscale-200-home-2026-10-13.png`, `release-lan-fontscale-200-alley-2026-10-13.png`, `release-lan-fontscale-200-reader-2026-10-13.png`, `release-lan-fontscale-200-expanded-2026-10-13.png`, `release-lan-fontscale-200-keyboard-2026-10-13.png`, `release-lan-fontscale-200-keyboard-filled-2026-10-13.png`, and `release-lan-fontscale-200-answer-2026-10-13.png`.
 - The software IME and font scale were restored to the emulator defaults (font scale 1.0, hardware-keyboard IME display off). This verifies large-text text entry on this emulator only; it is not phone Dynamic Type/accessibility proof and does not cover mic→gateway.
 
-- Latest LAN check: the host is now `<DEV_LAN_IP>`; Metro `/status` and gateway `/health` return HTTP 200. Fetching the Expo Android bundle remained pending for about one minute and was interrupted, so Expo Go at the new IP is not yet verified. Restart Metro with the current IP using `docs/VOICE_HANDOFF.md` before testing on a phone.
+- 14/10/2026 LAN revalidation: Wi-Fi host `192.168.100.36`; Metro `/status` and gateway `/health` are ready. Expo Go was restarted with `EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL=http://192.168.100.36:8788`; iOS bundle (6,052,756 bytes) and Android bundle (5,512,748 bytes) both return HTTP 200 and contain the gateway URL and recorder/player stop fix.
+- Current Expo Go preview loaded on the Android API 37 AVD. After playing the bundled answer, mic recording showed `00:03` with a visible meter; Cancel then a second mic start showed `00:02` with the meter again. The second turn was canceled, not submitted; no audio was uploaded and no recent JS fatal/load error appeared. This proves recorder re-entry after Cancel on this emulator only; it does not prove speech transcription, re-entry after an answered transcript, or iPhone behavior.
 
 ## Final binary checks
 
@@ -64,10 +72,22 @@ These are screenshots of the native React Native app running on the emulator, no
 
 ## Limits
 
-This evidence does not verify phone speakers/headphones, mic recording or codec, physical-device networking, iOS, TalkBack/VoiceOver, Dynamic Type on a phone, background/call routing, or release performance. Emulator fontScale 2.0 and the software IME were checked through the point-01 typed-answer flow only. The local APK points to the current LAN gateway; a phone must use a verified Expo Go LAN preview described in `docs/VOICE_HANDOFF.md` for STT testing.
+This evidence does not verify phone speakers/headphones, mic recording or codec, physical-device networking, iOS, TalkBack/VoiceOver, Dynamic Type on a phone, background/call routing, or release performance. Emulator fontScale 2.0 was checked on Landing (before/after scroll), the Home point trail and the point-01 typed-answer flow; the software IME was checked through typed Q&A. The local APK points to the current LAN gateway; a phone must use a verified Expo Go LAN preview described in `docs/VOICE_HANDOFF.md` for STT testing.
+
+## Font scale 2.0 responsive Home — 14/10/2026
+
+- At large font scale, Home switches from overlapping map labels to the existing vertical `AlleyTrailView`; point names and details wrap, the list scrolls, and the fixed story action remains usable.
+- Evidence: `android-api37-font-scale-200-home-trail-2026-10-14.png`; Landing at top and scrolled: `android-api37-font-scale-200-landing-top-2026-10-14.png`, `android-api37-font-scale-200-landing-scrolled-2026-10-14.png`.
+- Tested on Android API 37 AVD only. iPhone Dynamic Type, VoiceOver/TalkBack and the second-turn voice failure remain unverified on a physical device.
 
 ## Automatic replay — 14/10/2026
 
 - `android37-auto-loop-after-one-pass-2026-10-14.png` shows the 23-second story looping to 00:04 while playback remains active after its first pass.
 - `android37-auto-loop-stop-2026-10-14.png` shows Stop returning the player to Ready with progress reset; stopping disables auto replay.
 - Tested on Android API 37 AVD only; physical-device audio routing and iOS remain unverified.
+
+## Expo Go current bundle and recorder re-entry — 14/10/2026
+
+- `android-api37-current-preview-2026-10-14.png` shows the current Expo Go Q&A screen with the answer player, follow-up and idle voice dock.
+- `android-api37-second-recording-2026-10-14.png` shows an active second recording at `00:02` with the real recorder meter visible. The sequence played the existing answer, started recording, canceled, then started again and canceled; the clip was not sent to the gateway.
+- The Expo Go Android bundle was fetched over LAN (HTTP 200, 5,512,748 bytes) and contains `http://192.168.100.36:8788` plus the awaited playback-stop code. The iOS bundle was also fetched (HTTP 200, 6,052,756 bytes). Neither export nor emulator run proves the physical iPhone second-turn case.

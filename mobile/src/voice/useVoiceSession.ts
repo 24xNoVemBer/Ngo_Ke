@@ -9,7 +9,7 @@ import { isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoic
 import { prepareVoiceRecorderForTurn } from './recorderPreparation';
 import { hasReachedVoiceRecordingLimit } from './recordingLimit';
 import { createVoiceRequestBody, transcribeVoiceRequest } from './transcribe';
-import { restartAudioPlayer } from './playback';
+import { restartAudioPlayer, stopAudioPlayer } from './playback';
 
 export type VoiceStage = 'idle' | 'preparing' | 'recording' | 'stopping' | 'ready' | 'transcribing' | 'error';
 export type VoiceMode = 'demo' | 'live';
@@ -89,12 +89,10 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
     setStage(next);
   }, []);
 
-  const stopPlayback = useCallback(() => {
+  const stopPlayback = useCallback(async () => {
     requestRef.current += 1;
-    player.loop = false;
-    player.pause();
-    player.seekTo(0);
     setActiveTrackId(null);
+    await stopAudioPlayer(player);
   }, [player]);
 
   const cancel = useCallback(() => {
@@ -133,7 +131,8 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
     setError(null);
     setPlaybackError(null);
     changeStage('preparing');
-    stopPlayback();
+    await stopPlayback();
+    if (!isCurrentTurn()) return;
 
     try {
       permissionPendingRef.current = true;
@@ -148,7 +147,8 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
       const prepared = await prepareVoiceRecorderForTurn({
         isCurrent: isCurrentTurn,
         enableAudioMode: () => setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true }),
-        prepareRecorder: () => recorder.prepareToRecordAsync(),
+        recordingOptions: voiceRecordingOptions,
+        prepareRecorder: (options) => recorder.prepareToRecordAsync(options),
         stopRecorder: () => recorder.stop(),
         removeRecording: () => removeRecording(recorder.uri),
         disableAudioMode: () => setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }),
@@ -351,7 +351,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
     previousScopeRef.current = scope;
     if (!isFocused || scopeChanged) {
       cancel();
-      stopPlayback();
+      void stopPlayback();
       if (scopeChanged) {
         setError(null);
         setPlaybackError(null);
@@ -371,7 +371,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
     const subscription = AppState.addEventListener('change', (state) => {
       if (shouldCancelVoiceOnAppStateChange(state, permissionPendingRef.current)) {
         cancel();
-        stopPlayback();
+        void stopPlayback();
       }
     });
     return () => subscription.remove();

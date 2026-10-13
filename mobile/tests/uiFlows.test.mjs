@@ -60,7 +60,7 @@ function mount(file, props = {}, overrides = {}, exportName) {
       StyleSheet: { create: (styles) => styles, absoluteFill: {} },
       Platform: { OS: 'android' },
       Keyboard: { dismiss() {} },
-      useWindowDimensions: () => ({ width: 400, height: 850 }),
+      useWindowDimensions: () => overrides.__windowDimensions ?? ({ width: 400, height: 850, fontScale: 1 }),
       Animated: {
         View: 'Animated.View',
         Image: 'Animated.Image',
@@ -308,7 +308,7 @@ test('Q&A uses only the selected point, clears the previous answer and offers re
   assert.ok(JSON.stringify(tree).includes('Chưa có câu hỏi cho điểm này'), 'missing Q&A still has an explicit fallback');
 });
 
-test('voice answers play catalogue audio only in Demo and explain the Live text fallback', () => {
+test('voice answers play catalogue audio only in Demo and explain the Live text fallback', async () => {
   function run(mode) {
     let transcript;
     const played = [];
@@ -331,8 +331,16 @@ test('voice answers play catalogue audio only in Demo and explain the Live text 
   }
 
   const demo = run('demo');
+  await Promise.resolve();
   assert.equal(demo.played.length, 1);
   assert.equal(demo.played[0][0], `${fixture.qa[0].id}-answer`);
+  const followUp = fixture.qa.find((entry) => entry.question === 'Có chuyện xưa nào ở đây không?');
+  assert.ok(followUp, 'the first answer exposes the expected story follow-up');
+  demo.transcript(followUp.question, { ...demo.context, turnId: 'turn-2' });
+  await Promise.resolve();
+  assert.equal(demo.played.length, 2);
+  assert.equal(demo.played[1][0], `${followUp.id}-answer`);
+  assert.equal(demo.played[1][1], followUp.answer);
 
   const live = run('live');
   assert.equal(live.played.length, 0);
@@ -344,6 +352,79 @@ test('voice answers play catalogue audio only in Demo and explain the Live text 
   assert.ok(JSON.stringify(replayTree).includes('Chế độ Live chưa có bản đọc'));
   demo.view.unmount();
   live.view.unmount();
+});
+
+test('voice Q&A routes every chapter question and one follow-up to its exact answer track', async () => {
+  for (const node of fixture.nodes.filter((item) => item.available)) {
+    for (const entry of fixture.qa.filter((item) => item.nodeId === node.id)) {
+      let transcript;
+      const played = [];
+      const view = mount('../src/screens/QaScreen.tsx', {
+        dataset: fixture, mode: 'demo', datasetRevision: 'rev-1', currentNodeId: node.id,
+        onSelectNode() {}, onReadNode() {}, readNodeIds: new Set(), onOpenNotebook() {},
+      }, {
+        '../voice/useVoiceSession': { useVoiceSession: (options) => {
+          transcript = options.onTranscript;
+          return {
+            stage: 'idle', error: null, recordingDurationMs: 0, metering: undefined,
+            playback: { playing: false, currentTime: 0, duration: 0 }, activeTrackId: null, playbackError: null,
+            startRecording() {}, submitRecording() {}, cancel() {}, stopPlayback() {},
+            playTrack(...args) { played.push(args); }, replayTrack() {},
+          };
+        } },
+      });
+      view.render();
+      const context = {
+        turnId: 'turn-1', scope: `demo:rev-1:${node.id}`, nodeId: node.id, mode: 'demo', datasetRevision: 'rev-1',
+      };
+
+      transcript(entry.question, context);
+      view.render();
+      await Promise.resolve();
+      assert.deepEqual(played[0]?.slice(0, 3), [`${entry.id}-answer`, entry.answer, 'answer'], `${node.id}/${entry.id}`);
+
+      const followUp = fixture.qa.find((item) => item.id === entry.followUps[0]);
+      assert.ok(followUp, `${entry.id} has a valid first follow-up`);
+      transcript(followUp.question, { ...context, turnId: 'turn-2' });
+      view.render();
+      await Promise.resolve();
+      assert.deepEqual(played[1]?.slice(0, 3), [`${followUp.id}-answer`, followUp.answer, 'answer'], `${node.id}/${followUp.id}`);
+      view.unmount();
+    }
+  }
+});
+
+test('unmatched voice transcript stays hidden until the user opens it for diagnosis', () => {
+  const transcriptText = 'Mình muốn hỏi một câu chưa có trong dữ liệu';
+  let onTranscript;
+  const voiceSession = {
+    stage: 'idle', error: null, recordingDurationMs: 0, metering: -60,
+    playback: { playing: false, currentTime: 0, duration: 0 }, activeTrackId: null, playbackError: null,
+    startRecording() {}, submitRecording() {}, cancel() {}, stopPlayback() {}, playTrack() {}, replayTrack() {},
+  };
+  const properties = {
+    dataset: fixture, mode: 'demo', datasetRevision: 'rev-1', currentNodeId: 'demo-01',
+    onSelectNode() {}, onReadNode() {}, readNodeIds: new Set(), onOpenNotebook() {},
+  };
+  const view = mount('../src/screens/QaScreen.tsx', properties, {
+    '../voice/useVoiceSession': { useVoiceSession: (options) => {
+      onTranscript = options.onTranscript;
+      return voiceSession;
+    } },
+  });
+  view.render();
+  onTranscript(transcriptText, {
+    turnId: 'turn-1', scope: 'demo:rev-1:demo-01', nodeId: 'demo-01', mode: 'demo', datasetRevision: 'rev-1',
+  });
+  let tree = view.render();
+  assert.ok(JSON.stringify(tree).includes('Câu hỏi chưa khớp'));
+  assert.equal(JSON.stringify(tree).includes('Chưa có lời kể cho câu này'), false, 'voice mismatch is not presented as missing story content');
+  assert.equal(JSON.stringify(tree).includes(transcriptText), false, 'recognized speech remains hidden by default');
+  const reveal = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Xem câu đã nhận dạng');
+  assert.ok(reveal, 'an unmatched transcript has a visible diagnostic disclosure');
+  reveal.props.onPress();
+  tree = view.render();
+  assert.ok(JSON.stringify(tree).includes(transcriptText), 'the user can inspect what speech recognition heard');
 });
 
 test('voice action cards wait for an explicit tap before opening QR or GPS', () => {
@@ -370,6 +451,35 @@ test('voice action cards wait for an explicit tap before opening QR or GPS', () 
   assert.deepEqual(opened, ['qr'], 'GPS card does not request or navigate until tapped');
   elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Mở thẻ GPS').props.onPress();
   assert.deepEqual(opened, ['qr', 'gps']);
+});
+
+test('asking what comes next never navigates, while an explicit next-chapter command does', () => {
+  let transcript;
+  const selected = [];
+  const view = mount('../src/screens/QaScreen.tsx', {
+    dataset: fixture, mode: 'demo', datasetRevision: 'rev-1', currentNodeId: 'demo-01',
+    onSelectNode: (id) => selected.push(id), onReadNode() {}, readNodeIds: new Set(), onOpenNotebook() {},
+  }, {
+    '../voice/useVoiceSession': { useVoiceSession: (options) => { transcript = options.onTranscript; return {
+      stage: 'idle', error: null, recordingDurationMs: 0, metering: undefined,
+      playback: { playing: false, currentTime: 0, duration: 0 }, activeTrackId: null, playbackError: null,
+      startRecording() {}, submitRecording() {}, cancel() {}, stopPlayback() {}, playTrack() {}, replayTrack() {},
+    }; } },
+  });
+  view.render();
+  const send = (text, turnId) => transcript(text, {
+    turnId, scope: 'demo:rev-1:demo-01', nodeId: 'demo-01', mode: 'demo', datasetRevision: 'rev-1',
+  });
+
+  send('Chương kế là gì?', 'question-1');
+  view.render();
+  send('Điểm kế tiếp là điểm nào?', 'question-2');
+  view.render();
+  assert.deepEqual(selected, [], 'questions about the next chapter stay on the current chapter');
+
+  send('Mở chương kế', 'command-1');
+  assert.deepEqual(selected, ['demo-02']);
+  view.unmount();
 });
 
 test('voice plan recommendations stay inline and preserve their draft when opening Plan', () => {
@@ -530,6 +640,29 @@ test('ready Live passes its mode to Q&A/Plan and Home does not label it Demo', a
   assert.equal(screen(tree, 'Plan').mode, 'live');
   const home = mount('../src/screens/HomeScreen.tsx', { ...screen(tree, 'Home'), navigation: { goBack() {}, navigate() {} }, route: {} });
   assert.ok(elements(home.render(), 'Text').some((item) => [].concat(item.props.children).join('') === 'Đã mở 0/6 câu chuyện · Live'));
+});
+
+test('Home switches to a wrapping scrollable trail at large font scale', () => {
+  const selected = [];
+  const view = mount('../src/screens/HomeScreen.tsx', {
+    mode: 'demo',
+    source: sources.getSourceState('demo', fixture),
+    onModeChange() {},
+    currentNodeId: 'demo-01',
+    onSelectNode: (id) => selected.push(id),
+    readNodeIds: new Set(),
+    navigation: { goBack() {}, navigate() {} },
+    route: { params: {} },
+  }, { __windowDimensions: { width: 400, height: 850, fontScale: 2 } });
+
+  const tree = view.render();
+  const trail = elements(tree, 'AlleyTrailView')[0];
+  assert.ok(trail, 'large text uses the vertical trail instead of positioned map labels');
+  assert.equal(elements(tree, 'Svg').length, 0);
+  assert.equal(trail.props.nodes.length, 6);
+  trail.props.onSelectNode('demo-02');
+  assert.deepEqual(selected, ['demo-02']);
+  assert.ok(elements(tree, 'Pressable').some((item) => item.props.accessibilityLabel === 'Đọc lời kể điểm đang chọn'));
 });
 
 test('motion loops stop/reset when hidden and reduced motion keeps entrances visible', () => {

@@ -1,5 +1,15 @@
 # Voice V4 — Voice gateway và STT
 
+## iPhone happy path sau reload — 14/10/2026
+
+- Sau khi reload Expo Go, người dùng xác nhận meter và câu trả lời đều chạy trong một lượt thử iPhone. Đây là báo cáo thành công của một request voice, chưa có gateway log/transcript để xác minh request, text nhận dạng hoặc node khớp độc lập.
+- Giữ lại giới hạn: Expo Go là preview; iOS native build/IPA, retry/quota/network failures và cancel khi request đang chạy chưa được kiểm trên iPhone.
+
+## iOS local gateway policy — 14/10/2026
+
+- Config plugin bổ sung `NSAllowsLocalNetworking` và `NSLocalNetworkUsageDescription` chỉ khi app được cấu hình private IPv4 HTTP gateway; không bật `NSAllowsArbitraryLoads`.
+- Apple ghi rõ iOS 17+ hạn chế HTTP tới IP nếu chưa khai báo local networking, và app gọi host trong LAN cần giải thích quyền mạng nội bộ. Plugin helper regression đạt; iPhone Expo Go có một happy path do người dùng xác nhận; native iOS/IPA chưa kiểm.
+
 ## Revalidation sau sửa codec recorder — 13/10/2026
 
 - Local gateway hiện chạy ở `<DEV_LAN_IP>:8788`, bind riêng giao diện Wi-Fi; `/health` trả HTTP 200 với Node 24.14.1, faster-whisper 1.2.1 và model revision đã ghim. Metro preview chạy ở cổng 8087.

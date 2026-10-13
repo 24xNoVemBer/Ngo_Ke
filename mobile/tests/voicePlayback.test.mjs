@@ -1,6 +1,18 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { restartAudioPlayer } from '../src/voice/playback.ts';
+import { restartAudioPlayer, stopAudioPlayer } from '../src/voice/playback.ts';
+
+test('stopping playback pauses immediately without waiting on a native seek', () => {
+  const events = [];
+  const player = {
+    loop: true,
+    pause() { events.push('pause'); },
+  };
+
+  stopAudioPlayer(player);
+  assert.equal(player.loop, false);
+  assert.deepEqual(events, ['pause']);
+});
 
 test('replay waits for the native seek before starting playback', async () => {
   let finishSeek;
