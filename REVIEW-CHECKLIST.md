@@ -62,7 +62,7 @@ Chỉ dùng các mục thuộc phase đang review; không đánh dấu phase tư
 - [x] **R7.02:** fallback camera/vị trí, Q&A ngoài danh sách, chuyển demo/live, nhãn accessibility, cỡ chữ 1.3 — 17/17 đạt; live lỗi không chuyển thành demo. **Bàn phím mềm chưa kiểm được** (emulator không bật IME). Đạt, có giới hạn.
 - [x] **R7.03:** `docs/TEST_REPORT.md` (ma trận thiết bị, phần chưa thử), README mở demo, handoff API/data/voice/UI. Đạt; người dùng xem demo trước khi chốt tech demo.
 - [ ] **G7:** người dùng duyệt demo và mức độ hoàn tất.
-- [ ] **GV:** phase voice chưa mở, chưa có code.
+- [ ] **GV (snapshot 03/10/2026):** tại thời điểm này Voice chưa mở, chưa có code. Trạng thái đã được supersede bởi authorization V0–V7 ngày 13/10/2026; xem checklist Voice mới bên dưới.
 
 Gói Phase 7: `agent_docs/phase_7_review.md`; tests90/90, typecheck/lint/dependency/Doctor21/21 và hai export đạt; kịch bản 45/45 bước × 3 lần; 17/17 kiểm tra bổ sung; offline thật **không đạt**; audit còn23 cảnh báo (7 moderate/16 high).
 
@@ -102,3 +102,16 @@ Các dấu tick ở đây ghi phần cụ thể có bằng chứng, không chuy�
 - [x] Không push remote/deploy/store hoặc bypass test/hook. Git local do CLI tự tạo đã ghi rõ.
 - [x] Không ghi pass cho source/device/phần cứng chưa thử; không dùng web/mock thay nghiệm thu native.
 - [x] Có tests/TS/lint/bundle phù hợp khung; các giới hạn runtime/audit chưa đạt được ghi riêng.
+
+## Voice V0–V7 — authorization 13/10/2026
+
+Các gate GV0–GV7 là kiểm tra nội bộ theo authorization mới; không chờ người dùng duyệt phase sau. Checklist core phía trên vẫn là snapshot nghiệm thu core, không đổi lịch sử G0–G7.
+
+- [x] V0 local TTS/STT probe và stack decision ghi tại `agent_docs/voice_v0_review.md`; giọng tự nhiên còn cần nghe người thật.
+- [x] V1 audio catalogue 34/34 integrity/format/duration checks tự động đạt; QC nghe tay còn pending.
+- [x] V2–V6 code/config, parser/matcher/UI tests và local gateway synthetic smoke đã ghi theo `agent_docs/voice_v2_review.md`…`voice_v6_review.md`.
+- [ ] V2–V6 native device integration: Android/iOS playback, mic permission/recording, app→STT→answer→audio, cancel/background/accessibility.
+- [x] V7 Expo LAN manifest/Metro + gateway health đã xác nhận; 122 tests, typecheck, lint, dependency check, Doctor 21/21, Android/iOS JS exports pass.
+- [ ] GV7: native install/run, screenshots/video evidence, device audio/accessibility/performance measurements còn chờ; xem `agent_docs/voice_v7_review.md` và `docs/VOICE_TEST_REPORT.md`.
+
+Không dùng Expo export, mock/stub, audio SVG mẫu hoặc máy dev để tick native device checks.

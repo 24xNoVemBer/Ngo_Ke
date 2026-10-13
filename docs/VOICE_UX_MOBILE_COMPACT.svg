@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="800" viewBox="0 0 360 800">
+  <defs>
+    <clipPath id="photo"><rect x="16" y="98" width="328" height="104" rx="12"/></clipPath>
+    <g id="mic" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="-4" y="-10" width="8" height="14" rx="4"/><path d="M-8 0v2a8 8 0 0 0 16 0V0M0 10v5M-4 15h8"/></g>
+    <g id="pause" stroke="currentColor" stroke-width="3"><path d="M-4-7V7M4-7V7"/></g>
+    <g id="back" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m3-6-6 6 6 6"/></g>
+  </defs>
+  <style>
+    text {font-family:'Segoe UI',Arial,sans-serif;fill:#2E3028;font-size:15px}
+    .muted{fill:#626559}.small{font-size:13px}.bold{font-weight:600}.point-title{font-size:19px}.green{fill:#2D5748}.light{fill:#FFFDF7}
+  </style>
+  <rect width="360" height="800" fill="#F7F2E8"/>
+  <text x="22" y="21" class="small bold">9:41</text>
+  <g fill="#2E3028"><rect x="296" y="12" width="3" height="7" rx="1"/><rect x="301" y="10" width="3" height="9" rx="1"/><rect x="306" y="8" width="3" height="11" rx="1"/></g>
+  <rect x="320" y="9" width="20" height="10" rx="3" fill="none" stroke="#626559"/><rect x="322" y="11" width="14" height="6" rx="1" fill="#626559"/>
+  <use href="#back" x="27" y="62" color="#2D5748"/>
+  <text x="51" y="52" class="small muted">Đang xem · Điểm 01 / 06</text>
+  <text x="51" y="77" class="bold point-title">Điểm demo 01</text>
+  <g fill="#626559"><circle cx="320" cy="62" r="2"/><circle cx="326" cy="62" r="2"/><circle cx="332" cy="62" r="2"/></g>
+  <image href="../mobile/assets/photos/pexels_demo_01.jpg" x="16" y="98" width="328" height="104" preserveAspectRatio="xMidYMid slice" clip-path="url(#photo)"/>
+  <text x="16" y="223" class="small muted">Ảnh minh họa: Thuan Pham (Pexels)</text>
+  <circle cx="32" cy="258" r="16" fill="#E8EFEA"/><text x="32" y="264" text-anchor="middle" class="green bold">K</text>
+  <text x="57" y="254" class="bold">Người kể ngõ phố</text>
+  <text x="57" y="274" class="small muted">Giọng nữ miền Bắc · Nội dung demo</text>
+  <rect x="16" y="292" width="328" height="118" rx="14" fill="#FFFDF7"/>
+  <circle cx="34" cy="316" r="3" fill="#2D5748"/><text x="46" y="322" class="small green">Đang phát lời kể</text>
+  <text x="70" y="354" text-anchor="middle" class="small">Nghe lại</text>
+  <circle cx="180" cy="347" r="20" fill="#2D5748"/>
+  <use href="#pause" x="180" y="347" color="#FFFDF7"/>
+  <text x="289" y="354" text-anchor="middle" class="small">Dừng</text>
+  <rect x="32" y="386" width="296" height="3" rx="1.5" fill="#E2DDD3"/>
+  <rect x="32" y="386" width="113" height="3" rx="1.5" fill="#2D5748"/>
+  <rect x="16" y="422" width="328" height="48" rx="10" fill="#FFFDF7" stroke="#E2DDD3"/>
+  <text x="30" y="452" class="green">Xem chữ</text>
+  <path d="m317 444 5 5 5-5" fill="none" stroke="#626559" stroke-width="1.5"/>
+  <text x="16" y="504" class="small muted">Bạn có thể hỏi tiếp</text>
+  <rect x="16" y="517" width="159" height="48" rx="10" fill="#F1EAD8"/>
+  <text x="95" y="547" text-anchor="middle">Hỏi gì tiếp?</text>
+  <rect x="185" y="517" width="159" height="48" rx="10" fill="#F1EAD8"/>
+  <text x="264" y="547" text-anchor="middle">Chọn trải nghiệm</text>
+  <path d="M16 587H344" stroke="#E2DDD3"/>
+  <text x="16" y="618">Xem điểm tiếp theo</text>
+  <text x="332" y="618" text-anchor="end" class="green">→</text>
+  <text x="16" y="662" class="small muted">Nhấn mic để dừng lời kể và hỏi tiếp</text>
+  <path d="M0 680H360" stroke="#E2DDD3"/>
+  <rect x="16" y="696" width="242" height="52" rx="14" fill="#2D5748"/>
+  <use href="#mic" x="41" y="720" color="#FFFDF7"/>
+  <text x="63" y="728" class="light bold">Nhấn để hỏi tiếp</text>
+  <rect x="270" y="696" width="74" height="52" rx="14" fill="#FFFDF7" stroke="#E2DDD3"/>
+  <text x="307" y="728" text-anchor="middle" class="bold">Gõ chữ</text>
+  <rect x="128" y="783" width="104" height="4" rx="2" fill="#2E3028"/>
+</svg>

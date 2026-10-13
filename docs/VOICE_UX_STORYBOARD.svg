@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1040" viewBox="0 0 1320 1040">
+  <defs>
+    <clipPath id="photo-a"><rect x="58" y="221" width="336" height="154" rx="14"/></clipPath>
+    <clipPath id="photo-b"><rect x="492" y="221" width="336" height="154" rx="14"/></clipPath>
+    <clipPath id="photo-c"><rect x="926" y="221" width="336" height="154" rx="14"/></clipPath>
+    <g id="mic" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="-5" y="-12" width="10" height="17" rx="5"/><path d="M-9 0v2a9 9 0 0 0 18 0V0M0 11v6M-5 17H5"/></g>
+    <g id="play"><path d="M-5-9 9 0-5 9Z" fill="currentColor"/></g>
+    <g id="pause" stroke="currentColor" stroke-width="4"><path d="M-5-9v18M5-9v18"/></g>
+    <g id="back" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5-7-7 7 7 7"/></g>
+  </defs>
+  <style>
+    text { font-family:'Segoe UI',Arial,sans-serif; fill:#2E3028; }
+    .title {font-size:32px;font-weight:700}.body {font-size:17px}.small {font-size:14px}.label {font-size:15px;font-weight:600}.muted {fill:#626559}.light,.light text {fill:#FFFDF7}.green {fill:#2D5748}.serif {font-family:Georgia,'Times New Roman',serif}
+  </style>
+  <rect width="1320" height="1040" fill="#F7F2E8"/>
+  <text x="38" y="55" class="title serif">Ngõ Kể · trò chuyện với người kể</text>
+  <text x="38" y="86" class="body muted">Voice là chính · chữ ẩn mặc định · chỉ mở khi nhấn “Xem chữ”</text>
+  <text x="38" y="113" class="small muted">Bản thiết kế 13/10/2026 · trạng thái minh họa, chưa nối microphone / nhận dạng / phát audio</text>
+
+  <text x="38" y="159" class="label">01 / SẴN SÀNG</text>
+  <text x="472" y="159" class="label">02 / ĐANG THU GIỌNG</text>
+  <text x="906" y="159" class="label">03 / ĐANG PHÁT · CHỮ THU GỌN</text>
+  <rect x="38" y="178" width="376" height="708" rx="24" fill="#FFFDF7" stroke="#C5BEAF"/>
+  <rect x="472" y="178" width="376" height="708" rx="24" fill="#FFFDF7" stroke="#C5BEAF"/>
+  <rect x="906" y="178" width="376" height="708" rx="24" fill="#FFFDF7" stroke="#C5BEAF"/>
+
+  <g class="small muted"><text x="67" y="207">9:41</text><text x="501" y="207">9:41</text><text x="935" y="207">9:41</text></g>
+  <image href="../mobile/assets/photos/pexels_demo_01.jpg" x="58" y="221" width="336" height="154" preserveAspectRatio="xMidYMid slice" clip-path="url(#photo-a)"/>
+  <image href="../mobile/assets/photos/pexels_demo_01.jpg" x="492" y="221" width="336" height="154" preserveAspectRatio="xMidYMid slice" clip-path="url(#photo-b)"/>
+  <image href="../mobile/assets/photos/pexels_demo_01.jpg" x="926" y="221" width="336" height="154" preserveAspectRatio="xMidYMid slice" clip-path="url(#photo-c)"/>
+  <g fill="#1D3028" opacity="0.78"><rect x="58" y="221" width="336" height="154" rx="14"/><rect x="492" y="221" width="336" height="154" rx="14"/><rect x="926" y="221" width="336" height="154" rx="14"/></g>
+  <g color="#FFFDF7"><use href="#back" x="80" y="249"/><use href="#back" x="514" y="249"/><use href="#back" x="948" y="249"/></g>
+  <g class="light small"><text x="107" y="255">Đang xem · Điểm 01 / 06</text><text x="541" y="255">Đang xem · Điểm 01 / 06</text><text x="975" y="255">Đang xem · Điểm 01 / 06</text></g>
+  <g class="light" font-size="24" font-weight="700"><text x="76" y="305">Điểm demo 01</text><text x="510" y="305">Điểm demo 01</text><text x="944" y="305">Điểm demo 01</text></g>
+  <g class="light small"><text x="76" y="343">Ảnh minh họa: Thuan Pham (Pexels)</text><text x="510" y="343">Ảnh minh họa: Thuan Pham (Pexels)</text><text x="944" y="343">Ảnh minh họa: Thuan Pham (Pexels)</text></g>
+
+  <text x="62" y="409" class="small green">NGƯỜI KỂ · GIỌNG NỮ MIỀN BẮC</text>
+  <text x="62" y="443" font-size="25" font-weight="700" class="serif">Bạn muốn khám phá gì?</text>
+  <text x="62" y="474" class="body muted">Nghe lời kể, hỏi một câu hoặc</text>
+  <text x="62" y="499" class="body muted">chọn trải nghiệm ngay tại đây.</text>
+  <rect x="62" y="523" width="328" height="56" rx="12" fill="#E8EFEA"/>
+  <use href="#play" x="86" y="551" color="#2D5748"/>
+  <text x="108" y="557" class="label green">Nghe lời kể về điểm này</text>
+  <text x="62" y="614" class="small muted">GỢI Ý BẠN CÓ THỂ HỎI</text>
+  <rect x="62" y="632" width="328" height="46" rx="12" fill="#F1EAD8"/>
+  <text x="78" y="661" class="body">Con ngõ này có gì để xem?</text>
+  <rect x="62" y="687" width="157" height="42" rx="10" fill="#F7F2E8" stroke="#E2DDD3"/>
+  <rect x="229" y="687" width="161" height="42" rx="10" fill="#F7F2E8" stroke="#E2DDD3"/>
+  <text x="80" y="714" class="small">Chọn trải nghiệm</text><text x="245" y="714" class="small">Xem điểm tiếp theo</text>
+  <path d="M62 753H390" stroke="#E2DDD3"/>
+  <rect x="62" y="770" width="248" height="64" rx="18" fill="#2D5748"/>
+  <use href="#mic" x="86" y="799" color="#FFFDF7"/><text x="108" y="808" class="label light">Nhấn để nói</text>
+  <rect x="320" y="770" width="70" height="64" rx="18" fill="#F1EAD8"/><text x="333" y="808" class="label">Gõ chữ</text>
+  <text x="62" y="864" class="small muted">Micro chỉ bật sau thao tác của bạn</text>
+
+  <text x="496" y="409" class="small green">BẠN ĐANG NÓI VỀ ĐIỂM 01</text>
+  <text x="496" y="446" font-size="25" font-weight="700" class="serif">Mình đang nghe bạn</text>
+  <text x="496" y="477" class="body muted">Nói một câu rồi nhấn “Gửi câu nói”.</text>
+  <rect x="496" y="514" width="328" height="152" rx="18" fill="#E8EFEA"/>
+  <g stroke="#2D5748" stroke-width="5" stroke-linecap="round"><path d="M534 577v21M550 563v49M566 550v75M582 568v39M598 542v91M614 557v61M630 570v35M646 545v84M662 560v55M678 568v40M694 548v80M710 560v55M726 573v30M742 558v61M758 570v36M774 578v20"/></g>
+  <text x="566" y="648" class="small green">Mức âm thanh thực khi triển khai</text>
+  <text x="496" y="703" class="body muted">Chưa gửi âm thanh.</text>
+  <text x="496" y="730" class="body muted">Bạn có thể hủy bất cứ lúc nào.</text>
+  <path d="M496 753H824" stroke="#E2DDD3"/>
+  <rect x="496" y="770" width="244" height="64" rx="18" fill="#9C4F36"/>
+  <rect x="517" y="793" width="15" height="15" rx="3" fill="#FFFDF7"/>
+  <text x="548" y="808" class="label light">Gửi câu nói</text>
+  <rect x="750" y="770" width="74" height="64" rx="18" fill="#F1EAD8"/><text x="769" y="808" class="label">Hủy</text>
+  <text x="496" y="864" class="small muted">Không mở mic khi người kể đang phát</text>
+
+  <text x="930" y="409" class="small green">NGƯỜI KỂ · NỘI DUNG MÔ PHỎNG</text>
+  <text x="930" y="443" font-size="25" font-weight="700" class="serif">Nghe người kể trả lời</text>
+  <rect x="930" y="464" width="328" height="169" rx="18" fill="#E8EFEA"/>
+  <circle cx="1094" cy="514" r="28" fill="#2D5748"/>
+  <use href="#pause" x="1094" y="514" color="#FFFDF7"/>
+  <text x="930" y="566" text-anchor="start" class="small green"><tspan x="967">Nghe lại</tspan><tspan x="1055">Tạm dừng</tspan><tspan x="1190">Dừng</tspan></text>
+  <rect x="950" y="582" width="288" height="4" rx="2" fill="#C5BEAF"/>
+  <rect x="950" y="582" width="110" height="4" rx="2" fill="#2D5748"/>
+  <text x="992" y="616" class="small muted">Tiến trình lấy từ audio thật</text>
+  <rect x="930" y="644" width="328" height="43" rx="11" fill="#FFFDF7" stroke="#E2DDD3"/>
+  <text x="946" y="671" class="label green">Xem chữ</text><text x="1225" y="671" class="label green">⌄</text>
+  <rect x="930" y="697" width="328" height="43" rx="12" fill="#F1EAD8"/>
+  <text x="946" y="724" class="label">Xem điểm tiếp theo</text><text x="1228" y="724" class="label">→</text>
+  <path d="M930 753H1258" stroke="#E2DDD3"/>
+  <rect x="930" y="770" width="248" height="64" rx="18" fill="#2D5748"/>
+  <use href="#mic" x="954" y="799" color="#FFFDF7"/><text x="976" y="808" class="label light">Nhấn để hỏi tiếp</text>
+  <rect x="1188" y="770" width="70" height="64" rx="18" fill="#F1EAD8"/><text x="1201" y="808" class="label">Gõ chữ</text>
+  <text x="930" y="864" class="small muted">Nhấn mic: dừng phát trước, rồi mới thu</text>
+
+  <path d="M38 918H1282" stroke="#C5BEAF"/>
+  <text x="38" y="954" class="label">Phản hồi thật:</text>
+  <text x="189" y="954" class="body">âm lượng thu → câu nhận dạng → đáp án đã duyệt → audio có player → hành động</text>
+  <text x="38" y="990" class="small muted">Nhấn Xem chữ: mở câu đã nhận + đáp án + nguồn · Nhấn Thu gọn: trả lại giao diện nghe · Audio không bị ngắt</text>
+  <text x="38" y="1018" class="small muted">Đây là storyboard thị giác, không phải giao diện native đã chạy hoặc bằng chứng voice hoạt động.</text>
+</svg>
