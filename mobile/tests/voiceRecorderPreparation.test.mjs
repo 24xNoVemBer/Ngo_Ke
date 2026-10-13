@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { prepareVoiceRecorderForTurn } from '../src/voice/recorderPreparation.ts';
+import { setTimeout as delay } from 'node:timers/promises';
+import { prepareVoiceRecorderForTurn, startVoiceRecorder } from '../src/voice/recorderPreparation.ts';
 
 function deferred() {
   let resolve;
@@ -96,4 +97,37 @@ test('successive turns prepare fresh recorders with metering still enabled', asy
   assert.equal(await prepareTurn(), true);
   assert.equal(await prepareTurn(), true);
   assert.deepEqual(preparedOptions, [recordingOptions, recordingOptions]);
+});
+
+test('the voice stage waits for a native recorder that starts asynchronously', async () => {
+  let didRecord = false;
+  const started = await startVoiceRecorder(
+    () => { void delay(75).then(() => { didRecord = true; }); },
+    () => didRecord,
+    () => true,
+    async () => {},
+  );
+  assert.equal(started, true);
+});
+
+test('a canceled recorder start is stopped and does not advance the voice stage', async () => {
+  let current = true;
+  const calls = [];
+  const started = await startVoiceRecorder(
+    () => { current = false; },
+    () => false,
+    () => current,
+    async () => calls.push('stop'),
+  );
+  assert.equal(started, false);
+  assert.deepEqual(calls, ['stop']);
+});
+
+test('the voice stage reports a recorder that never starts and clears it', async () => {
+  const calls = [];
+  await assert.rejects(
+    startVoiceRecorder(() => {}, () => false, () => true, async () => calls.push('stop')),
+    { message: 'RECORDER_START_FAILED' },
+  );
+  assert.deepEqual(calls, ['stop']);
 });

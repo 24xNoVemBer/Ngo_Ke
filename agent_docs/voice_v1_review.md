@@ -4,6 +4,12 @@
 **Trạng thái:** catalogue tự động đạt; nghe/QC chủ quan còn chờ người nghe thật.
 **Gate GV1:** đạt phần integrity/format/độ phủ; chưa tuyên bố đã đạt chất lượng phát âm.
 
+## Revalidation ASR của 34 clip — 14/10/2026
+
+- Chạy lại `tools/voice/.venv/Scripts/python.exe tools/voice/validate_catalogue_v1.py` trên toàn bộ manifest hiện tại, exit code 0. Các hash/text/node/revision/codec/duration tiếp tục đạt; phần kiểm file không xác nhận độ tự nhiên.
+- ASR gắn cờ cao nhất: `qa-flowers-answer` 23.1%, `qa-cake-answer` 18.9%, `demo-01-caption` 17.6%, `demo-04-caption` và `demo-05-caption` 14.3%. Transcript có thể phản ánh lỗi model hoặc phát âm, nên chỉ dùng để ưu tiên nghe, không tự tạo lại clip.
+- Transcript cần người nghe đối chiếu gồm `bà Nhi`→“ba nhì”, `cái đĩa`→“cái điện”, `giàn`→“dàn”, `giữ`→“dữ”, `chiếc`→“chiều”. Checklist vẫn chưa có mục nào được đánh dấu nghe; các clip đã được ưu tiên trong [`voice_v1_listening_checklist.md`](voice_v1_listening_checklist.md).
+
 ## Đã làm
 
 - Sinh đủ 34 clip canonical từ `data/demo.json`: 1 intro, 6 story, 6 caption và 21 answer; mỗi clip có ID ổn định, node khi phù hợp, text hash, revision/voice và duration đo trong manifest.

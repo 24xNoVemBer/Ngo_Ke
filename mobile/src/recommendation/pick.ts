@@ -39,7 +39,7 @@ export function parseTopic(text: string): Topic | undefined {
 /** Read a duration in minutes; returns undefined when the text is not one. */
 export function parseTimeBudget(text: string): number | undefined {
   const normalized = normalizeQuestion(text).replace(/^(?:khoang|toi co|minh co|co)\s+/, '');
-  if (normalized === 'nua tieng') return 30;
+  if (normalized === 'nua tieng' || normalized === 'nua gio') return 30;
   const legacyHour = normalized.match(/^(?:(\d+)\s*)?(?:tieng|gio|hours?)(?:\s+(ruoi)|\s+(\d+)\s*phut)?$/);
   const legacyMinutes = normalized.match(/^(\d+)\s*(?:phut|minutes?)?$/);
   if (legacyHour || legacyMinutes) {
@@ -51,7 +51,7 @@ export function parseTimeBudget(text: string): number | undefined {
   const unitWord = '(?:mot|hai|ba|bon|nam|lam|sau|bay|tam|chin)';
   const numberWords = `(?:muoi(?:\\s+${unitWord})?|(?:hai|ba|bon|nam|sau|bay|tam|chin)\\s+muoi(?:\\s+${unitWord})?|${unitWord})`;
   const amount = `(\\d{1,3}|mot tram(?:\\s+${numberWords})?|${numberWords})`;
-  const hour = normalized.match(new RegExp(`^${amount}\\s*(?:tieng|gio|hours?)$`));
+  const hour = normalized.match(new RegExp(`^${amount}\\s*(?:tieng|gio|hours?)(?:\\s+ruoi)?$`));
   const minutes = normalized.match(new RegExp(`^${amount}\\s*(?:phut|minutes?)?$`));
   const number = (phrase: string | undefined): number | undefined => {
     if (!phrase) return undefined;
@@ -75,7 +75,7 @@ export function parseTimeBudget(text: string): number | undefined {
   };
   const hourMinutes = number(hour?.[1]);
   const minuteValue = number(minutes?.[1]);
-  const value = hour ? (hourMinutes ?? 0) * 60 : minuteValue;
+  const value = hour ? (hourMinutes ?? 0) * 60 + (normalized.endsWith(' ruoi') ? 30 : 0) : minuteValue;
   return value !== undefined && Number.isSafeInteger(value) && value > 0 ? value : undefined;
 }
 

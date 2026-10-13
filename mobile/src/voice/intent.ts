@@ -46,8 +46,10 @@ function durationValues(text: string): number[] | undefined {
         break;
       }
     }
-    const parsed = phrase ? parseTimeBudget(`${phrase} ${tokens[i]}`) : undefined;
+    const halfHour = ['tieng', 'gio', 'h'].includes(tokens[i]) && tokens[i + 1] === 'ruoi';
+    const parsed = phrase ? parseTimeBudget(`${phrase} ${tokens[i]}${halfHour ? ' ruoi' : ''}`) : undefined;
     if (!phrase || parsed === undefined) return undefined;
+    if (halfHour) i++;
     const phraseStart = i - phrase.split(' ').length;
     if (phraseStart >= 2 && ['hay', 'hoac', 'va', 'den'].includes(tokens[phraseStart - 1])
         && (/^\d{1,3}$/.test(tokens[phraseStart - 2]) || NUMBER_WORDS.has(tokens[phraseStart - 2]))) return undefined;

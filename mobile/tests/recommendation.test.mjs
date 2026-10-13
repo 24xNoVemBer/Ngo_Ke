@@ -120,10 +120,12 @@ test('Vietnamese food labels work with and without accents', () => {
 test('half hours retain the number of hours and invalid durations are rejected', () => {
   assert.equal(parseTimeBudget('1 tiếng rưỡi'), 90);
   assert.equal(parseTimeBudget('2 tiếng rưỡi'), 150);
+  assert.equal(parseTimeBudget('một tiếng rưỡi'), 90);
   assert.equal(parseTimeBudget('1 giờ 30 phút'), 90);
   assert.equal(parseTimeBudget('mười lăm phút'), 15);
   assert.equal(parseTimeBudget('một trăm hai mươi phút'), 120);
   assert.equal(parseTimeBudget('nửa tiếng'), 30);
+  assert.equal(parseTimeBudget('nửa giờ'), 30);
   for (const value of ['-5 phút', '0', '0 tiếng', '5.5 phút', 'điểm 5 phút nữa', '99999999999999999']) {
     assert.equal(parseTimeBudget(value), undefined, value);
   }

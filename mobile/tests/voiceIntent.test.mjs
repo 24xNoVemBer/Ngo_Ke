@@ -21,6 +21,9 @@ test('plan slots accept Arabic and Vietnamese minutes, including split turns', (
   assert.deepEqual(parseVoiceIntent('Chọn trải nghiệm chuyện xưa trong mười lăm phút'), {
     type: 'plan', draft: { topic: 'chuyen xua', budgetMinutes: 15 },
   });
+  assert.deepEqual(parseVoiceIntent('Chọn trải nghiệm chuyện xưa trong một tiếng rưỡi'), {
+    type: 'plan', draft: { topic: 'chuyen xua', budgetMinutes: 90 },
+  });
   assert.deepEqual(parseVoiceIntent('nửa tiếng', true, { topic: 'an thuc' }), {
     type: 'plan', draft: { topic: 'an thuc', budgetMinutes: 30 },
   });
@@ -45,6 +48,9 @@ test('first-option references need options from the current point and dataset re
   const current = { scope: saved.scope, datasetRevision: 'rev-1', nodeId: 'demo-01' };
   assert.deepEqual(resolveFirstOptionReference('Câu đầu tiên', saved, current), { type: 'resolved', value: 'qa-02' });
   assert.deepEqual(resolveFirstOptionReference('Câu đầu tiên', null, current), { type: 'missing' });
+  assert.deepEqual(resolveFirstOptionReference('Câu đầu tiên', { ...saved, scope: 'live:rev-1:demo-01' }, current), { type: 'missing' });
   assert.deepEqual(resolveFirstOptionReference('Câu đầu tiên', saved, { ...current, datasetRevision: 'rev-2' }), { type: 'missing' });
+  assert.deepEqual(resolveFirstOptionReference('Câu đầu tiên', saved, { ...current, nodeId: 'demo-02' }), { type: 'missing' });
+  assert.deepEqual(resolveFirstOptionReference('Câu đầu tiên', { ...saved, options: [] }, current), { type: 'missing' });
   assert.deepEqual(resolveFirstOptionReference('Câu thứ hai', saved, current), { type: 'not-reference' });
 });

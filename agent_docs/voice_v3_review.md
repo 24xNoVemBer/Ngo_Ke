@@ -1,10 +1,11 @@
 # Voice V3 — Microphone recorder
 
-## Recorder re-entry after second-turn report — 14/10/2026
+## Latest second-turn iPhone report and native start guard — 14/10/2026
 
-- User reported that the first iPhone voice turn worked but the second had no meter and failed. The exact second-turn transcript/device log is still unavailable; no iPhone reproduction is claimed.
-- Mic startup now waits for the native player's pause/seek before changing to recording mode. On Android API 37 with the current Expo Go bundle, an answer was playing before recording started; the meter appeared, the recording was canceled, and a second recording started with the meter again. That second clip was also canceled without upload. Evidence: `evidence/voice/android-emulator/android-api37-second-recording-2026-10-14.png`.
-- `npm test` 144/144, typecheck and lint pass. This only verifies Android emulator recorder re-entry after Cancel; submit→STT→answer→second mic and iPhone hardware remain unverified.
+- User confirms the first iPhone turn returned an answer; the second turn lost the meter and failed. No native log or meter value is available, so the failure is not reproduced or diagnosed on-device.
+- Recorder startup now polls Expo Audio's native `isRecording` state for up to 1 second before showing the recording stage. If the turn is canceled during that wait, the recorder is stopped; a persistent start failure is stopped and reported. A stale answer-playback request is also dropped after its audio-mode await when a new mic turn invalidates it. These cover delayed start and a plausible audio-mode race, but cannot restore microphone samples if iOS reports recording while the meter stays silent.
+- `voiceRecorderPreparation` tests pass 8/8 and focused playback/recorder tests pass 12/12; the full mobile suite passes 152/152, plus typecheck/lint and iOS/Android JS exports. Metro iOS bundle HTTP 200 (6,064,803 bytes) contains both guards and the gateway URL; gateway `/health` and Metro `:8090/status` return HTTP 200.
+- Android API 37 evidence only verifies re-entry after Cancel; it does not cover the iPhone submit→STT→answer→second-mic route. The user must retest the updated Expo Go bundle before GV3 closes.
 
 ## Báo lỗi iPhone và sửa hiển thị metering — 14/10/2026
 
@@ -47,3 +48,17 @@
 - Người dùng tiếp tục báo lượt đầu hoạt động nhưng lượt hai không có meter và thất bại. Chưa có log, transcript hay tái hiện độc lập trên iPhone.
 - Mỗi lượt giờ truyền lại đủ `RecordingPresets.HIGH_QUALITY` cùng `isMeteringEnabled: true` vào `prepareToRecordAsync`. Trong Expo Audio iOS, có options sẽ tạo `AVAudioRecorder` mới thay vì dùng lại recorder đã stop; unit regression kiểm tra hai lượt đều nhận options này.
 - Full suite **148/148**, typecheck, lint, `git diff --check` và iOS JS export đạt. Metro đang chứa sửa đổi mới. Đây chưa phải kiểm thử native iOS; cần xác nhận trên iPhone trước khi đóng GV3.
+
+## Kiểm tra native start cho lượt iPhone thứ hai — 14/10/2026
+
+- Expo Audio iOS không kiểm tra giá trị trả về từ `AVAudioRecorder.record()`. App trước đây chuyển UI sang “Đang thu” ngay cả khi native recorder chưa thực sự chạy. Giờ app xác nhận `recorder.isRecording` trước khi vào trạng thái thu; nếu chưa chạy, app đóng audio mode thu và báo để người dùng thử lại thay vì gửi clip im lặng.
+- Regression test cho cả nhánh start thất bại và thành công; `npm test`, typecheck, lint đều đạt. iOS Metro bundle mới trả HTTP 200 và có guard này.
+- Cổng 8089 còn listener nhưng server không trả HTTP. Preview LAN mới chạy tại `exp://192.168.100.36:8090`; đây là bundle cần nạp lại trong Expo Go.
+- Đây là guard phát hiện lỗi và tránh state giả, chưa xác nhận nguyên nhân cuối trên iPhone. Chờ test lặp lại: lượt đầu trả lời → chạm mic lần hai → meter nhúc nhích → câu hỏi follow-up trả lời đúng. GV3 vẫn mở.
+
+## Chờ player dừng hẳn trước khi thu lượt tiếp — 14/10/2026
+
+- Trước đó `stopPlayback()` có `await`, nhưng helper bên dưới chỉ gọi `pause()` đồng bộ rồi trả về. Khi câu trả lời đang tự lặp, lượt mic kế có thể đổi audio session/chuẩn bị recorder trước khi native player hoàn tất lệnh dừng.
+- `stopAudioPlayer()` giờ tắt loop, pause và chờ `seekTo(0)` hoàn tất; `startRecording()` chờ thao tác này trước khi xin quyền/đổi audio session/prepare recorder. Regression test giữ seek ở trạng thái pending để xác nhận promise dừng chỉ hoàn tất sau native seek.
+- Playback test 4/4; full mobile suite 152/152; typecheck, lint, `git diff --check`, iOS JS export đều đạt. Bundle LAN `exp://192.168.100.36:8090` trả HTTP 200, 6,065,043 byte, có `seekTo(0)`.
+- Chưa kiểm lại trên iPhone; coi đây là sửa một race có khả năng gây lỗi, chưa kết luận đã hết lỗi thiết bị. GV3/GV5/GV7 vẫn mở cho đến khi lượt hai có meter và trả lời đúng trên máy thật.

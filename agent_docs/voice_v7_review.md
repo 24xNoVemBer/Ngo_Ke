@@ -1,10 +1,11 @@
 # Voice V7 — Nghiệm thu và preview
 
-## Revalidation sau lỗi meter lượt hai và chữ lớn — 14/10/2026
+## Revalidation sau native start guard và chữ lớn — 14/10/2026
 
-- `npm test` 148/148, typecheck, lint, `git diff --check` và iOS JS export đạt. Metro iOS bundle HTTP 200 (6,056,186 byte) có cấu hình recorder mới cho mỗi lượt; gateway `/health` trả ready.
+- `npm test` 152/152, typecheck/lint và iOS + Android JS exports đạt. Gateway `/health` và Metro `:8090/status` trả HTTP 200; Expo Go preview dùng `exp://192.168.100.36:8090`. Metro iOS bundle HTTP 200 (6,064,803 bytes) includes recorder and stale-playback guards.
+- Recorder stage nay chờ tối đa 1 giây để xác nhận native `isRecording`; playback bị bỏ nếu đã lỗi thời khi đổi audio mode. Điều này chưa xác minh microphone metering hoặc STT ở lượt hai trên iPhone. AVD/APK evidence vẫn không thay cho kiểm thử trên iPhone thật.
 - Android API 37 AVD tại fontScale 2.0 dùng danh sách điểm dọc có thể cuộn, nhãn wrap và dock còn thao tác được; ảnh `android-api37-font-scale-200-home-trail-2026-10-14.png`. Landing được kiểm ở đầu và sau cuộn: `android-api37-font-scale-200-landing-top-2026-10-14.png`, `android-api37-font-scale-200-landing-scrolled-2026-10-14.png`.
-- Điện thoại iPhone chưa retest lỗi lượt hai; Expo JS export không thay cho iOS native/device proof. TalkBack/VoiceOver, Dynamic Type trên máy thật, audio routes và hiệu năng vẫn pending.
+- APK đang lưu trong thư mục build có trước native-start guard; dùng Expo Go LAN preview để thử đúng source mới. Điện thoại iPhone chưa retest lỗi lượt hai; Expo JS export không thay cho iOS native/device proof. TalkBack/VoiceOver, Dynamic Type trên máy thật, audio routes và hiệu năng vẫn pending.
 
 ## Expo Go gateway configuration and recorder re-entry — 14/10/2026
 

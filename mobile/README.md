@@ -26,7 +26,7 @@ node tools/voice/gateway/server.mjs
 ```powershell
 # Terminal 2 — tại thư mục mobile
 $env:EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL = 'http://<DEV_LAN_IP>:8788'
-npm start -- --lan --port 8089 --go --max-workers 2
+npm start -- --lan --port 8090 --go --max-workers 2
 ```
 
 Thay `<DEV_LAN_IP>` bằng địa chỉ LAN hiện tại của máy chạy gateway. Điện thoại và máy phát triển phải ở cùng Wi‑Fi riêng tin cậy. Gateway preview dùng HTTP, không xác thực và không phù hợp để mở ra Internet hoặc Wi‑Fi công cộng. Xem [VOICE_HANDOFF.md](../docs/VOICE_HANDOFF.md) để biết cách mở APK/preview, kiểm tra gateway và các giới hạn.
@@ -48,7 +48,7 @@ npm run check:dependencies
 
 ## Trạng thái kiểm chứng
 
-Android đã được build và mở trên emulator API 37; upload clip tới gateway và các kiểm tra hợp đồng/định dạng đã chạy. Ngày 14/10, bộ test đạt 148/148, typecheck/lint và iOS JS export đều đạt. UI regression phủ đủ 21 Q&A cùng một follow-up từ mỗi câu và xác nhận hỏi về chương kế không tự điều hướng; transcript kiểm thử không thay thế STT/mic thật. Người dùng báo lượt voice đầu trên iPhone chạy nhưng lượt hai mất meter rồi lỗi. Mã mới khởi tạo recorder với đủ preset + metering ở mỗi lượt và bỏ seek khỏi bước dừng player; cần retest trên iPhone sau khi reload Expo Go. Metro cổng 8089 và gateway 8788 đang chạy trên LAN. Export không phải IPA; các luồng iOS còn lại, kiểm tra audio/accessibility và nghe duyệt thủ công toàn bộ audio vẫn mở. Xem [VOICE_TEST_REPORT.md](../docs/VOICE_TEST_REPORT.md) để biết kết quả mới nhất và phần chưa kiểm.
+Android đã được build và mở trên emulator API 37; upload clip tới gateway và các kiểm tra hợp đồng/định dạng đã chạy. Ngày 14/10, bộ test đạt 152/152, typecheck/lint và iOS + Android JS exports đều đạt. UI regression phủ đủ 21 Q&A cùng một follow-up từ mỗi câu và xác nhận hỏi về chương kế không tự điều hướng; transcript kiểm thử không thay thế STT/mic thật. Người dùng báo lượt voice đầu trên iPhone chạy nhưng lượt hai mất meter rồi lỗi. Recorder hiện chờ tối đa 1 giây xác nhận native đã thu; câu trả lời phát lỗi thời bị bỏ nếu lượt mic mới bắt đầu. Metro `8090` và gateway `8788` đang chạy trên LAN. Chưa retest hai lượt trên iPhone sau các guard mới; export không phải IPA, các luồng iOS còn lại, kiểm tra audio/accessibility và nghe duyệt thủ công toàn bộ audio vẫn mở. Xem [VOICE_TEST_REPORT.md](../docs/VOICE_TEST_REPORT.md) để biết kết quả mới nhất và phần chưa kiểm.
 
 ## Mã nguồn và tài liệu
 

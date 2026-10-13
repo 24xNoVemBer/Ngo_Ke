@@ -1,17 +1,38 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { restartAudioPlayer, stopAudioPlayer } from '../src/voice/playback.ts';
+import { isPlaybackRequestCurrent, restartAudioPlayer, stopAudioPlayer } from '../src/voice/playback.ts';
 
-test('stopping playback pauses immediately without waiting on a native seek', () => {
+test('answer playback generation is invalidated by a new mic turn or scope change', () => {
+  assert.equal(isPlaybackRequestCurrent(4, 4, 'demo:r1:demo-01', 'demo:r1:demo-01'), true);
+  assert.equal(isPlaybackRequestCurrent(4, 5, 'demo:r1:demo-01', 'demo:r1:demo-01'), false);
+  assert.equal(isPlaybackRequestCurrent(4, 4, 'demo:r1:demo-01', 'demo:r1:demo-02'), false);
+});
+
+test('stopping playback pauses immediately and waits for the native rewind', async () => {
+  let finishSeek;
   const events = [];
+  const pendingSeek = new Promise((resolve) => { finishSeek = resolve; });
   const player = {
     loop: true,
     pause() { events.push('pause'); },
+    async seekTo(seconds) {
+      events.push(`seek:${seconds}:start`);
+      await pendingSeek;
+      events.push('seek:finish');
+    },
   };
 
-  stopAudioPlayer(player);
+  let stopped = false;
+  const stopping = stopAudioPlayer(player).then(() => { stopped = true; });
+  await Promise.resolve();
   assert.equal(player.loop, false);
-  assert.deepEqual(events, ['pause']);
+  assert.deepEqual(events, ['pause', 'seek:0:start']);
+  assert.equal(stopped, false);
+
+  finishSeek();
+  await stopping;
+  assert.equal(stopped, true);
+  assert.deepEqual(events, ['pause', 'seek:0:start', 'seek:finish']);
 });
 
 test('replay waits for the native seek before starting playback', async () => {

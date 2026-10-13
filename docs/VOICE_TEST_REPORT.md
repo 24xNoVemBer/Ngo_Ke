@@ -1,17 +1,17 @@
 # Voice V0–V7 — Báo cáo kiểm thử
 
-## Lỗi mất meter ở lượt iPhone thứ hai — cập nhật 14/10/2026
+## Lượt voice thứ hai trên iPhone mất meter — cập nhật 14/10/2026
 
-- Người dùng xác nhận lượt đầu có meter và trả lời; lượt hai mất meter rồi lỗi. Chưa có log native/transcript nên nguyên nhân dưới đây vẫn là giả thuyết cần retest trên iPhone.
-- Mỗi lần thu giờ truyền lại đầy đủ `RecordingPresets.HIGH_QUALITY` và `isMeteringEnabled: true` vào `prepareToRecordAsync`. Expo Audio iOS tạo recorder mới khi có options; gọi không options có thể dùng lại recorder đã dừng. Test kiểm tra hai lượt chuẩn bị đều giữ options/meter.
-- `npm test` 148/148, typecheck, lint, `git diff --check` và iOS JS export đạt. Metro `exp://192.168.100.36:8089` trả iOS bundle HTTP 200 (6,056,186 byte), chứa options recorder mới và Home fallback cho cỡ chữ lớn; gateway `/health` sẵn sàng.
-- Đây chưa phải xác nhận iPhone đã sửa. Reload Expo Go, chạy xong câu đầu, chạm mic lần nữa và kiểm meter; hỏi “Có chuyện xưa nào ở đây không?” để xác nhận câu trả lời tiếp theo. GV3/GV5/GV7 vẫn mở.
+- Người dùng xác nhận lượt đầu có trả lời, nhưng lượt hai mất meter và lỗi. Chưa có log native, giá trị meter hoặc transcript của lượt lỗi nên nguyên nhân chưa được chứng minh.
+- Recorder startup hiện chờ tối đa 1 giây để xác nhận native `isRecording`; nếu bị hủy thì dừng recorder, nếu không khởi động thì dọn và báo lỗi. Một câu trả lời phát lỗi thời cũng bị hủy sau khi audio-mode await nếu mic lượt mới đã bắt đầu. Đây là guard cho start trễ và một race hợp lý, chưa chứng minh nguyên nhân người dùng gặp; guard chưa thể sửa trường hợp iOS báo đang thu nhưng không trả mẫu tiếng.
+- `voiceRecorderPreparation` 8/8, focused playback/recorder tests 12/12; toàn bộ test 152/152, typecheck/lint và iOS + Android JS exports đạt. Metro `exp://192.168.100.36:8090` cùng gateway `:8788` đang sẵn sàng; iOS Metro bundle HTTP 200 (6,064,803 bytes) có cả hai guard.
+- Chưa có retest iPhone sau guard. Reload Expo Go, chạy xong câu đầu, chạm mic lần nữa và hỏi “Có chuyện xưa nào ở đây không?”. Nếu hiện “Đang thu” mà meter rỗng, ghi rõ trạng thái đó; nếu STT trả unknown, mở **Xem câu đã nhận dạng** và gửi lại chữ. GV3/GV5/GV7 vẫn mở.
 
 ## Retest sau lỗi meter/transcript và kiểm tra preview — 14/10/2026
 
 - Meter dùng thang dBFS xuống −80 dB; transcript không khớp vẫn ẩn mặc định nhưng có nút **Xem câu đã nhận dạng**. Plugin iOS chỉ thêm policy local-network cho gateway HTTP private; không bật ATS toàn cục.
 - `npm test` hiện 148/148; typecheck, lint và iOS JS export pass. Gateway `/health` trả `ready` (Node 24.14.1, faster-whisper 1.2.1, model `Systran/faster-whisper-small`).
-- Metro `:8089` trả running; iOS bundle tải thành công và chứa gateway URL hiện tại, cấu hình recorder từng lượt và disclosure transcript. Người dùng từng xác nhận lượt đầu có meter và câu trả lời; lần retest sau đó mới phát hiện lượt hai lỗi như ghi ở mục trên.
+- Metro `:8089` là preview cũ, đã được thay bằng `:8090` sau khi endpoint cũ bị treo; xem mục mới nhất phía trên để mở bundle hiện tại. Người dùng từng xác nhận lượt đầu có meter và câu trả lời; lượt hai sau đó mất meter như ghi ở mục trên.
 - Đây là happy path do người dùng xác nhận, chưa có transcript nguyên văn, server log hay model/OS iPhone để đối chiếu độc lập. Chưa bao phủ các chương/câu hỏi khác, lỗi mạng/quyền, cancel/interruption, audio route, accessibility hoặc hiệu năng. Nếu gặp unknown, mở **Xem câu đã nhận dạng** và gửi phần chữ; không cần gửi audio.
 - Android release build hoàn tất lại sau đó: APK 121,235,376 byte, SHA-256 `20154EE9B845396E43ED7F76AAD5AFD9C3639A870E017D23FF670E469E531773`. Đã cài/mở trên Android API 37 AVD, điều hướng tới Q&A điểm 01; chip hỏi không autoplay, answer 9 giây phát/lặp, Stop về Ready. Không có marker fatal/ReactNativeJS error trong 800 dòng logcat gần nhất. Không thu mic/gửi network trong lượt kiểm APK này.
 
@@ -158,3 +158,17 @@ Chi tiết theo gate: [V0](../agent_docs/voice_v0_review.md), [V1](../agent_docs
 - Expo Audio's iOS source replaces its underlying `AVAudioRecorder` when `prepareToRecordAsync` receives options. The app now passes the complete high-quality recording options, including `isMeteringEnabled: true`, on every turn so a stopped recorder is not reused after its submitted file is deleted.
 - Added a regression that runs two successful recorder preparations and checks both receive metering-enabled options. Full suite **147/147**, typecheck, lint, `git diff --check`, and `npm run build:ios` pass. Latest Metro iOS bundle at `exp://192.168.100.36:8089` returns HTTP 200 and includes the updated options; LAN gateway health is HTTP 200.
 - This is a targeted code fix, not proof that the iPhone issue is resolved. Reload Expo Go and test a second recording after the first answer: the meter should move and “Có chuyện xưa nào ở đây không?” should reach the linked answer. If it still fails, capture the visible error/transcript text; do not send audio. GV3/GV5/GV7 remain open.
+
+## iPhone second-turn native start check — 14/10/2026
+
+- Expo Audio's iOS `record()` path does not check the Boolean result from `AVAudioRecorder.record()`. The app previously advanced to its recording UI even if the native recorder had not actually started. It now verifies `recorder.isRecording` before showing the active recording state; a failed start restores playback mode and offers a retry instead of sending a silent clip.
+- Added a regression for native start failure. `npm test`, typecheck, and lint pass. The new iOS Metro bundle returns HTTP 200 (6,063,401 bytes) and contains the start guard; the local faster-whisper gateway health check is ready.
+- Metro on port 8089 was listening but not responding. A fresh LAN preview is now running at `exp://192.168.100.36:8090`; open that URL in Expo Go to load this change.
+- This guard makes a native start failure visible; it does not establish that this was the physical iPhone's root cause. Repeat the first-answer → second-mic test on iPhone. GV3/GV5/GV7 remain open until that and the other device checks pass.
+
+## Await native player stop before the next iPhone recording — 14/10/2026
+
+- The previous `stopAudioPlayer()` only dispatched `pause()` and returned synchronously, so awaiting the wrapper did not wait for the native player. When an answer was looping, the next microphone turn could begin its audio-session switch while the player command was still in flight.
+- Playback stop now disables looping, pauses, then awaits `seekTo(0)`. The mic-start path already awaits this stop before recorder preparation. A deferred-seek regression confirms the stop promise stays pending until the native seek resolves.
+- Focused playback tests: 4/4; full mobile suite: 152/152; typecheck, lint, `git diff --check`, and iOS JavaScript export pass. Expo Go LAN bundle `exp://192.168.100.36:8090` returns HTTP 200 (6,065,043 bytes) and contains the native rewind.
+- Physical iPhone verification remains pending. Reload the LAN preview, complete one voice answer, start a second recording, and verify the meter moves and the follow-up answer arrives. This code-level race is a likely cause, not a confirmed device diagnosis; GV3/GV5/GV7 remain open.

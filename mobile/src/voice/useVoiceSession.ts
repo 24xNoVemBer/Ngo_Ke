@@ -6,10 +6,10 @@ import * as Crypto from 'expo-crypto';
 import { File } from 'expo-file-system';
 import { voiceTracks, voiceCatalogueRevision } from './catalog';
 import { isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoiceOnScopeChange } from './appState';
-import { prepareVoiceRecorderForTurn } from './recorderPreparation';
+import { prepareVoiceRecorderForTurn, startVoiceRecorder } from './recorderPreparation';
 import { hasReachedVoiceRecordingLimit } from './recordingLimit';
 import { createVoiceRequestBody, transcribeVoiceRequest } from './transcribe';
-import { restartAudioPlayer, stopAudioPlayer } from './playback';
+import { isPlaybackRequestCurrent, restartAudioPlayer, stopAudioPlayer } from './playback';
 
 export type VoiceStage = 'idle' | 'preparing' | 'recording' | 'stopping' | 'ready' | 'transcribing' | 'error';
 export type VoiceMode = 'demo' | 'live';
@@ -41,6 +41,7 @@ function turnId(): string {
 function messageForError(code: string): string {
   if (code === 'MIC_PERMISSION_DENIED') return 'Ngõ Kể chưa được cấp quyền dùng micro. Bạn có thể gõ câu hỏi thay thế.';
   if (code === 'AUDIO_TOO_SHORT') return 'Câu nói hơi ngắn. Hãy nói rõ câu hỏi rồi chạm Gửi.';
+  if (code === 'RECORDER_START_FAILED') return 'Micro chưa bắt đầu thu được. Hãy chạm để thử lại.';
   if (code === 'AUDIO_TOO_LONG') return 'Câu nói dài quá. Hãy chia thành một câu hỏi ngắn hơn.';
   if (code === 'NO_SPEECH') return 'Mình chưa nghe thấy lời nói rõ. Hãy thử lại gần micro hơn.';
   if (code === 'VOICE_NOT_CONFIGURED') return 'Chưa kết nối máy nhận giọng nói. Bạn có thể gõ câu hỏi thay thế.';
@@ -154,7 +155,13 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
         disableAudioMode: () => setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }),
       });
       if (!prepared || !isCurrentTurn()) return;
-      recorder.record();
+      const started = await startVoiceRecorder(
+        () => recorder.record(),
+        () => recorder.isRecording,
+        isCurrentTurn,
+        () => recorder.stop(),
+      );
+      if (!started || !isCurrentTurn()) return;
       changeStage('recording');
     } catch (cause) {
       permissionPendingRef.current = false;
@@ -310,10 +317,11 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
     }
     const request = ++requestRef.current;
     const requestedScope = scope;
+    const isCurrentRequest = () => isPlaybackRequestCurrent(request, requestRef.current, requestedScope, scopeRef.current);
     setPlaybackError(null);
     try {
       const textHash = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, text);
-      if (request !== requestRef.current || scopeRef.current !== requestedScope) return;
+      if (!isCurrentRequest()) return;
       if (textHash !== track.textHash) {
         setPlaybackError('Bản đọc không khớp lời kể hiện tại nên chưa phát.');
         return;
@@ -327,11 +335,12 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
         return;
       }
       await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
+      if (!isCurrentRequest()) return;
       player.replace(track.source as AudioSource);
       setActiveTrackId(id);
       player.play();
     } catch {
-      if (request === requestRef.current && scopeRef.current === requestedScope) {
+      if (isCurrentRequest()) {
         setPlaybackError('Không mở được bản đọc. Bạn vẫn có thể xem lời kể bằng chữ.');
       }
     }

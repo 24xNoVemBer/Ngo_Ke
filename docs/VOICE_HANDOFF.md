@@ -1,23 +1,23 @@
 # Bàn giao Voice V0–V7 — Ngõ Kể
 
-**Cập nhật:** 14/10/2026. APK hiện tại đã build/cài/mở trên Android API 37 AVD. APK 121,235,376 byte, SHA-256 `20154EE9B845396E43ED7F76AAD5AFD9C3639A870E017D23FF670E469E531773`. Người dùng xác nhận lượt voice iPhone đầu phát meter và trả lời, nhưng lượt hai mất meter rồi lỗi. Recorder nay được chuẩn bị lại mỗi lượt với đủ preset chất lượng cao và metering; không seek player trong bước dừng mic-start. Bộ test 148/148, typecheck, lint và iOS JS export pass. Metro `8089` và gateway `8788` đang chạy tại `192.168.100.36`; cần retest lượt hỏi tiếp trên iPhone để xác nhận.
+**Cập nhật:** 14/10/2026. Người dùng xác nhận lượt voice đầu trên iPhone có câu trả lời; lượt hai mất meter và lỗi. Native recorder start hiện đợi tối đa 1 giây để xác nhận trạng thái thật; answer playback cũ cũng bị bỏ khi mic lượt mới đã bắt đầu. Lượt retest sau sửa vẫn cần thực hiện trên iPhone. `npm test` 152/152, typecheck/lint và iOS + Android JS exports đạt; iOS Metro bundle trả HTTP 200 với cả hai guard. Metro `8090` và gateway `8788` đang chạy tại `192.168.100.36`. APK lưu trong thư mục build (SHA-256 `20154EE9B845396E43ED7F76AAD5AFD9C3639A870E017D23FF670E469E531773`) có trước thay đổi JS mới; dùng Expo Go preview bên dưới để thử bản mới.
 
 ## Mở bản thử Android/iOS
 
-- Preview LAN hiện tại: `exp://192.168.100.36:8089`. Metro đã được mở với `EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL=http://192.168.100.36:8788`; bundle iOS hiện tại trả HTTP 200 và chứa cấu hình recorder mới. Nếu IP đổi, khởi động lại Metro và cập nhật biến môi trường theo lệnh bên dưới.
+- Preview LAN hiện tại: `exp://192.168.100.36:8090`. Metro đã được mở với `EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL=http://192.168.100.36:8788`; iOS và Android exports mới đều thành công. Nếu IP đổi, khởi động lại Metro và cập nhật biến môi trường theo lệnh bên dưới.
 
 - APK: [app-release.apk](../mobile/android/app/build/outputs/apk/release/app-release.apk)
 - Kích thước: 121,235,376 byte. SHA-256: `20154EE9B845396E43ED7F76AAD5AFD9C3639A870E017D23FF670E469E531773`.
 - Gateway STT local đang chạy, bind riêng máy dev tại `http://<DEV_LAN_IP>:8788`; `/health` trả HTTP 200. Điện thoại và máy dev cần cùng Wi‑Fi riêng; giữ gateway chạy khi thử mic.
 - APK đã cài/mở trên AVD `Medium_Phone_API_37.0`. Submit qua recorder tới gateway; AVD không có lời nói nên nhận `NO_SPEECH`, không tạo câu trả lời. Ảnh [native no-speech state](../agent_docs/evidence/voice/android-avd-stt-no-speech-2026-10-13.png). Kiểm thử không thay cho lời nói từ điện thoại thật.
-- Preview đang phục vụ tại `exp://<DEV_LAN_IP>:8089`; `/status` là running và iOS bundle đã được kiểm có URL gateway cùng sửa đổi hiện tại. Người dùng đã reload preview và xác nhận meter + câu trả lời chạy. Để retest hoặc kiểm thêm câu hỏi, giữ gateway chạy và mở link trong Expo Go trên iPhone cùng Wi‑Fi; nếu Metro dừng, khởi động lại theo lệnh dưới đây, thay `<DEV_LAN_IP>` bằng IP LAN hiện tại của máy dev:
+- Preview đang phục vụ tại `exp://<DEV_LAN_IP>:8090`; `/status` là running và gateway URL trỏ tới `:8788`. Người dùng đã xác nhận lượt đầu hoạt động nhưng báo lượt thứ hai lỗi; cần reload preview và retest cả hai lượt trên iPhone cùng Wi‑Fi. Nếu Metro dừng, khởi động lại theo lệnh dưới đây, thay `<DEV_LAN_IP>` bằng IP LAN hiện tại của máy dev:
 - Gateway và Metro chỉ dành cho mạng riêng tin cậy; không dùng Wi‑Fi công cộng, không port-forward/public expose.
 
 Khởi động lại Metro nếu tiến trình dừng (PowerShell tại `<REPO_ROOT>\mobile`):
 
 ```powershell
 $env:EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL = 'http://<DEV_LAN_IP>:8788'
-npm start -- --lan --port 8089 --go --max-workers 2
+npm start -- --lan --port 8090 --go --max-workers 2
 ```
 
 Gói iOS hiện là Expo Go preview, chưa phải IPA/native store build; bundle thiếu `EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL` sẽ không gửi STT. Điện thoại và gateway cần ở cùng Wi‑Fi riêng; Expo Go cũng cần được cấp quyền Local Network nếu iOS hỏi.
@@ -76,6 +76,6 @@ Chi tiết theo gate, log kiểm và giới hạn: [VOICE_TEST_REPORT.md](VOICE_
 
 ## Kiểm lại lỗi mất meter ở lượt thứ hai — 14/10/2026
 
-Đã cập nhật Metro `exp://192.168.100.36:8089`: mỗi lượt ghi âm tạo recorder mới bằng bộ options đầy đủ (`HIGH_QUALITY` + metering), để tránh tái dùng recorder iOS đã dừng. Test tự động đạt 147/147, typecheck/lint/iOS JS export đạt. Đây chưa phải xác nhận trên iPhone.
+Preview LAN mới: `exp://192.168.100.36:8090` (cổng 8089 đang treo). Gateway `http://192.168.100.36:8788/health` đang ready. Bundle iOS đã xác nhận HTTP 200 và có code kiểm tra `recorder.isRecording` ngay sau lệnh native start.
 
-Reload Expo Go; hoàn thành một câu hỏi để answer phát, rồi chạm mic lần nữa. Xác nhận thanh meter nhúc nhích khi nói và hỏi “Có chuyện xưa nào ở đây không?”. Nếu lỗi còn, gửi ảnh trạng thái cùng nội dung trong “Xem câu đã nhận dạng”; không gửi file ghi âm.
+Mở URL mới trong Expo Go, hoàn thành một câu hỏi để nghe trả lời, rồi chạm mic lần hai. Khi thấy đang thu, nói “Có chuyện xưa nào ở đây không?” và kiểm tra meter có nhúc nhích, câu trả lời có đúng không. Nếu native start thất bại, app sẽ báo micro chưa thu được để thử lại thay vì tiếp tục với clip rỗng. Nếu vẫn lỗi, gửi ảnh trạng thái và nội dung trong “Xem câu đã nhận dạng”; không gửi file ghi âm.
