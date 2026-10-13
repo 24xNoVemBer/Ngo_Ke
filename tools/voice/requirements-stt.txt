@@ -1,0 +1,2 @@
+# Current tested local ASR engine for the V0 probe and dev gateway.
+faster-whisper==1.2.1

@@ -1,0 +1,2 @@
+# VieNeu v3 Turbo local SDK, pinned to the version documented for the V0 probe.
+vieneu==3.7.1

@@ -1,0 +1,109 @@
+import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { createServer } from 'node:net';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+const gateway = path.join(root, 'tools', 'voice', 'gateway', 'server.mjs');
+const probeDirectory = path.join(root, 'tools', 'voice', '.cache', 'v0-probe');
+
+async function reserveLocalPort() {
+  const server = createServer();
+  await new Promise((resolve, reject) => server.once('error', reject).listen(0, '127.0.0.1', resolve));
+  const address = server.address();
+  if (!address || typeof address === 'string') throw new Error('Could not reserve a test port');
+  await new Promise((resolve) => server.close(resolve));
+  return address.port;
+}
+
+function silentPcmWav(seconds) {
+  const sampleRate = 16_000;
+  const dataBytes = sampleRate * seconds * 2;
+  const wav = Buffer.alloc(44 + dataBytes);
+  wav.write('RIFF', 0); wav.writeUInt32LE(36 + dataBytes, 4); wav.write('WAVE', 8);
+  wav.write('fmt ', 12); wav.writeUInt32LE(16, 16); wav.writeUInt16LE(1, 20);
+  wav.writeUInt16LE(1, 22); wav.writeUInt32LE(sampleRate, 24);
+  wav.writeUInt32LE(sampleRate * 2, 28); wav.writeUInt16LE(2, 32); wav.writeUInt16LE(16, 34);
+  wav.write('data', 36); wav.writeUInt32LE(dataBytes, 40);
+  return wav;
+}
+
+const port = await reserveLocalPort();
+const child = spawn(process.execPath, [gateway], {
+  cwd: root,
+  env: { ...process.env, NGOKE_VOICE_HOST: '127.0.0.1', NGOKE_VOICE_PORT: String(port) },
+  stdio: ['ignore', 'ignore', 'pipe'],
+});
+let stderr = '';
+child.stderr.on('data', (chunk) => { stderr = (stderr + String(chunk)).slice(-2_000); });
+const baseUrl = `http://127.0.0.1:${port}`;
+
+try {
+  let health;
+  const deadline = Date.now() + 90_000;
+  while (Date.now() < deadline) {
+    if (child.exitCode !== null) throw new Error(`Gateway exited during startup: ${stderr}`);
+    try {
+      const response = await fetch(`${baseUrl}/health`);
+      if (response.ok) { health = await response.json(); break; }
+    } catch { /* The local worker is still loading. */ }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  assert.equal(health?.status, 'ready', `Gateway health timeout: ${stderr}`);
+  assert.equal(health.node.split('.')[0], '24');
+
+  const report = JSON.parse(await readFile(path.join(probeDirectory, 'report.json'), 'utf8'));
+  const sample = report.voices['Đoan Trang'].intro;
+  const bytes = await readFile(path.join(probeDirectory, sample.file));
+  const form = new FormData();
+  form.append('audio', new Blob([bytes], { type: 'audio/wav' }), 'synthetic-intro.wav');
+  const expected = {
+    turnId: `gateway-smoke-${Date.now()}`,
+    locale: 'vi',
+    mode: 'demo',
+    nodeId: 'demo-02',
+    datasetRevision: 'local-synthetic-v0',
+  };
+  for (const [key, value] of Object.entries(expected)) form.append(key, value);
+  const response = await fetch(`${baseUrl}/v1/transcribe`, { method: 'POST', body: form });
+  const result = await response.json();
+  assert.equal(response.status, 200, JSON.stringify(result));
+  for (const [key, value] of Object.entries(expected)) assert.equal(result[key], value);
+  assert.equal(result.locale, 'vi');
+  assert.ok(result.durationSeconds > 0);
+  assert.ok(typeof result.text === 'string' && result.text.length > 0);
+
+  const invalid = new FormData();
+  invalid.append('audio', new Blob([bytes], { type: 'audio/mp4' }), 'wrong-format.m4a');
+  for (const [key, value] of Object.entries({ ...expected, turnId: `invalid-${Date.now()}` })) invalid.append(key, value);
+  const invalidResponse = await fetch(`${baseUrl}/v1/transcribe`, { method: 'POST', body: invalid });
+  assert.equal(invalidResponse.status, 415);
+  assert.equal((await invalidResponse.json()).code, 'UNSUPPORTED_AUDIO_FORMAT');
+
+  const tooLong = new FormData();
+  tooLong.append('audio', new Blob([silentPcmWav(21)], { type: 'audio/wav' }), 'too-long.wav');
+  for (const [key, value] of Object.entries({ ...expected, turnId: `too-long-${Date.now()}` })) tooLong.append(key, value);
+  const tooLongResponse = await fetch(`${baseUrl}/v1/transcribe`, { method: 'POST', body: tooLong });
+  assert.equal(tooLongResponse.status, 400);
+  assert.equal((await tooLongResponse.json()).code, 'AUDIO_TOO_LONG');
+
+  const tooShort = new FormData();
+  tooShort.append('audio', new Blob([silentPcmWav(0.25)], { type: 'audio/wav' }), 'too-short.wav');
+  for (const [key, value] of Object.entries({ ...expected, turnId: `too-short-${Date.now()}` })) tooShort.append(key, value);
+  const tooShortResponse = await fetch(`${baseUrl}/v1/transcribe`, { method: 'POST', body: tooShort });
+  assert.equal(tooShortResponse.status, 400);
+  assert.equal((await tooShortResponse.json()).code, 'AUDIO_TOO_SHORT');
+
+  const silence = new FormData();
+  silence.append('audio', new Blob([silentPcmWav(1)], { type: 'audio/wav' }), 'silence.wav');
+  for (const [key, value] of Object.entries({ ...expected, turnId: `silence-${Date.now()}` })) silence.append(key, value);
+  const silenceResponse = await fetch(`${baseUrl}/v1/transcribe`, { method: 'POST', body: silence });
+  assert.equal(silenceResponse.status, 422);
+  assert.equal((await silenceResponse.json()).code, 'NO_SPEECH');
+
+  process.stdout.write(`Voice gateway smoke passed: Node ${health.node}, ${health.engine}, ${result.durationSeconds}s local synthetic clip; invalid-format, duration and silence guards passed.\n`);
+} finally {
+  child.kill('SIGTERM');
+}
