@@ -9,6 +9,7 @@ import { isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoic
 import { prepareVoiceRecorderForTurn } from './recorderPreparation';
 import { hasReachedVoiceRecordingLimit } from './recordingLimit';
 import { createVoiceRequestBody, transcribeVoiceRequest } from './transcribe';
+import { restartAudioPlayer } from './playback';
 
 export type VoiceStage = 'idle' | 'preparing' | 'recording' | 'stopping' | 'ready' | 'transcribing' | 'error';
 export type VoiceMode = 'demo' | 'live';
@@ -90,6 +91,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
 
   const stopPlayback = useCallback(() => {
     requestRef.current += 1;
+    player.loop = false;
     player.pause();
     player.seekTo(0);
     setActiveTrackId(null);
@@ -295,6 +297,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
     text: string,
     expectedKind: 'story' | 'answer',
     expectedNodeId: string,
+    restart = false,
   ) => {
     if (mode !== 'demo' || datasetRevision !== voiceCatalogueRevision) {
       setPlaybackError('Audio truyện này không khớp phiên bản dữ liệu hiện tại.');
@@ -315,8 +318,11 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
         setPlaybackError('Bản đọc không khớp lời kể hiện tại nên chưa phát.');
         return;
       }
+      player.loop = true;
       if (activeTrackId === id) {
-        if (playback.playing) player.pause();
+        if (restart) {
+          await restartAudioPlayer(player, () => request === requestRef.current && scopeRef.current === requestedScope);
+        } else if (playback.playing) player.pause();
         else player.play();
         return;
       }
@@ -325,7 +331,9 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
       setActiveTrackId(id);
       player.play();
     } catch {
-      setPlaybackError('Không mở được bản đọc. Bạn vẫn có thể xem lời kể bằng chữ.');
+      if (request === requestRef.current && scopeRef.current === requestedScope) {
+        setPlaybackError('Không mở được bản đọc. Bạn vẫn có thể xem lời kể bằng chữ.');
+      }
     }
   }, [activeTrackId, datasetRevision, mode, playback.playing, player, scope]);
 
@@ -335,14 +343,8 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
     expectedKind: 'story' | 'answer',
     expectedNodeId: string,
   ) => {
-    if (activeTrackId === id) {
-      requestRef.current += 1;
-      player.seekTo(0);
-      player.play();
-      return;
-    }
-    await playTrack(id, text, expectedKind, expectedNodeId);
-  }, [activeTrackId, playTrack, player]);
+    await playTrack(id, text, expectedKind, expectedNodeId, true);
+  }, [playTrack]);
 
   useEffect(() => {
     const scopeChanged = shouldCancelVoiceOnScopeChange(previousScopeRef.current, scope);

@@ -85,3 +85,10 @@ Chi tiết theo gate: [V0](../agent_docs/voice_v0_review.md), [V1](../agent_docs
 - Tại thời điểm snapshot này chưa tạo được APK mới cho accessibility fix: wrapper dừng do toolchain Java 17 chưa cấu hình. Trạng thái này được cập nhật ở phần Revalidation mới nhất phía trên; APK hiện tại đã build thành công với JDK 17.
 - V1 catalogue validator hoàn tất: **34/34**, 418.23 giây, 5,043,834 byte; manifest SHA-256 `90747665D049CC3B4AF018672EF0935805F324236986D8F2047DC79B440113E9`. WER tự động cao nhất vẫn 23.1%, 18.9%, 17.6%; human listening chưa làm.
 - Tại snapshot trước khi gateway được khởi động qua tool review, ADB không liệt kê thiết bị/emulator và Node gateway không spawn được Python worker (`spawn EPERM`). Trạng thái gateway sau đó đã được khôi phục cho synthetic smoke; app mic → STT → answer vẫn chưa kiểm được.
+
+## Auto replay — 14/10/2026
+
+- The active bundled track now loops automatically. Stop disables looping and resets the player; starting playback again enables it for the new active track.
+- Verification: `npm test` **140/140**, typecheck, lint, Android release bundle and APK build pass. On the Android API 37 AVD, a 23-second story advanced from `00:22/00:23` to `00:04/00:23` still playing, then Stop returned it to Ready/00:23. Captures are listed in `agent_docs/evidence/voice/android-emulator/README.md`.
+- APK: 121,234,260 bytes, SHA-256 `7B39F4A7E14CF9F80D26F207E6E6150C9F0A8E8DCD744A939A7ACCB9151AF5D5`.
+- This verifies playback behavior in the emulator only; speaker/headphone routing and iOS are not tested.

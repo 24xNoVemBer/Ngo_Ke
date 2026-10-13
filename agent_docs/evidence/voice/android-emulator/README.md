@@ -65,3 +65,9 @@ These are screenshots of the native React Native app running on the emulator, no
 ## Limits
 
 This evidence does not verify phone speakers/headphones, mic recording or codec, physical-device networking, iOS, TalkBack/VoiceOver, Dynamic Type on a phone, background/call routing, or release performance. Emulator fontScale 2.0 and the software IME were checked through the point-01 typed-answer flow only. The local APK points to the current LAN gateway; a phone must use a verified Expo Go LAN preview described in `docs/VOICE_HANDOFF.md` for STT testing.
+
+## Automatic replay — 14/10/2026
+
+- `android37-auto-loop-after-one-pass-2026-10-14.png` shows the 23-second story looping to 00:04 while playback remains active after its first pass.
+- `android37-auto-loop-stop-2026-10-14.png` shows Stop returning the player to Ready with progress reset; stopping disables auto replay.
+- Tested on Android API 37 AVD only; physical-device audio routing and iOS remain unverified.
