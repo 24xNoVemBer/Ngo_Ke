@@ -12,6 +12,12 @@
 - Ảnh: `android37-source-release-player-playing-2026-10-14.png`, `android37-source-release-recorder-second-start-2026-10-14.png`, `android37-source-release-recorder-second-cancel-2026-10-14.png`.
 - AVD API 37 chạy `-no-audio`: recorder UI/timer/state hoạt động nhưng meter không có tín hiệu âm thanh; không gửi clip, không test STT/Q&A và không thay thế lượt hỏi thứ hai trên iPhone. Bundle Metro `:8081` mới vẫn chưa được reload trên iPhone theo yêu cầu để sau.
 
+## Background cancellation on source release APK — 14/10/2026
+
+- On the same APK, AppOps showed `RECORD_AUDIO` running during capture. Pressing Home moved the foreground activity to Android Launcher; AppOps then reported a completed 3.083-second recording operation. Reopening Ngõ Kể showed the idle `Nhấn để hỏi` dock; capture did not resume.
+- Evidence: `android37-source-release-recorder-background-idle-appops-2026-10-14.png`.
+- This is lifecycle evidence from the API 37 AVD running `-no-audio`, not a microphone signal, spoken turn, STT or physical-iPhone interruption test.
+
 ## APK V6 trước sửa phủ định trong ô nhập tay — 14/10/2026
 
 - APK release: 121,246,156 byte, SHA-256 `301F0654052A537324A08240F02C1DA223D99EBACCD841A573A20C3375B0EE36`. Build và kiểm ZIP/Hermes xác nhận parser V6, URL gateway và đủ 34 MP3.

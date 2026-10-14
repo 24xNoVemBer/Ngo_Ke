@@ -1,5 +1,11 @@
 # Voice V3 — Microphone recorder
 
+## Background cancellation on the latest source APK — 14/10/2026
+
+- On the current release APK (`com.valentino241.ngokedemo`, SHA-256 `BA973B5F23550367191A3A5ED004FD411CEF6D90ABB5C0FB5A132AA4897221D2`), started recording and confirmed AppOps showed `RECORD_AUDIO ... (running)`. Pressed Home; the launcher became the resumed activity and AppOps changed to a completed 3.083-second use. Returning to Ngõ Kể showed `Nhấn để hỏi`; the recorder did not resume.
+- Evidence: `agent_docs/evidence/voice/android-emulator/android37-source-release-recorder-background-idle-appops-2026-10-14.png`.
+- AVD API 37 runs with `-no-audio`: this confirms Android background/lifecycle cleanup only. No mic signal, speech, STT or iPhone interruption behavior was tested.
+
 ## Kiểm tra lại trên APK Android release mới nhất — 14/10/2026
 
 - APK 121,245,884 byte, SHA-256 0F43437B6B29D5AF9A7C750E746D1FE731F45A1808778DD6AC8925972FDF53F9 đã cài trên AVD API 37.
