@@ -5,6 +5,7 @@
 - Dùng VieNeu v3 Turbo local để tạo audio tổng hợp từ 21 câu hỏi canonical, rồi chạy trực tiếp faster-whisper-small đã pin (`language=vi`, `beam_size=5`, `vad_filter=true`) và đối chiếu transcript bằng `findAnswer` thật của app trong đúng node.
 - Kết quả trên một lượt sinh: **14/21** transcript ghép chính xác; 7 câu trả `unknown`, không có câu nào ghép nhầm sang answer khác. Theo chương: `demo-01` 6/6, `demo-02` 1/3, `demo-03` 2/3, `demo-04` 1/3, `demo-05` 1/3, `demo-06` 3/3.
 - Thử vocabulary `initial_prompt` trên cùng 21 audio còn **11/21**, không cứu câu nào và làm trượt `qa-lam`, `qa-ribbon`, `qa-cake`; không đưa prompt vào gateway. Exact matcher được giữ để ASR sai không tự trả lời sai.
+- Regression mới khóa 16 transcript near-miss từ hai probe ASR tổng hợp ở trạng thái `unknown` trong đúng node. Đây giữ hành vi an toàn, không làm tăng độ nhận dạng và không thay lời nói thật.
 - Đây là probe offline bằng giọng tổng hợp, gọi cùng model/tham số nhưng không qua app→gateway, không phải lời nói của người dùng hoặc kiểm tra mic/điện thoại. Report tạm và audio nằm trong `tools/voice/.cache/qa-asr-smoke/`; WAV được xóa sau decode.
 - Kết quả này chỉ cho thấy unknown fallback cần tiếp tục được dùng; GV5 vẫn chờ speech E2E thật trên đủ sáu chương. Không đổi source hoặc alias theo lỗi phát âm tổng hợp.
 

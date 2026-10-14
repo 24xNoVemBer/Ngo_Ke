@@ -4,7 +4,8 @@
 
 - AVD API 37 tái hiện lỗi thật: sau khi chọn ẩm thực + 30 phút, nhập “Không đi ẩm thực trong 30 phút” ở Plan bị nhận thành ẩm thực và vẫn hiện picks cũ.
 - Root cause là `parseTopic` tìm chuỗi chủ đề dương mà không xét phủ định. Thêm `hasTopicNegation` dùng chung giữa `parseTopic`, voice intent và ô nhập Plan; khi phủ định, Plan xóa topic cũ, giữ budget đã chọn và yêu cầu chọn chủ đề khác.
-- Regression parser + PlanScreen UI mới; `npm test` 165/165, typecheck, lint và Expo dependency check pass. Cài APK mới lên AVD API 37 và lặp đúng luồng: kết quả đổi sang “Vui lòng chọn chủ đề”, không còn card ẩm thực. Ảnh: `agent_docs/evidence/voice/android-emulator/android37-release-negated-plan-result-2026-10-14.png`.
+- Regression parser + PlanScreen UI mới; `npm test` 166/166, typecheck, lint và Expo dependency check pass. Cài APK mới lên AVD API 37 và lặp đúng luồng: kết quả đổi sang “Vui lòng chọn chủ đề”, không còn card ẩm thực. Ảnh: `agent_docs/evidence/voice/android-emulator/android37-release-negated-plan-result-2026-10-14.png`.
+- Regression `qa.test.mjs` khóa 16 transcript near-miss từ hai probe ASR tổng hợp ở chế độ `unknown` trong đúng node; không dùng fuzzy hoặc chọn đáp án gần nhất. Không cải thiện độ nhận dạng, nhưng bảo vệ khỏi trả sai khi transcript bị lệch.
 - Android release APK hiện tại: 121,246,512 bytes, SHA-256 `BA973B5F23550367191A3A5ED004FD411CEF6D90ABB5C0FB5A132AA4897221D2`; build thành công và cài/chạy trên AVD.
 - Recheck cùng APK: player tiến đến `00:02` rồi pause; recorder vào thu, Hủy về idle, nhấn mic lần hai vẫn vào thu và Hủy lại về idle. Ảnh player/recorder ở `agent_docs/evidence/voice/android-emulator/README.md`. AVD `-no-audio`, nên meter phẳng và không có bằng chứng âm thanh/STT.
 - Re-export iOS/Android từ source mới: HBC `index-9873bd6015e99b5d4350b5d75ac9316a.hbc` (2,455,227 bytes) và `index-11ec7bf0812d650912b932ceb0b89a21.hbc` (2,455,453 bytes). Cả hai chứa marker phủ định/gateway và 34/34 audio hash-match nguồn.

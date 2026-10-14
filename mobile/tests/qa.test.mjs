@@ -70,6 +70,34 @@ test('question outside the approved list returns unknown with no answer', () => 
   }
 });
 
+test('known synthetic ASR near-misses stay unknown instead of guessing', () => {
+  const nearMisses = [
+    ['demo-02', 'Vì sao, chiếc động hồ không chạy nữa?'],
+    ['demo-02', 'Bánh sang mẹ gửi có ý nghĩa gì?'],
+    ['demo-02', 'bánh răng mẹ cười có ý nghĩa gì?'],
+    ['demo-02', 'Ông Lâm nhỡ ăn ra sau'],
+    ['demo-03', 'Vậy sao cô Hương vẫn gọi ăn là bé con?'],
+    ['demo-04', '2 trồng dàn hoa giấy trong sân.'],
+    ['demo-04', 'Ai chồng giản hoa giấy trong sân?'],
+    ['demo-04', 'nốt thắt trên giản cây nhất ăn điều gì.'],
+    ['demo-04', 'Nút tháp chiên dàn cây nhắc ăn điều gì.'],
+    ['demo-05', 'Cốc chè của bà Nhi gọi lại kí ức nào.'],
+    ['demo-05', 'Chấp chiều khóa mở được thứ gì?'],
+    ['demo-05', 'chiếc chiều khóa mở được thứ gì?'],
+    ['demo-05', 'Vì sao, ăn đọc là thư thật chậm.'],
+    ['demo-05', 'Dì sao, ăn đọc lá thư thật trọng.'],
+    ['demo-06', 'Vì sao, mệ hệ lúc đèn cuối ngọ sáng.'],
+    ['demo-06', 'Anh đã tìm thấy đường về như thế nào?'],
+  ];
+
+  for (const [nodeId, transcript] of nearMisses) {
+    const chapter = fixture.qa.filter((entry) => entry.nodeId === nodeId);
+    const match = findAnswer(chapter, transcript);
+    assert.equal(match.status, 'unknown', transcript);
+    assert.equal('entry' in match, false, transcript);
+  }
+});
+
 test('every shipped answer has non-empty evidence', () => {
   assert.ok(fixture.qa.length > 0);
   for (const entry of fixture.qa) {

@@ -5,7 +5,7 @@
 - Metro `:8081` manifest and iOS bundle returned HTTP 200. The latest 6,062,091-character bundle contains the configured LAN gateway, recorder and shared negation helper, and no stale “Chưa kết nối máy nhận giọng nói” UI copy. Gateway health at `192.168.100.36:8788` reports ready with Node 24.14.1 and the pinned faster-whisper-small worker.
 - Five sequential warm requests with the same local synthetic 19.15-second VieNeu clip all returned HTTP 200, non-empty transcript and exact `turnId/locale/mode/nodeId/datasetRevision` echo. Gateway-only latency: p50 7,536 ms; nearest-rank p95 7,727 ms.
 - This measurement excludes phone capture, app upload, matcher, response playback and device audio routes. The iPhone has not reloaded the current `:8081` bundle; this is not mobile E2E or hardware p95 evidence.
-- After the Plan negation fix, iOS/Android exports contain the new intent code and all 34 catalogue MP3s byte-for-byte; `npm test` is 165/165 with typecheck/lint passing. The current Android release APK (121,246,512 bytes, SHA-256 `BA973B5F23550367191A3A5ED004FD411CEF6D90ABB5C0FB5A132AA4897221D2`) is installed on API 37 AVD; this confirms typed Plan behavior only, not mic/STT.
+- After the Plan negation fix, iOS/Android exports contain the new intent code and all 34 catalogue MP3s byte-for-byte; `npm test` is 166/166 with typecheck/lint passing. The current Android release APK (121,246,512 bytes, SHA-256 `BA973B5F23550367191A3A5ED004FD411CEF6D90ABB5C0FB5A132AA4897221D2`) is installed on API 37 AVD; this confirms typed Plan behavior only, not mic/STT.
 
 ## iPhone happy path sau reload — 14/10/2026
 
