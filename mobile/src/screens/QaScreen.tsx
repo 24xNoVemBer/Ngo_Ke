@@ -195,7 +195,10 @@ export function QaScreen({
     if (source === 'voice' && nextMatch.status === 'matched' && currentNode && mode === 'demo') {
       const id = `${nextMatch.entry.id}-answer`;
       lastTrack.current = { id, text: nextMatch.entry.answer, kind: 'answer', nodeId: currentNode.id, revision: datasetRevision };
-      void playbackStopped.then(() => voiceSession.playTrack(id, nextMatch.entry.answer, 'answer', currentNode.id));
+      void playbackStopped.then((stopped) => {
+        if (stopped !== false) return voiceSession.playTrack(id, nextMatch.entry.answer, 'answer', currentNode.id);
+        setVoiceActionCard({ kind: 'notice', message: 'Lời kể chưa dừng hẳn. Hãy thử phát lại sau một chút.' });
+      });
     } else if (source === 'voice' && nextMatch.status === 'matched') {
       lastTrack.current = null;
       setVoiceActionCard({ kind: 'notice', message: 'Câu trả lời đã khớp. Bản đọc chưa có trong chế độ Live; chạm “Xem lời kể bằng chữ” để mở nội dung.' });
@@ -294,8 +297,9 @@ export function QaScreen({
         requestTrack(storyTrackId, currentNode.story, 'story', currentNode.id, true);
       }
     } else if (intent.type === 'stop') {
-      void voiceSession.stopPlayback();
-      setVoiceActionCard({ kind: 'notice', message: 'Đã dừng lời kể.' });
+      void voiceSession.stopPlayback().then((stopped) => {
+        setVoiceActionCard({ kind: 'notice', message: stopped !== false ? 'Đã dừng lời kể.' : 'Lời kể chưa dừng hẳn. Hãy thử lại sau một chút.' });
+      });
     } else {
       executeAction(intent.type, transcript);
     }
@@ -692,7 +696,9 @@ export function QaScreen({
                   accessibilityRole="button"
                   accessibilityLabel="Đặt câu hỏi khác"
                   onPress={() => {
-                    void voiceSession.stopPlayback();
+                    void voiceSession.stopPlayback().then((stopped) => {
+                      if (stopped === false) setVoiceActionCard({ kind: 'notice', message: 'Lời kể chưa dừng hẳn. Hãy thử lại sau một chút.' });
+                    });
                     setMatch(null);
                     setAsked(null);
                     setAskedSource(null);

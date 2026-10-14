@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { setTimeout as delay } from 'node:timers/promises';
 import { isPlaybackRequestCurrent, restartAudioPlayer, stopAudioPlayer } from '../src/voice/playback.ts';
 
 test('answer playback generation is invalidated by a new mic turn or scope change', () => {
@@ -8,31 +9,32 @@ test('answer playback generation is invalidated by a new mic turn or scope chang
   assert.equal(isPlaybackRequestCurrent(4, 4, 'demo:r1:demo-01', 'demo:r1:demo-02'), false);
 });
 
-test('stopping playback pauses immediately and waits for the native rewind', async () => {
-  let finishSeek;
+test('stopping playback disables looping and waits for the native pause state without seeking', async () => {
   const events = [];
-  const pendingSeek = new Promise((resolve) => { finishSeek = resolve; });
+  let playing = true;
   const player = {
     loop: true,
-    pause() { events.push('pause'); },
-    async seekTo(seconds) {
-      events.push(`seek:${seconds}:start`);
-      await pendingSeek;
-      events.push('seek:finish');
+    get playing() { return playing; },
+    pause() {
+      events.push('pause');
+      void delay(40).then(() => { playing = false; });
     },
+    seekTo() { assert.fail('stopping must not wait for a native seek'); },
   };
 
-  let stopped = false;
-  const stopping = stopAudioPlayer(player).then(() => { stopped = true; });
-  await Promise.resolve();
+  assert.equal(await stopAudioPlayer(player), true);
   assert.equal(player.loop, false);
-  assert.deepEqual(events, ['pause', 'seek:0:start']);
-  assert.equal(stopped, false);
+  assert.deepEqual(events, ['pause']);
+});
 
-  finishSeek();
-  await stopping;
-  assert.equal(stopped, true);
-  assert.deepEqual(events, ['pause', 'seek:0:start', 'seek:finish']);
+test('stopping playback reports when the native player never pauses', async () => {
+  const player = {
+    loop: true,
+    playing: true,
+    pause() {},
+  };
+
+  assert.equal(await stopAudioPlayer(player), false);
 });
 
 test('replay waits for the native seek before starting playback', async () => {

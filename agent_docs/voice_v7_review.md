@@ -1,5 +1,17 @@
 # Voice V7 — Nghiệm thu và preview
 
+## Second-turn pause acknowledgement fix — 14/10/2026
+
+- A likely race was fixed: pause returned before native playback confirmed it had stopped, while the next mic turn changed audio mode and prepared a recorder. The helper now waits up to one second for `player.playing` to become false; on timeout mic start is blocked with retry guidance. Answer auto-play also waits for stop confirmation.
+- `npm test` 154/154; typecheck/lint and iOS JS export (1,073 modules) pass. Export is not an IPA or iPhone test. Metro `:8087` `/status` times out; `:8089`/`:8090` are stopped. Gateway `/health` is ready.
+- Android release build succeeded (377 tasks; 26 executed, 351 up-to-date), APK 121,244,632 bytes, SHA-256 `E0680D8A78513442364687AC084AE8809F66BB69BD9A6631A8815A7DF5A0AB47`; installed/launched on API 37 AVD. The AVD check did not submit speech and is not iPhone evidence. Retest using `docs/VOICE_HANDOFF.md`; GV3/GV5/GV7 remain open. Audio routes, accessibility, human listening and performance are incomplete.
+
+## Revalidation after second-turn pause fix — 14/10/2026
+
+- Android release build completed successfully (377 tasks; 30 executed, 347 up-to-date), APK 121,243,192 bytes, SHA-256 `C21ACE29D356F779A16219CCA8AEE75527B805B983F90B8B13A3C15A0751CA0C`; installed and launched on API 37 AVD with no fatal log. [Launch screenshot](evidence/voice/android-emulator/android37-native-release-second-turn-fix-2026-10-14.png).
+- `npm test` 152/152, typecheck/lint and iOS JS export passed. The export is not an IPA or an iPhone test. The iOS Metro bundle request timed out; no live Expo Go preview is verified. Gateway `/health` is ready.
+- Retest after starting Metro using `docs/VOICE_HANDOFF.md`, then repeat answer → mic → follow-up on iPhone. GV3/GV5/GV7 remain open; audio routes, accessibility, human listening and performance are incomplete.
+
 ## Revalidation sau native start guard và chữ lớn — 14/10/2026
 
 - `npm test` 152/152, typecheck/lint và iOS + Android JS exports đạt. Gateway `/health` và Metro `:8090/status` trả HTTP 200; Expo Go preview dùng `exp://192.168.100.36:8090`. Metro iOS bundle HTTP 200 (6,064,803 bytes) includes recorder and stale-playback guards.

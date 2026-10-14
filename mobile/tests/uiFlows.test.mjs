@@ -354,6 +354,33 @@ test('voice answers play catalogue audio only in Demo and explain the Live text 
   live.view.unmount();
 });
 
+test('voice answer auto-play is blocked and explained if the old playback does not stop', async () => {
+  let transcript;
+  const played = [];
+  const view = mount('../src/screens/QaScreen.tsx', {
+    dataset: fixture, mode: 'demo', datasetRevision: 'rev-1', currentNodeId: 'demo-01',
+    onSelectNode() {}, onReadNode() {}, readNodeIds: new Set(), onOpenNotebook() {},
+  }, {
+    '../voice/useVoiceSession': { useVoiceSession: (options) => {
+      transcript = options.onTranscript;
+      return {
+        stage: 'idle', error: null, recordingDurationMs: 0, metering: -60,
+        playback: { playing: false, currentTime: 0, duration: 0 }, activeTrackId: null, playbackError: null,
+        startRecording() {}, submitRecording() {}, cancel() {}, stopPlayback: async () => false,
+        playTrack(...args) { played.push(args); }, replayTrack() {},
+      };
+    } },
+  });
+  view.render();
+  transcript(fixture.qa[0].question, {
+    turnId: 'turn-1', scope: 'demo:rev-1:demo-01', nodeId: 'demo-01', mode: 'demo', datasetRevision: 'rev-1',
+  });
+  await Promise.resolve();
+
+  assert.equal(played.length, 0);
+  view.unmount();
+});
+
 test('voice Q&A routes every chapter question and one follow-up to its exact answer track', async () => {
   for (const node of fixture.nodes.filter((item) => item.available)) {
     for (const entry of fixture.qa.filter((item) => item.nodeId === node.id)) {

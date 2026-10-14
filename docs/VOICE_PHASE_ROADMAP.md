@@ -1,6 +1,13 @@
 # Ngõ Kể — Roadmap hoàn thiện luồng Voice
 
-**Cập nhật triển khai mới nhất 14/10/2026:** Gateway local `/health` trả `ready`; Metro `:8090` phục vụ Expo Go iOS preview. Người dùng báo lượt voice đầu trên iPhone trả lời được nhưng lượt hai mất meter và lỗi. Recorder start hiện chờ tối đa 1 giây để xác nhận `isRecording` thật, dừng lượt bị hủy và dọn nếu start thất bại; answer playback lỗi thời cũng bị bỏ khi mic lượt mới đã bắt đầu. Đây chưa phải bằng chứng đã sửa meter nếu iOS vẫn báo đang thu nhưng không trả mẫu tiếng. iOS + Android JS exports mới thành công; `npm test` 152/152, typecheck/lint đạt. APK lưu trong build có trước các guard này. V1 validator đạt 34/34. UI regression chạy đủ 21 Q&A và follow-up từng entry, đồng thời kiểm tra phân biệt hỏi về chương kế với lệnh mở chương. Đây là UI test với transcript có kiểm soát, không phải kiểm mic/STT thật. Expo Go cần retest trên iPhone; Home fontScale 2.0 và ảnh AVD nằm trong `agent_docs/evidence/voice/android-emulator/README.md`. iOS export không phải IPA; nghe tay, hardware voice, audio/accessibility và hiệu năng thật còn pending. GV3/GV5/GV7 còn mở.
+## Trạng thái mới nhất — 14/10/2026
+
+- Lượt thứ hai trên iPhone vẫn là lỗi do người dùng báo, chưa tái hiện độc lập. Code review tìm được race khả dĩ: `stopPlayback()` chờ hàm pause trả ngay, nên chưa đợi native player dừng trước khi đổi audio mode. Nay chờ `player.playing === false` tối đa 1 giây; timeout ngăn mở mic và hiện hướng dẫn thử lại; answer auto-play chờ pause thành công.
+- Đoạn tổng kết “Cập nhật triển khai mới nhất” và các bảng gate bên dưới được ghi trước lần sửa này; dùng trạng thái ở đầu tài liệu làm trạng thái mới nhất.
+- `npm test` 154/154, typecheck/lint và iOS JS export 1,073 modules đạt. Android release build thành công; APK 121,244,632 byte, SHA-256 `E0680D8A78513442364687AC084AE8809F66BB69BD9A6631A8815A7DF5A0AB47`, đã cài/mở trên API 37 AVD. AVD không gửi lời nói; iPhone retest vẫn cần thực hiện.
+- Gateway `/health` ready; Metro `:8087` `/status` timeout, `:8089` và `:8090` dừng. Khởi động preview thủ công theo `docs/VOICE_HANDOFF.md`; không coi `/status` đơn lẻ là bằng chứng bundle dùng được. GV3/GV5/GV7 còn mở.
+
+**Snapshot trước lượt pause acknowledgement hiện tại — 14/10/2026:** Gateway local `/health` trả `ready`; Metro `:8090` từng phục vụ Expo Go iOS preview. Bản snapshot trước đó có recorder start guard và answer playback guard nhưng chưa chờ pause native; test 152/152. V1 validator 34/34; UI regression chạy đủ 21 Q&A và follow-up từng entry, nhưng không phải kiểm mic/STT thật. Ảnh fontScale 2.0 nằm trong `agent_docs/evidence/voice/android-emulator/README.md`. iOS export không phải IPA; nghe tay, hardware voice, audio/accessibility và hiệu năng thật vẫn pending.
 
 Probe STT V0 mới nhất trên 6 clip tổng hợp ghi nhận preset Đoan Trang 17/216 lỗi từ exact (WER 7.9%; 5.1% sau khi bỏ dấu), weighted RTF 0.213. Chưa có corpus lời nói ngoài đường hoặc đo mic thật; không xem số này là nghiệm thu nhận dạng thực địa.
 
@@ -16,12 +23,12 @@ Authorization mới nhất yêu cầu GV0–GV7 là quality gates nội bộ; ti
 | --- | --- | --- |
 | V0 | Probe local TTS/STT và chọn stack đã làm; Đoan Trang / faster-whisper-small local | Nghe người thật và corpus STT đa dạng hơn còn chờ |
 | V1 | Revalidation ngày 14/10: catalogue 34/34 clip, manifest/hash/format/duration/level hợp lệ; ASR tự động chạy trên đủ 34 clip | Nghe tay toàn bộ clip và sửa những lỗi xác nhận được còn chờ; WER tự động không đánh giá độ tự nhiên |
-| V2 | Native Android API 37 AVD player/offline/hidden text/auto replay đạt; unknown transcript có nút mở chủ động. Stop player giờ pause mà không chờ seek native để tránh chặn khởi động mic | Fix lượt hai chưa xác nhận trên iPhone; player/ẩn chữ và audio route trên iPhone còn kiểm |
-| V3 | Recorder/permission và upload clip AVD đạt; meter dùng tín hiệu thật, UI scale mở rộng xuống −80 dB; start stage đợi tối đa 1 giây cho native `isRecording` | Người dùng vẫn báo lượt iPhone thứ hai mất meter; guard start/playback chưa retest; input route, cancel/interruption và quyền còn cần kiểm trên máy thật |
+| V2 | Native Android API 37 AVD player/offline/hidden text/auto replay đạt; unknown transcript có nút mở chủ động. Mic chờ player xác nhận pause native (tối đa 1 giây) trước khi đổi audio mode | Fix lượt hai chưa xác nhận trên iPhone; player/ẩn chữ và audio route trên iPhone còn kiểm |
+| V3 | Recorder/permission và upload clip AVD đạt; meter dùng tín hiệu thật, UI scale mở rộng xuống −80 dB; start stage đợi tối đa 1 giây cho native `isRecording`; APK mới mở trên AVD | iPhone lượt hai còn cần retest; AVD không gửi lời nói; input route, cancel/interruption và quyền còn cần kiểm trên máy thật |
 | V4 | Gateway local `/health` và synthetic STT/guards đạt; Expo Go Metro iOS bundle có URL gateway; người dùng báo lượt đầu trả lời thành công | Lượt hai chưa xác nhận; chưa có transcript/server log; iOS native build chưa tạo |
 | V5 | Fixed matcher/node guard; UI regression gửi 21 câu canonical và 21 follow-up đầu tiên, xác minh chính xác answer track của từng node; transcript unknown giữ kín mặc định | Chưa kiểm mic→STT→Q&A→audio thực ở cả 6 chương; sửa transcript, unknown, và nhiều lượt trên iPhone còn pending |
 | V6 | Intent/slot parser và inline Plan/QR/GPS actions đã nối; UI xác nhận câu hỏi về chương kế không điều hướng còn lệnh mở chương kế có điều hướng | Cách nói tự nhiên và hiểu thẻ chưa kiểm qua mic trên thiết bị |
-| V7 | Android release APK SHA-256 `20154EE9B845396E43ED7F76AAD5AFD9C3639A870E017D23FF670E469E531773` đã build/cài/mở trên API 37 AVD; iOS + Android JS exports của guard mới đều đạt | APK chưa gồm guard mới; iPhone cần retest preview `:8090`; nghe tay, screen reader/audio routes, interruption và performance thật còn mở; GV7 còn mở |
+| V7 | Android release APK SHA-256 `E0680D8A78513442364687AC084AE8809F66BB69BD9A6631A8815A7DF5A0AB47` đã build/cài/mở trên API 37 AVD; iOS JS export đạt | Expo Go preview chưa chạy; iPhone cần retest sau khi khởi động Metro `:8089`; nghe tay, screen reader/audio routes, interruption và performance thật còn mở; GV7 còn mở |
 
 Các review từng phase: [`agent_docs/voice_v0_review.md`](../agent_docs/voice_v0_review.md) đến `voice_v7_review.md`. Không dùng export, test stub hay hình thiết kế thay proof native.
 
@@ -55,7 +62,7 @@ flowchart LR
 - **Chỉ một nguồn nội dung:** text từ fixture/core; TTS chỉ đọc text đã chốt. Không lấy lời giải thích kỹ thuật, evidence hay nhãn hư cấu làm nội dung audio. Nhãn/nguồn vẫn rõ trên UI.
 - **Tái dùng:** `findAnswer`, `normalizeQuestion`, `pickPoints`, selection/confirmation callbacks, motion provider. Intent mới không sao chép recommendation/GPS/QR logic sang voice.
 - **Chưa mở:** LLM sinh đáp án, wake word/nghe nền, AR/lip-sync, clone giọng cá nhân, lưu lịch sử âm thanh, dẫn đường, web/PWA, CRUD/SQLite backend toàn cục, phát hành store. Gateway Voice là scope riêng cần review, không tự đồng nghĩa duyệt backend Phase 8.
-- **Bảo toàn dữ liệu:** không reset thay đổi UI hiện có; không đổi ID/schema/tọa độ để phục vụ âm thanh. Không tự xoá file sản xuất hoặc commit/push.
+- **Bảo toàn dữ liệu:** không reset thay đổi UI hiện có; không đổi ID/schema/tọa độ để phục vụ âm thanh. Không tự xoá file sản xuất; người dùng đã ủy quyền tự commit/push phần hoàn tất sau kiểm tra.
 
 ## 3. Tổng quan phase và mốc dùng được
 

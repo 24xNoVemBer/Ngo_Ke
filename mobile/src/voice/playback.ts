@@ -5,9 +5,11 @@ type RestartablePlayer = {
 
 type StoppablePlayer = {
   loop: boolean;
+  playing: boolean;
   pause(): void;
-  seekTo(seconds: number): Promise<void>;
 };
+
+const PLAYER_STOP_TIMEOUT_MS = 1000;
 
 export function isPlaybackRequestCurrent(
   request: number,
@@ -18,12 +20,16 @@ export function isPlaybackRequestCurrent(
   return request === currentRequest && scope === currentScope;
 }
 
-export async function stopAudioPlayer(player: StoppablePlayer): Promise<void> {
+export async function stopAudioPlayer(player: StoppablePlayer): Promise<boolean> {
   try {
     player.loop = false;
     player.pause();
-    await player.seekTo(0);
-  } catch { /* The player may already be released. */ }
+    const deadline = Date.now() + PLAYER_STOP_TIMEOUT_MS;
+    while (player.playing && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    return !player.playing;
+  } catch { /* The player may already be released. */ return false; }
 }
 
 export async function restartAudioPlayer(player: RestartablePlayer, isCurrent: () => boolean): Promise<boolean> {

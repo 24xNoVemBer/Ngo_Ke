@@ -1,13 +1,28 @@
 # MEMORY.md — Ngõ Kể
 
-## Latest Voice status — 2026-10-14
+## Current voice update — 2026-10-14
 
-- User authorization remains active for Voice V0–V7; internal gates do not pause implementation. Keep scope voice-only; do not buy services, expose a public gateway, commit or push.
+- User still authorizes Voice V0–V7 and later explicitly authorized automatic GitHub pushes after each completed increment; no paid service or public gateway.
+- User reports the first iPhone voice turn answers, but the second loses the meter and fails. No iPhone log/meter value is available, so the cause is not confirmed.
+- Likely race found in code: `stopPlayback()` awaited `stopAudioPlayer()` even though it returned immediately. The next turn could change audio mode and prepare the recorder before native playback paused. It now waits for live `player.playing === false` (max 1 second); on timeout the recorder does not start and the user gets retry guidance. Answer auto-play also waits for stop confirmation.
+- Verification after this change: `npm test` 154/154; typecheck/lint pass; iOS JS export bundles 1,073 modules. Android release build succeeded, APK 121,244,632 bytes, SHA-256 `E0680D8A78513442364687AC084AE8809F66BB69BD9A6631A8815A7DF5A0AB47`; installed/launched on API 37 AVD with no fatal/ReactNativeJS error in the latest 1,200 logcat lines. This is not a physical iPhone test or native iOS build.
+- Gateway `192.168.100.36:8788/health` is ready. Metro `:8087` does not answer `/status`; `:8089` and `:8090` are stopped. No current Expo Go preview is confirmed. Do not work around the tool policy that blocked a Metro restart; start it manually using `docs/VOICE_HANDOFF.md`.
+- The iPhone second-turn retest remains necessary. If “Đang thu” appears without meter, report that separately from a recorder-start error. For STT issues, share the recognized text only, never audio. GV3/GV5/GV7 remain open.
+
+## Historical status before playback-pause acknowledgement — 2026-10-14
+
+- At that earlier snapshot, Voice V0–V7 authorization remained active and the note said not to commit or push. The user's later explicit automatic-push authorization is recorded in the current update above.
 - User confirms the first iPhone voice turn answered, but the second turn loses its meter and fails. No device log or raw meter value is available, so the cause is not proven.
 - Recorder start now waits up to 1 second for Expo Audio's native `isRecording` state before showing “Đang thu”; cancellation stops a late-starting recorder, and a failed start is cleaned up. A late answer-playback callback is also discarded after its audio-mode await if a new mic turn invalidated it. These address delayed starts and a plausible audio-mode race; a native recorder that reports active while returning no microphone signal still needs iPhone diagnosis.
-- Gateway `192.168.100.36:8788` is ready (Node 24.14.1, faster-whisper 1.2.1, pinned `Systran/faster-whisper-small`). Metro `:8090` and `/status` are running; Expo Go URL is `exp://192.168.100.36:8090`.
-- Current checks: `npm test` 152/152; typecheck, lint, iOS and Android JS exports pass. Metro iOS bundle HTTP 200 (6,064,803 bytes) contains the new guards and private gateway URL. These are not physical iPhone validation or an iOS native build. No second-turn iPhone retest after the guards; GV3/GV5/GV7 remain open.
+- Gateway `192.168.100.36:8788` is ready (Node 24.14.1, faster-whisper 1.2.1, pinned `Systran/faster-whisper-small`). Metro `:8087` status responds but iOS bundle fetch times out; `:8089` and `:8090` are stopped. No live Expo Go preview is confirmed.
+- Current checks: `npm test` 152/152; typecheck/lint, iOS JS export and Android release build pass. APK 121,243,192 bytes, SHA-256 `C21ACE29D356F779A16219CCA8AEE75527B805B983F90B8B13A3C15A0751CA0C` is installed/launched on Android API 37 AVD. These are not physical iPhone validation or an iOS native build. GV3/GV5/GV7 remain open.
 - Retest after reloading Expo Go. If “Đang thu” appears but the meter stays empty, report that separately from a start error; if STT fails, send the exact text in **Xem câu đã nhận dạng**. No audio upload is needed.
+
+### Follow-up after the iPhone second-turn report — 14/10/2026
+
+- The awaited-seek stop change did not resolve the user's report; stopping now disables looping and pauses without waiting on native seek. Explicit replay still rewinds. Stop regression passes.
+- `npm test` 152/152, typecheck/lint, iOS JS export and Android release build pass. APK SHA-256 `C21ACE29D356F779A16219CCA8AEE75527B805B983F90B8B13A3C15A0751CA0C` is installed/launched on API 37 AVD; no real speech submitted.
+- Gateway is ready. Metro `:8087` status responds but iOS bundle fetch times out; `:8089` and `:8090` are stopped. Tool rejected restarting Metro with “blocked by policy,” so no working Expo Go preview is confirmed. Manual start instructions are in `docs/VOICE_HANDOFF.md`. Physical iPhone retest and GV3/GV5/GV7 remain open.
 
 ## Latest Voice status — 2026-10-13
 
@@ -381,9 +396,8 @@ Lịch sử: Part4 có22/22 kiểm tra tài liệu; shell/emulator cũ trong `ph
 - AVD fontScale 2.0 Home now uses the scrollable text-first point trail, with labels/details wrapping and the story dock usable. Landing top and scrolled states were inspected. Evidence: `agent_docs/evidence/voice/android-emulator/android-api37-font-scale-200-{home-trail,landing-top,landing-scrolled}-2026-10-14.png`.
 - Need the user to reload Expo Go and verify after answer 1 loops: start mic again, confirm the real meter moves, then ask “Có chuyện xưa nào ở đây không?” and check the `qa-05` answer. No physical iPhone verification is claimed; GV3/GV5/GV7 remain open. No commit/push under the active Voice goal instructions.
 
-## 2026-10-14 — Await playback stop before second mic turn
+## 2026-10-14 — Follow-up after iPhone second-turn report
 
-- Found that `stopPlayback()` awaited a helper that only called native `pause()` synchronously; it did not wait for the player to settle. A still-looping answer could race the next iOS audio-session switch and recorder preparation.
-- `stopAudioPlayer()` now disables loop, pauses, and awaits native `seekTo(0)`; the mic path awaits the full stop before preparing the recorder. A deferred-seek regression proves this ordering.
-- Focused playback tests 4/4; full suite 152/152; typecheck/lint, `git diff --check`, and iOS JavaScript export pass. Expo Go preview at `exp://192.168.100.36:8090` returns HTTP 200 and contains the new rewind path.
-- This is a likely race fix, not physical-device confirmation. User must reload Expo Go and verify meter plus follow-up answer on voice turn 2; keep GV3/GV5/GV7 open until then.
+- Awaited native seek did not resolve the user's report and could leave microphone startup waiting for an iOS callback. `stopAudioPlayer()` now disables loop and pauses without seeking; explicit replay retains its rewind.
+- Regression, full suite 152/152, typecheck/lint, iOS JS export and Android release build pass. New APK SHA-256 `C21ACE29D356F779A16219CCA8AEE75527B805B983F90B8B13A3C15A0751CA0C` is installed/launched on API 37 AVD.
+- Metro `:8087` status responds but iOS bundle fetch timed out; `:8089` and `:8090` are stopped. A restart attempt was rejected by tool policy. No iPhone retest or live preview is confirmed; GV3/GV5/GV7 stay open.

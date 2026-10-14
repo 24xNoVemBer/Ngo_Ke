@@ -1,5 +1,12 @@
 # Voice V3 — Microphone recorder
 
+## Second-turn iPhone meter failure and playback pause acknowledgement — 14/10/2026
+
+- User confirms the first iPhone turn returned an answer; the second turn lost its meter and failed. No native log or meter value is available, so this is not reproduced on-device.
+- Code review found that `stopPlayback()` awaited a `stopAudioPlayer()` that returned immediately. The next turn could switch audio mode and prepare the microphone before native answer playback had paused. It now waits for Expo Audio's live `player.playing` value to become false (up to one second); timeout prevents recorder start and shows retry guidance. Answer auto-play is gated on a confirmed stop.
+- Recorder startup still waits up to one second for native `isRecording`. Full mobile tests pass 154/154; typecheck/lint and iOS JS export (1,073 modules) pass. Android release APK SHA-256 `E0680D8A78513442364687AC084AE8809F66BB69BD9A6631A8815A7DF5A0AB47` was installed/launched on API 37 AVD with no fatal/ReactNativeJS error in recent logs. AVD supplied no intelligible speech; no iPhone run was made after this change.
+- Gateway `/health` is ready. Metro `:8087` `/status` times out; `:8089`/`:8090` are stopped. Start Expo Go using `docs/VOICE_HANDOFF.md`, then retest answer → mic → follow-up on iPhone. GV3 remains open.
+
 ## Latest second-turn iPhone report and native start guard — 14/10/2026
 
 - User confirms the first iPhone turn returned an answer; the second turn lost the meter and failed. No native log or meter value is available, so the failure is not reproduced or diagnosed on-device.
@@ -59,6 +66,12 @@
 ## Chờ player dừng hẳn trước khi thu lượt tiếp — 14/10/2026
 
 - Trước đó `stopPlayback()` có `await`, nhưng helper bên dưới chỉ gọi `pause()` đồng bộ rồi trả về. Khi câu trả lời đang tự lặp, lượt mic kế có thể đổi audio session/chuẩn bị recorder trước khi native player hoàn tất lệnh dừng.
-- `stopAudioPlayer()` giờ tắt loop, pause và chờ `seekTo(0)` hoàn tất; `startRecording()` chờ thao tác này trước khi xin quyền/đổi audio session/prepare recorder. Regression test giữ seek ở trạng thái pending để xác nhận promise dừng chỉ hoàn tất sau native seek.
-- Playback test 4/4; full mobile suite 152/152; typecheck, lint, `git diff --check`, iOS JS export đều đạt. Bundle LAN `exp://192.168.100.36:8090` trả HTTP 200, 6,065,043 byte, có `seekTo(0)`.
-- Chưa kiểm lại trên iPhone; coi đây là sửa một race có khả năng gây lỗi, chưa kết luận đã hết lỗi thiết bị. GV3/GV5/GV7 vẫn mở cho đến khi lượt hai có meter và trả lời đúng trên máy thật.
+- This awaited-seek attempt was superseded after the user reported the same failure: stopping now disables loop and pauses without waiting for `seekTo(0)`; explicit replay still seeks before playback.
+- Stop-path regression, full mobile suite 152/152, typecheck/lint, iOS JS export and Android release build pass. APK SHA-256 `C21ACE29D356F779A16219CCA8AEE75527B805B983F90B8B13A3C15A0751CA0C` was installed/launched on the API 37 AVD; no physical mic was submitted.
+- Physical iPhone retest remains pending. Old Metro status responds while bundle requests time out; restart using `docs/VOICE_HANDOFF.md`. This is a targeted fix, not confirmation that the device issue is resolved. GV3/GV5/GV7 remain open.
+
+## Follow-up sau báo lỗi lượt hai — 14/10/2026
+
+- Sau khi user báo lỗi vẫn còn, đường stop được đổi thành tắt loop + pause đồng bộ, không chờ native `seekTo`; thao tác replay chủ động vẫn seek trước khi phát.
+- Stop-path regression, full suite 152/152, typecheck/lint, iOS JS export và Android release build đạt. APK SHA-256 `C21ACE29D356F779A16219CCA8AEE75527B805B983F90B8B13A3C15A0751CA0C` đã cài/mở trên AVD; không gửi giọng nói emulator.
+- Retest iPhone vẫn pending. Metro cũ báo status running nhưng bundle timeout; khởi động lại theo `docs/VOICE_HANDOFF.md`. Đây chưa phải xác nhận lỗi thiết bị đã hết; GV3/GV5/GV7 vẫn mở.

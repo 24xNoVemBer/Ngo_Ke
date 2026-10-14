@@ -42,6 +42,7 @@ function messageForError(code: string): string {
   if (code === 'MIC_PERMISSION_DENIED') return 'Ngõ Kể chưa được cấp quyền dùng micro. Bạn có thể gõ câu hỏi thay thế.';
   if (code === 'AUDIO_TOO_SHORT') return 'Câu nói hơi ngắn. Hãy nói rõ câu hỏi rồi chạm Gửi.';
   if (code === 'RECORDER_START_FAILED') return 'Micro chưa bắt đầu thu được. Hãy chạm để thử lại.';
+  if (code === 'AUDIO_PLAYER_STOP_TIMEOUT') return 'Lời kể chưa dừng hẳn. Hãy thử lại sau một chút.';
   if (code === 'AUDIO_TOO_LONG') return 'Câu nói dài quá. Hãy chia thành một câu hỏi ngắn hơn.';
   if (code === 'NO_SPEECH') return 'Mình chưa nghe thấy lời nói rõ. Hãy thử lại gần micro hơn.';
   if (code === 'VOICE_NOT_CONFIGURED') return 'Chưa kết nối máy nhận giọng nói. Bạn có thể gõ câu hỏi thay thế.';
@@ -93,7 +94,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
   const stopPlayback = useCallback(async () => {
     requestRef.current += 1;
     setActiveTrackId(null);
-    await stopAudioPlayer(player);
+    return stopAudioPlayer(player);
   }, [player]);
 
   const cancel = useCallback(() => {
@@ -132,10 +133,10 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
     setError(null);
     setPlaybackError(null);
     changeStage('preparing');
-    await stopPlayback();
-    if (!isCurrentTurn()) return;
 
     try {
+      if (!await stopPlayback()) throw new Error('AUDIO_PLAYER_STOP_TIMEOUT');
+      if (!isCurrentTurn()) return;
       permissionPendingRef.current = true;
       const permission = await requestRecordingPermissionsAsync();
       permissionPendingRef.current = false;

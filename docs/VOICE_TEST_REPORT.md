@@ -2,6 +2,13 @@
 
 ## Lượt voice thứ hai trên iPhone mất meter — cập nhật 14/10/2026
 
+- Người dùng xác nhận lượt đầu có trả lời, lượt hai mất meter và lỗi. Chưa có native log hoặc giá trị meter; nguyên nhân chưa được tái hiện trên iPhone.
+- Code review phát hiện `stopPlayback()` chờ một hàm pause trả ngay, nên mic lượt mới có thể đổi audio mode trước khi native player xác nhận dừng. Nay chờ `player.playing === false` tối đa 1 giây; hết hạn thì không mở mic và đưa hướng dẫn thử lại. Auto-play câu trả lời cũng chỉ chạy sau khi xác nhận dừng.
+- `npm test` 154/154; typecheck/lint và iOS JS export 1,073 modules pass. Android release build thành công; APK 121,244,632 byte (SHA-256 `E0680D8A78513442364687AC084AE8809F66BB69BD9A6631A8815A7DF5A0AB47`) đã cài/mở trên AVD API 37, không thấy fatal/ReactNativeJS error trong 1,200 logcat gần nhất. AVD không gửi lời nói và không thay cho iPhone test.
+- Gateway `/health` sẵn sàng; Metro `:8087` `/status` timeout và `:8089`/`:8090` đã dừng. Chưa có preview Expo Go mới. Khởi động theo `docs/VOICE_HANDOFF.md`, rồi retest câu đầu → mic → “Có chuyện xưa nào ở đây không?” trên iPhone. GV3/GV5/GV7 vẫn mở.
+
+## Lượt voice thứ hai trên iPhone mất meter — cập nhật 14/10/2026
+
 - Người dùng xác nhận lượt đầu có trả lời, nhưng lượt hai mất meter và lỗi. Chưa có log native, giá trị meter hoặc transcript của lượt lỗi nên nguyên nhân chưa được chứng minh.
 - Recorder startup hiện chờ tối đa 1 giây để xác nhận native `isRecording`; nếu bị hủy thì dừng recorder, nếu không khởi động thì dọn và báo lỗi. Một câu trả lời phát lỗi thời cũng bị hủy sau khi audio-mode await nếu mic lượt mới đã bắt đầu. Đây là guard cho start trễ và một race hợp lý, chưa chứng minh nguyên nhân người dùng gặp; guard chưa thể sửa trường hợp iOS báo đang thu nhưng không trả mẫu tiếng.
 - `voiceRecorderPreparation` 8/8, focused playback/recorder tests 12/12; toàn bộ test 152/152, typecheck/lint và iOS + Android JS exports đạt. Metro `exp://192.168.100.36:8090` cùng gateway `:8788` đang sẵn sàng; iOS Metro bundle HTTP 200 (6,064,803 bytes) có cả hai guard.
@@ -172,3 +179,10 @@ Chi tiết theo gate: [V0](../agent_docs/voice_v0_review.md), [V1](../agent_docs
 - Playback stop now disables looping, pauses, then awaits `seekTo(0)`. The mic-start path already awaits this stop before recorder preparation. A deferred-seek regression confirms the stop promise stays pending until the native seek resolves.
 - Focused playback tests: 4/4; full mobile suite: 152/152; typecheck, lint, `git diff --check`, and iOS JavaScript export pass. Expo Go LAN bundle `exp://192.168.100.36:8090` returns HTTP 200 (6,065,043 bytes) and contains the native rewind.
 - Physical iPhone verification remains pending. Reload the LAN preview, complete one voice answer, start a second recording, and verify the meter moves and the follow-up answer arrives. This code-level race is a likely cause, not a confirmed device diagnosis; GV3/GV5/GV7 remain open.
+
+## Follow-up after the iPhone second-turn failure remained — 14/10/2026
+
+- The awaited-seek stop path did not resolve the user-reported second-turn failure and could leave mic startup waiting for an iOS seek callback. Stopping now disables looping and pauses immediately without seeking; explicit replay still rewinds before playing. The regression makes `seekTo` fail if the stop helper calls it.
+- Verification: `npm test` 152/152; typecheck and lint pass; iOS JS export completed (1073 modules). Android `:app:assembleRelease` succeeded (377 tasks; 30 executed, 347 up-to-date); APK 121,243,192 bytes, SHA-256 `C21ACE29D356F779A16219CCA8AEE75527B805B983F90B8B13A3C15A0751CA0C`, installed/launched on API 37 AVD. No emulator speech was submitted.
+- Gateway `http://192.168.100.36:8788/health` is ready. Old Metro process `:8087` reports status but its iOS bundle request timed out at 60 seconds; `:8089` and `:8090` are stopped. A local attempt to restart Metro was rejected by tool policy, so there is no verified live Expo Go bundle yet. Run the command in `docs/VOICE_HANDOFF.md` and reload Expo Go to test on iPhone.
+- The physical iPhone must still confirm turn 2 meter, transcript and answer. No iOS native build, real microphone log or human listening was performed; GV3/GV5/GV7 remain open.
