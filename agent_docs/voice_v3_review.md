@@ -144,3 +144,9 @@
 - Người dùng mở `exp://192.168.100.36:8089` trong Expo Go sau reload và xác nhận lượt voice thứ hai liên tiếp hiện transcript, câu trả lời đúng và nghe được audio. Đây là bằng chứng người dùng báo cho một lần ghi âm/nhận dạng thực; meter ở chính lượt hai và native log chưa được xác nhận.
 - `npm test` 161/161, typecheck, lint và Expo dependency check đạt.
 - GV3 vẫn mở cho kiểm tra hủy/interruption/quyền/input route và trạng thái meter trên iPhone; không coi AVD là bằng chứng mic iOS.
+
+## Cập nhật xác nhận meter lượt hai — 14/10/2026
+
+- Người dùng xác nhận lượt voice thứ hai trên iPhone có meter chạy, transcript, Q&A đúng và audio nghe được; điều này thay thế ghi chú cũ rằng meter lượt hai chưa được xác nhận. Kết quả là user-reported trên Expo Go `:8089`, chưa có trace native độc lập.
+- Android API 37 release kiểm tra quyền từ chối → Settings → cấp quyền → thu/Hủy và lượt start/cancel kế tiếp; AVD `-no-audio` nên không xác nhận meter có tín hiệu âm thanh.
+- GV3 vẫn mở cho retest bundle `:8081` (người dùng để sau), hủy/interruption/cuộc gọi/input route trên thiết bị thật và vòng thu→Gửi/Hủy với mic thật.

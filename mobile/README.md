@@ -26,10 +26,10 @@ node tools/voice/gateway/server.mjs
 ```powershell
 # Terminal 2 — tại thư mục mobile, sau khi thêm/cập nhật đúng dòng này trong .env.local
 # EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL=http://<DEV_LAN_IP>:8788
-npm start -- --lan --port 8089 --go --max-workers 2
+npm start -- --lan --port 8081 --go --max-workers 2
 ```
 
-Thay `<DEV_LAN_IP>` bằng địa chỉ LAN hiện tại của máy chạy gateway, giữ các biến khác đang có trong `.env.local`. File này bị Git bỏ qua. Mỗi khi đổi URL, khởi động lại Metro để bundle nhận cấu hình mới. Điện thoại và máy phát triển phải ở cùng Wi‑Fi riêng tin cậy. Gateway preview dùng HTTP, không xác thực và không phù hợp để mở ra Internet hoặc Wi‑Fi công cộng. Xem [VOICE_HANDOFF.md](../docs/VOICE_HANDOFF.md) để biết cách mở APK/preview, kiểm tra gateway và các giới hạn.
+Thay `<DEV_LAN_IP>` bằng địa chỉ LAN hiện tại của máy chạy gateway, giữ các biến khác đang có trong `.env.local`. File này bị Git bỏ qua. Mỗi khi đổi URL, khởi động lại Metro để bundle nhận cấu hình mới. Preview hiện được xác minh ở `exp://192.168.100.36:8081`; sau khi khởi động lại, mở URL/QR Metro mới trên điện thoại cùng Wi‑Fi riêng tin cậy. Gateway preview dùng HTTP, không xác thực và không phù hợp để mở ra Internet hoặc Wi‑Fi công cộng. Xem [VOICE_HANDOFF.md](../docs/VOICE_HANDOFF.md) để biết cách mở APK/preview, kiểm tra gateway và các giới hạn.
 
 Trong app, vào Demo, chọn chương, nhấn mic để thu, rồi nhấn **Gửi**; **Hủy** hoặc Back kết thúc lượt. Chip gợi ý không tự bật tiếng. Gateway và Metro phải đang chạy để thử STT; giao diện, dữ liệu demo và audio đóng gói vẫn có thể xem khi offline.
 
@@ -48,10 +48,10 @@ npm run check:dependencies
 
 ## Trạng thái kiểm chứng mới nhất — 14/10/2026
 
-- `npm test` 164/164, typecheck, lint, Expo dependency check và `git diff --check` đạt. Các JS exports không phải IPA/APK.
-- Người dùng xác nhận lượt voice thứ hai liên tiếp trên iPhone có meter, transcript, câu trả lời đúng và audio nghe được; đây là happy path do người dùng báo, không có trace độc lập. iOS/Android JS exports vừa build lại; metadata có đủ 34 MP3/platform và từng hash khớp V1 manifest. Metro `:8081` vừa restart sạch, manifest/iOS bundle trả HTTP 200; bundle 6,061,569 ký tự có gateway và parser V6. Gateway `:8788/health` ready. Người dùng để sau reload `exp://192.168.100.36:8081`.
+- `npm test` 167/167, typecheck, lint, Expo dependency check và `git diff --check` đạt; `node tools/voice/gateway/smoke_test.mjs` pass trên clip TTS tổng hợp local. Các JS exports không phải IPA/APK.
+- Người dùng xác nhận lượt voice thứ hai liên tiếp trên iPhone có meter, transcript, câu trả lời đúng và audio nghe được; đây là happy path do người dùng báo trên Expo Go `:8089`, không có trace độc lập. Fresh iOS/Android JS exports (1.073/1.068 modules) gồm đủ 34 MP3 mỗi nền tảng, hash set khớp source và gateway URL được nhúng. Metro `:8081/status`, manifest iOS và launch bundle hiện trả HTTP 200; Gateway `/health` trả HTTP 200, Node 24.14.1/faster-whisper 1.2.1. Người dùng để sau reload `exp://192.168.100.36:8081`.
 - Validator audio chạy bằng `tools/voice/.venv`: 34/34 clip đạt hash/nội dung/codec/duration/level; manifest SHA-256 `90747665D049CC3B4AF018672EF0935805F324236986D8F2047DC79B440113E9`. Nghe duyệt bằng người thật vẫn pending.
-- APK Android V6 mới nhất (121,246,156 byte, SHA-256 `301F0654052A537324A08240F02C1DA223D99EBACCD841A573A20C3375B0EE36`) đã cài/chạy trên AVD API 37; đi tới Q&A, kiểm reader, typed-answer/unknown, drawer/bàn phím, player controls, recorder giới hạn/Back và Hủy (AppOps 0,838 giây, dock idle). AVD `-no-audio`, nên chưa xác nhận âm thanh thật/STT. Ảnh: `agent_docs/evidence/voice/android-emulator/android37-v6-release-*.png`. Còn speech đủ sáu chương, failure paths, nghe QC 34 clip, iOS native, routes/accessibility và performance.
+- APK Android mới nhất (121,247,352 byte, SHA-256 `ED49FF5702BE20002184876F20FB34B828DF7BEFEA1F22A48FCE2F7944DC80E2`) đã cài/chạy trên AVD API 37; SHA-256 đang cài khớp file local, bundle có URL gateway, đủ 34 MP3 và hash set khớp toàn bộ audio nguồn. Kiểm từ chối quyền → mở Settings → cấp lại → thu và Hủy, rồi thu/Hủy lượt hai. AVD `-no-audio`, nên không xác nhận tiếng, meter có tín hiệu hay STT. Ảnh ở `agent_docs/evidence/voice/android-emulator/README.md`. Còn speech đủ sáu chương, failure paths, nghe QC 34 clip, iOS native, routes/accessibility và performance.
 
 ## Trạng thái kiểm chứng trước handoff settle guard — 14/10/2026
 

@@ -236,6 +236,9 @@ export function HomeScreen({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Đổi sắc thái ánh sáng ngõ phố"
+            accessibilityValue={{
+              text: mood === 'morning' ? 'Buổi sáng' : mood === 'dusk' ? 'Hoàng hôn' : 'Buổi tối',
+            }}
             onPress={() =>
               setMood((prev) =>
                 prev === 'morning' ? 'dusk' : prev === 'dusk' ? 'night' : 'morning',
@@ -751,9 +754,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   moodHeaderButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: 'rgba(28, 20, 16, 0.60)',
     borderWidth: 1,
     borderColor: 'rgba(255, 245, 230, 0.22)',

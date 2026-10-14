@@ -125,6 +125,9 @@ try {
   const invalidResponse = await fetch(`${baseUrl}/v1/transcribe`, { method: 'POST', body: invalid });
   assert.equal(invalidResponse.status, 415);
   assert.equal((await invalidResponse.json()).code, 'UNSUPPORTED_AUDIO_FORMAT');
+  await new Promise((resolve) => setTimeout(resolve, 25));
+  assert.match(stdout, /voice status=415 code=UNSUPPORTED_AUDIO_FORMAT ms=/);
+  assert.doesNotMatch(`${stdout}\n${stderr}`, /wrong-format\.m4a|audio\/mp4|header=/);
 
   const tooLong = new FormData();
   tooLong.append('audio', new Blob([silentPcmWav(21)], { type: 'audio/wav' }), 'too-long.wav');

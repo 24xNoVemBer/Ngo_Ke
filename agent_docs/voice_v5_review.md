@@ -5,7 +5,8 @@
 - Dùng VieNeu v3 Turbo local để tạo audio tổng hợp từ 21 câu hỏi canonical, rồi chạy trực tiếp faster-whisper-small đã pin (`language=vi`, `beam_size=5`, `vad_filter=true`) và đối chiếu transcript bằng `findAnswer` thật của app trong đúng node.
 - Kết quả trên một lượt sinh: **14/21** transcript ghép chính xác; 7 câu trả `unknown`, không có câu nào ghép nhầm sang answer khác. Theo chương: `demo-01` 6/6, `demo-02` 1/3, `demo-03` 2/3, `demo-04` 1/3, `demo-05` 1/3, `demo-06` 3/3.
 - Thử vocabulary `initial_prompt` trên cùng 21 audio còn **11/21**, không cứu câu nào và làm trượt `qa-lam`, `qa-ribbon`, `qa-cake`; không đưa prompt vào gateway. Exact matcher được giữ để ASR sai không tự trả lời sai.
-- Regression mới khóa 16 transcript near-miss từ hai probe ASR tổng hợp ở trạng thái `unknown` trong đúng node. Đây giữ hành vi an toàn, không làm tăng độ nhận dạng và không thay lời nói thật.
+- Regression mới khóa 33 transcript near-miss quan sát được từ các probe ASR tổng hợp ở trạng thái `unknown` trong đúng node; sửa luôn một case `qa-che` trước đó gán nhầm node. Đây giữ hành vi an toàn, không làm tăng độ nhận dạng và không thay lời nói thật.
+- Một sweep tổng hợp riêng trong `tools/voice/.cache/qa-asr-smoke/` đạt 12/21 match chính xác với cấu hình baseline; vocabulary prompt đạt 11/21, tắt VAD đạt 12/21. Sweep cũ ở trên đạt 14/21; vì lượt sinh riêng nên không gộp thành một điểm. Không đưa prompt vào production và không thêm alias cho các transcript sai/không rõ nghĩa.
 - Đây là probe offline bằng giọng tổng hợp, gọi cùng model/tham số nhưng không qua app→gateway, không phải lời nói của người dùng hoặc kiểm tra mic/điện thoại. Report tạm và audio nằm trong `tools/voice/.cache/qa-asr-smoke/`; WAV được xóa sau decode.
 - Kết quả này chỉ cho thấy unknown fallback cần tiếp tục được dùng; GV5 vẫn chờ speech E2E thật trên đủ sáu chương. Không đổi source hoặc alias theo lỗi phát âm tổng hợp.
 
@@ -83,3 +84,19 @@ Bản thu từ recorder Android sau khi sửa đã tới STT worker thật. Vì 
 - Sau khi reload Expo Go `exp://192.168.100.36:8089`, người dùng xác nhận lượt thứ hai liên tiếp hiện transcript và câu trả lời đúng. Đây chứng minh một follow-up Q&A voice trên iPhone theo báo cáo người dùng, nhưng chưa xác nhận âm thanh answer lượt hai.
 - Bộ test hiện tại 161/161; UI-flow ánh xạ đủ 21 câu canonical sang answer/audio đúng node và từ chối câu thuộc chương khác. Đây là regression code-level, không thay thế thiết bị thật cho cả sáu chương.
 - GV5 vẫn mở cho 6-chapter mic E2E, unknown/sửa câu, đổi scope trong lúc request và playback; lần kiểm manifest Metro từ host bị timeout.
+
+## Cập nhật lượt hai có meter và audio — 14/10/2026
+
+- Người dùng xác nhận lượt voice thứ hai liên tiếp trên iPhone có meter chạy, transcript, đáp án đúng và nghe được câu trả lời. Ghi nhận một follow-up thật theo báo cáo người dùng trên Expo Go `:8089`; chưa có exact transcript/node hoặc native/server trace.
+- Bundle mới trên `:8081` đã được host kiểm tra (manifest/launch bundle HTTP 200, gateway LAN được nhúng), nhưng người dùng để sau việc reload thiết bị.
+- GV5 còn mở cho spoken E2E cả 6 chương/21 Q&A, unknown và sửa transcript, câu hỏi ngoài tập, đổi chương/mode/revision trong lúc request, cùng kiểm audio answer/follow-up trên thiết bị.
+
+## Kiểm tra ứng viên large-v3 — 14/10/2026
+
+- Tải snapshot `Systran/faster-whisper-large-v3` revision `edaa852ec7e145841d8ffdb056a99866b5f0a478` (3,087,284,237 byte) vào cache local, không gửi audio ra ngoài. `WhisperModel` khởi tạo được nhưng inference CUDA lỗi `Library cublas64_12.dll is not found or cannot be loaded`; host không có CUDA runtime trên PATH. RAM trống lúc kiểm tra còn dưới 0,25 GiB, nên không chạy model lớn trên CPU.
+- Benchmark ứng viên không hoàn tất, không có kết quả accuracy/latency để so với small; không đổi model hoặc cấu hình gateway production. Có thể chạy lại sau khi cài CUDA 12/cuDNN 9 phù hợp; weights hiện nằm trong ignored `tools/voice/.cache/huggingface/`.
+
+## Giữ exact-match khi xử lý dấu câu — 14/10/2026
+
+- Đã cân nhắc bỏ dấu phẩy nội câu trong normalizer để cứu transcript tổng hợp `qa-envelope`, nhưng không áp dụng: transcript âm tính `Vì sao, chiếc động hồ không chạy nữa?` sẽ trùng canonical `Vì sao chiếc đồng hồ không chạy nữa?` sau khi bỏ dấu câu và dấu tiếng Việt, khiến matcher trả lời câu gần đúng một cách im lặng.
+- Giữ matcher exact và không thêm alias chỉ dựa trên VieNeu/ASR tổng hợp. Bộ regression hiện giữ transcript này ở `unknown`; cải thiện tỷ lệ nhận đúng cần đánh giá bằng transcript người dùng có quyền chia sẻ hoặc model STT tốt hơn, không nới matcher mơ hồ.

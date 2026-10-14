@@ -157,7 +157,6 @@ function audioKind(bytes, declaredType) {
   if (declaredType === 'audio/mp4' && bytes.length > 12 && bytes.subarray(4, 8).toString() === 'ftyp') return '.m4a';
   if (declaredType === 'audio/wav' && bytes.length > 12
       && bytes.subarray(0, 4).toString() === 'RIFF' && bytes.subarray(8, 12).toString() === 'WAVE') return '.wav';
-  process.stderr.write(`voice audio rejected type=${declaredType} bytes=${bytes.length} header=${bytes.subarray(0, 12).toString('hex')}\n`);
   throw new HttpError(415, 'UNSUPPORTED_AUDIO_FORMAT');
 }
 

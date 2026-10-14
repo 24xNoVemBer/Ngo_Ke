@@ -4,14 +4,16 @@
 
 - Người dùng xác nhận lượt thứ hai trên iPhone có meter, transcript/Q&A đúng và nghe được câu trả lời; không có audio/log độc lập. Preview mới `exp://192.168.100.36:8081` được để sau.
 - Metro `:8081` đã được restart sau khi `/status` còn trả 200 nhưng manifest/bundle bị treo. Hiện manifest và iOS launch asset đều HTTP 200; bundle chứa mã nhánh `canAskAgain=false` và gateway `192.168.100.36:8788`. Gateway health ready. URL thử hiện tại vẫn là `exp://192.168.100.36:8081`; iPhone chưa reload theo ý anh.
+- Host recheck hiện tại tải trực tiếp iOS bundle tại `:8081`: HTTP 200, 6.072.199 bytes; có URL gateway và `MIC_PERMISSION_BLOCKED`, không có copy “Chưa kết nối máy nhận giọng nói”. Gateway `/health` HTTP 200/ready, Metro `/status` HTTP 200. Đây chỉ xác minh host/LAN, chưa chứng minh iPhone đã nạp bundle.
 - Trên APK Android release API 37, đã kiểm đủ nhánh mic: từ chối quyền → fallback gõ → thử lại → cấp quyền → recorder vào `00:02` → Hủy về idle; quyền còn granted. Bằng chứng ở `agent_docs/evidence/voice/android-emulator/README.md`. AVD `-no-audio`, nên đây không phải kiểm lời nói/meter/STT.
-- Bản APK mới sau nhánh “bị chặn”: 121.247.352 byte, SHA-256 `ED49FF5702BE20002184876F20FB34B828DF7BEFEA1F22A48FCE2F7944DC80E2`. Nút Mở Cài đặt đã mở đúng trang microphone của app; cấp quyền rồi quay lại, recorder start/cancel hoạt động. Xem ảnh/report trong README Android evidence. `npm test` hiện 167/167.
+- Bản APK mới sau nhánh “bị chặn”: 121.247.352 byte, SHA-256 `ED49FF5702BE20002184876F20FB34B828DF7BEFEA1F22A48FCE2F7944DC80E2`; hash của APK đang cài khớp file này. APK chứa đủ 34 MP3, hash khớp toàn bộ source; bundle nhúng URL gateway. Nút Mở Cài đặt mở đúng trang microphone của app; cấp quyền rồi quay lại, recorder start/cancel hoạt động. Xem ảnh/report trong README Android evidence. `npm test` hiện 167/167.
 - Kiểm thêm trên APK này: sau Settings recovery, lượt thu thứ hai hiện `Đang thu · 00:00`; Hủy về idle. Runtime permission còn granted, không gửi clip; AVD `-no-audio`.
 - Trên APK mới nhất đã cài ở AVD API 37 (`com.valentino241.ngokedemo`, 121.246.512 byte, SHA-256 `BA973B5F23550367191A3A5ED004FD411CEF6D90ABB5C0FB5A132AA4897221D2`), Plan không còn giữ topic/picks ẩm thực sau input “Không đi ẩm thực trong 30 phút”; thời lượng 30 phút được giữ và app yêu cầu chọn chủ đề. Ảnh: `agent_docs/evidence/voice/android-emulator/android37-release-negated-plan-result-2026-10-14.png`. Đây là text entry trên AVD `-no-audio`, không phải STT/audio test.
 - Cùng APK mới: player tiến đến `00:02` rồi pause; mic thu rồi Hủy về idle, lần nhấn mic thứ hai cũng vào `Đang thu` và Hủy về idle. Ảnh và giới hạn AVD `-no-audio` ở `agent_docs/evidence/voice/android-emulator/README.md`; không xác nhận meter có tín hiệu hay lời nói/STT.
 - Khi đưa recorder đang chạy xuống nền bằng Home, AppOps kết thúc lượt RECORD_AUDIO; mở lại app thì dock idle và không tự thu tiếp. Đây là kiểm lifecycle AVD, không phải kiểm cuộc gọi/audio-route trên iPhone.
 - Story player cũng dừng khi Home và không tự phát lại sau khi mở app; player trở về Ready/0%. Đây là AVD state check, không xác nhận âm thanh thật.
-- Re-run mobile sau sửa: `npm test` 166/166, typecheck, lint, Expo dependency check pass. Regression thêm 16 ASR near-miss transcript về `unknown` đúng node, không đoán answer. iOS/Android Hermes exports hiện tại `index-9873bd6015e99b5d4350b5d75ac9316a.hbc` (2.455.227 byte) / `index-11ec7bf0812d650912b932ceb0b89a21.hbc` (2.455.453 byte) đóng đủ 34 MP3 mỗi platform, bytes khớp nguồn; đây không phải IPA. APK release đã build, cài và mở trên AVD.
+- Re-run mobile sau regression ASR: `npm test` 167/167, typecheck, lint, Expo dependency check pass. Test giữ 33 transcript ASR near-miss ở `unknown` đúng node, không đoán answer; một case trước đó gán nhầm node đã được sửa. iOS/Android Hermes exports `index-9873bd6015e99b5d4350b5d75ac9316a.hbc` (2.455.227 byte) / `index-11ec7bf0812d650912b932ceb0b89a21.hbc` (2.455.453 byte) đóng đủ 34 MP3 mỗi platform, bytes khớp nguồn; đây không phải IPA. APK release đã build, cài và mở trên AVD.
+- Latest plain JS exports were rerun from current source: iOS 1,073 modules and Android 1,068 modules; metadata includes 34 MP3 on each platform and SHA-256 sets match the source catalogue. Both bundles include the current gateway URL and mic permission recovery. They are not IPA/APK native builds.
 - Host recheck sau sửa: Metro `:8081` manifest và iOS bundle HTTP 200; bundle 6.062.091 ký tự có gateway LAN, recorder và helper phủ định mới, không còn copy kết nối cũ. Gateway `/health` tại `192.168.100.36:8788` báo ready.
 - Validator audio vừa chạy lại: 34/34 file đúng text/hash/node/revision/codec/duration/level; audio nghe QC vẫn pending. Không có clip nào được tick nghe.
 - Năm POST warm liên tiếp trên cùng clip TTS tổng hợp 19,15 giây đều trả HTTP 200, transcript khác rỗng và echo metadata đúng. Gateway-only p50 7,536 ms, p95 nearest-rank 7,727 ms; không tính thời gian xử lý trên iPhone.
@@ -44,16 +46,16 @@ The earlier status paragraph below records the previous pause implementation and
 - **Kiểm thử STT:** gateway hiện `ready` và synthetic TTS qua STT đã trả transcript thật. Sau khi reload, trên iPhone hỏi “Có ăn gì ở đây không?”, rồi hỏi tiếp “Có chuyện xưa nào ở đây không?”; ghi nhận transcript hiển thị và answer, không cần gửi audio.
 
 - APK: [app-release.apk](../mobile/android/app/build/outputs/apk/release/app-release.apk)
-- Kích thước: 121,245,884 byte. SHA-256: `0F43437B6B29D5AF9A7C750E746D1FE731F45A1808778DD6AC8925972FDF53F9`.
+- Kích thước: 121,247,352 byte. SHA-256: `ED49FF5702BE20002184876F20FB34B828DF7BEFEA1F22A48FCE2F7944DC80E2`.
 - Gateway STT local đang chạy, bind riêng máy dev tại `http://<DEV_LAN_IP>:8788`; `/health` trả HTTP 200. Điện thoại và máy dev cần cùng Wi‑Fi riêng; giữ gateway chạy khi thử mic.
 - APK mới đã cài/mở trên AVD API 37. Sau khi hiện answer, tap mic cho meter hoạt động; Hủy, tap mic lần nữa cho meter hoạt động; Hủy tiếp. Ảnh: [android37-current-build-second-meter-active-2026-10-14.png](../agent_docs/evidence/voice/android-emulator/android37-current-build-second-meter-active-2026-10-14.png). Không gửi audio; đây không thay cho iPhone hoặc STT.
-- Người dùng xác nhận lượt đầu trên iPhone hoạt động nhưng báo lượt hai lỗi. Metro cũ trên `8087` báo `/status` running nhưng bundle iOS không trả trong 60 giây; `8089` và `8090` đã dừng. Khởi động preview theo lệnh dưới đây rồi retest cả hai lượt trên iPhone cùng Wi‑Fi.
+- Snapshot lỗi trước đó (đã superseded): Metro cũ trên `8087` trả `/status` nhưng bundle treo, còn lượt hai từng mất meter. Người dùng đã xác nhận một lượt hỏi tiếp thành công trên `:8089`; để kiểm bundle cấu hình hiện hành, lần test tiếp theo dùng `:8081` sau khi người dùng sẵn sàng reload.
 - Gateway và Metro chỉ dành cho mạng riêng tin cậy; không dùng Wi‑Fi công cộng, không port-forward/public expose.
 
 Khởi động lại Metro nếu tiến trình dừng (PowerShell tại `<REPO_ROOT>\mobile`):
 
 ```powershell
-npm start -- --clear --lan --port 8089 --go --max-workers 2
+npm start -- --clear --lan --port 8081 --go --max-workers 2
 ```
 
 Gói iOS hiện là Expo Go preview, chưa phải IPA/native store build; bundle thiếu `EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL` sẽ không gửi STT. Điện thoại và gateway cần ở cùng Wi‑Fi riêng; Expo Go cũng cần được cấp quyền Local Network nếu iOS hỏi.
@@ -62,7 +64,7 @@ Plugin native iOS chỉ bật `NSAllowsLocalNetworking` và `NSLocalNetworkUsage
 
 Smoke test sau khi app mở: vào Demo → `Cổng ngõ` → nhấn mic, nói rõ **“Có ăn gì ở đây không?”**, nhấn Gửi. Khi câu nhận đúng, app hiện và tự phát câu trả lời `qa-03`; sau đó, trong khi câu trả lời đang lặp, nhấn mic, hỏi **“Có chuyện xưa nào ở đây không?”** rồi nhấn Gửi để kiểm `qa-05` và vòng thu thứ hai. Nếu vẫn mất meter hoặc hiện unknown, chạm **Xem câu đã nhận dạng** và ghi lại đúng transcript cùng thông báo lỗi; chỉ cần gửi lại phần chữ/ảnh lỗi, không cần gửi audio. Không dùng việc chạm chip làm bằng chứng auto-play; chip không tự bật tiếng.
 
-Không ghép `--offline` với `--lan`; nếu cổng 8089 đã được dùng, chọn cổng Metro khác và mở URL mới trong Expo Go.
+Không ghép `--offline` với `--lan`; nếu cổng 8081 đã được dùng, chọn cổng Metro khác, cập nhật URL gateway trong `.env.local` khi cần, rồi mở đúng URL mới trong Expo Go.
 
 Cài bằng USB sau khi bật USB debugging:
 
@@ -100,7 +102,7 @@ $env:EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL = 'http://<DEV_LAN_IP>:8788'
 
 `mobile/android` là thư mục native được Expo sinh và bị Git ignore. Bản build hiện tại đã thêm Gradle task input cho URL để tránh cache bundle sai trong workspace này; lệnh `--rerun-tasks` phía trên vẫn là cách build chắc chắn sau khi regenerate native project.
 
-## Đã kiểm và còn chờ
+## Snapshot trước các kiểm thử thiết bị mới nhất — đã superseded
 
 - APK ZIP có đủ 34 MP3, accessibility labels, và bundle trỏ đúng `<DEV_LAN_IP>:8788`. SHA-256 bundle bên trong APK khớp output bundle vừa build.
 - Android và iOS JS exports chạy thành công với URL LAN mới; đây không phải IPA hay kiểm chứng iOS native.
@@ -110,31 +112,25 @@ $env:EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL = 'http://<DEV_LAN_IP>:8788'
 
 Chi tiết theo gate, log kiểm và giới hạn: [VOICE_TEST_REPORT.md](VOICE_TEST_REPORT.md), [VOICE_PHASE_ROADMAP.md](VOICE_PHASE_ROADMAP.md), [VOICE_API_CONTRACT.md](VOICE_API_CONTRACT.md). Audio manifest và license: [tools/voice/README.md](../tools/voice/README.md), [LICENSES.md](../mobile/assets/voice/LICENSES.md).
 
-## Kiểm lại lỗi mất meter ở lượt thứ hai — 14/10/2026
+## Lịch sử chẩn đoán lỗi lượt hai — đã cập nhật sau khi người dùng retest
 
 Source Expo Audio 57.0.5 cho thấy iOS lên lịch tắt audio session 100 ms sau khi player pause; tác vụ trễ chỉ kiểm tra player, không kiểm tra recorder. Player voice đã bật `keepAudioSessionActive: true` để tránh tác vụ đó tắt mic trong lúc chuyển từ câu trả lời sang lượt thu tiếp theo. Đây là nguyên nhân phù hợp với triệu chứng, chưa được xác nhận trên iPhone.
 
 Reload the current Expo Go bundle, complete one voice question and hear its answer, then tap the mic again and ask “Có chuyện xưa nào ở đây không?”. Check that the meter moves and the linked answer arrives. If it still fails, note whether the dock stayed at “Đang bật micro…”, entered “Đang thu” with a flat meter, or showed an error; if STT mismatches, share the text from “Xem câu đã nhận dạng” and a screenshot. Do not send the recording. At this check, Metro `:8089/status` returned HTTP 200 but the iOS bundle request timed out, so reload will not fetch the fix until that preview serves a bundle.
 
-### Bản bundle iPhone mới nhất — 14/10/2026
+### Bundle :8089 ở snapshot cũ — 14/10/2026
 
 Metro LAN `exp://192.168.100.36:8089` hiện trả iOS bundle HTTP 200 (6,062,119 ký tự) chứa guard chờ 125 ms sau khi player đang chạy dừng, recorder metering options, `keepAudioSessionActive` và playback-intent guard. Bundle chưa chứa URL gateway `192.168.100.36:8788`, nên chỉ kiểm tra được phát → mic → meter; chưa gửi được STT/câu trả lời. Gateway `/health` trả HTTP 200.
 
 Để kiểm lỗi lượt hai, reload bundle hiện tại trong Expo Go, phát một lời kể/câu trả lời đến khi đang nghe, rồi nhấn mic và xác nhận bộ đếm cùng meter có chạy. Không cần gửi bản ghi. Nếu meter vẫn phẳng, ghi lại trạng thái dock (đang bật micro/đang thu/lỗi) và thông báo hiển thị. Kiểm tra STT đầy đủ cần Metro được mở lại với URL gateway; lần thử khởi động Metro có biến môi trường trước đó bị công cụ từ chối, không tìm cách lách.
 
-### Sửa trạng thái “Chưa kết nối máy nhận giọng nói” — 14/10/2026
+### Chẩn đoán cũ “Chưa kết nối máy nhận giọng nói” trên :8089 — đã superseded
 
 Nguyên nhân đã xác nhận: gateway đang `ready` tại `http://192.168.100.36:8788/health`, nhưng Metro `:8089` được khởi chạy khi chưa có `EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL`. Vì vậy bundle báo chưa cấu hình và không gửi STT dù gateway chạy. Đã tạo `mobile/.env.local` (Git bỏ qua) với URL LAN hiện tại; địa chỉ này cũng được xác nhận là IP Wi‑Fi của máy phát triển.
 
-Trong terminal đang chạy Metro, nhấn `Ctrl+C`; từ thư mục `mobile`, chạy:
+Ở snapshot cũ, lệnh khởi động dùng `:8089` trước khi cấu hình `.env.local`, nên bundle bị thiếu URL gateway. Không chạy lại lệnh cũ này. Lệnh hiện hành và preview `:8081` đã xác minh nằm ở đầu mục **Mở bản thử Android/iOS**; người dùng đã để sau việc reload bundle mới trên iPhone.
 
-```powershell
-npm start -- --clear --lan --port 8089 --go --max-workers 2
-```
-
-Expo tự nạp `.env.local` khi Metro khởi động. Sau đó mở lại `exp://192.168.100.36:8089` trong Expo Go và Reload. iPhone và máy phát triển phải ở cùng Wi‑Fi riêng tin cậy. Không cần khởi động lại gateway khi `/health` vẫn trả `ready`. Không dùng địa chỉ này trên mạng công cộng.
-
-### Kiểm tra lại preview — 14/10/2026
+### Snapshot preview sau khi thêm env, trước lần restart mới nhất — 14/10/2026
 
 Sau khi thêm `.env.local`, `npm run build:ios -- --no-bytecode` và `npm run build:android -- --no-bytecode` đều thành công: iOS `index-51a74f280fc4c08fed13fd3e5186e001.js` (1.073 modules) và Android `index-d3b5a0453325e2f8ffc34b488b03870f.js` (1.068 modules) đều chứa URL gateway. Gateway `/health` vẫn `ready`. Metro `:8089` đang phục vụ bundle thiếu URL và manifest bị timeout; một Metro khác cùng dự án tại `:8081` có manifest iOS HTTP 200 và bundle 6,068,958 byte chứa URL, `keepAudioSessionActive`, `playbackIntent` cùng recorder metering. Dùng `exp://192.168.100.36:8081` cho lần thử Expo Go kế tiếp; cần reload trên iPhone để xác nhận STT thực tế.
 

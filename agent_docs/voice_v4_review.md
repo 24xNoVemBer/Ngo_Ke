@@ -80,3 +80,16 @@ Thông tin `<DEV_LAN_IP>` và `<DEV_LAN_IP>` trong ghi chú cũ là IP Wi‑Fi t
 - Sau reload Expo Go tại `exp://192.168.100.36:8089`, người dùng xác nhận lượt voice thứ hai hiển thị transcript, ghép đúng câu trả lời và nghe được answer. Ghi nhận một lượt STT→Q&A→playback thật trên iPhone theo báo cáo người dùng; không có raw audio/log/request trace để đối chiếu độc lập.
 - Mobile suite hiện đạt 161/161; typecheck, lint và dependency check đều đạt. Gateway local vẫn dùng faster-whisper 1.2.1.
 - Request lấy manifest Metro từ host timeout trong lần kiểm gần nhất. GV4 còn mở cho trace thiết bị, lỗi mạng/quota/retry, và xác minh preview/config trên lần chạy thực.
+
+## Cập nhật gateway và lượt iPhone — 14/10/2026
+
+- Người dùng xác nhận lượt voice thứ hai trên iPhone có meter, transcript, đúng câu trả lời và audio nghe được trên preview `:8089`; đây là báo cáo happy path STT→Q&A→playback, chưa có request/server trace để đối chiếu cấu hình bundle.
+- Preview mới `:8081` đã restart; manifest và iOS launch bundle HTTP 200, có URL gateway LAN. Gateway `/health` HTTP 200, faster-whisper 1.2.1. Người dùng để sau reload Expo Go `:8081`, do đó chưa chứng minh iPhone dùng bundle/cấu hình mới này.
+- Re-run `node tools/voice/gateway/smoke_test.mjs` pass trên Node 24.14.1/faster-whisper 1.2.1 bằng clip TTS tổng hợp local; transcript/context, abort/retry, quota và validation audio guards đạt. Không dùng audio cá nhân; smoke test không thay cho phone/network latency.
+- GV4 còn mở cho đo latency từ điện thoại, lỗi kết nối/quota/timeout/retry thật trên thiết bị, xác minh request trace và triển khai public HTTPS/auth trước bất kỳ public exposure nào.
+
+## Rejected-audio log privacy regression — 2026-10-14
+
+- Removed the log of declared MIME, byte count and audio header on unsupported formats; the 415 error contract is unchanged. Smoke regression checks the response and ensures filename/MIME/header do not appear in captured logs.
+- Restarted the current LAN gateway and sent only a synthetic invalid multipart payload: health ready, response 415 `UNSUPPORTED_AUDIO_FORMAT`, and live process log limited to status/code/elapsed time.
+- Smoke, 167 mobile tests, typecheck, lint, Expo dependency check, Node syntax and whitespace checks pass. Phone verification on the current `:8081` bundle remains deferred; no personal audio was used.

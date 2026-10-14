@@ -177,3 +177,19 @@ Các IP cũ và hash cũ trong snapshot phía dưới đã được supersede.
 - Người dùng thử `exp://192.168.100.36:8089` sau reload và xác nhận chuỗi hai lượt voice trên iPhone: lượt thứ hai có meter chạy, hiện transcript, đúng câu trả lời và nghe được tiếng. Đây là user-reported device evidence; chưa có model/OS/build hoặc server trace.
 - `npm test` 161/161, typecheck, lint và Expo dependency check pass. Metro manifest request từ host timeout nên chưa đối chiếu được bundle/config đang phục vụ với kết quả thiết bị.
 - GV7 vẫn mở: chưa kiểm iPhone audio routes, silent/Bluetooth/call/background, screen reader/Reduce Motion, độ trễ/performance p50/p95, nghe tay 34 audio, hoặc Android máy thật; chưa có iOS native binary. AVD stress/lifecycle không thay cho các kiểm tra này.
+
+## Trạng thái preview sau khi restart Metro — 14/10/2026
+
+- Gateway LAN `192.168.100.36:8788/health` trả HTTP 200/ready với Node 24.14.1 và faster-whisper 1.2.1. Metro `:8081/status`, manifest iOS và launch bundle đều trả HTTP 200 từ máy dev; bundle chứa URL gateway và nhánh phục hồi quyền mic.
+- Người dùng xác nhận happy path hai lượt trên iPhone qua Expo Go `:8089`: meter lượt hai chạy, transcript và answer đúng, tiếng answer nghe được. Người dùng để sau reload preview mới `exp://192.168.100.36:8081`, nên chưa có xác nhận thiết bị đã tải bundle hiện tại.
+- Re-run khi tiếp tục goal: mobile tests 167/167, typecheck/lint/dependency check pass và gateway synthetic smoke test pass; Android release permission recovery và repeated start/cancel chạy trên API 37 AVD. Hash APK đang cài trùng artifact local `ED49FF...4DC80E2`; APK bundle có gateway URL, catalogue revision và đủ 34 MP3 với hash set trùng source. AVD `-no-audio` không chứng minh audio thật.
+- Fresh iOS/Android JS exports also pass at 1,073/1,068 modules with all 34 MP3 hashes matching source and the LAN gateway configured. Android retry exited 0; neither export creates a native binary or proves iOS/phone runtime.
+- GV7 vẫn mở cho xác nhận iPhone trên bundle mới, iOS native build, thiết bị Android thật, audio route/interruption, VoiceOver/TalkBack/Reduce Motion, font lớn, performance p50/p95 và nghe QC 34 clip.
+
+## Android accessibility recheck — 14/10/2026
+
+- Tăng nút quay lại, chip câu hỏi, nút trước/sau, nút đổi sắc thái và các hit area chương lên tối thiểu 48 dp theo chiều cao; tiến trình chương giữ tối thiểu 44 dp chiều ngang để vừa màn điện thoại hẹp. Nút sắc thái đọc thêm trạng thái hiện tại.
+- Dock giọng nói phủ lên vùng cuộn. Đo chiều cao dock bằng `onLayout` và cộng vào khoảng đệm cuối danh sách để chip cuối cuộn hoàn toàn lên trên dock, kể cả khi safe area thay đổi.
+- APK release dựng thành công và cài trên Android API 37 AVD. Sau khi cuộn xuống cuối màn hỏi đáp, UIAutomator ghi lại: quay lại 48×48 dp; sáu vùng chương cao 48 dp và rộng khoảng 51 dp; nút chuyển điểm cao 48 dp; bốn chip cao 48 dp; dock mic 56×56 dp. Nút chủ đề ở Home 48×48 dp, content description gồm trạng thái “Buổi sáng”.
+- Ảnh và cây UI native: `agent_docs/evidence/voice/android37-native-release-a11y-qa-2026-10-14.png`, `android37-native-release-a11y-2026-10-14.xml`, `android37-native-release-a11y-home-2026-10-14.xml`. `npm test` 167/167, typecheck và lint pass sau chỉnh sửa.
+- Đây là bounds/accessibility tree trên AVD; chưa bật TalkBack/VoiceOver, chưa kiểm font lớn/Reduce Motion hoặc thiết bị thật. VoiceOver, iPhone reload `:8081`, audio route và performance vẫn pending.

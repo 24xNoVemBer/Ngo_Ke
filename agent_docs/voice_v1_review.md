@@ -30,8 +30,10 @@ Revalidation ngày 14/10/2026 bằng cùng validator: **34/34** clip hợp lệ;
 
 - Generator/QC: `tools/voice/generate_catalogue_v1.py`, `tools/voice/validate_catalogue_v1.py`.
 - Manifest và mapping native: `mobile/assets/voice/manifest.json`, `mobile/src/voice/catalog.ts`.
+- APK release hiện tại đóng đủ 34 tài nguyên MP3; SHA-256 của tập file bên trong trùng toàn bộ 34 file nguồn. Đây là bằng chứng packaging, không thay nghe QC.
+- Fresh iOS/Android JS exports (`dist/ios`, `dist/android`) each list 34 MP3; SHA-256 sets match all source files exactly, and both bundles embed the current LAN gateway URL. They are not IPA/APK builds and do not prove playback on iPhone.
 - Checklist nghe từng clip, có đường dẫn MP3 và tiêu chí ghi lỗi: [voice_v1_listening_checklist.md](voice_v1_listening_checklist.md). Tất cả đang để trống đến khi có người nghe thật.
-- Test: `mobile/tests/voiceCatalogue.test.mjs` kiểm đúng 34 mục, ID, text hash, audio hash và static asset map; full suite hiện tại 159/159 pass.
+- Test: `mobile/tests/voiceCatalogue.test.mjs` kiểm đúng 34 mục, ID, text hash, audio hash và static asset map; full suite mới nhất 167/167 pass.
 - Raw report/model cache nằm trong `tools/voice/.cache/` và bị ignore; audio sản phẩm/license đi cùng `mobile/assets/voice/`.
 
 **Còn lại:** nghe tay toàn bộ 34 clip và đánh dấu/re-tạo chính xác clip nghe lỗi; nếu giọng đọc tên riêng hoặc độ tự nhiên không đạt thì cần chọn lại preset và tái tạo catalogue. Không dùng transcript ASR để gọi nội dung là QC âm học hoàn tất.

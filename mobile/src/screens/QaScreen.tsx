@@ -83,6 +83,7 @@ export function QaScreen({
   const [isInputDrawerVisible, setIsInputDrawerVisible] = useState(false);
   const [drawerText, setDrawerText] = useState('');
   const [isTextVisible, setIsTextVisible] = useState(false);
+  const [dockHeight, setDockHeight] = useState(0);
   const [voiceActionCard, setVoiceActionCard] = useState<VoiceActionCard | null>(null);
   const motion = useMotionState();
   const scroll = useRef<ScrollView>(null);
@@ -376,7 +377,7 @@ export function QaScreen({
         >
           <ScrollView
             ref={scroll}
-            contentContainerStyle={styles.scrollContent}
+            contentContainerStyle={[styles.scrollContent, { paddingBottom: dockHeight + spacing.md }]}
             keyboardShouldPersistTaps="handled"
           >
             {/* THẺ NGƯỜI KỂ CHUYỆN NỔI (FLOATING STORYTELLER CARD) */}
@@ -768,7 +769,13 @@ export function QaScreen({
         </KeyboardAvoidingView>
 
         {/* THANH DOCK TƯƠNG TÁC GIỌNG NÓI & NHẬP CHỮ DƯỚI ĐÁY */}
-        <View style={[styles.dockWrapper, { paddingBottom: bottomInset }]}>
+        <View
+          style={[styles.dockWrapper, { paddingBottom: bottomInset }]}
+          onLayout={({ nativeEvent }) => {
+            const height = nativeEvent.layout.height;
+            setDockHeight((currentHeight) => currentHeight === height ? currentHeight : height);
+          }}
+        >
           <VoiceInteractionDock
             stage={voiceSession.stage}
             error={voiceSession.error}
@@ -828,9 +835,9 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   backButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: 'rgba(28, 20, 16, 0.60)',
     borderWidth: 1,
     borderColor: 'rgba(255, 245, 230, 0.22)',
@@ -857,10 +864,10 @@ const styles = StyleSheet.create({
   },
   storySegmentRow: {
     flexDirection: 'row',
-    gap: 4,
+    gap: 2,
     alignItems: 'center',
   },
-  storySegmentTouch: { flex: 1, minWidth: 28, minHeight: 44, justifyContent: 'center', paddingHorizontal: 3 },
+  storySegmentTouch: { flex: 1, minWidth: 44, minHeight: 48, justifyContent: 'center', paddingHorizontal: 3 },
   storySegment: {
     width: '100%',
     height: 3.5,
@@ -897,7 +904,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: spacing.md,
     paddingTop: spacing.sm,
-    paddingBottom: 20,
     gap: spacing.md,
   },
   floatingStoryCard: {
@@ -979,7 +985,7 @@ const styles = StyleSheet.create({
   stepNavButton: {
     backgroundColor: '#F3E9DA',
     paddingHorizontal: 12,
-    minHeight: 44,
+    minHeight: 48,
     justifyContent: 'center',
     flexShrink: 1,
     paddingVertical: 8,
@@ -1124,6 +1130,7 @@ const styles = StyleSheet.create({
   chipPill: {
     flexDirection: 'row',
     alignItems: 'center',
+    minHeight: 48,
     backgroundColor: 'rgba(255, 253, 247, 0.92)',
     paddingHorizontal: 12,
     paddingVertical: 8,
