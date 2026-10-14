@@ -27,9 +27,15 @@ export const TOPIC_LABELS: Record<Topic, string> = {
 
 const TOPIC_ORDER: Topic[] = ['an thuc', 'chuyen xua', 'kham pha tu do'];
 
+export function hasTopicNegation(text: string): boolean {
+  const normalized = normalizeQuestion(text);
+  const withoutSpaceNoun = normalized.replace(/\bkhong gian\b/g, ' ');
+  return /\b(?:khong|bo qua|tranh|loai tru)\b/.test(withoutSpaceNoun) || /\bdung chon\b/.test(normalized);
+}
+
 export function parseTopic(text: string): Topic | undefined {
   const normalized = normalizeQuestion(text);
-  if (normalized.length === 0) {
+  if (normalized.length === 0 || hasTopicNegation(normalized)) {
     return undefined;
   }
   return TOPIC_ORDER.find((topic) => normalized.includes(topic))

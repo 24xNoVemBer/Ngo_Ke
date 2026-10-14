@@ -115,6 +115,9 @@ test('Vietnamese food labels work with and without accents', () => {
   assert.equal(parseTopic('ẩm thực'), 'an thuc');
   assert.equal(parseTopic('am thuc'), 'an thuc');
   assert.equal(parseTopic('Mình thích ẩm thực'), 'an thuc');
+  assert.equal(parseTopic('không đi ẩm thực'), undefined);
+  assert.equal(parseTopic('tránh ẩm thực'), undefined);
+  assert.equal(parseTopic('khám phá tự do trong không gian'), 'kham pha tu do');
 });
 
 test('half hours retain the number of hours and invalid durations are rejected', () => {

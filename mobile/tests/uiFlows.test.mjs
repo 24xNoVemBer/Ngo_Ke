@@ -700,6 +700,34 @@ test('voice plan recommendations stay inline and preserve their draft when openi
   assert.deepEqual(openedDraft, { topic: 'chuyen xua', budgetMinutes: 15 });
 });
 
+test('negated manual Plan input clears the previous topic and recommendations', () => {
+  let draft = { topic: 'an thuc', budgetMinutes: 30 };
+  const props = () => ({
+    nodes: fixture.nodes,
+    draft,
+    onDraftChange: (next) => { draft = next; },
+    onSelectNode() {},
+  });
+  const view = mount('../src/screens/PlanScreen.tsx', props(), {}, 'PlanScreen');
+  let tree = view.render();
+  elements(tree, 'Pressable').find((item) =>
+    elements(item, 'Text').some((text) => [].concat(text.props.children).join('').includes('Nhập chủ đề')),
+  ).props.onPress();
+  tree = view.render(props());
+  elements(tree, 'TextInput').find((item) => item.props.accessibilityLabel === 'Ô gõ chủ đề')
+    .props.onChangeText('không đi ẩm thực trong 30 phút');
+  tree = view.render(props());
+  elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Dùng chủ đề đã gõ')
+    .props.onPress();
+  tree = view.render(props());
+
+  assert.equal(draft.topic, undefined);
+  assert.equal(draft.budgetMinutes, 30);
+  assert.ok(JSON.stringify(tree).includes('Vui lòng chọn chủ đề'));
+  assert.equal(JSON.stringify(tree).includes('Chủ đề ẩm thực · 30 phút'), false);
+  view.unmount();
+});
+
 test('Plan draft is owned by App and survives the notebook route', () => {
   const app = mount('../App.tsx');
   let tree = app.render();

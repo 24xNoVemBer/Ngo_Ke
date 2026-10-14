@@ -1,5 +1,31 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-14 — Plan phủ định không còn giữ chủ đề cũ; kiểm APK native
+
+- AVD API 37 tái hiện lỗi thật: sau khi chọn ẩm thực + 30 phút, nhập “Không đi ẩm thực trong 30 phút” ở Plan bị nhận thành ẩm thực và vẫn hiện picks cũ.
+- Root cause là `parseTopic` tìm chuỗi chủ đề dương mà không xét phủ định. Thêm `hasTopicNegation` dùng chung giữa `parseTopic`, voice intent và ô nhập Plan; khi phủ định, Plan xóa topic cũ, giữ budget đã chọn và yêu cầu chọn chủ đề khác.
+- Regression parser + PlanScreen UI mới; `npm test` 165/165, typecheck, lint và Expo dependency check pass. Cài APK mới lên AVD API 37 và lặp đúng luồng: kết quả đổi sang “Vui lòng chọn chủ đề”, không còn card ẩm thực. Ảnh: `agent_docs/evidence/voice/android-emulator/android37-release-negated-plan-result-2026-10-14.png`.
+- Android release APK hiện tại: 121,246,512 bytes, SHA-256 `BA973B5F23550367191A3A5ED004FD411CEF6D90ABB5C0FB5A132AA4897221D2`; build thành công và cài/chạy trên AVD.
+- Recheck cùng APK: player tiến đến `00:02` rồi pause; recorder vào thu, Hủy về idle, nhấn mic lần hai vẫn vào thu và Hủy lại về idle. Ảnh player/recorder ở `agent_docs/evidence/voice/android-emulator/README.md`. AVD `-no-audio`, nên meter phẳng và không có bằng chứng âm thanh/STT.
+- Re-export iOS/Android từ source mới: HBC `index-9873bd6015e99b5d4350b5d75ac9316a.hbc` (2,455,227 bytes) và `index-11ec7bf0812d650912b932ceb0b89a21.hbc` (2,455,453 bytes). Cả hai chứa marker phủ định/gateway và 34/34 audio hash-match nguồn.
+- Fresh validator 34/34 clip pass; 7.0 phút/5.04 MB; WER cao nhất vẫn `qa-flowers-answer` 23.1%. Đây không phải QC nghe tay. Metro `:8081` bundle HTTP 200, 6,062,091 ký tự, có helper phủ định; gateway LAN ready.
+- Vẫn pending: reload/test bundle mới trên iPhone (người dùng để sau), speech đủ 6 chương/21 Q&A, audio/iOS/accessibility/performance thật và nghe QC 34 clip. Người dùng đã yêu cầu tự động push sau mỗi phần việc hoàn tất; cần stage đúng các thay đổi Ngõ Kể, không kéo theo `.idea`, cache hoặc evidence ngoài phạm vi.
+
+## 2026-10-14 — Guard phủ định Plan, exports và APK mới
+
+- Sửa `parseVoiceIntent`: mọi tín hiệu phủ định trong lượt Plan làm mơ hồ slot chủ đề và xóa topic cũ; slot thời lượng vẫn giữ nếu nghe rõ độc lập. Ngoại lệ danh từ “không gian” tránh false positive. Regression phủ “không đi ẩm thực”, “không, 30 phút” và câu tích cực có “không gian”.
+- Re-run trên workspace: 5/5 intent tests, `npm test` 164/164, typecheck, lint, Expo dependency check pass.
+- iOS/Android Expo exports thật trong `mobile/dist`: HBC lần lượt 2.454.864/2.455.067 byte; metadata có 34 MP3 mỗi platform, 34/34 byte-identical với nguồn. Metro iOS bundle mới `:8081` trả HTTP 200, 6.061.640 ký tự, có gateway/parser và hai marker phủ định.
+- Android release APK mới build thành công: `mobile/android/app/build/outputs/apk/release/app-release.apk`, 121.246.208 byte, SHA-256 `EBF2BD54A8036DF72149059C67AA99D0E8C29E4AD8AE2D0A1E9F850E9FD08404`. APK có parser fix, gateway URL, 34/34 audio byte-identical. Chưa cài vì `adb devices` hiện không thấy thiết bị/AVD.
+- Gateway LAN `:8788` hiện ready. Năm lượt warm với cùng clip TTS 19,15 giây: p50 7.536 ms, p95 nearest-rank 7.727 ms; đây chỉ là gateway/STT, không đo app/thiết bị.
+- Ghi chú tại thời điểm đó chưa có yêu cầu commit/push; sau đó người dùng đã yêu cầu tự động push mỗi phần việc hoàn tất. Còn: người dùng reload `:8081` trên iPhone (đã để sau), speech qua 6 chương/21 Q&A và failure paths, nghe tay 34 clip, audio routes/accessibility/performance thật.
+
+## 2026-10-14 — Recheck Metro, gateway và độ trễ STT tổng hợp
+
+- Metro `:8081` còn chạy; manifest và bundle iOS trả HTTP 200. Bundle hiện tại 6,061,583 ký tự, có gateway LAN `192.168.100.36:8788`, recorder và `parseVoiceIntent`, không còn copy “Chưa kết nối máy nhận giọng nói”. Gateway `/health` trên đúng IP LAN trả `ready` với faster-whisper-small.
+- Gửi cùng clip TTS tổng hợp 19,15 giây qua gateway 5 lần liên tiếp: cả 5 HTTP 200, transcript khác rỗng, echo đủ `turnId/locale/mode/nodeId/datasetRevision`; warm p50 7,536 ms, p95 nearest-rank 7,727 ms. Chỉ đo gateway/STT qua LAN, không tính mic iPhone, upload app, xử lý Q&A hay phát audio.
+- Mobile kiểm lại `npm test` 164/164, typecheck, lint và Expo dependency check pass. Người dùng chưa reload `:8081` trên iPhone theo yêu cầu để sau; không nâng kết quả user-reported ở `:8089` thành bằng chứng cho bundle này.
+
 ## 2026-10-14 — APK Android V6 retest và Metro :8081
 
 - Người dùng xác nhận lượt voice thứ hai liên tiếp trên iPhone có meter, transcript, Q&A đúng và nghe được câu trả lời. Đây là happy path do người dùng báo; không có trace/audio để kiểm chứng độc lập. Việc reload bundle mới `exp://192.168.100.36:8081` được để sau.

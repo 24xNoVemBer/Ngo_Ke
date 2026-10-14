@@ -1,6 +1,18 @@
 # Ngõ Kể voice — Android emulator evidence
 
-## APK mới nhất sau sửa parser V6 — 14/10/2026
+## APK hiện tại sau sửa phủ định trong ô Plan — 14/10/2026
+
+- APK release: 121,246,512 byte, SHA-256 `BA973B5F23550367191A3A5ED004FD411CEF6D90ABB5C0FB5A132AA4897221D2`. Đã cài và chạy trên AVD API 37.
+- Tái hiện bằng UI native: chọn chủ đề ẩm thực + 30 phút, nhập “Không đi ẩm thực trong 30 phút”, bấm Dùng. Draft bỏ topic cũ, giữ 30 phút; thẻ gợi ý cũ biến mất và hiển thị “Vui lòng chọn chủ đề”. Ảnh: `android37-release-negated-plan-result-2026-10-14.png`.
+- Kiểm này dùng text entry trên AVD, không phải nhận dạng lời nói. AVD `-no-audio`, nên không xác nhận mic hoặc audio playback.
+
+## Source release APK: player pause và recorder re-entry — 14/10/2026
+
+- Cùng APK hiện tại (121,246,512 byte, SHA-256 `BA973B5F23550367191A3A5ED004FD411CEF6D90ABB5C0FB5A132AA4897221D2`): story player lên `00:02` với nút Pause; pause giữ vị trí. Bấm mic dừng player và vào `Đang thu`; Hủy đưa dock về idle. Nhấn mic lần hai cũng vào `Đang thu · 00:02`; Hủy lần nữa về `Nhấn để hỏi`.
+- Ảnh: `android37-source-release-player-playing-2026-10-14.png`, `android37-source-release-recorder-second-start-2026-10-14.png`, `android37-source-release-recorder-second-cancel-2026-10-14.png`.
+- AVD API 37 chạy `-no-audio`: recorder UI/timer/state hoạt động nhưng meter không có tín hiệu âm thanh; không gửi clip, không test STT/Q&A và không thay thế lượt hỏi thứ hai trên iPhone. Bundle Metro `:8081` mới vẫn chưa được reload trên iPhone theo yêu cầu để sau.
+
+## APK V6 trước sửa phủ định trong ô nhập tay — 14/10/2026
 
 - APK release: 121,246,156 byte, SHA-256 `301F0654052A537324A08240F02C1DA223D99EBACCD841A573A20C3375B0EE36`. Build và kiểm ZIP/Hermes xác nhận parser V6, URL gateway và đủ 34 MP3.
 - APK đã cài/chạy trên AVD API 37. Đi tới Q&A điểm 01; kiểm reader open/close, player progress/pause/resume/replay/stop, drawer/bàn phím, typed answer đúng, unknown không giữ câu trả lời cũ, recorder state/timer và cleanup khi Back. Ảnh: `android37-v6-release-launch-2026-10-14.png`, `android37-v6-release-qa-reader-open-2026-10-14.png`, `android37-v6-release-{playing,paused,resumed,replay,stopped}-2026-10-14.png`, `android37-v6-release-{input-drawer,input-keyboard,typed-answer,typed-answer-text-open,unknown-question}-2026-10-14.png`.

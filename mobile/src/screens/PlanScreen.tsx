@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { DemoNode, Mode } from '../data/sourceState';
 import {
   pickPoints,
+  hasTopicNegation,
   parseTimeBudget,
   parseTopic,
   TOPIC_LABELS,
@@ -54,6 +55,11 @@ export function PlanScreen({ mode = 'demo', nodes, draft = {}, onDraftChange = (
   }
 
   function applyTopicText(): void {
+    if (hasTopicNegation(topicInput)) {
+      onDraftChange({ ...draft, topic: undefined });
+      setShowResult(true);
+      return;
+    }
     const parsed = parseTopic(topicInput);
     if (parsed !== undefined) {
       onDraftChange({ ...draft, topic: parsed });
@@ -78,7 +84,9 @@ export function PlanScreen({ mode = 'demo', nodes, draft = {}, onDraftChange = (
   }
 
   const result = pickPoints(nodes, { topic, budgetMinutes });
-  const typedTopicUnknown = topicInput.trim().length > 0 && parseTopic(topicInput) === undefined;
+  const typedTopicUnknown = topicInput.trim().length > 0
+    && !hasTopicNegation(topicInput)
+    && parseTopic(topicInput) === undefined;
   const typedTimeUnknown = timeInput.trim().length > 0 && parseTimeBudget(timeInput) === undefined;
 
   return (

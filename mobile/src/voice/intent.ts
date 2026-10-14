@@ -1,6 +1,6 @@
 import { TOPICS, type Topic } from '../data/sourceState.ts';
 import { normalizeQuestion } from '../qa/match.ts';
-import { parseTimeBudget, parseTopic, TOPIC_LABELS, type PlanDraft } from '../recommendation/pick.ts';
+import { hasTopicNegation, parseTimeBudget, parseTopic, TOPIC_LABELS, type PlanDraft } from '../recommendation/pick.ts';
 
 export type VoiceIntent =
   | { type: 'question' }
@@ -58,10 +58,6 @@ function durationValues(text: string): number[] | undefined {
   return values;
 }
 
-function isNegatedTopic(text: string): boolean {
-  return /\b(?:khong muon|khong thich|khong chon|dung chon|bo qua|tranh)\b/.test(text);
-}
-
 function isQuestion(text: string, original: string): boolean {
   return original.includes('?') || QUESTION_WORDS.test(text);
 }
@@ -113,7 +109,7 @@ export function parseVoiceIntent(input: string, collectingPlan = false, currentD
   const durations = durationValues(text);
   let ambiguous: string | undefined;
   const noPlanSlots = collectingPlan && !planCommand && topics.length === 0 && durations?.length === 0;
-  const ambiguousTopic = noPlanSlots || topics.length > 1 || (topics.length > 0 && isNegatedTopic(text));
+  const ambiguousTopic = noPlanSlots || topics.length > 1 || hasTopicNegation(text);
   const ambiguousBudget = noPlanSlots || durations === undefined || durations.length > 1
     || (durations.length === 1 && (durations[0] < 1 || durations[0] > 180));
   if (noPlanSlots) ambiguous = 'Mình chưa nghe thấy chủ đề hoặc thời lượng. Hãy chọn lại bên dưới.';

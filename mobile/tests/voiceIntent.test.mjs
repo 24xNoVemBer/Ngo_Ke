@@ -57,6 +57,25 @@ test('ambiguous slots clear stale draft values but keep an independently underst
   assert.equal(negatedTopic.draft.budgetMinutes, 30);
   assert.match(negatedTopic.ambiguous ?? '', /phủ định/);
 
+  const negatedWithDifferentWording = parseVoiceIntent('Chọn trải nghiệm không đi ẩm thực trong 30 phút', false, {
+    topic: 'an thuc', budgetMinutes: 45,
+  });
+  assert.equal(negatedWithDifferentWording.type, 'plan');
+  if (negatedWithDifferentWording.type !== 'plan') return;
+  assert.equal(negatedWithDifferentWording.draft.topic, undefined);
+  assert.equal(negatedWithDifferentWording.draft.budgetMinutes, 30);
+  assert.match(negatedWithDifferentWording.ambiguous ?? '', /phủ định/);
+
+  const bareRejection = parseVoiceIntent('không, 30 phút', true, { topic: 'an thuc', budgetMinutes: 45 });
+  assert.equal(bareRejection.type, 'plan');
+  if (bareRejection.type !== 'plan') return;
+  assert.equal(bareRejection.draft.topic, undefined);
+  assert.equal(bareRejection.draft.budgetMinutes, 30);
+  assert.match(bareRejection.ambiguous ?? '', /phủ định/);
+
+  const positiveSpaceNoun = parseVoiceIntent('Chọn trải nghiệm khám phá tự do trong không gian 30 phút');
+  assert.deepEqual(positiveSpaceNoun, { type: 'plan', draft: { topic: 'kham pha tu do', budgetMinutes: 30 } });
+
   const ambiguousBudget = parseVoiceIntent('30 hay 45 phút', true, { topic: 'an thuc', budgetMinutes: 15 });
   assert.equal(ambiguousBudget.type, 'plan');
   if (ambiguousBudget.type !== 'plan') return;

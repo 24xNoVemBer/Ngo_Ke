@@ -1,10 +1,13 @@
 # Voice V6 — Intent và hành động theo ngữ cảnh
 
-## Recheck slot mơ hồ và câu hỏi khi Plan đang mở — 14/10/2026
+## Recheck phủ định, slot mơ hồ và câu hỏi khi Plan đang mở — 14/10/2026
 
 - Câu hỏi như “Chương kế là gì?” giờ vẫn đi vào Q&A khi đang thu thập Plan.
-- Chủ đề bị phủ định/nhiều chủ đề xóa topic cũ; thời lượng không rõ/nhiều/ngoài khoảng xóa budget cũ. Câu không nhận ra slot nào cũng xóa cả bản nháp và hiện lựa chọn lại. Slot còn lại chỉ được giữ nếu được hiểu độc lập, nên thẻ không hiện gợi ý dựa trên giá trị lỗi thời.
-- Regression có trường hợp phủ định, nhiều thời lượng, đồng thời cả hai slot mơ hồ. `voiceIntent.test.mjs` 5/5; toàn suite 164/164, typecheck/lint/Expo dependency check đạt.
+- Parser dùng chung `hasTopicNegation` để bắt phủ định đã chuẩn hóa (`không`, bỏ qua, tránh, loại trừ, đừng chọn), kể cả “không đi ẩm thực” và “không, 30 phút”; “không gian” vẫn là danh từ dương.
+- AVD API 37 tái hiện thêm lỗi ở ô nhập tay Plan: câu “Không đi ẩm thực trong 30 phút” bị `parseTopic` nhận thành ẩm thực và giữ picks cũ. `parseTopic` giờ từ chối chủ đề bị phủ định; Plan xóa topic cũ, giữ thời lượng và yêu cầu chọn lại. AVD chạy APK release mới cho cùng thao tác không còn hiện picks ẩm thực; draft còn `budgetMinutes: 30`.
+- Nhiều chủ đề/thời lượng, giá trị ngoài khoảng và câu không nhận ra slot nào tiếp tục xóa các giá trị cũ liên quan để tránh picks lỗi thời.
+- Regression mới ở `recommendation.test.mjs` và `uiFlows.test.mjs`, cùng voice intent tests; toàn suite 165/165, typecheck/lint/Expo dependency check đạt.
+- Screenshot AVD: `agent_docs/evidence/voice/android-emulator/android37-release-negated-plan-result-2026-10-14.png`. Đây là kiểm nhập chữ/UI logic trên emulator, không phải speech, âm thanh hay microphone hardware.
 - Đây vẫn là kiểm logic bằng transcript điều khiển; cách nói thật qua mic và mức dễ hiểu của thẻ Plan còn chờ kiểm trên thiết bị.
 
 **Ngày:** 13/10/2026
