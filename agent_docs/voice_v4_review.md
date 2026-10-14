@@ -2,8 +2,16 @@
 
 ## iPhone happy path sau reload — 14/10/2026
 
-- Sau khi reload Expo Go, người dùng xác nhận meter và câu trả lời đều chạy trong một lượt thử iPhone. Đây là báo cáo thành công của một request voice, chưa có gateway log/transcript để xác minh request, text nhận dạng hoặc node khớp độc lập.
+- Sau khi reload Expo Go `exp://192.168.100.36:8089`, người dùng xác nhận lượt voice thứ hai liên tiếp có meter chạy, hiện transcript, câu trả lời đúng và nghe được tiếng. Đây là báo cáo thành công của một request voice follow-up; chưa có gateway log/audio để xác minh độc lập.
 - Giữ lại giới hạn: Expo Go là preview; iOS native build/IPA, retry/quota/network failures và cancel khi request đang chạy chưa được kiểm trên iPhone.
+
+## Smoke gateway contract rerun — 14/10/2026
+
+- `node tools/voice/gateway/smoke_test.mjs` pass: local synthetic clip 19.15 giây, transcript response, invalid-format, duration và silence guards.
+- Bổ sung regression: smoke đợi 1.5 giây sau khi gửi clip, abort POST và chờ server log `REQUEST_CANCELLED` để xác nhận request đã vào ASR; sau đó gửi lượt mới và kiểm HTTP 200, transcript có nội dung, `turnId` mới đúng. Python inference đã bắt đầu vẫn chạy tới khi hoàn tất và tự dọn file; đây là kiểm tra hủy response/turn isolation, không chứng minh dừng compute tức thời hay client iPhone abort.
+- Smoke test gửi request sai content type tới ngưỡng source-IP 12/phút và xác nhận request thứ 13 trả `429 RATE_LIMITED`; không tải thêm audio.
+- `/health` trả `ready`; TCP listener được xác nhận chỉ bind private Wi‑Fi `192.168.100.36:8788` (PID 42408). Không gửi audio cá nhân, không public expose.
+- Đây là gateway contract proof, không thay cho trace/log độc lập hoặc đo mic-to-answer latency trên thiết bị. Báo cáo iPhone thành công của người dùng đã ghi nhận ở trên; audio và gateway log chưa có để xác minh độc lập, nên GV4 device-round-trip evidence còn thiếu.
 
 ## iOS local gateway policy — 14/10/2026
 
@@ -46,4 +54,21 @@ Thông tin `<DEV_LAN_IP>` và `<DEV_LAN_IP>` trong ghi chú cũ là IP Wi‑Fi t
 - Preview hiện chỉ bind trên máy dev/LAN tin cậy qua HTTP; chưa bật HTTPS/auth. Không được port-forward hay public expose gateway. Bất kỳ client trong cùng mạng tin cậy cũng có thể gọi endpoint, dù có rate limit.
 - Chưa xác minh điện thoại gửi file recorder thật, timeout/cancel xuyên suốt app, request khi mất Wi-Fi, hay latency từ bấm Gửi đến transcript trên thiết bị.
 
-**Còn lại:** kiểm app recorder → gateway → worker bằng clip nói trực tiếp trên điện thoại và đo latency đầu-cuối. Public host cần auth/HTTPS, retention và review riêng; chưa được cấp phạm vi đó.
+**Còn lại:** thu trace độc lập cho app recorder → gateway → worker, kiểm các nhánh lỗi và đo latency đầu-cuối trên điện thoại. Public host cần auth/HTTPS, retention và review riêng; chưa được cấp phạm vi đó.
+
+## Smoke test lại gateway — 14/10/2026
+
+- `node tools/voice/gateway/smoke_test.mjs` exit 0: Node 24.14.1, faster-whisper 1.2.1; clip TTS tổng hợp 19.15 giây trả transcript và turn context đúng; invalid-format, 21 giây, dưới 0.5 giây và silence bị từ chối đúng guard.
+- Snapshot tại thời điểm đó: smoke dùng gateway localhost và audio TTS tổng hợp. Metro Expo Go `:8089` chưa nhúng URL gateway; kiểm tra sau này trên `:8081` đã thấy URL, nhưng bundle mới đó chưa được reload trên iPhone.
+
+## Kiểm tra preview và cấu hình STT — 14/10/2026 (snapshot trước bundle `:8081` mới nhất)
+
+- Gateway tại `192.168.100.36:8788` trả `ready`. Gửi clip WAV TTS tổng hợp 19.15s trực tiếp tới endpoint live trả HTTP 200, transcript có nội dung, context echo khớp. Không dùng audio cá nhân.
+- Git-ignored `mobile/.env.local` đã được thêm. Ở snapshot này Metro `:8089` cấp bundle cũ (HTTP 200, 6,062,157 ký tự) nhưng không có URL; lần kiểm tra mới hơn xác nhận bundle iOS trên `:8081` có URL, còn request bundle `:8089` timeout sau 180 giây dù `/status` trả 200. Người dùng báo một lượt thành công trên iPhone qua `:8089`, nhưng chưa reload bundle `:8081`.
+- Snapshot tests: `npm test` 159/159, typecheck, lint và Expo dependency check pass. Báo cáo iPhone và kết quả hiện hành nằm ở các mục mới nhất đầu file; independent device trace, failure paths và latency vẫn pending.
+
+## Kết quả voice thật do người dùng báo — 14/10/2026
+
+- Sau reload Expo Go tại `exp://192.168.100.36:8089`, người dùng xác nhận lượt voice thứ hai hiển thị transcript, ghép đúng câu trả lời và nghe được answer. Ghi nhận một lượt STT→Q&A→playback thật trên iPhone theo báo cáo người dùng; không có raw audio/log/request trace để đối chiếu độc lập.
+- Mobile suite hiện đạt 161/161; typecheck, lint và dependency check đều đạt. Gateway local vẫn dùng faster-whisper 1.2.1.
+- Request lấy manifest Metro từ host timeout trong lần kiểm gần nhất. GV4 còn mở cho trace thiết bị, lỗi mạng/quota/retry, và xác minh preview/config trên lần chạy thực.

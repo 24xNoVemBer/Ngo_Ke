@@ -89,6 +89,7 @@ export function QaScreen({
   const revealAnswer = useRef(false);
   const voiceOptionContext = useRef<VoiceOptionContext | null>(null);
   const lastTrack = useRef<{ id: string; text: string; kind: 'story' | 'answer'; nodeId: string; revision: string } | null>(null);
+  const playbackIntent = useRef(0);
 
   useEffect(() => {
     setAsked(null);
@@ -104,6 +105,7 @@ export function QaScreen({
 
   useEffect(() => {
     if (!isFocused) {
+      playbackIntent.current += 1;
       setIsInputDrawerVisible(false);
       setIsTextVisible(false);
       revealAnswer.current = false;
@@ -191,11 +193,13 @@ export function QaScreen({
     } else {
       voiceOptionContext.current = null;
     }
+    const currentPlaybackIntent = ++playbackIntent.current;
     const playbackStopped = Promise.resolve(voiceSession.stopPlayback());
     if (source === 'voice' && nextMatch.status === 'matched' && currentNode && mode === 'demo') {
       const id = `${nextMatch.entry.id}-answer`;
       lastTrack.current = { id, text: nextMatch.entry.answer, kind: 'answer', nodeId: currentNode.id, revision: datasetRevision };
       void playbackStopped.then((stopped) => {
+        if (currentPlaybackIntent !== playbackIntent.current) return;
         if (stopped !== false) return voiceSession.playTrack(id, nextMatch.entry.answer, 'answer', currentNode.id);
         setVoiceActionCard({ kind: 'notice', message: 'Lời kể chưa dừng hẳn. Hãy thử phát lại sau một chút.' });
       });
@@ -219,6 +223,11 @@ export function QaScreen({
     isFocused,
     onTranscript: handleVoiceTranscript,
   });
+  const playbackError = voiceSession.playbackError ?? (
+    voiceSession.activeTrackId !== null && voiceSession.playback.error
+      ? 'Không mở được bản đọc. Bạn vẫn có thể xem lời kể bằng chữ.'
+      : null
+  );
   const storyTrackId = currentNode ? `${currentNode.id}-story` : 'intro';
   const storyTrack = mode === 'demo' ? voiceTracks[storyTrackId] : undefined;
   const answerTrackId = entry ? `${entry.id}-answer` : '';
@@ -228,6 +237,7 @@ export function QaScreen({
     : undefined;
 
   function requestTrack(id: string, text: string, kind: 'story' | 'answer', nodeId: string, replay = false): void {
+    playbackIntent.current += 1;
     lastTrack.current = { id, text, kind, nodeId, revision: datasetRevision };
     if (replay) void voiceSession.replayTrack(id, text, kind, nodeId);
     else void voiceSession.playTrack(id, text, kind, nodeId);
@@ -397,7 +407,7 @@ export function QaScreen({
                 />
               )}
               {mode === 'live' && <Text style={styles.noDataBody}>Lời kể Live chưa có bản đọc. Bạn vẫn có thể xem nội dung bằng chữ.</Text>}
-              {voiceSession.playbackError && <Text accessibilityRole="alert" style={styles.playbackError}>{voiceSession.playbackError}</Text>}
+              {playbackError && <Text accessibilityRole="alert" style={styles.playbackError}>{playbackError}</Text>}
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={isTextVisible ? 'Thu gọn lời kể' : 'Xem lời kể bằng chữ'}
@@ -674,7 +684,7 @@ export function QaScreen({
                         onStop={voiceSession.stopPlayback}
                       />
                     )}
-                    {voiceSession.playbackError && <Text accessibilityRole="alert" style={styles.playbackError}>{voiceSession.playbackError}</Text>}
+                    {playbackError && <Text accessibilityRole="alert" style={styles.playbackError}>{playbackError}</Text>}
                     <Pressable
                       accessibilityRole="button"
                       accessibilityLabel={isTextVisible ? 'Thu gọn câu trả lời' : 'Xem câu trả lời bằng chữ'}
@@ -696,6 +706,7 @@ export function QaScreen({
                   accessibilityRole="button"
                   accessibilityLabel="Đặt câu hỏi khác"
                   onPress={() => {
+                    playbackIntent.current += 1;
                     void voiceSession.stopPlayback().then((stopped) => {
                       if (stopped === false) setVoiceActionCard({ kind: 'notice', message: 'Lời kể chưa dừng hẳn. Hãy thử lại sau một chút.' });
                     });
@@ -762,7 +773,10 @@ export function QaScreen({
             error={voiceSession.error}
             recordingDurationMs={voiceSession.recordingDurationMs}
             metering={voiceSession.metering}
-            onStartRecording={() => void voiceSession.startRecording()}
+            onStartRecording={() => {
+              playbackIntent.current += 1;
+              void voiceSession.startRecording();
+            }}
             onSubmitRecording={() => void voiceSession.submitRecording()}
             onCancel={voiceSession.cancel}
             onOpenInput={() => setIsInputDrawerVisible(true)}

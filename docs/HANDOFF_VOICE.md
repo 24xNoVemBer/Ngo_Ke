@@ -1,8 +1,8 @@
 # Handoff Voice — Ngõ Kể
 
-> **Cập nhật sau sửa recorder (13/10/2026):** dùng APK/hash, gateway `<DEV_LAN_IP>:8788`, Expo Go `exp://<DEV_LAN_IP>:8087` và giới hạn kiểm thử tại [handoff hiện hành](VOICE_HANDOFF.md). Snapshot cũ ở dưới đã lỗi thời. Authorization V0–V7 vẫn hiệu lực; GV0–GV7 là quality gates nội bộ.
+> **Cập nhật mới nhất — 14/10/2026:** hướng dẫn chạy thử và trạng thái đầy đủ ở [VOICE_HANDOFF.md](VOICE_HANDOFF.md), kết quả kiểm ở [VOICE_TEST_REPORT.md](VOICE_TEST_REPORT.md). `.env.local` trên máy dev đã được cấu hình; Android/iOS JS exports chứa URL gateway. Metro `:8089` vẫn đang cấp bundle cũ thiếu URL, cần restart theo hướng dẫn rồi Reload Expo Go trước khi test STT.
 
-> **Trạng thái mới nhất 13/10/2026:** authorization V0–V7 vẫn có hiệu lực; GV0–GV7 là kiểm tra nội bộ. APK Android (121,233,212 byte; SHA-256 `159EE52016DCC4F5B5B5C9DC697AB4FD20B0294D99B13A64CC74B5DED38F6D98`) đã cài/chạy trên API 37 AVD. Đã sửa codec recorder; upload app→gateway qua được media probe, nhưng AVD không có lời nói nên STT trả `NO_SPEECH`, chưa sinh answer. Gateway local smoke STT tổng hợp pass. Metro/Gateway hiện phục vụ LAN riêng; xem [báo cáo kiểm thử](VOICE_TEST_REPORT.md) và [handoff dùng thử](VOICE_HANDOFF.md). Điện thoại thật/iOS mic-to-answer E2E, nghe tay 34 clip, accessibility/performance vẫn pending. Các ghi chú cũ dưới đây là snapshot lịch sử.
+> Gateway STT local đang ready; clip TTS tổng hợp được nhận dạng qua HTTP 200 với context khớp. Catalogue tự động 34/34 đạt, 159/159 mobile tests và typecheck/lint/dependency check pass. Android AVD đã test recorder/player; iPhone turn-two và mic→STT→Q&A/audio thật, nghe tay 34 clip, accessibility/audio routes/performance vẫn pending. Các ghi chú cũ bên dưới là snapshot lịch sử.
 
 **Cập nhật 13/10/2026:** người dùng đã yêu cầu thiết kế voice/tương tác thật; chọn **nhấn để nói → nghe trả lời → hỏi tiếp**, **nữ miền Bắc ấm tự nhiên**, **STT trực tuyến**; đề xuất **VieNeu** để tránh/giảm phí. Đã có [spec UX](VOICE_INTERACTION_UX_SPEC.md), [storyboard](VOICE_UX_STORYBOARD.png) và [review VieNeu](VOICE_VIENEU_REVIEW.md).
 

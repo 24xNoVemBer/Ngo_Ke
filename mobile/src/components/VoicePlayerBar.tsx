@@ -44,7 +44,13 @@ export function VoicePlayerBar({
           <AppIcon name="stop" size={18} />
         </Pressable>
       </View>
-      <View style={styles.progressTrack} accessible accessibilityLabel={`Tiến trình phát ${Math.round(progress * 100)} phần trăm`}>
+      <View
+        style={styles.progressTrack}
+        accessible
+        accessibilityRole="progressbar"
+        accessibilityLabel={`Tiến trình phát ${Math.round(progress * 100)} phần trăm`}
+        accessibilityValue={{ min: 0, max: 100, now: Math.round(progress * 100) }}
+      >
         <View style={[styles.progressFill, { width: `${Math.round(progress * 100)}%` }]} />
       </View>
     </View>

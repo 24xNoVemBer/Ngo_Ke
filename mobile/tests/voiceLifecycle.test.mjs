@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoiceOnScopeChange } from '../src/voice/appState.ts';
+import { canContinueVoiceStart, isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoiceOnScopeChange } from '../src/voice/appState.ts';
 
 test('native permission dialog does not cancel its pending result', () => {
   assert.equal(shouldCancelVoiceOnAppStateChange('background', true), false);
@@ -11,6 +11,12 @@ test('background, lock or call interruption cancels when a permission prompt is 
   assert.equal(shouldCancelVoiceOnAppStateChange('background', false), true);
   assert.equal(shouldCancelVoiceOnAppStateChange('inactive', false), true);
   assert.equal(shouldCancelVoiceOnAppStateChange('active', false), false);
+});
+
+test('a permission result only continues into recording while the app is active', () => {
+  assert.equal(canContinueVoiceStart('active'), true);
+  assert.equal(canContinueVoiceStart('inactive'), false);
+  assert.equal(canContinueVoiceStart('background'), false);
 });
 
 test('changing chapter, mode or dataset revision invalidates the active voice scope', () => {

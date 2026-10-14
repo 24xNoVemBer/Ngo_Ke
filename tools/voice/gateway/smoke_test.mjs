@@ -34,9 +34,16 @@ const port = await reserveLocalPort();
 const child = spawn(process.execPath, [gateway], {
   cwd: root,
   env: { ...process.env, NGOKE_VOICE_HOST: '127.0.0.1', NGOKE_VOICE_PORT: String(port) },
-  stdio: ['ignore', 'ignore', 'pipe'],
+  stdio: ['ignore', 'pipe', 'pipe'],
 });
 let stderr = '';
+let stdout = '';
+let cancellationLogResolve;
+const cancellationLogged = new Promise((resolve) => { cancellationLogResolve = resolve; });
+child.stdout.on('data', (chunk) => {
+  stdout = (stdout + String(chunk)).slice(-4_000);
+  if (stdout.includes('code=REQUEST_CANCELLED')) cancellationLogResolve();
+});
 child.stderr.on('data', (chunk) => { stderr = (stderr + String(chunk)).slice(-2_000); });
 const baseUrl = `http://127.0.0.1:${port}`;
 
@@ -75,6 +82,43 @@ try {
   assert.ok(result.durationSeconds > 0);
   assert.ok(typeof result.text === 'string' && result.text.length > 0);
 
+  const cancelled = new AbortController();
+  const cancelMeta = { ...expected, turnId: `gateway-cancel-${Date.now()}` };
+  const cancelForm = new FormData();
+  cancelForm.append('audio', new Blob([bytes], { type: 'audio/wav' }), 'cancelled-synthetic-intro.wav');
+  for (const [key, value] of Object.entries(cancelMeta)) cancelForm.append(key, value);
+  const cancelledRequest = fetch(`${baseUrl}/v1/transcribe`, {
+    method: 'POST', body: cancelForm, signal: cancelled.signal,
+  });
+  const cancelTimer = setTimeout(() => cancelled.abort(), 1_500);
+  try {
+    await assert.rejects(cancelledRequest, (error) => error.name === 'AbortError');
+  } finally {
+    clearTimeout(cancelTimer);
+  }
+  let cancellationWaitTimer;
+  try {
+    await Promise.race([
+      cancellationLogged,
+      new Promise((_, reject) => {
+        cancellationWaitTimer = setTimeout(() => reject(new Error(`Gateway did not log an active ASR cancellation: ${stdout}`)), 5_000);
+      }),
+    ]);
+  } finally {
+    clearTimeout(cancellationWaitTimer);
+  }
+
+  const retryMeta = { ...expected, turnId: `gateway-after-cancel-${Date.now()}` };
+  const retryForm = new FormData();
+  retryForm.append('audio', new Blob([bytes], { type: 'audio/wav' }), 'retry-synthetic-intro.wav');
+  for (const [key, value] of Object.entries(retryMeta)) retryForm.append(key, value);
+  const retryResponse = await fetch(`${baseUrl}/v1/transcribe`, { method: 'POST', body: retryForm });
+  const retryResult = await retryResponse.json();
+  assert.equal(retryResponse.status, 200, JSON.stringify(retryResult));
+  assert.equal(retryResult.turnId, retryMeta.turnId);
+  assert.equal(retryResult.nodeId, retryMeta.nodeId);
+  assert.ok(typeof retryResult.text === 'string' && retryResult.text.length > 0);
+
   const invalid = new FormData();
   invalid.append('audio', new Blob([bytes], { type: 'audio/mp4' }), 'wrong-format.m4a');
   for (const [key, value] of Object.entries({ ...expected, turnId: `invalid-${Date.now()}` })) invalid.append(key, value);
@@ -103,7 +147,23 @@ try {
   assert.equal(silenceResponse.status, 422);
   assert.equal((await silenceResponse.json()).code, 'NO_SPEECH');
 
-  process.stdout.write(`Voice gateway smoke passed: Node ${health.node}, ${health.engine}, ${result.durationSeconds}s local synthetic clip; invalid-format, duration and silence guards passed.\n`);
+  let rateLimited = false;
+  for (let attempt = 0; attempt < 13 && !rateLimited; attempt += 1) {
+    const quotaResponse = await fetch(`${baseUrl}/v1/transcribe`, {
+      method: 'POST', headers: { 'content-type': 'text/plain' }, body: 'invalid',
+    });
+    const quotaResult = await quotaResponse.json();
+    if (quotaResponse.status === 429) {
+      assert.equal(quotaResult.code, 'RATE_LIMITED');
+      rateLimited = true;
+    } else {
+      assert.equal(quotaResponse.status, 415);
+      assert.equal(quotaResult.code, 'UNSUPPORTED_CONTENT_TYPE');
+    }
+  }
+  assert.equal(rateLimited, true, 'The source IP quota must reject the request after 12 requests per minute');
+
+  process.stdout.write(`Voice gateway smoke passed: Node ${health.node}, ${health.engine}, ${result.durationSeconds}s local synthetic clip; abort/retry, quota, invalid-format, duration and silence guards passed.\n`);
 } finally {
   child.kill('SIGTERM');
 }

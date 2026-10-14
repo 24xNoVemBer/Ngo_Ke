@@ -40,6 +40,7 @@ The app requires every context field to equal the active turn before using `text
 - Raw multipart body: 16 MiB maximum; audio file: 12 MiB maximum.
 - Actual stream duration: 0.5–20 seconds; sample rate 8–96 kHz; 1–2 channels; AAC or PCM WAV only. The app stops capture at 20 seconds and waits for the user to tap Gửi; the gateway independently enforces the same duration.
 - Per source IP: 12 requests per minute; no more than two ASR jobs in flight; each ASR request times out after 45 seconds.
+- If the client disconnects during ASR, the gateway drops that request from the response map. The persistent Python worker cannot preempt a transcription already running; it finishes that clip, its result is ignored, and the worker removes the temporary file in `finally`. A retry is a new user turn with new context.
 - Input bytes, MIME type, codec, sample rate, channel count, and duration are validated server-side. Client-reported duration and filename are not trusted.
 - Temporary probe files are deleted in `finally`; the Python worker deletes its temporary clip after transcription. The model cache remains local for reuse.
 - Logs contain status, error code, and elapsed time only. They do not contain audio, transcript, filename, or request fields.

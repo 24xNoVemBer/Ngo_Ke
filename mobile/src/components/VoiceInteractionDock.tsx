@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, type ReactElement } from 'react';
+import { AccessibilityInfo, ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppIcon } from './AppIcon';
 import type { VoiceStage } from '../voice/useVoiceSession';
 import { meteringToLevel } from '../voice/metering';
@@ -28,6 +28,15 @@ export function VoiceInteractionDock({
 }: Props): ReactElement {
   const level = meteringToLevel(metering);
   const busy = stage === 'preparing' || stage === 'stopping' || stage === 'transcribing';
+
+  useEffect(() => {
+    const announcement = stage === 'preparing' ? 'Đang bật micro.'
+      : stage === 'recording' ? 'Đang thu câu hỏi. Chạm Gửi để kết thúc hoặc Hủy bản ghi.'
+        : stage === 'ready' ? 'Đã thu xong. Chạm Gửi để hỏi tiếp hoặc Hủy bản ghi.'
+          : stage === 'stopping' ? 'Đang lưu câu nói.'
+            : stage === 'transcribing' ? 'Đang xử lý câu hỏi.' : null;
+    if (announcement) AccessibilityInfo.announceForAccessibility(announcement);
+  }, [stage]);
 
   return (
     <View style={styles.dock} accessibilityRole="toolbar" accessibilityLabel="Hỏi người kể">
@@ -142,7 +151,7 @@ const styles = StyleSheet.create({
   textButton: { minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center', gap: 1, borderRadius: 14, paddingHorizontal: 6 },
   textButtonLabel: { color: '#FFFDF7', fontSize: 11, fontWeight: '600' },
   quickButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 14, backgroundColor: '#31483A' },
-  cancelLink: { alignSelf: 'flex-end', minHeight: 40, justifyContent: 'center', paddingHorizontal: 10 },
+  cancelLink: { alignSelf: 'flex-end', minHeight: 48, justifyContent: 'center', paddingHorizontal: 10 },
   cancelText: { color: '#E8DCC0', fontSize: 13, fontWeight: '600' },
   error: { color: '#F3D4BF', fontSize: 13, lineHeight: 18, paddingHorizontal: 6, paddingTop: 6 },
   pressed: { opacity: 0.7 },

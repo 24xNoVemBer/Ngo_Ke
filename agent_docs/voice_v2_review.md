@@ -24,3 +24,8 @@
 - Metro Expo Go đang phục vụ iOS bundle HTTP 200 qua LAN; gateway đã sẵn sàng. Dừng lời đọc tắt loop và pause, không chờ seek native; lần phát tiếp theo nạp track từ đầu. Recorder trên Android AVD vẫn mở lại được sau Hủy, nhưng chưa chứng minh lượt iPhone sau khi nhận đáp án. Kiểm tra loa/tai nghe/Bluetooth, silent mode, lock/background/cuộc gọi, Reduce Motion, VoiceOver/TalkBack, độ mượt và playback trên iPhone vẫn còn chờ.
 
 **Còn lại:** trên điện thoại thật nghe intro/story/answer và lặp lại player/back/đổi điểm; xác nhận route loa/tai nghe và kiểm iOS nếu có. Không gọi emulator là nghiệm thu phần nghe ngoài đời.
+
+## Recheck bundle iOS hiện tại — 14/10/2026
+
+- Expo Go LAN `:8089/status` và iOS bundle đều trả HTTP 200; bundle 6,068,742 byte có guard `keepAudioSessionActive` và playback intent mới.
+- Bundle này không chứa URL gateway, nên chỉ có thể kiểm player/mic/meter; playback route và lượt hỏi tiếp trên iPhone vẫn pending.

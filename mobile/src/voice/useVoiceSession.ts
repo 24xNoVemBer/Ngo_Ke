@@ -5,7 +5,7 @@ import { AppState } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import { File } from 'expo-file-system';
 import { voiceTracks, voiceCatalogueRevision } from './catalog';
-import { isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoiceOnScopeChange } from './appState';
+import { canContinueVoiceStart, isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoiceOnScopeChange } from './appState';
 import { prepareVoiceRecorderForTurn, startVoiceRecorder } from './recorderPreparation';
 import { hasReachedVoiceRecordingLimit } from './recordingLimit';
 import { createVoiceRequestBody, transcribeVoiceRequest } from './transcribe';
@@ -45,7 +45,7 @@ function messageForError(code: string): string {
   if (code === 'AUDIO_PLAYER_STOP_TIMEOUT') return 'Lời kể chưa dừng hẳn. Hãy thử lại sau một chút.';
   if (code === 'AUDIO_TOO_LONG') return 'Câu nói dài quá. Hãy chia thành một câu hỏi ngắn hơn.';
   if (code === 'NO_SPEECH') return 'Mình chưa nghe thấy lời nói rõ. Hãy thử lại gần micro hơn.';
-  if (code === 'VOICE_NOT_CONFIGURED') return 'Chưa kết nối máy nhận giọng nói. Bạn có thể gõ câu hỏi thay thế.';
+  if (code === 'VOICE_NOT_CONFIGURED') return 'Bản thử chưa cấu hình máy nhận giọng nói. Hãy mở lại Expo Go theo hướng dẫn, hoặc gõ câu hỏi thay thế.';
   if (code === 'ASR_TIMEOUT') return 'Nhận dạng mất quá lâu. Hãy thử lại khi kết nối ổn định.';
   if (code === 'ASR_UNAVAILABLE') return 'Máy nhận dạng giọng nói chưa chạy. Hãy thử lại sau.';
   if (code === 'ASR_BUSY') return 'Máy nhận dạng đang bận. Chờ một chút rồi thử lại nhé.';
@@ -65,7 +65,8 @@ function removeRecording(uri: string | null | undefined): void {
 }
 
 export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevision, isFocused, onTranscript }: Options) {
-  const player = useAudioPlayer(null, { updateInterval: 200 });
+  // Keep iOS audio active across pause so Expo's delayed deactivation cannot silence the next recording.
+  const player = useAudioPlayer(null, { updateInterval: 200, keepAudioSessionActive: true });
   const playback = useAudioPlayerStatus(player);
   const recorder = useAudioRecorder(voiceRecordingOptions);
   const recording = useAudioRecorderState(recorder, 100);
@@ -142,10 +143,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
       permissionPendingRef.current = false;
       if (!isCurrentTurn()) return;
       if (!permission.granted) throw new Error('MIC_PERMISSION_DENIED');
-      if (AppState.currentState !== 'active') {
-        turnRef.current = null;
-        return;
-      }
+      if (!canContinueVoiceStart(AppState.currentState)) throw new Error('RECORDER_START_FAILED');
       const prepared = await prepareVoiceRecorderForTurn({
         isCurrent: isCurrentTurn,
         enableAudioMode: () => setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true }),

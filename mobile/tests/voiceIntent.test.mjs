@@ -37,10 +37,40 @@ test('negation, multiple topics, multiple durations and out-of-range values neve
   assert.ok(parseVoiceIntent('Chọn trải nghiệm ẩm thực và chuyện xưa trong 30 phút').ambiguous);
   assert.ok(parseVoiceIntent('Chọn trải nghiệm ẩm thực trong 30 hay 45 phút').ambiguous);
   assert.ok(parseVoiceIntent('Chọn trải nghiệm ẩm thực trong 181 phút').ambiguous);
-  assert.deepEqual(parseVoiceIntent('nhắc người thứ ba', true, { topic: 'an thuc', budgetMinutes: 30 }), {
-    type: 'plan', draft: { topic: 'an thuc', budgetMinutes: 30 },
-  });
+  const unsupportedPlanText = parseVoiceIntent('nhắc người thứ ba', true, { topic: 'an thuc', budgetMinutes: 30 });
+  assert.equal(unsupportedPlanText.type, 'plan');
+  if (unsupportedPlanText.type !== 'plan') return;
+  assert.equal(unsupportedPlanText.draft.topic, undefined);
+  assert.equal(unsupportedPlanText.draft.budgetMinutes, undefined);
+  assert.match(unsupportedPlanText.ambiguous ?? '', /chủ đề hoặc thời lượng/);
   assert.deepEqual(parseVoiceIntent('không dừng nghe'), { type: 'question' });
+  assert.deepEqual(parseVoiceIntent('Chương kế là gì?', true, { topic: 'an thuc', budgetMinutes: 30 }), { type: 'question' });
+});
+
+test('ambiguous slots clear stale draft values but keep an independently understood slot', () => {
+  const negatedTopic = parseVoiceIntent('Chọn trải nghiệm không muốn ẩm thực trong 30 phút', false, {
+    topic: 'an thuc', budgetMinutes: 45,
+  });
+  assert.equal(negatedTopic.type, 'plan');
+  if (negatedTopic.type !== 'plan') return;
+  assert.equal(negatedTopic.draft.topic, undefined);
+  assert.equal(negatedTopic.draft.budgetMinutes, 30);
+  assert.match(negatedTopic.ambiguous ?? '', /phủ định/);
+
+  const ambiguousBudget = parseVoiceIntent('30 hay 45 phút', true, { topic: 'an thuc', budgetMinutes: 15 });
+  assert.equal(ambiguousBudget.type, 'plan');
+  if (ambiguousBudget.type !== 'plan') return;
+  assert.equal(ambiguousBudget.draft.topic, 'an thuc');
+  assert.equal(ambiguousBudget.draft.budgetMinutes, undefined);
+  assert.match(ambiguousBudget.ambiguous ?? '', /thời lượng/);
+
+  const bothAmbiguous = parseVoiceIntent('Chọn trải nghiệm ẩm thực và chuyện xưa trong 30 hay 45 phút', false, {
+    topic: 'an thuc', budgetMinutes: 15,
+  });
+  assert.equal(bothAmbiguous.type, 'plan');
+  if (bothAmbiguous.type !== 'plan') return;
+  assert.equal(bothAmbiguous.draft.topic, undefined);
+  assert.equal(bothAmbiguous.draft.budgetMinutes, undefined);
 });
 
 test('first-option references need options from the current point and dataset revision', () => {

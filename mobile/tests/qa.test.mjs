@@ -38,6 +38,30 @@ test('alias and differently written question return the same entry', () => {
   assert.equal(shouted.matchedOn, 'question');
 });
 
+test('all 21 questions and aliases resolve only within their owning chapter', () => {
+  assert.equal(fixture.qa.length, 21);
+  assert.deepEqual(
+    [...new Set(fixture.qa.map((entry) => entry.nodeId))].sort(),
+    ['demo-01', 'demo-02', 'demo-03', 'demo-04', 'demo-05', 'demo-06'],
+  );
+
+  for (const entry of fixture.qa) {
+    const chapterEntries = fixture.qa.filter((candidate) => candidate.nodeId === entry.nodeId);
+    for (const prompt of [entry.question, ...entry.aliases]) {
+      const match = findAnswer(chapterEntries, prompt);
+      assert.equal(match.status, 'matched', `${entry.id}: ${prompt}`);
+      assert.equal(match.entry.id, entry.id, `${entry.id}: ${prompt}`);
+      assert.equal(match.entry.nodeId, entry.nodeId, `${entry.id}: ${prompt}`);
+      assert.equal(match.entry.answer, entry.answer, `${entry.id}: ${prompt}`);
+    }
+
+    for (const otherNode of fixture.nodes.filter((node) => node.id !== entry.nodeId)) {
+      const otherChapter = fixture.qa.filter((candidate) => candidate.nodeId === otherNode.id);
+      assert.equal(findAnswer(otherChapter, entry.question).status, 'unknown', `${entry.id} leaked to ${otherNode.id}`);
+    }
+  }
+});
+
 test('question outside the approved list returns unknown with no answer', () => {
   for (const text of ['mua bao nhieu', 'cho em xin dia chi wifi', '   ', 'ban co quan an khong']) {
     const match = findAnswer(fixture.qa, text);

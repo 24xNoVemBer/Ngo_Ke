@@ -102,7 +102,7 @@ export function parseVoiceIntent(input: string, collectingPlan = false, currentD
       : command ? rawQuestionBefore(input, command[0]).trim() : input;
     return { type: 'clarify', message: 'Bạn muốn nghe câu trả lời hay thực hiện thao tác vừa nói?', options: ['answer', 'action'], questionText, actionText: command?.[0] ?? text, action };
   }
-  if (question && !planCommand && !collectingPlan) return { type: 'question' };
+  if (question && !planCommand) return { type: 'question' };
 
   if (!planCommand && !collectingPlan) {
     if (FIRST_OPTION.test(text)) return { type: 'question' };
@@ -112,16 +112,21 @@ export function parseVoiceIntent(input: string, collectingPlan = false, currentD
   const topics = topicsIn(text);
   const durations = durationValues(text);
   let ambiguous: string | undefined;
-  if (topics.length > 1) ambiguous = 'Mình nghe thấy hơn một chủ đề. Hãy chọn một chủ đề bên dưới.';
-  else if (topics.length > 0 && isNegatedTopic(text)) ambiguous = 'Mình không muốn tự chọn chủ đề khi câu có lời phủ định. Hãy chạm một chủ đề bên dưới.';
+  const noPlanSlots = collectingPlan && !planCommand && topics.length === 0 && durations?.length === 0;
+  const ambiguousTopic = noPlanSlots || topics.length > 1 || (topics.length > 0 && isNegatedTopic(text));
+  const ambiguousBudget = noPlanSlots || durations === undefined || durations.length > 1
+    || (durations.length === 1 && (durations[0] < 1 || durations[0] > 180));
+  if (noPlanSlots) ambiguous = 'Mình chưa nghe thấy chủ đề hoặc thời lượng. Hãy chọn lại bên dưới.';
+  else if (topics.length > 1) ambiguous = 'Mình nghe thấy hơn một chủ đề. Hãy chọn một chủ đề bên dưới.';
+  else if (ambiguousTopic) ambiguous = 'Mình không muốn tự chọn chủ đề khi câu có lời phủ định. Hãy chạm một chủ đề bên dưới.';
   else if (durations === undefined) ambiguous = 'Mình chưa hiểu thời lượng. Hãy chọn số phút bên dưới.';
   else if (durations.length > 1) ambiguous = 'Mình nghe thấy hơn một khoảng thời gian. Hãy chọn một mức bên dưới.';
-  else if (durations.length === 1 && (durations[0] < 1 || durations[0] > 180)) ambiguous = 'Thời lượng cần từ 1 đến 180 phút. Hãy chọn lại bên dưới.';
+  else if (ambiguousBudget) ambiguous = 'Thời lượng cần từ 1 đến 180 phút. Hãy chọn lại bên dưới.';
 
   const detectedTopic = topics.length === 1 ? parseTopic(TOPIC_LABELS[topics[0]]) : undefined;
-  const topic = ambiguous ? currentDraft.topic : detectedTopic ?? currentDraft.topic;
+  const topic = ambiguousTopic ? undefined : detectedTopic ?? currentDraft.topic;
   const spokenMinutes = durations?.length === 1 && durations[0] >= 1 && durations[0] <= 180 ? durations[0] : undefined;
-  const budgetMinutes = ambiguous ? currentDraft.budgetMinutes : spokenMinutes ?? currentDraft.budgetMinutes;
+  const budgetMinutes = ambiguousBudget ? undefined : spokenMinutes ?? currentDraft.budgetMinutes;
   if (planCommand && question && !ambiguous) {
     return { type: 'clarify', message: 'Bạn muốn hỏi về trải nghiệm hay mở phần chọn hành trình?', options: ['answer', 'action'], questionText: input, actionText: text, action: 'plan' };
   }

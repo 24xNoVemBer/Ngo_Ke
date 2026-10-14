@@ -22,4 +22,4 @@ Run the local end-to-end check after installing the model and FFmpeg:
 node tools/voice/gateway/smoke_test.mjs
 ```
 
-It starts the worker on loopback, sends a locally generated synthetic clip, verifies the response context and transcript, and checks that a media-signature mismatch is rejected.
+It starts the worker on loopback, sends a locally generated synthetic clip, verifies the response context and transcript, aborts a transcription and confirms the next turn succeeds, checks format/duration/silence guards, and exhausts the source-IP quota to verify `429 RATE_LIMITED`.

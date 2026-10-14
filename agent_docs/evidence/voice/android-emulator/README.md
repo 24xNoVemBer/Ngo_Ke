@@ -1,12 +1,32 @@
 # Ngõ Kể voice — Android emulator evidence
 
+## APK mới nhất sau sửa parser V6 — 14/10/2026
+
+- APK release đã build: 121,246,156 byte, SHA-256 `301F0654052A537324A08240F02C1DA223D99EBACCD841A573A20C3375B0EE36`.
+- `:app:assembleRelease --offline --no-daemon --max-workers=1` thành công trong 2m25s. Kiểm ZIP/Hermes xác nhận bundle có parser V6 mới, URL gateway và đủ 34 MP3.
+- APK mới chưa cài/chạy trên AVD; AVD đang dừng. Đây là build/bundle verification, không phải bằng chứng UI/native/device.
+
+## APK đã kiểm trên AVD trước sửa parser V6: audio-error fallback — 14/10/2026
+
+- APK: 121,245,916 byte, SHA-256 `6D669446EE36B0224394DCC6F66B30A6EEF0639E004F0404F5398E7C08373FBE`.
+- APK cài/mở trên AVD API 37; đi qua Landing → Home → chọn Ngõ Phất Lộc → Q&A điểm 01. Ảnh native: `android37-release-after-async-playback-error-fix-2026-10-14.png`, `android37-release-home-after-async-playback-error-fix-2026-10-14.png`, `android37-release-explore-after-audio-fix-2026-10-14.png`, `android37-release-alley-after-audio-fix-2026-10-14.png`, `android37-release-qa-after-audio-fix-2026-10-14.png`.
+- Hermes bytecode trong APK chứa URL gateway `192.168.100.36:8788` và fallback mới cho lỗi load/phát audio. UI regression xác nhận thông báo được đọc bằng accessibility alert, không lộ native error/path.
+- Không có `ReactNativeJS` error sau launch. AVD chạy `-no-audio`; lần này không kiểm mic/STT, âm thanh nghe được hay native audio-load failure. UI error được kiểm tự động, không giả làm test hardware.
+
+## APK trước đó: recorder start/cancel và stress — 14/10/2026
+
+- APK: 121,245,884 byte, SHA-256 `0F43437B6B29D5AF9A7C750E746D1FE731F45A1808778DD6AC8925972FDF53F9`; cài trên AVD API 37.
+- Mic start hiển thị Đang thu · 00:02 và AppOps báo RECORD_AUDIO đang running. Bấm Hủy khoảng 0,8 giây sau: AppOps không còn running, duration 0,807 giây, accessibility tree trở lại nút mic idle.
+- Bằng chứng: android37-current-release-mic-active-2026-10-14.png, android37-current-release-mic-explicit-cancel-2026-10-14.png.
+- 20 vòng start/Hủy trên build này đều pass AppOps (20/20 start running, 20/20 đã dừng), cuối lượt idle; không gửi audio. Không fatal/ReactNativeJS error. PSS 168,357 KB trước, 182,101 KB ngay sau và 171,789 KB sau 12 giây idle; số này không chứng minh không có leak. Đây chỉ là emulator lifecycle check, không phải speech/STT test.
+
 **Device:** AVD `Medium_Phone_API_37.0`, Android API 37, 1080 × 2400 capture.
 **Build:** `mobile/android/app/build/outputs/apk/release/app-release.apk`, internal debug-signed release build.
 **Gateway URL in the current LAN preview APK:** `http://<DEV_LAN_IP>:8788`.
 
 These are screenshots of the native React Native app running on the emulator, not the SVG/PNG design comps. Playback duration/progress and recorder duration are native runtime values. The current mic lifecycle was tested, but no recorded audio was uploaded to the gateway.
 
-## Latest build launch smoke — 14/10/2026
+## Previous build launch/player smoke — 14/10/2026
 
 - APK: 121,235,376 bytes, SHA-256 `20154EE9B845396E43ED7F76AAD5AFD9C3639A870E017D23FF670E469E531773`.
 - Installed on the API 37 AVD, opened to the Ngõ Kể landing screen, then navigated through Home and AlleySelect to point 01. Screenshots: `android37-latest-build-launch-2026-10-14.png`, `android37-latest-build-home-2026-10-14.png`, `android37-latest-build-alleyselect-2026-10-14.png`, `android37-latest-build-qa-2026-10-14.png`.
@@ -91,3 +111,23 @@ This evidence does not verify phone speakers/headphones, mic recording or codec,
 - `android-api37-current-preview-2026-10-14.png` shows the current Expo Go Q&A screen with the answer player, follow-up and idle voice dock.
 - `android-api37-second-recording-2026-10-14.png` shows an active second recording at `00:02` with the real recorder meter visible. The sequence played the existing answer, started recording, canceled, then started again and canceled; the clip was not sent to the gateway.
 - The Expo Go Android bundle was fetched over LAN (HTTP 200, 5,512,748 bytes) and contains `http://192.168.100.36:8788` plus the awaited playback-stop code. The iOS bundle was also fetched (HTTP 200, 6,052,756 bytes). Neither export nor emulator run proves the physical iPhone second-turn case.
+
+## Release player-to-mic re-entry — 14/10/2026
+
+- Fresh release APK `mobile/android/app/build/outputs/apk/release/app-release.apk`: 121,244,960 bytes, SHA-256 `AC05A7E98F4A42B51021D2FFF554091764766FB5033ADABD901D5AE5BC4D7831`; build succeeded (377 tasks, 30 executed, 347 up-to-date) and was installed/launched on Android API 37 AVD.
+- Native UI sequence on the explicitly verified package `com.valentino241.ngokedemo`: the story player reached `00:00` with Pause visible, then a mic tap stopped playback and entered `Đang thu · 00:01` with a live meter; Cancel returned the dock to idle. Evidence: `android37-com-player-playing-2026-10-14.png`, `android37-com-mic-recording-2026-10-14.png`, and `android37-com-mic-cancelled-2026-10-14.png`. No recording was submitted.
+- This APK had no gateway URL configured, so this is only native Android player/recorder handoff evidence. It does not test spoken Vietnamese, STT, Q&A, the second submitted turn, or the user's iPhone issue. The latest logcat sample had no fatal/ReactNativeJS errors.
+- With Android microphone permission revoked, the OS permission prompt appeared; choosing “Don’t allow” showed the app fallback “Ngõ Kể chưa được cấp quyền dùng micro. Bạn có thể gõ câu hỏi thay thế.” Granting the permission again through the emulator and tapping Retry started recording with a live meter; Cancel returned idle. No audio was submitted. The recovery screenshot is `android37-permission-recovery-2026-10-14.png`.
+
+## Repeated player-to-mic re-entry — 14/10/2026
+
+- On the same release APK and package, started the story player, tapped the mic, and verified the player stopped while the recorder entered `Đang thu · 00:01` with a non-zero native meter. Canceled, played the story again, and repeated the handoff; the second recording also reached `Đang thu` with the meter visible.
+- Evidence: `android37-release-player-before-recorder-2026-10-14.png`, `android37-release-player-to-mic-first-active-2026-10-14.png`, and `android37-release-player-to-mic-second-active-2026-10-14.png`.
+- Android microphone permission was granted. Neither clip was submitted, and no speech/STT or answer turn was exercised. This does not reproduce or clear the user's physical iPhone failure.
+
+## Current source Android release — 14/10/2026
+
+- Rebuilt from the current source: 121,245,024 bytes, SHA-256 `22039D2628A20AFBB5B7293AD7CA89828CA65A0A621C21AA2D0DED0D9580D80A`. Installed and launched on API 37 AVD.
+- In Q&A point 01, played the bundled answer, tapped mic, and observed `Đang thu · 00:02` with a non-zero recorder meter; canceled. Started mic a second time and again saw the meter; canceled. AppOps reported `RECORD_AUDIO` running while recording and returned to idle after cancel. No audio was submitted.
+- Screens: `android37-current-build-launch-2026-10-14.png`, `android37-current-build-home-2026-10-14.png`, `android37-current-build-alley-2026-10-14.png`, `android37-current-build-qa-2026-10-14.png`, `android37-current-build-answer-playing-2026-10-14.png`, `android37-current-build-meter-active-2026-10-14.png`, and `android37-current-build-second-meter-active-2026-10-14.png`.
+- APK has no STT gateway URL; this is Android player/recorder regression evidence only. It does not verify speech recognition, second submitted answer, iPhone/iOS audio-session behavior, physical routes or performance.

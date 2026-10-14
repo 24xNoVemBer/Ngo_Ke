@@ -57,6 +57,7 @@ function mount(file, props = {}, overrides = {}, exportName) {
     react,
     'react/jsx-runtime': { jsx: element, jsxs: element },
     'react-native': new Proxy({
+      AccessibilityInfo: overrides.__accessibilityInfo ?? { announceForAccessibility() {} },
       StyleSheet: { create: (styles) => styles, absoluteFill: {} },
       Platform: { OS: 'android' },
       Keyboard: { dismiss() {} },
@@ -354,6 +355,120 @@ test('voice answers play catalogue audio only in Demo and explain the Live text 
   live.view.unmount();
 });
 
+test('native playback errors show an accessible text fallback without exposing native details', () => {
+  const nativeError = 'Failed to open /private/audio-clip.mp3';
+  const voiceSession = {
+    stage: 'idle', error: null, recordingDurationMs: 0, metering: -60,
+    playback: { playing: false, currentTime: 0, duration: 0, error: nativeError },
+    activeTrackId: 'demo-01-story', playbackError: null,
+    startRecording() {}, submitRecording() {}, cancel() {}, stopPlayback() {}, playTrack() {}, replayTrack() {},
+  };
+  const view = mount('../src/screens/QaScreen.tsx', {
+    dataset: fixture, mode: 'demo', datasetRevision: 'rev-1', currentNodeId: 'demo-01',
+    onSelectNode() {}, onReadNode() {}, readNodeIds: new Set(), onOpenNotebook() {},
+  }, {
+    '../voice/useVoiceSession': { useVoiceSession: () => voiceSession },
+    '../voice/catalog': {
+      voiceCatalogueRevision: 'fixture-revision',
+      voiceTracks: { 'demo-01-story': { kind: 'story', nodeId: 'demo-01', source: {}, textHash: 'hash', durationSeconds: 12 } },
+    },
+  });
+  const tree = view.render();
+  const alerts = elements(tree, 'Text').filter((item) => item.props.accessibilityRole === 'alert');
+  assert.ok(alerts.some((item) => item.props.children === 'Không mở được bản đọc. Bạn vẫn có thể xem lời kể bằng chữ.'));
+  assert.equal(JSON.stringify(tree).includes(nativeError), false);
+  view.unmount();
+});
+
+test('voice transcripts route every canonical answer to its owning chapter audio', async () => {
+  for (const node of fixture.nodes) {
+    const entries = fixture.qa.filter((entry) => entry.nodeId === node.id);
+    const played = [];
+    let transcript;
+    const props = {
+      dataset: fixture,
+      mode: 'demo',
+      datasetRevision: 'rev-1',
+      currentNodeId: node.id,
+      onSelectNode() {},
+      onReadNode() {},
+      readNodeIds: new Set(),
+      onOpenNotebook() {},
+    };
+    const view = mount('../src/screens/QaScreen.tsx', props, {
+      '../voice/useVoiceSession': { useVoiceSession: (options) => {
+        transcript = options.onTranscript;
+        return {
+          stage: 'idle', error: null, recordingDurationMs: 0, metering: -60,
+          playback: { playing: false, currentTime: 0, duration: 0 }, activeTrackId: null, playbackError: null,
+          startRecording() {}, submitRecording() {}, cancel() {}, stopPlayback() {},
+          playTrack(...args) { played.push(args); }, replayTrack() {},
+        };
+      } },
+    });
+    view.render();
+
+    for (const [index, entry] of entries.entries()) {
+      transcript(entry.question, {
+        turnId: `${node.id}-${index}`,
+        scope: `demo:rev-1:${node.id}`,
+        nodeId: node.id,
+        mode: 'demo',
+        datasetRevision: 'rev-1',
+      });
+      await Promise.resolve();
+      assert.deepEqual(played.at(-1), [`${entry.id}-answer`, entry.answer, 'answer', node.id]);
+      view.render();
+    }
+
+    const foreignEntry = fixture.qa.find((entry) => entry.nodeId !== node.id);
+    transcript(foreignEntry.question, {
+      turnId: `${node.id}-foreign`,
+      scope: `demo:rev-1:${node.id}`,
+      nodeId: node.id,
+      mode: 'demo',
+      datasetRevision: 'rev-1',
+    });
+    await Promise.resolve();
+    assert.equal(played.length, entries.length, `${node.id} must not play another chapter's answer`);
+    view.unmount();
+  }
+});
+
+test('a new mic turn cancels a pending automatic answer playback', async () => {
+  let transcript;
+  let finishStop;
+  let starts = 0;
+  const played = [];
+  const playbackStopped = new Promise((resolve) => { finishStop = resolve; });
+  const view = mount('../src/screens/QaScreen.tsx', {
+    dataset: fixture, mode: 'demo', datasetRevision: 'rev-1', currentNodeId: 'demo-01',
+    onSelectNode() {}, onReadNode() {}, readNodeIds: new Set(), onOpenNotebook() {},
+  }, {
+    '../voice/useVoiceSession': { useVoiceSession: (options) => {
+      transcript = options.onTranscript;
+      return {
+        stage: 'idle', error: null, recordingDurationMs: 0, metering: -60,
+        playback: { playing: false, currentTime: 0, duration: 0 }, activeTrackId: null, playbackError: null,
+        startRecording() { starts++; }, submitRecording() {}, cancel() {}, stopPlayback: () => playbackStopped,
+        playTrack(...args) { played.push(args); }, replayTrack() {},
+      };
+    } },
+  });
+  view.render();
+  transcript(fixture.qa[0].question, {
+    turnId: 'turn-1', scope: 'demo:rev-1:demo-01', nodeId: 'demo-01', mode: 'demo', datasetRevision: 'rev-1',
+  });
+  const dock = elements(view.render(), 'VoiceInteractionDock')[0].props;
+  dock.onStartRecording();
+  finishStop(true);
+  await Promise.resolve();
+
+  assert.equal(starts, 1);
+  assert.equal(played.length, 0, 'the prior turn must not restart answer audio over the new microphone session');
+  view.unmount();
+});
+
 test('voice answer auto-play is blocked and explained if the old playback does not stop', async () => {
   let transcript;
   const played = [];
@@ -379,6 +494,55 @@ test('voice answer auto-play is blocked and explained if the old playback does n
 
   assert.equal(played.length, 0);
   view.unmount();
+});
+
+test('voice playback and recording expose accessible progress values and a full-size cancel target', () => {
+  const player = mount('../src/components/VoicePlayerBar.tsx', {
+    label: 'Lời kể chương một', active: true, playing: false,
+    currentTime: 30, duration: 120, measuredDuration: 0,
+    onPlay() {}, onReplay() {}, onStop() {},
+  });
+  const playerTree = player.render();
+  const playbackProgress = elements(playerTree, 'View').find((item) => item.props.accessibilityRole === 'progressbar');
+  assert.deepEqual(JSON.parse(JSON.stringify(playbackProgress.props.accessibilityValue)), { min: 0, max: 100, now: 25 });
+
+  const dock = mount('../src/components/VoiceInteractionDock.tsx', {
+    stage: 'recording', error: null, recordingDurationMs: 1000, metering: -40,
+    onStartRecording() {}, onSubmitRecording() {}, onCancel() {}, onOpenInput() {},
+  }, { '../voice/metering': { meteringToLevel: (value) => (value + 80) / 80 } });
+  const dockTree = dock.render();
+  const recordingProgress = elements(dockTree, 'View').find((item) => item.props.accessibilityLabel === 'Mức âm thanh đang thu');
+  assert.deepEqual(JSON.parse(JSON.stringify(recordingProgress.props.accessibilityValue)), { min: 0, max: 100, now: 50 });
+  const cancel = elements(dockTree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Hủy bản ghi');
+  assert.equal(cancel.props.style.minHeight, 48);
+});
+
+test('voice stage changes are announced without repeating the recording timer', () => {
+  const announcements = [];
+  const props = {
+    stage: 'preparing', error: null, recordingDurationMs: 0, metering: -60,
+    onStartRecording() {}, onSubmitRecording() {}, onCancel() {}, onOpenInput() {},
+  };
+  const dock = mount('../src/components/VoiceInteractionDock.tsx', props, {
+    __accessibilityInfo: { announceForAccessibility: (message) => announcements.push(message) },
+    '../voice/metering': { meteringToLevel: () => 0 },
+  });
+
+  dock.render();
+  dock.render({ ...props, stage: 'recording', recordingDurationMs: 1000 });
+  dock.render({ ...props, stage: 'recording', recordingDurationMs: 2000 });
+  dock.render({ ...props, stage: 'ready', recordingDurationMs: 2000 });
+  dock.render({ ...props, stage: 'stopping', recordingDurationMs: 2000 });
+  dock.render({ ...props, stage: 'transcribing', recordingDurationMs: 2000 });
+
+  assert.deepEqual(announcements, [
+    'Đang bật micro.',
+    'Đang thu câu hỏi. Chạm Gửi để kết thúc hoặc Hủy bản ghi.',
+    'Đã thu xong. Chạm Gửi để hỏi tiếp hoặc Hủy bản ghi.',
+    'Đang lưu câu nói.',
+    'Đang xử lý câu hỏi.',
+  ]);
+  dock.unmount();
 });
 
 test('voice Q&A routes every chapter question and one follow-up to its exact answer track', async () => {

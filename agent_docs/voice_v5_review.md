@@ -1,5 +1,17 @@
 # Voice V5 — Q&A voice end-to-end
 
+## iPhone follow-up retest — 14/10/2026
+
+- User confirms the second consecutive iPhone voice turn had a moving meter, displayed a transcript and the correct answer, and played audible answer audio. Record this as one user-reported physical-device STT→Q&A→playback success; no raw audio/log, exact transcript, or node ID was supplied.
+- A later host-side probe of the iOS bundle on Metro `:8081` returned HTTP 200 and included the configured gateway URL; the user has not yet reloaded this bundle on iPhone. Metro `:8089` `/status` responds and its Node listener is live, but fetching its iOS bundle timed out after 180 seconds. The successful user-reported turn was on `:8089`, so it does not verify the current `:8081` bundle configuration.
+- Added data-driven matcher coverage for every canonical question and alias, plus UI-flow coverage that routes each of the 21 transcript questions to the correct chapter answer audio and rejects another chapter's question. Full suite 161/161, typecheck and lint pass. Six-chapter device coverage and failure paths remain open.
+
+## Second-turn stale auto-play guard — 14/10/2026
+
+- User again reports the first iPhone voice turn works but the second fails without the moving meter. Review found a pending auto-answer callback could run after a newer mic tap and re-enable playback during recorder startup. `QaScreen` now invalidates that callback when a new mic turn, manual playback action, question, or blur occurs.
+- Added a deferred-stop regression: deliver a matched voice question, start the next mic turn before the old stop promise resolves, then verify the old answer does not start playing. UI flow tests 28/28; full mobile suite 156/156; typecheck, lint, and iOS JS export pass.
+- This closes the code-level race only; it is not yet confirmed as the iPhone root cause. Metro `:8089` is not listening, so a fresh Expo Go reload and physical second-turn retest remain pending. GV5 stays open.
+
 ## Two voice-turn UI regression — 14/10/2026
 
 - A two-callback UI regression sends the exact follow-up “Có chuyện xưa nào ở đây không?” after the first voice question and verifies that it selects and plays the matching `qa-05` answer track. This verifies Q&A routing across two transcript callbacks, not two native microphone submissions; physical follow-up remains pending.
@@ -51,3 +63,14 @@ Bản thu từ recorder Android sau khi sửa đã tới STT worker thật. Vì 
 - Audit phát hiện đổi chương/chế độ/revision ngay trong Q&A có thể làm callback cũ bị bỏ nhưng stage vẫn kẹt; audio và lỗi của scope trước cũng có thể còn trên màn hình. Scope change giờ hủy lượt và request, dừng player, xóa lỗi cũ và đưa stage về idle. Mở/đóng sheet chữ không đổi scope.
 - Thêm regression cho chuyển chương, Demo/Live, dataset revision và giữ nguyên scope. Bộ test hiện tại 126/126; typecheck, lint và Expo dependency check đều đạt.
 - Chưa có thiết bị thật để chứng minh chuyển scope đúng lúc mic đang thu hoặc gateway đang nhận dạng; GV5 end-to-end vẫn pending.
+
+## Trạng thái app-to-Q&A mới nhất — 14/10/2026
+
+- Regression UI hiện có kiểm đủ 21 câu canonical và 21 follow-up đầu tiên, cùng stale scope/revision; full `npm test` hiện tại đạt 158/158.
+- Bundle iOS mới ở Metro `:8089` có code guard nhưng không chứa URL gateway. Vì vậy mic→STT→đúng answer/audio và hỏi tiếp bằng giọng nói trên cả sáu chương vẫn pending; test UI với transcript cố định không thay thế E2E.
+
+## Retest hai lượt trên iPhone — 14/10/2026
+
+- Sau khi reload Expo Go `exp://192.168.100.36:8089`, người dùng xác nhận lượt thứ hai liên tiếp hiện transcript và câu trả lời đúng. Đây chứng minh một follow-up Q&A voice trên iPhone theo báo cáo người dùng, nhưng chưa xác nhận âm thanh answer lượt hai.
+- Bộ test hiện tại 161/161; UI-flow ánh xạ đủ 21 câu canonical sang answer/audio đúng node và từ chối câu thuộc chương khác. Đây là regression code-level, không thay thế thiết bị thật cho cả sáu chương.
+- GV5 vẫn mở cho 6-chapter mic E2E, unknown/sửa câu, đổi scope trong lúc request và playback; lần kiểm manifest Metro từ host bị timeout.

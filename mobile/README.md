@@ -24,12 +24,12 @@ node tools/voice/gateway/server.mjs
 ```
 
 ```powershell
-# Terminal 2 — tại thư mục mobile
-$env:EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL = 'http://<DEV_LAN_IP>:8788'
+# Terminal 2 — tại thư mục mobile, sau khi thêm/cập nhật đúng dòng này trong .env.local
+# EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL=http://<DEV_LAN_IP>:8788
 npm start -- --lan --port 8089 --go --max-workers 2
 ```
 
-Thay `<DEV_LAN_IP>` bằng địa chỉ LAN hiện tại của máy chạy gateway. Điện thoại và máy phát triển phải ở cùng Wi‑Fi riêng tin cậy. Gateway preview dùng HTTP, không xác thực và không phù hợp để mở ra Internet hoặc Wi‑Fi công cộng. Xem [VOICE_HANDOFF.md](../docs/VOICE_HANDOFF.md) để biết cách mở APK/preview, kiểm tra gateway và các giới hạn.
+Thay `<DEV_LAN_IP>` bằng địa chỉ LAN hiện tại của máy chạy gateway, giữ các biến khác đang có trong `.env.local`. File này bị Git bỏ qua. Mỗi khi đổi URL, khởi động lại Metro để bundle nhận cấu hình mới. Điện thoại và máy phát triển phải ở cùng Wi‑Fi riêng tin cậy. Gateway preview dùng HTTP, không xác thực và không phù hợp để mở ra Internet hoặc Wi‑Fi công cộng. Xem [VOICE_HANDOFF.md](../docs/VOICE_HANDOFF.md) để biết cách mở APK/preview, kiểm tra gateway và các giới hạn.
 
 Trong app, vào Demo, chọn chương, nhấn mic để thu, rồi nhấn **Gửi**; **Hủy** hoặc Back kết thúc lượt. Chip gợi ý không tự bật tiếng. Gateway và Metro phải đang chạy để thử STT; giao diện, dữ liệu demo và audio đóng gói vẫn có thể xem khi offline.
 
@@ -46,9 +46,16 @@ npm run check:dependencies
 
 `npm run build:android` và `npm run build:ios` chỉ xuất JavaScript/Hermes bundle; chúng không tạo APK/IPA hay phát hành ứng dụng. Build native bằng `npm run android` hoặc `npm run ios` trên môi trường tương ứng. iOS native cần macOS và hiện chưa được nghiệm thu.
 
-## Trạng thái kiểm chứng
+## Trạng thái kiểm chứng mới nhất — 14/10/2026
 
-Android đã được build và mở trên emulator API 37; lượt mic nói thật trên iPhone vẫn cần retest. Ngày 14/10, bộ test đạt 152/152, typecheck/lint, iOS JS export và Android release build đều đạt. UI regression phủ 21 Q&A cùng một follow-up mỗi câu; transcript kiểm thử không thay thế STT/mic thật. Người dùng báo lượt đầu trên iPhone chạy nhưng lượt hai mất meter rồi lỗi. Player giờ tắt loop và pause trước khi chuẩn bị mic, không chờ native seek; phát lại chủ động vẫn tua trước khi chạy. APK mới mở được trên AVD, SHA-256 `C21ACE29D356F779A16219CCA8AEE75527B805B983F90B8B13A3C15A0751CA0C`. Metro cần được khởi động lại thủ công theo lệnh trên; gateway `8788` ready. Chưa retest hai lượt trên iPhone; export không phải IPA, các luồng iOS còn lại, kiểm tra audio/accessibility và nghe duyệt thủ công toàn bộ audio vẫn mở. Xem [VOICE_TEST_REPORT.md](../docs/VOICE_TEST_REPORT.md) để biết kết quả mới nhất và phần chưa kiểm.
+- `npm test` 164/164, typecheck, lint, Expo dependency check và `git diff --check` đạt. Các JS exports không phải IPA/APK.
+- Người dùng xác nhận lượt voice thứ hai liên tiếp trên iPhone có meter chạy, transcript, câu trả lời đúng và tiếng trả lời nghe được; đây là happy path thực trên build Expo Go đã thử, chưa có trace độc lập. Expo JS exports iOS/Android sau sửa V6 đều đạt, metadata có đủ 34 MP3 mỗi nền tảng. Metro iOS bundle `:8081` qua LAN trả HTTP 200/6.063.168 ký tự, có gateway và playback error handling, không có copy kết nối cũ. Gateway `:8788/health` ready. Người dùng để sau reload `exp://192.168.100.36:8081`; preview mới chưa kiểm trên iPhone.
+- Validator audio chạy bằng `tools/voice/.venv`: 34/34 clip đạt hash/nội dung/codec/duration/level; manifest SHA-256 `90747665D049CC3B4AF018672EF0935805F324236986D8F2047DC79B440113E9`. Nghe duyệt bằng người thật vẫn pending.
+- Android release APK mới nhất sau V6 đã build và kiểm bundle/Hermes: 121,246,156 byte, SHA-256 `301F0654052A537324A08240F02C1DA223D99EBACCD841A573A20C3375B0EE36`; APK này chưa cài/chạy trên AVD. Bản trước `6D669446...73FBE` đã cài/mở và tới Q&A điểm 01 trên AVD không có audio. Mic start/Hủy và 20/20 vòng stress AppOps thuộc APK cũ hơn `0F43437B...53F9`, không gửi lời nói. Còn six-chapter coverage, failure paths, human audio QC, iOS native, routes/accessibility và performance.
+
+## Trạng thái kiểm chứng trước handoff settle guard — 14/10/2026
+
+Android release APK mới đã cài/mở trên AVD API 37 dưới package `com.valentino241.ngokedemo`. Build 377 tasks thành công; APK 121,244,960 byte, SHA-256 `AC05A7E98F4A42B51021D2FFF554091764766FB5033ADABD901D5AE5BC4D7831`. Native smoke phát lời kể rồi chạm mic hai lần liên tiếp; cả hai lần player dừng, recorder hiện meter thật và Hủy trả dock về idle. Stress test 20 vòng start/cancel xác nhận AppOps thu/dừng, dock idle cuối lượt; PSS dao động 167,959–176,922 KB, chưa phải leak proof. Nhánh từ chối quyền hiển thị lối gõ, sau khi cấp lại quyền có thể Thử lại. Không gửi audio; APK smoke không có gateway URL, nên đây không phải STT/Q&A E2E. Ngày 14/10, bộ test đạt 156/156, typecheck/lint và iOS JS export đều đạt. UI regression phủ Q&A và race callback auto-play; transcript kiểm thử không thay thế STT/mic thật. Trước lần retest mới, người dùng từng báo lượt hai mất meter rồi lỗi; sau đó đã xác nhận lượt hai trên iPhone có meter, transcript, Q&A đúng và audio nghe được. Metro `:8089` từng chạy nhưng host probe chưa đối chiếu được URL gateway; gateway `8788` ready. Export không phải IPA; các luồng iOS, kiểm tra audio/accessibility, nghe duyệt thủ công 34 audio và performance vẫn mở. Xem [VOICE_TEST_REPORT.md](../docs/VOICE_TEST_REPORT.md) để biết kết quả mới nhất.
 
 ## Mã nguồn và tài liệu
 

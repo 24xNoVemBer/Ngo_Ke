@@ -1,5 +1,12 @@
 # Voice V6 — Intent và hành động theo ngữ cảnh
 
+## Recheck slot mơ hồ và câu hỏi khi Plan đang mở — 14/10/2026
+
+- Câu hỏi như “Chương kế là gì?” giờ vẫn đi vào Q&A khi đang thu thập Plan.
+- Chủ đề bị phủ định/nhiều chủ đề xóa topic cũ; thời lượng không rõ/nhiều/ngoài khoảng xóa budget cũ. Câu không nhận ra slot nào cũng xóa cả bản nháp và hiện lựa chọn lại. Slot còn lại chỉ được giữ nếu được hiểu độc lập, nên thẻ không hiện gợi ý dựa trên giá trị lỗi thời.
+- Regression có trường hợp phủ định, nhiều thời lượng, đồng thời cả hai slot mơ hồ. `voiceIntent.test.mjs` 5/5; toàn suite 164/164, typecheck/lint/Expo dependency check đạt.
+- Đây vẫn là kiểm logic bằng transcript điều khiển; cách nói thật qua mic và mức dễ hiểu của thẻ Plan còn chờ kiểm trên thiết bị.
+
 **Ngày:** 13/10/2026
 **Trạng thái:** parser/actions/UI đã triển khai và test; nhận dạng các cách nói thật còn pending.
 **Gate GV6:** logic tự động đạt; chưa đóng nghiệm thu giọng nói trên máy.

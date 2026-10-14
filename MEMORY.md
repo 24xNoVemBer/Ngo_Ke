@@ -1,17 +1,67 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-14 — Retest lượt hai iPhone và APK Android mới nhất
+
+- Người dùng xác nhận ở lượt voice thứ hai liên tiếp trên iPhone: meter chạy, transcript và câu trả lời đúng, audio nghe được. Lỗi mất meter chưa tái hiện trong lần kiểm này; đây là một happy path do người dùng báo, không có log/raw audio để kiểm chứng độc lập.
+- APK Android mới nhất sau V6 đã build và kiểm bundle/Hermes: 121,246,156 byte, SHA-256 `301F0654052A537324A08240F02C1DA223D99EBACCD841A573A20C3375B0EE36`; có 34 MP3 và parser V6 mới, nhưng chưa cài/chạy trên AVD hiện đã dừng. Bản trước `6D669446...73FBE` mới là bản cài/mở và đi tới Q&A điểm 01; ảnh của bản đó là `android37-release-after-async-playback-error-fix-2026-10-14.png` cùng các ảnh `android37-release-{home,explore,alley,qa}-after-...` trong evidence folder.
+- Kiểm mic start/Hủy thủ công và stress 20 vòng thuộc APK trước đó `0F43437B...53F9`: AppOps xác nhận RECORD_AUDIO running rồi dừng; không gửi audio. PSS 168,357 KB trước, 182,101 KB ngay sau, 171,789 KB sau 12 giây idle; không phải leak proof. Đừng gán các lượt đó cho APK `6D669446...` mới. AVD `-no-audio`; ảnh/mô tả ở README evidence.
+- Thêm UI regression: Expo Audio `playback.error` hiển thị thông báo fallback có accessibility alert, không lộ lỗi/path native. `npm test` (163 tests), typecheck, lint, Expo dependency check và `git diff --check` đạt. AVD launch không kiểm native audio-load failure hoặc STT bằng lời thật.
+- Voice vẫn chưa hoàn tất: còn 6 chương/21 Q&A bằng mic thật, error paths, VoiceOver/TalkBack trên thiết bị, audio routes/interruption, người nghe QC 34 clip, performance p50/p95 và kiểm latest bundle trên iPhone. Không commit/push.
+- Sau V6 stale-slot fix, iOS/Android static exports đều thành công và metadata xác nhận đủ 34 MP3 mỗi nền tảng, không thiếu file. Metro iOS bundle `:8081` qua LAN HTTP 200/6,063,168 ký tự, có gateway/playback error handling, không có copy kết nối cũ. Gateway `/health` ready. Người dùng để sau reload `exp://192.168.100.36:8081`; bundle mới chưa xác nhận trên iPhone.
+- Smoke gateway live đạt trên Node 24.14.1/faster-whisper 1.2.1 bằng clip TTS tổng hợp local 19,15 giây; abort/retry, quota, format, duration và silence guards pass.
+
+## 2026-10-14 — V6 stale-slot regression
+
+- `parseVoiceIntent` now prioritizes informational questions even while the Plan card is collecting slots. Ambiguous topic/budget slots clear their prior value independently; unrecognized plan speech clears stale picks and asks the user to choose again.
+- Added regression coverage for an open Plan question, stale negated topic, stale multi-duration value, and both slots ambiguous. Full mobile suite 164/164, typecheck, lint and Expo dependency check pass.
+- Hardware voice recognition of these phrases and user comprehension of the inline Plan card remain unverified; this does not close GV6/GV7.
+
+## 2026-10-14 — Accessibility stage announcements and prior Expo bundle check
+
+- Added stage-only VoiceOver/TalkBack announcements in `VoiceInteractionDock` for preparing, recording, ready, stopping and transcribing; timer ticks do not re-announce. Regression covers the full stage sequence and the no-repeat timer case.
+- Current mobile checks: `npm test` 162/162, typecheck, lint, Expo dependency check and `git diff --check` pass. iOS JS export (1,073 modules, `index-0476f928e945a4013b39391ae68ad762.js`) and Android JS export (1,068 modules, `index-95b2dbb411a1c5b752c11c064bbce29b.js`) pass.
+- At a previous host probe, Metro `:8081` served an HTTP 200 iOS bundle (6,062,657 characters) containing the gateway URL and stage announcement; gateway `/health` was ready. A later check showed the bundle route timing out; see the newest entry above for current status. The successful two-turn iPhone report was from `:8089` and is not tied to the latest `:8081` bundle.
+- Still pending: confirm latest `:8081` on iPhone, VoiceOver/TalkBack, full 6-chapter physical speech coverage, device failure/audio-route checks, human listening QC for 34 clips and performance. Do not mark GV7/Voice complete; no commit/push.
+
+## 2026-10-14 — iPhone lượt voice thứ hai: cập nhật mới nhất
+
+- Người dùng xác nhận retest sau reload `exp://192.168.100.36:8089`: ở lượt voice thứ hai liên tiếp trên iPhone, meter chạy, transcript và Q&A đúng, audio trả lời nghe được. Ghi nhận là một happy path thực do người dùng xác nhận; chưa có transcript nguyên văn, model/OS, log hoặc trace server để kiểm tra độc lập.
+- Expo Audio 57.0.5 iOS `AudioModule.pause` gọi `deactivateSession()` sau 100 ms nếu player không giữ audio session; tác vụ trễ không kiểm recorder. `useVoiceSession` bật `keepAudioSessionActive: true`; `QaScreen` generation guard hủy auto-play cũ khi mic lượt mới bắt đầu. Các race này đã được khóa ở source, chưa kết luận là root cause vật lý.
+- Kiểm tra hiện tại: `npm test` 158/158, typecheck/lint và iOS JS export đạt. Metro `exp://192.168.100.36:8089` trả bundle iOS 200, 6,068,732 byte, có `keepAudioSessionActive` và `playbackIntent`; gateway `/health` 200. Bundle không chứa gateway URL nên chỉ kiểm meter/player, chưa STT. AVD Android cho thấy hai lần player→mic có meter nhưng không thay thế iPhone.
+- Không cần lặp lại cùng happy path ngay; các ca lỗi và kiểm tra đa thiết bị vẫn mở. Metro full E2E cần khởi chạy với `EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL` trên cổng mới `8091`; không mở/public gateway. Lần thử khởi chạy Metro từ agent bị tool review chặn, nên không thử đường vòng. Không commit/push theo goal Voice hiện hành.
+- Re-run V1 validator hiện tại đạt 34/34 clip (7.0 phút, 5.04 MB); ASR WER ưu tiên nghe tay vẫn là flowers/cake/demo-01-caption. `node tools/voice/gateway/smoke_test.mjs` đạt với 19.15s TTS tổng hợp và các guard media; E2E từ mic thật chưa chứng minh.
+- Revalidation hiện tại: `npm test` 161/161; typecheck, lint và Expo dependency check pass. iOS/Android JS export pass (1,073/1,068 modules), cả hai bundle có URL gateway. Current Metro `:8089` đang chạy nhưng manifest timeout và bundle 6,069,092 byte thiếu URL. Metro khác cùng dự án `:8081` trả iOS manifest HTTP 200, bundle 6,068,958 byte có URL, `keepAudioSessionActive`, `playbackIntent` và metering; đã ghi làm preview candidate `exp://192.168.100.36:8081`, chờ người dùng reload/kiểm STT thật. Gateway health/smoke pass.
+- `docs/VOICE_HANDOFF.md` now has six canonical speech/follow-up pairs and a short cancel/change-point/network/mic-denied checklist for manual iPhone QA; record per-point PASS/FAIL, no audio upload.
+- Android export lần đầu lỗi Node zone-allocation OOM khi Metro cũ `:8087` còn giữ ~1.4 GB; đã dừng đúng tiến trình cũ không phản hồi, giữ `:8081` và `:8089`, sau đó export Android pass. Không restart/lách review Metro; lần restart trước từ agent bị tool review từ chối, dùng hướng dẫn thủ công trong `docs/VOICE_HANDOFF.md` khi cần nạp `.env.local` vào Metro.
+
+## 2026-10-14 — Kiểm tra lượt voice thứ hai
+
+- Người dùng tiếp tục báo: lượt đầu voice trả lời, lượt hai lỗi và mất meter trên iPhone. Nguyên nhân vẫn chưa được tái hiện trực tiếp.
+- `stopAudioPlayer()` đổi từ pause + seek sang tắt loop + pause; lượt Play mới vẫn thay track từ đầu. Mục tiêu là bỏ seek khỏi đường đổi AVAudioSession; xem là biện pháp giảm race, chưa phải xác nhận root cause iOS.
+- Kiểm tra sau đổi: playback regression 6/6; `npm test` 158/158; typecheck, lint và iOS JS export đạt. Android release APK 121,245,016 byte, SHA-256 `1C0F0DCEBA8523EA871E9240D42E933ED644AEF83B3B14DC031A65DBEC717D46`; API 37 AVD dừng answer đang phát, thu có meter, Hủy, rồi thu lượt hai có meter. Cả hai clip hủy cục bộ, không gửi.
+- Gateway `:8788/health` ready; Metro `:8089/status` không phản hồi; Android bundle không có gateway URL nên không kiểm STT. Cần người dùng retest iPhone; chưa có ảnh lỗi/transcript nguyên văn. Không commit/push theo prompt Goal Voice hiện hành.
+
 ## Current voice update — 2026-10-14
 
-- User still authorizes Voice V0–V7 and later explicitly authorized automatic GitHub pushes after each completed increment; no paid service or public gateway.
-- User reports the first iPhone voice turn answers, but the second loses the meter and fails. No iPhone log/meter value is available, so the cause is not confirmed.
-- Likely race found in code: `stopPlayback()` awaited `stopAudioPlayer()` even though it returned immediately. The next turn could change audio mode and prepare the recorder before native playback paused. It now waits for live `player.playing === false` (max 1 second); on timeout the recorder does not start and the user gets retry guidance. Answer auto-play also waits for stop confirmation.
-- Verification after this change: `npm test` 154/154; typecheck/lint pass; iOS JS export bundles 1,073 modules. Android release build succeeded, APK 121,244,632 bytes, SHA-256 `E0680D8A78513442364687AC084AE8809F66BB69BD9A6631A8815A7DF5A0AB47`; installed/launched on API 37 AVD with no fatal/ReactNativeJS error in the latest 1,200 logcat lines. This is not a physical iPhone test or native iOS build.
-- Gateway `192.168.100.36:8788/health` is ready. Metro `:8087` does not answer `/status`; `:8089` and `:8090` are stopped. No current Expo Go preview is confirmed. Do not work around the tool policy that blocked a Metro restart; start it manually using `docs/VOICE_HANDOFF.md`.
-- The iPhone second-turn retest remains necessary. If “Đang thu” appears without meter, report that separately from a recorder-start error. For STT issues, share the recognized text only, never audio. GV3/GV5/GV7 remain open.
+- User authorizes Voice V0–V7. The current goal explicitly prohibits commits and pushes; do not commit/push unless the user gives newer direct authorization. No paid service or public gateway.
+- User again reports: first iPhone voice turn works; the second fails without the moving meter. Cause is not yet confirmed on device. Code review found another possible race: a delayed auto-answer callback in `QaScreen` could restart playback after a new mic turn had already begun. A playback-intent generation now cancels that stale callback on mic start, manual track actions, new questions, and screen blur. The earlier native-player stop acknowledgement and recorder-start/metering guards remain in place.
+- Verification after this guard: UI flow 28/28; full `npm test` 156/156; typecheck and lint pass; iOS JS export succeeds (bundle `index-41c76f4c413cbc235bdc07e89fb7df20.hbc`). The API 37 Android APK build/install from the prior check still passes, but neither emulator nor export confirms iPhone audio behavior.
+- Fresh V1 catalogue validation completed 2026-10-14: 34/34 clips, 7.0 minutes, 5.04 MB; manifest SHA-256 `90747665D049CC3B4AF018672EF0935805F324236986D8F2047DC79B440113E9`. Automatic ASR WER is highest for `qa-flowers-answer` (23.1%), `qa-cake-answer` (18.9%) and `demo-01-caption` (17.6%); this does not prove pronunciation errors. Full local report: `tools/voice/.cache/v1-qc/report.json`. Human listening/QC remains pending.
+- Synthetic gateway contract smoke rerun passed on 2026-10-14: local 19.15s synthetic clip; transcript response, invalid-format, duration and silence guards. `/health` is ready; listener is bound to private interface `192.168.100.36:8788` (PID 42408), not all interfaces. No personal audio used.
+- Fresh Android release build from current source succeeded (377 tasks; 30 executed, 347 up-to-date), APK 121,244,960 bytes, SHA-256 `AC05A7E98F4A42B51021D2FFF554091764766FB5033ADABD901D5AE5BC4D7831`; installed/launched as `com.valentino241.ngokedemo` on API 37 AVD. Player reached 00:00, mic start paused it and showed a live meter, and Cancel returned idle. Revoked mic permission → OS prompt → deny showed Vietnamese fallback; granting again and tapping Retry started recorder, then Cancel returned idle. Screenshots are in `agent_docs/evidence/voice/android-emulator/README.md`. No recording was submitted; APK had no gateway URL, so it does not prove STT/Q&A or iPhone second turn. Latest 2,000 logcat lines had zero fatal/ReactNativeJS errors.
+- Gateway `192.168.100.36:8788/health` is ready; Metro `:8089` is not listening, so no current Expo Go preview is confirmed. Do not work around the tool policy that blocked a Metro restart; user can start it manually using `docs/VOICE_HANDOFF.md`.
+- The iPhone second-turn retest remains necessary. Record whether the dock says “Đang bật micro…”, “Đang thu”, or an error; if STT returns unknown, share only the recognized text, never audio. GV3/GV5/GV7 remain open. No commit or push.
+
+## 2026-10-14 — Bounded player handoff fix and push authorization
+
+- User repeated the iPhone issue: voice turn 1 succeeds; turn 2 fails without the meter. Updated `stopAudioPlayer()` to turn off looping, pause, await native seek with a 1-second bound, then confirm playback is stopped before microphone startup. Failed or stalled seek may proceed only when playback is confirmed stopped; otherwise the mic remains blocked with an error. This addresses the handoff path but is not yet confirmed on iPhone.
+- Added regression cases for awaited seek, seek rejection, seek timeout, and player that never pauses. Voice playback helper 7/7; full mobile suite **158/158**; TypeScript, ESLint, `git diff --check`, and Expo iOS JS export pass (1,073 modules).
+- Current Metro `:8089` is running; gateway `192.168.100.36:8788/health` is ready. Metro lacks `EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL`, so the current bundle cannot test STT. iPhone reload/retest remains pending; Android release evidence predates this JS change.
+- User later explicitly requested “tự động push sau mỗi lần xong”, which supersedes the earlier no-push instruction in the Voice prompt. Push only the completed, scoped changes after validation; do not include unrelated workspace files without review.
 
 ## Historical status before playback-pause acknowledgement — 2026-10-14
 
-- At that earlier snapshot, Voice V0–V7 authorization remained active and the note said not to commit or push. The user's later explicit automatic-push authorization is recorded in the current update above.
+- At that earlier snapshot, Voice V0–V7 authorization remained active and the note said not to commit or push. A later instruction temporarily authorized automatic push; the current goal explicitly prohibits commits/push again, so follow the current instruction.
 - User confirms the first iPhone voice turn answered, but the second turn loses its meter and fails. No device log or raw meter value is available, so the cause is not proven.
 - Recorder start now waits up to 1 second for Expo Audio's native `isRecording` state before showing “Đang thu”; cancellation stops a late-starting recorder, and a failed start is cleaned up. A late answer-playback callback is also discarded after its audio-mode await if a new mic turn invalidated it. These address delayed starts and a plausible audio-mode race; a native recorder that reports active while returning no microphone signal still needs iPhone diagnosis.
 - Gateway `192.168.100.36:8788` is ready (Node 24.14.1, faster-whisper 1.2.1, pinned `Systran/faster-whisper-small`). Metro `:8087` status responds but iOS bundle fetch times out; `:8089` and `:8090` are stopped. No live Expo Go preview is confirmed.
@@ -401,3 +451,78 @@ Lịch sử: Part4 có22/22 kiểm tra tài liệu; shell/emulator cũ trong `ph
 - Awaited native seek did not resolve the user's report and could leave microphone startup waiting for an iOS callback. `stopAudioPlayer()` now disables loop and pauses without seeking; explicit replay retains its rewind.
 - Regression, full suite 152/152, typecheck/lint, iOS JS export and Android release build pass. New APK SHA-256 `C21ACE29D356F779A16219CCA8AEE75527B805B983F90B8B13A3C15A0751CA0C` is installed/launched on API 37 AVD.
 - Metro `:8087` status responds but iOS bundle fetch timed out; `:8089` and `:8090` are stopped. A restart attempt was rejected by tool policy. No iPhone retest or live preview is confirmed; GV3/GV5/GV7 stay open.
+
+## 2026-10-14 — Repeated native Android player-to-mic check
+
+- User again reports: iPhone voice turn 1 returns an answer; turn 2 loses the meter and fails. Android API 37 release package `com.valentino241.ngokedemo` with mic permission granted was tested as player → mic → cancel → player → mic. Both microphone starts entered `Đang thu` with non-zero meter; no recording was submitted and logcat had no fatal error. Evidence is in `agent_docs/evidence/voice/android-emulator/README.md`.
+- No code change was justified by the Android result; this does not diagnose the iPhone. Metro `:8089` is currently running at `exp://192.168.100.36:8089` but without `EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL`, so it only supports recorder/meter/player checks. Gateway `/health` at `192.168.100.36:8788` is ready. Physical iPhone retest and STT follow-up remain pending; do not claim this issue fixed.
+
+## 2026-10-14 — V7 Android recorder stress
+
+- On API 37 release package `com.valentino241.ngokedemo`, completed 20 consecutive start/cancel cycles. AppOps confirmed native `RECORD_AUDIO` running before each cancel and stopped afterward; final dock was idle and the last 2,000 logcat lines had zero fatal entries.
+- PSS checkpoints: 167,959 KB before, 176,922 KB after 10, 170,762 KB before the final 10, and 176,475 KB after 20. This fluctuated and is not a formal leak proof. No speech was submitted.
+- Reported in `docs/VOICE_TEST_REPORT.md`, `docs/VOICE_PHASE_ROADMAP.md` and `agent_docs/voice_v7_review.md`. Physical iPhone second turn, full STT→answer hardware run, route/accessibility/performance QA and human listening remain pending. Current Metro `:8089` still lacks the gateway URL; no commit/push.
+
+## 2026-10-14 — iPhone second-turn audio-session race
+
+- User again reported: first iPhone voice turn works; the second loses the meter and fails. Expo Audio 57.0.5 iOS source identifies a concrete handoff race: `AudioPlayer.pause()` schedules audio-session deactivation 100ms later by default; that delayed task checks active players but not active recorders. A new recorder can start before the pending deactivation runs, leaving its mic session disabled.
+- `mobile/src/voice/useVoiceSession.ts` now creates the player with `keepAudioSessionActive: true`, preventing that pause/finish deactivation during the player→recorder handoff. This is a source-backed likely cause; no native iPhone retest has confirmed resolution.
+- Current verification: `npm test` passed **158/158**; typecheck, lint and `npm run build:ios` passed. The iOS command is a JavaScript/Hermes export, not an IPA/device test. Metro `:8089/status` returns HTTP 200, but its iOS bundle request times out; gateway `/health` at `192.168.100.36:8788` returns HTTP 200. Android repeat tests from the prior check do not prove iPhone behavior.
+- Retest after reloading Expo Go: complete one voice question, then tap mic while/after its answer plays; verify the second meter moves and “Có chuyện xưa nào ở đây không?” returns the linked answer. Keep GV3/GV5/GV7 open until a physical-device retest. No commit/push under the active Voice goal.
+
+## 2026-10-14 — Second-turn iPhone report and follow-up
+
+- User reports turn one voice works, but turn two fails without the meter. Expo Audio 57.0.5 source has a 100 ms delayed iOS audio-session deactivation after pause; the player already uses `keepAudioSessionActive: true`. Added a 125 ms settle after pausing active playback so a pending native deactivation completes before recorder preparation reactivates the session.
+- Regression verifies the pause promise waits through the handoff window. `npm test` 159/159, typecheck/lint, and iOS JS export (1073 modules) pass. Current Metro 8089 iOS bundle (6,062,119 chars) contains the settle guard, metering options and session/playback guards; it does not contain gateway URL `192.168.100.36:8788`. The gateway health endpoint is ready.
+- This does not prove the iPhone issue fixed. Current bundle can verify player→mic→meter only; speech E2E and physical iPhone retest remain open. Do not commit/push under the active Voice goal.
+
+## 2026-10-14 — Gateway configuration diagnosis and Android rebuild
+
+- User screenshot shows “Chưa kết nối máy nhận giọng nói”. Gateway health at `192.168.100.36:8788` is ready, but the live Metro `:8089` bundle does not contain its URL. The immediate cause is the missing `EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL` in Metro’s environment; restart Metro with the documented variable and reload Expo Go. The in-session Metro restart attempt with that variable was rejected by tool review and was not retried or bypassed.
+- Android release from the current source builds successfully (377 Gradle tasks; 29 executed, 348 up-to-date), 121,245,316 bytes, SHA-256 `F43B2BAD13E1C938F2B07D0AA4F3002B6D2695BE25E1C13275DB86CAE891138B`; installed/launched on API 37 AVD with mic permission. No speech was submitted. This does not verify iPhone.
+- Updated the exact restart command in `docs/VOICE_HANDOFF.md` and current APK status in `mobile/README.md`. Physical iPhone second-turn and mic→gateway→Q&A E2E remain pending.
+
+## 2026-10-14 — Current Metro bundle stalled; configuration error copy clarified
+
+- Current source now maps `VOICE_NOT_CONFIGURED` to a preview-configuration message instead of a generic “not connected” message. Full suite 159/159, TypeScript, ESLint and `git diff --check` pass. iOS export succeeds for 1073 modules (`index-8c517405923ea701bf26f9964215f9b9.hbc`); Metro cache deserialization warned, recovered by full crawl, and export completed.
+- Rechecked live state: Metro PID 50116 listens on `:8089` and `/status` says running; iOS bundle fetch timed out after 90 seconds. Gateway PID 42408 at `192.168.100.36:8788` remains ready. Last previously fetched bundle lacked the gateway URL; current source copy is not confirmed on iPhone.
+- Android release `F43B2BAD13E1C938F2B07D0AA4F3002B6D2695BE25E1C13275DB86CAE891138B` is installed/launched on API 37 with mic permission; no speech submitted. Metro restart with environment URL remains blocked by tool review; no bypass. iPhone retest and mic→gateway→Q&A/audio remain open, so goal stays active.
+
+## 2026-10-14 — Local gateway URL and full voice asset revalidation
+
+- Added Git-ignored `mobile/.env.local` with the current Wi-Fi gateway URL `http://192.168.100.36:8788`. Android and iOS JS exports (`--no-bytecode`) both load the file and embed the URL. The already-running Metro `:8089` remains on its old environment: `/status` is running and its current 6,062,157-character iOS bundle still lacks the URL. Restart + Expo Go reload is necessary for phone STT.
+- Gateway `/health` currently reports ready, faster-whisper 1.2.1. Sent only a locally generated non-personal 19.15-second TTS WAV to the gateway's private Wi-Fi IP; HTTP 200, transcript nonempty, turnId/locale/mode/nodeId/datasetRevision matched. Loopback `127.0.0.1` is not the gateway's bind address; use `192.168.100.36` on this host/LAN.
+- Re-ran the project `.venv` validator: 34/34 audio entries pass source/text/node/revision/hash, MP3 codec/format/duration, and audio-level checks. Manifest SHA-256 `90747665D049CC3B4AF018672EF0935805F324236986D8F2047DC79B440113E9`; total about 7 minutes/5.04 MB. Highest local synthetic-ASR WER 23.1% (`qa-flowers-answer`), which still needs human listening.
+- Current `npm test` 159/159, typecheck, lint, Expo dependency check and `git diff --check` pass. Real iPhone speech/turn-two, human QC, hardware audio/accessibility/performance remain pending. Goal stays active; no commit/push.
+
+## 2026-10-14 — Gateway cancel/retry integration regression
+
+- Extended `tools/voice/gateway/smoke_test.mjs` to wait 1.5 seconds after upload, abort the active synthetic transcription, require the server's `REQUEST_CANCELLED` log, then submit another request and assert HTTP 200 with the new `turnId` and nonempty transcript. `node tools/voice/gateway/smoke_test.mjs` passed on Node 24/faster-whisper 1.2.1; invalid format, duration, silence and abort/retry checks passed without personal audio.
+- This proves response cancellation and turn isolation at the local gateway boundary. Python inference already running continues until completion, where its `finally` removes the temp file; it is not immediate compute cancellation. The test does not close iPhone cancel/network paths.
+- The same smoke test exhausts the 12-request source-IP quota with malformed content-type requests and asserts HTTP 429 `RATE_LIMITED`; it adds no audio traffic.
+- No mobile source changed in this check. Physical iPhone STT/follow-up, human listening QC, phone accessibility/audio-route/performance checks remain open; goal stays active and no commit/push.
+- Remaining effort estimate: about 2–4 engineering days once iPhone/manual listening checks can be run; allow 4–6 if those checks uncover new native/device-specific fixes. This excludes waiting for device access or Metro restart.
+
+## 2026-10-14 — Revalidation after Metro bundle timeout
+
+- Re-ran current checks: mobile tests **159/159**, TypeScript, ESLint, and Expo dependency check pass. Gateway real-STT smoke passed on faster-whisper 1.2.1 using a local synthetic 19.15-second Vietnamese TTS clip; abort/retry/turn isolation, quota, invalid format, duration and silence checks pass.
+- Re-ran V1 catalogue validator: **34/34** MP3s pass source/text/node/revision/hash, codec/sample rate/channel/duration/level checks; total 7.0 minutes / 5.04 MB. Synthetic ASR flags `qa-flowers-answer` 23.1% and `qa-cake-answer` 18.9% WER; no human has listened/ticked the existing checklist.
+- APK trong snapshot Metro cũ là 121,245,400 bytes, SHA-256 `33A094762839B03904BDD9872C08EB1046B37E14C87C1091853B21535BBE6295`; direct ZIP inspection confirmed its gateway URL. APK mới nhất được ghi ở cập nhật đầu MEMORY.md.
+- Live gateway `/health` is `ready`. Metro `:8089/status` responds, but iOS bundle fetch timed out at 90 seconds and again at 210 seconds. Last successfully inspected live bundle lacked the URL. The Metro restart attempt with the URL was rejected by tool review; no bypass was attempted. `mobile/.env.local` and static Expo exports contain the URL, but Expo Go/iPhone is not confirmed on current source.
+- Goal remains active. Required pending evidence: physical iPhone second turn through real STT→correct Q&A/audio; human listen/QC of all 34 clips; iOS/native audio routes, accessibility and performance. Do not claim V7 or full Voice complete; no commit/push.
+- Re-exported current iOS source with `npm run build:ios -- --no-bytecode`: 1,073 modules, 1,608,216-character JS bundle; direct content check confirms `http://192.168.100.36:8788` is embedded. This isolates the issue to the live Metro/Expo Go bundle path, not static iOS bundling; it is not an IPA or iPhone test.
+
+## 2026-10-14 — iPhone second-turn report and full Q&A matcher regression
+
+- User confirms the second consecutive iPhone voice turn displayed a transcript and the correct answer, the answer was audible, and the live meter moved. Record one real-device follow-up STT→Q&A→playback success by user report; no raw audio/log or exact transcript/node was supplied.
+- Host-side Metro `:8089` iOS bundle returns HTTP 200 (6,062,147 characters), but the bundle and its manifest do not contain/expose the gateway URL. `mobile/.env.local` has the URL while `app.json` `extra.voiceApiBaseUrl` is empty. This host-side probe was not reconciled with the successful phone report; do not infer that the user used another device or that STT failed.
+- Added matcher coverage for every canonical question and alias across all six nodes, plus UI-flow coverage that maps all 21 transcript questions to their node-specific answer audio and rejects other-chapter questions. `npm test` 161/161, typecheck and lint pass.
+- Remaining: broaden physical iPhone coverage across all six chapters/failure paths; listen/QC all 34 clips; complete iOS audio routes/accessibility/performance. Goal remains active; no commit/push.
+
+## 2026-10-14 — Refresh phase evidence after iPhone follow-up retest
+
+- Re-read repo state on `main`; preserved all existing 91 changed paths. The user-reported second-turn result after reload of `exp://192.168.100.36:8089` is: meter moved, transcript and correct Q&A answer appeared, and answer audio was audible. No independent phone/server trace was captured.
+- From `mobile/`, `npm test` 161/161, `npm run typecheck`, `npm run lint`, and `npm run check:dependencies` all exit 0. `git diff --check` passes.
+- Latest host-side request for Metro `:8089/manifest` timed out; this supersedes only the ability to inspect the manifest now, not the user's phone result. Earlier bundle probe returned HTTP 200 but did not expose the gateway URL. Leave the discrepancy unresolved without restarting/bypassing tool review.
+- The user also confirms the second-turn meter moved. Updated current V3/V4/V5/V7 review notes, the roadmap phase table, `docs/VOICE_TEST_REPORT.md`, `docs/VOICE_HANDOFF.md`, and `mobile/README.md` to record one user-reported STT→correct Q&A→playback success; human listening QC, iPhone route/interruption/accessibility/performance and full 6-chapter mic coverage remain pending. Goal active; no commit/push.
+- Host check sau đó: Metro :8081 trả /status HTTP 200 nhưng bundle GET timeout; :8089 cũng timeout; gateway :8788/health ready. Lệnh restart riêng Metro :8081 bị execution policy từ chối với “blocked by policy”; không thử đường vòng. Chưa cho người dùng test bundle :8081.

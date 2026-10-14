@@ -1,5 +1,30 @@
 # Voice V3 — Microphone recorder
 
+## Kiểm tra lại trên APK Android release mới nhất — 14/10/2026
+
+- APK 121,245,884 byte, SHA-256 0F43437B6B29D5AF9A7C750E746D1FE731F45A1808778DD6AC8925972FDF53F9 đã cài trên AVD API 37.
+- Chạm mic mở phiên ghi thật; AppOps báo RECORD_AUDIO đang running và ảnh chụp hiển thị Đang thu · 00:02. Chạm Hủy sau khoảng 0,8 giây: AppOps dừng với duration 0,807 giây, mic trở lại trạng thái chờ trong accessibility tree. Không gửi bản ghi.
+- Bằng chứng: android37-current-release-mic-active-2026-10-14.png và android37-current-release-mic-explicit-cancel-2026-10-14.png trong agent_docs/evidence/voice/android-emulator/.
+- Đây là kiểm tra recorder start/cancel trên emulator, không kiểm tiếng nói/STT trên Android thật; iPhone happy path lượt hai được ghi trong Voice V7/report.
+- Stress 20 vòng trên APK mới với 800 ms cho recorder khởi tạo: 20/20 AppOps start running, 20/20 Hủy dừng, idle cuối lượt, không crash. Không gửi clip. PSS 168,357 KB trước, 182,101 KB ngay sau, 171,789 KB sau 12 giây nghỉ; chưa đủ kết luận memory leak.
+
+## iPhone retest — 14/10/2026
+
+- Người dùng xác nhận ở lượt voice thứ hai liên tiếp trên iPhone: meter chạy, transcript và Q&A đúng, audio trả lời nghe được. Đây là báo cáo happy path thật từ thiết bị, chưa có log/server trace để xác minh độc lập; hủy/interruption, quyền và các input route vẫn cần kiểm tra.
+
+## Cập nhật player→mic sau khi người dùng báo lỗi lượt hai — 14/10/2026
+
+- `stopAudioPlayer()` hiện tắt loop rồi pause mà không seek trong lúc bàn giao AVAudioSession sang recorder. Phát lại vẫn bắt đầu từ đầu khi player thay track.
+- Android API 37 release build mới xác nhận đang phát câu trả lời → mic dừng player và hiện meter; Hủy → mic lượt kế tiếp cũng hiện meter. Cả hai lượt đều được hủy; không có clip được gửi.
+- Regression helper 6/6; full mobile suite 158/158, typecheck/lint/iOS JS export pass. Metro `:8089` hiện không phản hồi; gateway `:8788` ready nhưng APK/bundle không có URL STT. Lỗi trên iPhone thật chưa được kiểm lại; GV3 còn mở.
+
+## Native Android player-to-mic handoff — 14/10/2026
+
+- Fresh release build succeeded (377 Gradle tasks; 30 executed, 347 up-to-date), APK 121,244,960 bytes, SHA-256 `AC05A7E98F4A42B51021D2FFF554091764766FB5033ADABD901D5AE5BC4D7831`. Installed/launched on Android API 37 AVD as package `com.valentino241.ngokedemo`.
+- The story player visibly showed the active Pause control at `00:00`; tapping mic stopped playback and started the native recorder. The screen showed `Đang thu · 00:01` and a live meter; Cancel returned the dock to idle. Screenshots and limits are recorded in `agent_docs/evidence/voice/android-emulator/README.md`. No recording was submitted, and the APK had no gateway URL configured.
+- This verifies one Android player→recorder transition and Cancel only. It does not cover submitted speech/STT, a second submitted Q&A turn, or iPhone audio-session behavior. Metro `:8089` is stopped; GV3 remains open pending the physical iPhone retest.
+- Permission path on the same APK: mic prompt appeared after revoke; denying it displayed the Vietnamese fallback, and granting it again in the emulator allowed Retry to start recording. No audio was submitted. The tested fallback/recovery remains an emulator result, not an iOS permission test.
+
 ## Second-turn iPhone meter failure and playback pause acknowledgement — 14/10/2026
 
 - User confirms the first iPhone turn returned an answer; the second turn lost its meter and failed. No native log or meter value is available, so this is not reproduced on-device.
@@ -70,8 +95,29 @@
 - Stop-path regression, full mobile suite 152/152, typecheck/lint, iOS JS export and Android release build pass. APK SHA-256 `C21ACE29D356F779A16219CCA8AEE75527B805B983F90B8B13A3C15A0751CA0C` was installed/launched on the API 37 AVD; no physical mic was submitted.
 - Physical iPhone retest remains pending. Old Metro status responds while bundle requests time out; restart using `docs/VOICE_HANDOFF.md`. This is a targeted fix, not confirmation that the device issue is resolved. GV3/GV5/GV7 remain open.
 
+## Handoff player→recorder trên iPhone — 14/10/2026
+
+- Expo Audio 57.0.5 iOS code schedules session deactivation 100ms after player pause by default and checks active playables, not recorders. That can disable a recorder started immediately after the answer player is paused.
+- The voice player now uses `keepAudioSessionActive: true` so its pause does not schedule that deactivation. Typecheck/lint/tests and iOS JS export pass; no iPhone native retest yet. Keep GV3 open until the user confirms a second turn has a moving meter and sends speech successfully.
+
 ## Follow-up sau báo lỗi lượt hai — 14/10/2026
 
 - Sau khi user báo lỗi vẫn còn, đường stop được đổi thành tắt loop + pause đồng bộ, không chờ native `seekTo`; thao tác replay chủ động vẫn seek trước khi phát.
 - Stop-path regression, full suite 152/152, typecheck/lint, iOS JS export và Android release build đạt. APK SHA-256 `C21ACE29D356F779A16219CCA8AEE75527B805B983F90B8B13A3C15A0751CA0C` đã cài/mở trên AVD; không gửi giọng nói emulator.
 - Retest iPhone vẫn pending. Metro cũ báo status running nhưng bundle timeout; khởi động lại theo `docs/VOICE_HANDOFF.md`. Đây chưa phải xác nhận lỗi thiết bị đã hết; GV3/GV5/GV7 vẫn mở.
+
+## Bundle kiểm tra mới nhất — 14/10/2026
+
+- Lần host probe Metro LAN `exp://192.168.100.36:8089` trả iOS bundle HTTP 200 (6,068,742 byte) có `keepAudioSessionActive` và `playbackIntent` nhưng không thấy gateway URL; request manifest mới nhất timeout. Chưa đối chiếu được bundle host với lần STT thành công do người dùng báo.
+- Người dùng vẫn báo lượt đầu chạy nhưng lượt hai mất meter/lỗi. Chưa có retest iPhone xác nhận bản mới; chỉ AVD Android đã chứng minh được hai lần player→mic có meter.
+
+## Guard bổ sung cho session iOS đang chờ tắt — 14/10/2026
+
+- Khi player thực sự đang phát, `stopAudioPlayer` nay chờ thêm 125 ms sau khi pause để tác vụ deactivation trễ 100 ms của Expo Audio có thời gian kết thúc trước recorder handoff. Nếu player vốn không phát thì không thêm độ trễ.
+- Regression stop-settle và toàn bộ suite hiện 161/161 pass; typecheck, lint, iOS JS export 1073 modules pass. Người dùng sau đó xác nhận lượt voice thứ hai liên tiếp trên iPhone hiện transcript và đúng câu trả lời. Chưa xác nhận meter riêng lượt hai, hủy/interruption và audio routes; GV3 vẫn mở.
+
+## Báo cáo retest iPhone sau reload — 14/10/2026
+
+- Người dùng mở `exp://192.168.100.36:8089` trong Expo Go sau reload và xác nhận lượt voice thứ hai liên tiếp hiện transcript, câu trả lời đúng và nghe được audio. Đây là bằng chứng người dùng báo cho một lần ghi âm/nhận dạng thực; meter ở chính lượt hai và native log chưa được xác nhận.
+- `npm test` 161/161, typecheck, lint và Expo dependency check đạt.
+- GV3 vẫn mở cho kiểm tra hủy/interruption/quyền/input route và trạng thái meter trên iPhone; không coi AVD là bằng chứng mic iOS.

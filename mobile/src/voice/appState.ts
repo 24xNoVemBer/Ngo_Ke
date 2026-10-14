@@ -5,6 +5,10 @@ export function shouldCancelVoiceOnAppStateChange(
   return !permissionPending && (state === 'background' || state === 'inactive');
 }
 
+export function canContinueVoiceStart(state: string): boolean {
+  return state === 'active';
+}
+
 export function shouldCancelVoiceOnScopeChange(previousScope: string, nextScope: string): boolean {
   return previousScope !== nextScope;
 }
