@@ -2,11 +2,11 @@
 
 ## Bằng chứng mới nhất — 14/10/2026
 
-- Người dùng báo lượt thứ hai trên iPhone có meter, transcript/Q&A đúng và nghe được câu trả lời; lỗi meter không tái hiện trong lần retest này. Bằng chứng do người dùng báo, không có audio/log độc lập.
-- APK Android mới nhất sau V6 đã build và kiểm bundle/Hermes: 121,246,156 byte, SHA-256 `301F0654052A537324A08240F02C1DA223D99EBACCD841A573A20C3375B0EE36`, có 34 MP3 và parser V6 mới; chưa cài/chạy trên AVD. APK trước `6D669446...73FBE` đã cài/mở trên AVD API 37 và tới Q&A, nhưng AVD không có audio. Mic start/Hủy và stress 20 vòng thuộc APK cũ hơn `0F43437B...53F9`, không gửi clip.
-- Re-run `npm test` 164/164, typecheck, lint, Expo dependency check và `git diff --check` pass; iOS/Android JS exports sau V6 fix cũng đạt, metadata có 34/34 MP3 và không thiếu file. Metro iOS bundle `:8081` qua LAN trả HTTP 200/6,063,168 ký tự, có gateway và playback error handling, không có copy kết nối cũ. Gateway `/health` ready. Người dùng để sau reload `exp://192.168.100.36:8081`; preview mới chưa xác minh trên iPhone.
+- Người dùng xác nhận lượt thứ hai trên iPhone có meter, transcript/Q&A đúng và nghe được câu trả lời; không có audio/log độc lập. Preview mới `exp://192.168.100.36:8081` được để sau.
+- APK mới nhất sau V6 (`com.valentino241.ngokedemo`, 121,246,156 byte, SHA-256 `301F0654052A537324A08240F02C1DA223D99EBACCD841A573A20C3375B0EE36`) đã cài/chạy trên AVD API 37. Đã kiểm luồng tới Q&A điểm 01, reader mở/đóng, player state/progress/pause/resume/replay/stop, drawer/bàn phím, typed answer đúng, unknown không giữ answer cũ, recorder tới giới hạn 00:19, Back cleanup và Hủy sau 0,838 giây (AppOps/UI về idle). Ảnh: `agent_docs/evidence/voice/android-emulator/android37-v6-release-*.png`. AVD `-no-audio`, không xác nhận âm thanh thật hay STT.
+- Re-run `npm test` 164/164, typecheck, lint, Expo dependency check và `git diff --check` pass. iOS/Android JS exports vừa build lại (1,073/1,068 modules); metadata có 34/34 MP3/platform, file tồn tại và mọi SHA-256 khớp manifest; cả bundle có gateway và `parseVoiceIntent`. Đây không phải IPA/APK. Metro iOS bundle `:8081` được khởi động lại sạch; manifest và bundle qua LAN HTTP 200, 6,061,569 ký tự. Gateway `/health` ready.
 - Gateway smoke live đạt bằng clip TTS tổng hợp local 19,15 giây: abort/retry, quota và các media guards pass.
-- Còn lại: voice thật qua sáu chương/21 Q&A và failure paths, QC nghe tay 34 clip, iOS native/audio route/interruption, VoiceOver/TalkBack, performance p50/p95. Đây chưa phải nghiệm thu V0–V7.
+- Còn lại: voice thật qua sáu chương/21 Q&A và failure paths, QC nghe tay 34 clip, iOS native/audio route/interruption, VoiceOver/TalkBack, performance p50/p95 và reload bundle mới trên iPhone (người dùng để sau). Đây chưa phải nghiệm thu V0–V7.
 
 ## Snapshot trước lần Metro timeout mới nhất — 14/10/2026 (đã supersede)
 

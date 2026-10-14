@@ -3,12 +3,14 @@
 ## Bằng chứng mới — 14/10/2026
 
 - Người dùng xác nhận lượt voice thứ hai liên tiếp trên iPhone có meter chạy, transcript và Q&A đúng, audio trả lời nghe được. Lỗi mất meter không tái hiện trong retest này; đây là một happy path người dùng báo, chưa có trace độc lập.
-- APK Android mới nhất sau V6 đã build và kiểm bundle/Hermes: 121,246,156 byte, SHA-256 `301F0654052A537324A08240F02C1DA223D99EBACCD841A573A20C3375B0EE36`; có 34 MP3 cùng parser V6 mới, nhưng chưa cài/chạy trên AVD. Bản trước `6D669446...73FBE` đã cài/mở trên AVD API 37 và điều hướng Landing → Home → Ngõ Phất Lộc → Q&A điểm 01. AVD `-no-audio`, nên chưa xác nhận native playback hay STT.
+- APK mới nhất sau V6 (`com.valentino241.ngokedemo`, 121,246,156 byte, SHA-256 `301F0654052A537324A08240F02C1DA223D99EBACCD841A573A20C3375B0EE36`) đã cài/chạy trên AVD API 37. Đã điều hướng Landing → Home → Ngõ Phất Lộc → Q&A điểm 01; kiểm reader open/close không đổi player, typed `Day la diem nao` trả câu “Cổng ngõ” nhưng chữ ẩn mặc định và không autoplay, mở chữ không reset player, `Who are you` trả unknown và xóa answer cũ. Drawer/bàn phím hiển thị; player progress/pause/resume/replay/stop hoạt động ở mức trạng thái UI.
+- Recorder trên APK này vào trạng thái thu, timer tăng và chạm giới hạn tại `00:19`, chờ Gửi; không gửi clip. Back đưa về AlleySelect và dừng lượt. Kiểm riêng Hủy: thu 0,838 giây rồi nút Hủy đưa dock về idle; AppOps không còn lượt RECORD_AUDIO đang chạy. Không chứng minh tín hiệu mic thật vì AVD chạy `-no-audio`.
+- Ảnh native: `agent_docs/evidence/voice/android-emulator/android37-v6-release-{launch,qa-reader-open,playing,paused,resumed,replay,stopped,input-drawer,input-keyboard,typed-answer,typed-answer-text-open,unknown-question,recorder-active,recorder-cancelled,recorder-limit-reached,recorder-pending-send,back-stops-recorder}-2026-10-14.png`.
 - Mic start/Hủy và stress 20 vòng thuộc APK trước đó `0F43437B...53F9`: AppOps xác nhận 20/20 start và 20/20 dừng; không gửi clip. PSS 168,357 KB trước, 182,101 KB ngay sau, 171,789 KB sau 12 giây idle; không chứng minh leak-free.
 - `npm test` 164/164, typecheck, lint, Expo dependency check và `git diff --check` pass. V6 regression mới xác nhận Q&A không bị nuốt khi Plan mở và slot mơ hồ không dùng lại giá trị cũ.
 - Gateway smoke chạy lại đạt với Node 24.14.1/faster-whisper 1.2.1 và clip TTS tổng hợp local 19,15 giây; abort/retry, quota và media guards pass.
-- Expo iOS/Android JS exports sau V6 fix đều thành công; metadata xác nhận mỗi nền tảng đóng gói đủ 34 MP3 và không thiếu file. Metro iOS bundle qua LAN `:8081` tải HTTP 200/6,063,168 ký tự, có gateway/playback error handling và không có copy kết nối cũ. Người dùng đã để sau reload `exp://192.168.100.36:8081`.
-- Vẫn mở: speech E2E trên đủ sáu chương và failure paths, VoiceOver/TalkBack thật, audio routes/interruption, QC nghe tay 34 clip, hiệu năng trên thiết bị và xác nhận bundle iPhone mới. Không đánh dấu GV7 hoàn tất.
+- Expo iOS/Android JS exports vừa build lại thành công (1,073/1,068 modules); metadata xác nhận mỗi nền tảng đóng đủ 34 MP3, mọi file tồn tại và hash khớp V1 manifest. Bundle đều có gateway/parser V6; đây không phải IPA/APK. Metro `:8081` được khởi động lại sạch; manifest và iOS bundle qua LAN trả HTTP 200, 6,061,569 ký tự. Gateway `/health` ready. Người dùng đã để sau reload `exp://192.168.100.36:8081`.
+- Vẫn mở: speech E2E trên đủ sáu chương và failure paths, VoiceOver/TalkBack thật, audio routes/interruption, QC nghe tay 34 clip, hiệu năng trên thiết bị và xác nhận bundle iPhone mới. Người dùng đã xác nhận happy path lượt thứ hai trên iPhone ở lần test trước; bundle `:8081` mới chưa được reload theo yêu cầu để sau. Không đánh dấu GV7 hoàn tất.
 
 ## Snapshot sau retest lượt hai, trước playback fallback mới — 14/10/2026 (đã supersede)
 
@@ -137,11 +139,11 @@ Các IP cũ và hash cũ trong snapshot phía dưới đã được supersede.
 - Emulator đã kiểm fontScale 2.0 trên Landing, AlleySelect, story screen và point-01 typed-answer flow; text drawer, Gửi và gợi ý vẫn hiển thị khi software IME mở. Đã phát hiện rồi sửa hàng tiêu đề Home chồng chữ, nhãn DEMO và placeholder tìm kiếm bị cắt. Bằng chứng trước/sau ở `agent_docs/evidence/voice/android-emulator/README.md`. Chưa kiểm Dynamic Type trên phone, TalkBack/VoiceOver, Reduce Motion, cửa sổ thấp hoặc nghe tay 34 clip.
 - Chưa kiểm lời nói rõ/codec của clip thu, mic trên phone, loa/tai nghe/Bluetooth/silent mode/call/lock/background trên phone. Keyboard large-text đạt trên emulator trong luồng gõ Q&A; chưa xác minh trên thiết bị thật.
 - Chưa đo release→transcript, transcript→audio start, stop/cancel responsiveness, p50/p95, frame time/jank, memory/listeners qua 20 vòng. Không suy ra hiệu năng thiết bị từ Expo export hay máy dev.
-- APK mới đã build sau snapshot emulator (SHA-256 `1020E39520285521871741E2BCE198D14E018DDEFC06B5A82258BBEE24773362`) và chứa accessibility labels theo bundle check. ADB hiện rỗng nên chưa cài để xác nhận labels native; JDK 17 build đã pass sau khi làm mới CMake cache sinh tự động.
+- APK V6 mới nhất (SHA-256 `301F0654052A537324A08240F02C1DA223D99EBACCD841A573A20C3375B0EE36`) đã cài/chạy trên API 37 AVD; bundle chứa accessibility labels. TalkBack/VoiceOver trên thiết bị và xác nhận labels bằng screen reader vẫn pending. JDK 17 release build pass sau khi làm mới CMake cache sinh tự động.
 - `npm audit` báo 23 advisory (8 moderate, 15 high) trong dependency tree. Đề xuất tự động của npm gồm downgrade Expo/RN nhiều major; không chạy `audit fix --force` vì sẽ phá tương thích SDK 57. Cần rà dependency/security riêng trước khi public release.
 - Có screenshot native emulator ở `agent_docs/evidence/voice/android-emulator/`; chúng là bằng chứng emulator, không thay proof điện thoại thật hoặc iOS.
 
-**Bước đóng GV7:** khởi động Metro theo `docs/VOICE_HANDOFF.md`, mở Expo Go trên điện thoại cùng Wi-Fi, rồi chủ động gửi câu hỏi và nghe đúng answer. Status vẫn là *emulator lifecycle pass; phone/iOS và app-to-gateway voice E2E pending*.
+**Bước đóng GV7:** khi người dùng sẵn sàng, reload Expo Go tại `exp://192.168.100.36:8081` trên cùng Wi-Fi rồi kiểm voice tiếp. Status vẫn là *emulator UI/lifecycle pass; latest iPhone bundle check, full speech coverage, iOS/audio, accessibility, listening QC và performance pending*.
 
 ## Bundle và giới hạn kiểm tra mới nhất — 14/10/2026
 

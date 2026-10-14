@@ -2,9 +2,10 @@
 
 ## APK mới nhất sau sửa parser V6 — 14/10/2026
 
-- APK release đã build: 121,246,156 byte, SHA-256 `301F0654052A537324A08240F02C1DA223D99EBACCD841A573A20C3375B0EE36`.
-- `:app:assembleRelease --offline --no-daemon --max-workers=1` thành công trong 2m25s. Kiểm ZIP/Hermes xác nhận bundle có parser V6 mới, URL gateway và đủ 34 MP3.
-- APK mới chưa cài/chạy trên AVD; AVD đang dừng. Đây là build/bundle verification, không phải bằng chứng UI/native/device.
+- APK release: 121,246,156 byte, SHA-256 `301F0654052A537324A08240F02C1DA223D99EBACCD841A573A20C3375B0EE36`. Build và kiểm ZIP/Hermes xác nhận parser V6, URL gateway và đủ 34 MP3.
+- APK đã cài/chạy trên AVD API 37. Đi tới Q&A điểm 01; kiểm reader open/close, player progress/pause/resume/replay/stop, drawer/bàn phím, typed answer đúng, unknown không giữ câu trả lời cũ, recorder state/timer và cleanup khi Back. Ảnh: `android37-v6-release-launch-2026-10-14.png`, `android37-v6-release-qa-reader-open-2026-10-14.png`, `android37-v6-release-{playing,paused,resumed,replay,stopped}-2026-10-14.png`, `android37-v6-release-{input-drawer,input-keyboard,typed-answer,typed-answer-text-open,unknown-question}-2026-10-14.png`.
+- Mic UI tới giới hạn `00:19`, chuyển sang chờ Gửi; không gửi clip. Back ở lượt thu kế tiếp đưa về AlleySelect và dừng recorder. Kiểm nút Hủy trực tiếp: AppOps ghi duration `0.838s`, sau đó không còn lượt RECORD_AUDIO đang chạy; dock về idle. `android37-v6-release-{recorder-active,recorder-cancelled,recorder-limit-reached,recorder-pending-send,back-stops-recorder}-2026-10-14.png`.
+- AVD chạy `-no-audio`: đây là kiểm UI/state/lifecycle, không xác nhận âm thanh phát được hay tín hiệu lời nói/STT. Không gán stress 20 vòng từ APK cũ cho build hiện tại.
 
 ## APK đã kiểm trên AVD trước sửa parser V6: audio-error fallback — 14/10/2026
 

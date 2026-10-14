@@ -8,6 +8,7 @@
 ## Smoke gateway contract rerun — 14/10/2026
 
 - `node tools/voice/gateway/smoke_test.mjs` pass: local synthetic clip 19.15 giây, transcript response, invalid-format, duration và silence guards.
+- Sau đó POST trực tiếp một clip mở đầu tổng hợp cục bộ lên gateway LAN đang chạy `192.168.100.36:8788`; HTTP 200, `locale=vi`, `nodeId=demo-02`, duration 19.15s, transcript không rỗng và `turnId` được echo đúng. Không dùng audio cá nhân. Đây là smoke của endpoint live hiện tại, không phải upload từ app/mic.
 - Bổ sung regression: smoke đợi 1.5 giây sau khi gửi clip, abort POST và chờ server log `REQUEST_CANCELLED` để xác nhận request đã vào ASR; sau đó gửi lượt mới và kiểm HTTP 200, transcript có nội dung, `turnId` mới đúng. Python inference đã bắt đầu vẫn chạy tới khi hoàn tất và tự dọn file; đây là kiểm tra hủy response/turn isolation, không chứng minh dừng compute tức thời hay client iPhone abort.
 - Smoke test gửi request sai content type tới ngưỡng source-IP 12/phút và xác nhận request thứ 13 trả `429 RATE_LIMITED`; không tải thêm audio.
 - `/health` trả `ready`; TCP listener được xác nhận chỉ bind private Wi‑Fi `192.168.100.36:8788` (PID 42408). Không gửi audio cá nhân, không public expose.

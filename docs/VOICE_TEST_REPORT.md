@@ -3,11 +3,12 @@
 ## Kiểm chứng mới nhất — 14/10/2026
 
 - Người dùng xác nhận lượt voice thứ hai liên tiếp trên iPhone có meter chạy, transcript, câu trả lời đúng và phát tiếng. Lỗi meter không tái hiện trong retest này; không có raw audio/server trace để xác minh độc lập.
-- APK Android mới nhất sau V6 đã build và kiểm bundle/Hermes: 121,246,156 byte, SHA-256 `301F0654052A537324A08240F02C1DA223D99EBACCD841A573A20C3375B0EE36`; có 34 MP3 cùng parser V6 mới, nhưng chưa cài/chạy trên AVD. Bản trước `6D669446...73FBE` đã cài/mở trên AVD API 37 và đi qua Landing → Home → Ngõ Phất Lộc → Q&A điểm 01; AVD `-no-audio` nên không xác nhận phát/thu tiếng.
+- Probe chẩn đoán offline: VieNeu tổng hợp 21 câu hỏi → faster-whisper-small hiện tại → `findAnswer` theo đúng node đạt 14/21 exact, 7 unknown, 0 trả nhầm answer; theo node: 6/6, 1/3, 2/3, 1/3, 1/3, 3/3. Vocabulary `initial_prompt` trên cùng audio chỉ đạt 11/21 và làm trượt thêm 3 câu, nên không áp dụng. Đây không phải mic thật, app→gateway hay kiểm trên iPhone; WAV tạm được xóa, chi tiết ở `agent_docs/voice_v5_review.md`.
+- APK mới nhất sau V6 (`com.valentino241.ngokedemo`, 121,246,156 byte, SHA-256 `301F0654052A537324A08240F02C1DA223D99EBACCD841A573A20C3375B0EE36`) đã cài/chạy trên AVD API 37. Đã điều hướng Landing → Home → Ngõ Phất Lộc → Q&A điểm 01; kiểm reader open/close, player progress/pause/resume/replay/stop, drawer/bàn phím, câu gõ đúng, unknown xóa answer cũ, recorder tới giới hạn 00:19, Back dừng recorder và Hủy riêng (AppOps duration 0,838 giây rồi về idle). AVD `-no-audio` nên không xác nhận tiếng thật hay STT. Ảnh trong `agent_docs/evidence/voice/android-emulator/android37-v6-release-*.png`.
 - Mic start/Hủy thủ công và 20 vòng AppOps thuộc APK trước đó `0F43437B...53F9`, không phải APK hiện tại. 20/20 lượt bắt đầu/dừng; không gửi audio. PSS 168,357 KB trước, 182,101 KB sau run, 171,789 KB sau 12 giây idle; không phải leak proof.
 - Re-run: `npm test` 164/164; typecheck, lint, Expo dependency check và `git diff --check` pass. Regression V6 mới kiểm câu hỏi khi Plan mở và loại slot cũ khi transcript mơ hồ; UI cũng xác nhận lỗi bất đồng bộ từ Expo Audio hiện thông báo fallback accessibility alert, không lộ native error/path.
-- Gateway smoke live đạt bằng clip TTS tổng hợp local 19,15 giây trên Node 24.14.1/faster-whisper 1.2.1: abort/retry, quota, invalid format, duration và silence guards pass; không dùng audio cá nhân.
-- Latest iOS/Android JS exports sau V6 fix đều thành công; metadata mỗi platform có 34/34 MP3 và không thiếu file. Metro iOS bundle `:8081` qua LAN trả HTTP 200/6,063,168 ký tự, có gateway và playback error handling, không có copy kết nối cũ. Gateway ready; người dùng để sau việc reload/test `exp://192.168.100.36:8081` trên iPhone.
+- Gateway smoke đạt bằng clip TTS tổng hợp local 19,15 giây trên Node 24.14.1/faster-whisper 1.2.1: abort/retry, quota, invalid format, duration và silence guards pass. POST riêng tới gateway LAN đang chạy cũng trả HTTP 200, echo context/turnId và transcript không rỗng. Không dùng audio cá nhân; đây chưa phải mic→app→gateway E2E.
+- Re-export hiện tại: iOS 1,073 modules và Android 1,068 modules đều pass. Expo metadata cho thấy đủ 34 MP3/platform, tất cả file tồn tại và SHA-256 khớp V1 manifest; hai bundle có gateway và `parseVoiceIntent`. Đây là JS/Hermes exports, không phải native IPA/APK. Metro `:8081` vừa được khởi động lại sạch; manifest và iOS bundle qua LAN HTTP 200, 6,061,569 ký tự. Gateway ready. Người dùng để sau việc reload/test `exp://192.168.100.36:8081` trên iPhone.
 - Còn mở: sáu chương/21 Q&A bằng speech trên iPhone, failure paths, audio interruptions/routes, screen reader thật, nghe QC 34 clip và performance.
 
 ## Snapshot trước lần Metro timeout mới nhất — 14/10/2026 (đã supersede)
@@ -81,8 +82,8 @@
 
 Các địa chỉ `<DEV_LAN_IP>`/`<DEV_LAN_IP>` và APK hash cũ ở snapshot bên dưới đã bị supersede; dùng trạng thái và artifact trong mục này.
 
-**Cập nhật:** 13/10/2026
-**Kết luận:** 135 unit/UI tests, Android API 37 emulator run, local gateway probe, native recorder lifecycle và Android release build đạt trong phạm vi ghi dưới đây. Chưa nghiệm thu app-to-gateway từ mic, điện thoại thật/iOS; đây chưa phải release hoàn chỉnh.
+**Cập nhật:** 14/10/2026
+**Kết luận:** 164 unit/UI tests, Android API 37 emulator run trên APK V6 mới nhất, local gateway probe và release build đạt trong phạm vi ghi dưới đây. Chưa nghiệm thu speech end-to-end trên đủ nội dung, iOS native/thiết bị thật, routes/accessibility hoặc hiệu năng; đây chưa phải release hoàn chỉnh.
 
 > Snapshot trước đó (đã supersede): APK 121,231,544 byte, SHA-256 `1020E39520285521871741E2BCE198D14E018DDEFC06B5A82258BBEE24773362`, gateway `<DEV_LAN_IP>:8788`. ADB khi đó rỗng; phone/iOS mic-to-answer và GV5/GV7 vẫn mở.
 
@@ -92,12 +93,12 @@ Các địa chỉ `<DEV_LAN_IP>`/`<DEV_LAN_IP>` và APK hash cũ ở snapshot b�
 | --- | --- | --- |
 | V0 TTS/STT probe | Đã chọn stack local-only | VieNeu v3 Turbo local; preset Đoan Trang thắng trên 3 clip tổng hợp so với Ngọc Linh theo ASR WER; độ ấm/tự nhiên chưa nghe người thật xác nhận. faster-whisper-small tiếng Việt qua gateway trên LAN; không dùng cloud hoặc credential. |
 | V1 audio catalogue | 34/34 integrity/format checks đạt | 6:58.23 audio, 5,043,834 byte; ASR tự động bắt sai khác ở vài clip; nghe tay còn pending. |
-| V2 native player/UI | APK trước đó trên API 37 xác nhận phát asset thật, đủ controls và text-input drawer; APK mới đã build và chứa accessibility labels | Progress/pause/resume/replay/stop đạt. Ở fontScale 2.0, drawer giữ tiêu đề, ô nhập, Gửi và câu hỏi gợi ý trên IME; `day la diem nao` match Q&A point 01, answer đúng hiện nhưng không autoplay. APK mới chưa cài lại vì ADB rỗng; chưa kiểm route âm thanh trên điện thoại thật. |
-| V3 recorder | Permission-on-tap, cấp lần đầu, safety guard 19.5s, Hủy và Back kiểm trên emulator; user confirms live meter on the second iPhone turn | Emulator giữ thời lượng thật `00:19`, chờ Gửi/Hủy; Hủy về idle; Back dừng recorder. Gateway hard limit vẫn 20s. iPhone result is user-reported; no native trace. |
+| V2 native player/UI | APK V6 mới nhất cài/chạy trên API 37; reader, typed answer/unknown, drawer/IME và player controls được kiểm | Player state/progress/pause/resume/replay/stop đạt; text mở/đóng không reset player; answer đúng hiện khi gõ nhưng không autoplay; unknown xóa answer cũ. AVD `-no-audio`, nên progress không xác nhận âm thanh nghe được. |
+| V3 recorder | Recorder UI/lifecycle trên APK V6 và lượt hai iPhone do người dùng xác nhận | APK V6 hiển thị recording/timer đến giới hạn 00:19; Back dừng lượt. Không gửi clip; AVD `-no-audio`, nút Hủy chưa kiểm độc lập trên APK này. iPhone meter là user-reported, không có native trace. |
 | V4 gateway/STT | Local faster-whisper nhận dạng clip tổng hợp; người dùng báo iPhone hiển thị transcript ở lượt hai | Smoke 19.15s đạt; PCM silence 21s trả 400 `AUDIO_TOO_LONG`; invalid format trả 415. User-reported app-to-STT path is one success; no raw audio/log or independent trace. |
 | V5 fixed Q&A | Matcher and all 21 answers have unit tests; người dùng xác nhận lượt iPhone thứ hai hiện đúng answer và phát tiếng | Chạm chip không tự phát loa; UI tests map transcript questions to chapter-specific audio. Physical-device coverage remains one reported chapter/follow-up. |
 | V6 actions | Parser/actions/UI logic đã test | Câu hỏi khác lệnh; ambiguous actions yêu cầu tap; QR/GPS cần CTA. Nhận dạng cách nói trên thiết bị còn pending. |
-| V7 nghiệm thu | Android release/AVD checks and current iOS/Android JS exports pass; user reports one successful two-turn iPhone voice flow | Physical iPhone success is user-reported at `:8089`; current source bundle at `:8081` has not been confirmed on phone. Full six-chapter, failure paths, screen reader, audio routes, 34-clip listening QC and performance remain open; GV7 remains open. |
+| V7 nghiệm thu | APK V6 chạy trên AVD API 37; iOS/Android JS exports và Metro `:8081` bundle HTTP 200; user reports one successful two-turn iPhone voice flow | iPhone result is user-reported at `:8089`; the current `:8081` bundle has not been reloaded on phone (người dùng để sau). Full six-chapter, failure paths, screen reader, audio routes, 34-clip listening QC and performance remain open; GV7 remains open. |
 
 ## Lệnh và kết quả
 
