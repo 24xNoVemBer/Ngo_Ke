@@ -9,7 +9,7 @@ test('answer playback generation is invalidated by a new mic turn or scope chang
   assert.equal(isPlaybackRequestCurrent(4, 4, 'demo:r1:demo-01', 'demo:r1:demo-02'), false);
 });
 
-test('stopping playback disables looping and waits for the native pause state without seeking', async () => {
+test('stopping playback disables looping, pauses and awaits the native seek before returning', async () => {
   const events = [];
   let playing = true;
   const player = {
@@ -17,14 +17,18 @@ test('stopping playback disables looping and waits for the native pause state wi
     get playing() { return playing; },
     pause() {
       events.push('pause');
-      void delay(40).then(() => { playing = false; });
     },
-    seekTo() { assert.fail('stopping must not wait for a native seek'); },
+    async seekTo(seconds) {
+      events.push(`seek:${seconds}:start`);
+      await delay(40);
+      playing = false;
+      events.push('seek:finish');
+    },
   };
 
   assert.equal(await stopAudioPlayer(player), true);
   assert.equal(player.loop, false);
-  assert.deepEqual(events, ['pause']);
+  assert.deepEqual(events, ['pause', 'seek:0:start', 'seek:finish']);
 });
 
 test('stopping playback reports when the native player never pauses', async () => {
@@ -32,9 +36,35 @@ test('stopping playback reports when the native player never pauses', async () =
     loop: true,
     playing: true,
     pause() {},
+    async seekTo() {},
   };
 
   assert.equal(await stopAudioPlayer(player), false);
+});
+
+test('a failed seek still waits for the native pause before allowing microphone handoff', async () => {
+  let playing = true;
+  const events = [];
+  const player = {
+    loop: true,
+    get playing() { return playing; },
+    pause() { void delay(40).then(() => { playing = false; }); },
+    async seekTo() { events.push('seek failed'); throw new Error('no current item'); },
+  };
+
+  assert.equal(await stopAudioPlayer(player), true);
+  assert.deepEqual(events, ['seek failed']);
+});
+
+test('a stalled native seek is bounded and proceeds only after playback is paused', async () => {
+  const player = {
+    loop: true,
+    playing: true,
+    pause() { this.playing = false; },
+    seekTo() { return new Promise(() => {}); },
+  };
+
+  assert.equal(await stopAudioPlayer(player), true);
 });
 
 test('replay waits for the native seek before starting playback', async () => {

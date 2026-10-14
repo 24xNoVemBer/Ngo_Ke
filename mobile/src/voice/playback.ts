@@ -7,6 +7,7 @@ type StoppablePlayer = {
   loop: boolean;
   playing: boolean;
   pause(): void;
+  seekTo(seconds: number): Promise<void>;
 };
 
 const PLAYER_STOP_TIMEOUT_MS = 1000;
@@ -21,10 +22,23 @@ export function isPlaybackRequestCurrent(
 }
 
 export async function stopAudioPlayer(player: StoppablePlayer): Promise<boolean> {
+  const deadline = Date.now() + PLAYER_STOP_TIMEOUT_MS;
   try {
     player.loop = false;
     player.pause();
-    const deadline = Date.now() + PLAYER_STOP_TIMEOUT_MS;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await Promise.race([
+        player.seekTo(0),
+        new Promise<void>((resolve) => {
+          timeout = setTimeout(resolve, Math.max(0, deadline - Date.now()));
+        }),
+      ]);
+    } finally {
+      if (timeout) clearTimeout(timeout);
+    }
+  } catch { /* A seek may fail for an unloaded item; still confirm the pause below. */ }
+  try {
     while (player.playing && Date.now() < deadline) {
       await new Promise((resolve) => setTimeout(resolve, 25));
     }
