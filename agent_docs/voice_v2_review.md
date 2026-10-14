@@ -14,6 +14,8 @@
 
 ## Bằng chứng và giới hạn
 
+- On the current source APK (SHA-256 `BA973B5F23550367191A3A5ED004FD411CEF6D90ABB5C0FB5A132AA4897221D2`), started the story player (`00:01` with Pause), pressed Home, then reopened the app. The player showed `Sẵn sàng · 00:23` with Play and 0% progress; it did not resume. Screenshots: `android37-source-release-player-background-active-2026-10-14.png` and `android37-source-release-player-background-return-2026-10-14.png` in the Android evidence folder.
+- This is background-state verification on API 37 AVD `-no-audio`; it does not test speaker output, headphones or iPhone audio-session behavior.
 - Source: `mobile/src/voice/useVoiceSession.ts`, `mobile/src/components/VoicePlayerBar.tsx`, `mobile/src/components/VoiceInteractionDock.tsx`, `mobile/src/screens/QaScreen.tsx`, `mobile/app.json`.
 - `npm test`: 126/126; `npm run typecheck`, `npm run lint`, `npm run check:dependencies`: đạt. Android và iOS Expo JS exports đều thành công.
 - Android `:app:assembleRelease` build thành công; APK internal debug-signed chạy trên Android API 37 emulator. Bản APK mới nhất được kiểm lại trực tiếp: player có progress thật và play/pause/resume/replay/stop đạt. Mở text drawer khi bật keyboard vẫn thấy ô nhập/nút Gửi; câu gõ không dấu `day la diem nao` match Q&A point 01, drawer đóng, answer đúng node hiện ra nhưng không autoplay; bấm Play mới phát answer. Mở chữ, Back, đổi điểm, vào lại và offline audio cũng đã kiểm.

@@ -18,6 +18,12 @@
 - Evidence: `android37-source-release-recorder-background-idle-appops-2026-10-14.png`.
 - This is lifecycle evidence from the API 37 AVD running `-no-audio`, not a microphone signal, spoken turn, STT or physical-iPhone interruption test.
 
+## Player background stop on source release APK — 14/10/2026
+
+- Started the story player and captured `00:01` with Pause. After pressing Home and reopening the app, the player showed `Sẵn sàng · 00:23`, Play and 0% progress, so the old playback did not resume.
+- Evidence: `android37-source-release-player-background-active-2026-10-14.png`, `android37-source-release-player-background-return-2026-10-14.png`.
+- This is state/progress verification on API 37 AVD `-no-audio`; it does not prove audible playback or physical-device audio routing.
+
 ## APK V6 trước sửa phủ định trong ô nhập tay — 14/10/2026
 
 - APK release: 121,246,156 byte, SHA-256 `301F0654052A537324A08240F02C1DA223D99EBACCD841A573A20C3375B0EE36`. Build và kiểm ZIP/Hermes xác nhận parser V6, URL gateway và đủ 34 MP3.
