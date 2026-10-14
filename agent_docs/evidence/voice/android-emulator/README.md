@@ -1,5 +1,12 @@
 # Ngõ Kể voice — Android emulator evidence
 
+## Microphone permission denial and retry recovery — 14/10/2026
+
+- On the current source release APK, revoked `RECORD_AUDIO` and tapped the mic. Android showed its permission prompt; “Don’t allow” returned to the app with the typed fallback and a retry action.
+- Retry reopened the OS prompt. After granting “While using the app”, the recorder showed `Đang thu · 00:02`; Cancel returned the dock to idle. Runtime permission was verified granted afterward and left granted.
+- Screenshots: `android37-source-release-mic-permission-prompt-2026-10-14.png`, `android37-source-release-mic-denied-fallback-2026-10-14.png`, `android37-source-release-mic-permission-retry-prompt-2026-10-14.png`, `android37-source-release-mic-permission-recovery-active-2026-10-14.png`, `android37-source-release-mic-permission-recovery-cancelled-2026-10-14.png`.
+- API 37 AVD runs with `-no-audio`; this proves Android permission/UI recovery and cleanup only. No speech, live meter, STT or hardware behavior was tested.
+
 ## APK hiện tại sau sửa phủ định trong ô Plan — 14/10/2026
 
 - APK release: 121,246,512 byte, SHA-256 `BA973B5F23550367191A3A5ED004FD411CEF6D90ABB5C0FB5A132AA4897221D2`. Đã cài và chạy trên AVD API 37.

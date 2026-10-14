@@ -1,5 +1,12 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-14 — Android microphone permission denial/retry verified
+
+- On current Android release APK `BA973B5F23550367191A3A5ED004FD411CEF6D90ABB5C0FB5A132AA4897221D2` / API 37 AVD: revoke mic → OS prompt → deny → app shows typed fallback → retry opens prompt → grant → recorder reaches `00:02` → Cancel returns idle. `dumpsys package` confirmed `RECORD_AUDIO: granted=true` afterward; permission left granted.
+- Evidence is linked in `agent_docs/evidence/voice/android-emulator/README.md` and documented in V3/V7/test report/handoff/roadmap. AVD uses `-no-audio`, so no speech, live meter, STT or physical-device permission behavior is claimed.
+- User deferred testing the current iPhone preview `exp://192.168.100.36:8081`; continue independent work and do not ask again now. The earlier iPhone second-turn happy path remains user-reported for `:8089`, not verification of this latest bundle.
+- User's later explicit instruction to automatically push completed chunks to `ngoke-public` remains active; stage only intended project files and evidence, leaving unrelated `.idea`, cache and evidence untouched.
+
 ## 2026-10-14 — Plan phủ định không còn giữ chủ đề cũ; kiểm APK native
 
 - AVD API 37 tái hiện lỗi thật: sau khi chọn ẩm thực + 30 phút, nhập “Không đi ẩm thực trong 30 phút” ở Plan bị nhận thành ẩm thực và vẫn hiện picks cũ.

@@ -3,6 +3,7 @@
 ## Bằng chứng mới nhất — 14/10/2026
 
 - Người dùng xác nhận lượt thứ hai trên iPhone có meter, transcript/Q&A đúng và nghe được câu trả lời; không có audio/log độc lập. Preview mới `exp://192.168.100.36:8081` được để sau.
+- Trên APK Android release API 37, đã kiểm đủ nhánh mic: từ chối quyền → fallback gõ → thử lại → cấp quyền → recorder vào `00:02` → Hủy về idle; quyền còn granted. Bằng chứng ở `agent_docs/evidence/voice/android-emulator/README.md`. AVD `-no-audio`, nên đây không phải kiểm lời nói/meter/STT.
 - Trên APK mới nhất đã cài ở AVD API 37 (`com.valentino241.ngokedemo`, 121.246.512 byte, SHA-256 `BA973B5F23550367191A3A5ED004FD411CEF6D90ABB5C0FB5A132AA4897221D2`), Plan không còn giữ topic/picks ẩm thực sau input “Không đi ẩm thực trong 30 phút”; thời lượng 30 phút được giữ và app yêu cầu chọn chủ đề. Ảnh: `agent_docs/evidence/voice/android-emulator/android37-release-negated-plan-result-2026-10-14.png`. Đây là text entry trên AVD `-no-audio`, không phải STT/audio test.
 - Cùng APK mới: player tiến đến `00:02` rồi pause; mic thu rồi Hủy về idle, lần nhấn mic thứ hai cũng vào `Đang thu` và Hủy về idle. Ảnh và giới hạn AVD `-no-audio` ở `agent_docs/evidence/voice/android-emulator/README.md`; không xác nhận meter có tín hiệu hay lời nói/STT.
 - Khi đưa recorder đang chạy xuống nền bằng Home, AppOps kết thúc lượt RECORD_AUDIO; mở lại app thì dock idle và không tự thu tiếp. Đây là kiểm lifecycle AVD, không phải kiểm cuộc gọi/audio-route trên iPhone.

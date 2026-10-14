@@ -1,5 +1,12 @@
 # Voice V3 — Microphone recorder
 
+## Permission denied → retry recovery on the current release APK — 14/10/2026
+
+- Revoked `RECORD_AUDIO`, tapped the mic, and confirmed Android's permission prompt. Choosing “Don’t allow” returned to the app's retry state with the typed-question fallback; it did not crash or leave a recording active.
+- Tapped “Thử lại bằng giọng nói”, granted “While using the app”, and confirmed the runtime permission is granted. Retry entered `Đang thu · 00:02`; pressing Hủy returned the dock to idle. The permission remains granted after the test.
+- Evidence: `android37-source-release-mic-permission-prompt-2026-10-14.png`, `android37-source-release-mic-denied-fallback-2026-10-14.png`, `android37-source-release-mic-permission-retry-prompt-2026-10-14.png`, `android37-source-release-mic-permission-recovery-active-2026-10-14.png`, and `android37-source-release-mic-permission-recovery-cancelled-2026-10-14.png` in `agent_docs/evidence/voice/android-emulator/`.
+- This is Android API 37 permission/state coverage on an AVD running `-no-audio`; it does not verify speech, meter response, STT or iPhone permission behavior.
+
 ## Background cancellation on the latest source APK — 14/10/2026
 
 - On the current release APK (`com.valentino241.ngokedemo`, SHA-256 `BA973B5F23550367191A3A5ED004FD411CEF6D90ABB5C0FB5A132AA4897221D2`), started recording and confirmed AppOps showed `RECORD_AUDIO ... (running)`. Pressed Home; the launcher became the resumed activity and AppOps changed to a completed 3.083-second use. Returning to Ngõ Kể showed `Nhấn để hỏi`; the recorder did not resume.

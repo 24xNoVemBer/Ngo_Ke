@@ -2,6 +2,8 @@
 
 ## Trạng thái mới nhất — 14/10/2026
 
+- Trên APK release source/AVD API 37, mic permission denial → typed fallback → retry prompt → grant → recorder `Đang thu · 00:02` → Hủy về idle; permission được để ở trạng thái granted. Đây là kiểm tra quyền/UI recovery trên AVD `-no-audio`, không xác nhận meter có tín hiệu, speech hay STT. Ảnh được liệt kê trong `agent_docs/evidence/voice/android-emulator/README.md`.
+- Kết quả kiểm mobile hiện hành đã được xác nhận lại ở `docs/VOICE_TEST_REPORT.md`: `npm test` 166/166, typecheck, lint và Expo dependency check đều pass; con số 165/165 trong dòng snapshot cũ bên dưới đã lỗi thời.
 - Recheck host hiện tại: Metro `:8081` manifest và iOS bundle HTTP 200; bundle 6.062.091 ký tự có gateway LAN, recorder và helper phủ định mới, không có copy trạng thái chưa kết nối. Gateway `192.168.100.36:8788/health` báo `ready`. iPhone chưa reload bundle này.
 - Đo gateway riêng bằng 5 lượt warm trên cùng clip TTS tổng hợp 19,15 giây: 5/5 HTTP 200, transcript và context echo hợp lệ; p50 7.536 ms, p95 nearest-rank 7.727 ms. Đây không phải stop→transcript→audio trên thiết bị.
 - V6 fix chung `hasTopicNegation`: voice và Plan gõ tay đều không chọn lại chủ đề bị phủ định; “không gian” vẫn xử lý như danh từ. Trên AVD, sau khi chọn ẩm thực + 30 phút rồi nhập “Không đi ẩm thực trong 30 phút”, topic cũ và picks biến mất, budget 30 phút giữ lại.
