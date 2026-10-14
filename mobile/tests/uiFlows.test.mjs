@@ -61,6 +61,7 @@ function mount(file, props = {}, overrides = {}, exportName) {
       StyleSheet: { create: (styles) => styles, absoluteFill: {} },
       Platform: { OS: 'android' },
       Keyboard: { dismiss() {} },
+      Linking: overrides.__linking ?? { openSettings: async () => {} },
       useWindowDimensions: () => overrides.__windowDimensions ?? ({ width: 400, height: 850, fontScale: 1 }),
       Animated: {
         View: 'Animated.View',
@@ -515,6 +516,21 @@ test('voice playback and recording expose accessible progress values and a full-
   assert.deepEqual(JSON.parse(JSON.stringify(recordingProgress.props.accessibilityValue)), { min: 0, max: 100, now: 50 });
   const cancel = elements(dockTree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Hủy bản ghi');
   assert.equal(cancel.props.style.minHeight, 48);
+});
+
+test('permanently denied microphone exposes an accessible settings action', () => {
+  let opened = false;
+  const dock = mount('../src/components/VoiceInteractionDock.tsx', {
+    stage: 'error', error: 'Quyền micro đã bị chặn trong Cài đặt.', recordingDurationMs: 0,
+    onStartRecording() {}, onSubmitRecording() {}, onCancel() {}, onOpenInput() {},
+    onOpenSettings() { opened = true; },
+  }, { '../voice/metering': { meteringToLevel: () => 0 } });
+  const tree = dock.render();
+  const settings = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Mở cài đặt quyền micro');
+  assert.ok(settings);
+  assert.ok(settings.props.style.minHeight >= 48);
+  settings.props.onPress();
+  assert.equal(opened, true);
 });
 
 test('voice stage changes are announced without repeating the recording timer', () => {

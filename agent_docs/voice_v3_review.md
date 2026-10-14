@@ -1,5 +1,14 @@
 # Voice V3 — Microphone recorder
 
+## Permanently blocked permission → Android Settings recovery — 14/10/2026
+
+- Roadmap yêu cầu có lối Mở Cài đặt khi OS không hỏi quyền mic nữa. Hook trước đó chỉ hiện “Thử lại bằng giọng nói”; `canAskAgain` chưa được xét. Đã bổ sung phân biệt quyền còn hỏi lại với quyền bị chặn, thông báo riêng và nút mở cài đặt hệ thống.
+- Release APK mới `com.valentino241.ngokedemo`, 121,247,352 bytes, SHA-256 `ED49FF5702BE20002184876F20FB34B828DF7BEFEA1F22A48FCE2F7944DC80E2`; build Gradle hoàn tất 405 tasks. Đã cài trên AVD API 37.
+- Revoke quyền sau lần cấp trước, từ chối prompt: app chuyển sang thông báo quyền bị chặn. “Mở Cài đặt” mở trang quyền microphone của Ngõ Kể; cấp “Allow only while using the app”, quay lại và nhấn thử lại thì vào `Đang thu · 00:01`. Recorder đạt giới hạn 19 giây trong một lượt chờ khác; bản ghi không gửi, Hủy đưa dock về `Nhấn để hỏi`. Runtime permission được kiểm tra lại là granted.
+- UI regression: nút cài đặt có accessibility label và hit target ≥48dp. `npm test` 167/167, typecheck, lint và Expo dependency check pass.
+- Bằng chứng: `android37-source-release-mic-permission-blocked-settings-2026-10-14.png`, `android37-source-release-mic-permission-settings-screen-2026-10-14.png`, `android37-source-release-mic-permission-settings-recovery-recording-2026-10-14.png`, `android37-source-release-mic-permission-settings-recovery-ready-2026-10-14.png`, `android37-source-release-mic-permission-settings-recovery-cancelled-2026-10-14.png` trong `agent_docs/evidence/voice/android-emulator/README.md`.
+- AVD chạy `-no-audio`: bài này kiểm tra Android permission/UI/retry/cleanup, không chứng minh tín hiệu meter, giọng nói, STT hoặc iPhone.
+
 ## Permission denied → retry recovery on the current release APK — 14/10/2026
 
 - Revoked `RECORD_AUDIO`, tapped the mic, and confirmed Android's permission prompt. Choosing “Don’t allow” returned to the app's retry state with the typed-question fallback; it did not crash or leave a recording active.

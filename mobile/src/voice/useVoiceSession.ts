@@ -40,6 +40,7 @@ function turnId(): string {
 
 function messageForError(code: string): string {
   if (code === 'MIC_PERMISSION_DENIED') return 'Ngõ Kể chưa được cấp quyền dùng micro. Bạn có thể gõ câu hỏi thay thế.';
+  if (code === 'MIC_PERMISSION_BLOCKED') return 'Quyền micro đã bị chặn trong Cài đặt. Bật quyền micro hoặc gõ câu hỏi thay thế.';
   if (code === 'AUDIO_TOO_SHORT') return 'Câu nói hơi ngắn. Hãy nói rõ câu hỏi rồi chạm Gửi.';
   if (code === 'RECORDER_START_FAILED') return 'Micro chưa bắt đầu thu được. Hãy chạm để thử lại.';
   if (code === 'AUDIO_PLAYER_STOP_TIMEOUT') return 'Lời kể chưa dừng hẳn. Hãy thử lại sau một chút.';
@@ -73,6 +74,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
   const [stage, setStage] = useState<VoiceStage>('idle');
   const stageRef = useRef<VoiceStage>('idle');
   const [error, setError] = useState<string | null>(null);
+  const [permissionBlocked, setPermissionBlocked] = useState(false);
   const [activeTrackId, setActiveTrackId] = useState<string | null>(null);
   const [playbackError, setPlaybackError] = useState<string | null>(null);
   const turnRef = useRef<VoiceTurnContext | null>(null);
@@ -132,6 +134,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
     const isCurrentTurn = () => isCurrentVoiceTurn(turnRef.current, scopeRef.current, context);
     turnRef.current = context;
     setError(null);
+    setPermissionBlocked(false);
     setPlaybackError(null);
     changeStage('preparing');
 
@@ -142,7 +145,11 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
       const permission = await requestRecordingPermissionsAsync();
       permissionPendingRef.current = false;
       if (!isCurrentTurn()) return;
-      if (!permission.granted) throw new Error('MIC_PERMISSION_DENIED');
+      if (!permission.granted) {
+        const blocked = !permission.canAskAgain;
+        setPermissionBlocked(blocked);
+        throw new Error(blocked ? 'MIC_PERMISSION_BLOCKED' : 'MIC_PERMISSION_DENIED');
+      }
       if (!canContinueVoiceStart(AppState.currentState)) throw new Error('RECORDER_START_FAILED');
       const prepared = await prepareVoiceRecorderForTurn({
         isCurrent: isCurrentTurn,
@@ -362,6 +369,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
       void stopPlayback();
       if (scopeChanged) {
         setError(null);
+        setPermissionBlocked(false);
         setPlaybackError(null);
         if (stageRef.current !== 'preparing' && stageRef.current !== 'stopping') changeStage('idle');
       }
@@ -394,6 +402,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
   return {
     stage,
     error,
+    permissionBlocked,
     recordingDurationMs: stage === 'ready' ? (readyRecordingRef.current?.durationMs ?? 0) : recording.durationMillis,
     metering: recording.metering,
     playback,

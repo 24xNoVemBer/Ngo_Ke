@@ -4,6 +4,7 @@ import {
   Animated,
   ImageBackground,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -780,6 +781,7 @@ export function QaScreen({
             onSubmitRecording={() => void voiceSession.submitRecording()}
             onCancel={voiceSession.cancel}
             onOpenInput={() => setIsInputDrawerVisible(true)}
+            onOpenSettings={voiceSession.permissionBlocked ? () => { void Linking.openSettings().catch(() => undefined); } : undefined}
             onQuickAction={onOpenNotebook}
           />
         </View>

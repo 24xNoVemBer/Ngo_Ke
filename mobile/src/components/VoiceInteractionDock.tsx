@@ -13,6 +13,7 @@ interface Props {
   onSubmitRecording: () => void;
   onCancel: () => void;
   onOpenInput: () => void;
+  onOpenSettings?: () => void;
   onQuickAction?: () => void;
   quickActionLabel?: string;
 }
@@ -24,7 +25,7 @@ function formatDuration(milliseconds: number): string {
 
 export function VoiceInteractionDock({
   stage, error, recordingDurationMs, metering, onStartRecording, onSubmitRecording,
-  onCancel, onOpenInput, onQuickAction, quickActionLabel = 'Sổ tay',
+  onCancel, onOpenInput, onOpenSettings, onQuickAction, quickActionLabel = 'Sổ tay',
 }: Props): ReactElement {
   const level = meteringToLevel(metering);
   const busy = stage === 'preparing' || stage === 'stopping' || stage === 'transcribing';
@@ -130,6 +131,11 @@ export function VoiceInteractionDock({
         </Pressable>
       )}
       {error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
+      {onOpenSettings && (
+        <Pressable accessibilityRole="button" accessibilityLabel="Mở cài đặt quyền micro" onPress={onOpenSettings} style={styles.settingsLink}>
+          <Text style={styles.settingsText}>Mở Cài đặt</Text>
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -154,5 +160,7 @@ const styles = StyleSheet.create({
   cancelLink: { alignSelf: 'flex-end', minHeight: 48, justifyContent: 'center', paddingHorizontal: 10 },
   cancelText: { color: '#E8DCC0', fontSize: 13, fontWeight: '600' },
   error: { color: '#F3D4BF', fontSize: 13, lineHeight: 18, paddingHorizontal: 6, paddingTop: 6 },
+  settingsLink: { alignSelf: 'flex-start', minHeight: 48, justifyContent: 'center', paddingHorizontal: 6 },
+  settingsText: { color: '#F2C56B', fontSize: 13, fontWeight: '700' },
   pressed: { opacity: 0.7 },
 });

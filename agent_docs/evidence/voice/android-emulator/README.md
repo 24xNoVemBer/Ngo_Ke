@@ -1,5 +1,13 @@
 # Ngõ Kể voice — Android emulator evidence
 
+## Permanently blocked mic permission and Settings recovery — 14/10/2026
+
+- Rebuilt source APK `com.valentino241.ngokedemo` (121,247,352 bytes; SHA-256 `ED49FF5702BE20002184876F20FB34B828DF7BEFEA1F22A48FCE2F7944DC80E2`) on API 37 AVD.
+- After microphone access was denied, the app showed a distinct blocked-permission message plus an accessible “Mở Cài đặt” action. Tapping it opened Ngõ Kể's Android app permissions, including the microphone options.
+- Granted “Allow only while using the app”, returned to Ngõ Kể and tapped retry: recorder reached `Đang thu · 00:01`; a later turn reached the real 19-second cap and `Đã thu xong · 00:19`. No audio was submitted; Hủy returned the dock to idle and package manager confirmed the permission remained granted.
+- Screenshots: `android37-source-release-mic-permission-blocked-settings-2026-10-14.png`, `android37-source-release-mic-permission-settings-screen-2026-10-14.png`, `android37-source-release-mic-permission-settings-recovery-recording-2026-10-14.png`, `android37-source-release-mic-permission-settings-recovery-ready-2026-10-14.png`, `android37-source-release-mic-permission-settings-recovery-cancelled-2026-10-14.png`.
+- API 37 AVD is `-no-audio`, so this verifies permission routing, retry and cleanup only, not live meter, speech, STT or hardware behavior.
+
 ## Microphone permission denial and retry recovery — 14/10/2026
 
 - On the current source release APK, revoked `RECORD_AUDIO` and tapped the mic. Android showed its permission prompt; “Don’t allow” returned to the app with the typed fallback and a retry action.
