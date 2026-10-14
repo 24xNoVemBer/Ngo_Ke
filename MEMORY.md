@@ -6,6 +6,7 @@
 - Regression + validation: `npm test` 167/167, typecheck, lint, dependency check pass. Android release `assembleRelease` built successfully with scoped JDK 17/Android SDK environment; 121,247,352 bytes, SHA-256 `ED49FF5702BE20002184876F20FB34B828DF7BEFEA1F22A48FCE2F7944DC80E2`. Installed on API 37 AVD.
 - AVD permission denial → app blocked-state → Open Settings → allow while in use → return/retry entered recording → cancel to idle; `RECORD_AUDIO` remains granted. AVD is `-no-audio`; no speech/meter/STT claim. Screenshots in `agent_docs/evidence/voice/android-emulator/README.md`.
 - Repeated two mic starts after Settings recovery on the current APK: second showed `Đang thu · 00:00`, then Cancel returned idle; AppOps operation ended and package permission remained granted. No recording submitted.
+- Old Metro PID 34608 on `:8081` replied to `/status` but hung on manifest/bundle. Restarted the same project/port; current manifest and iOS launch asset return HTTP 200 (5,528,940 bytes), source inspection includes blocked-permission code and gateway and omits stale not-connected text. Gateway health is ready. User deferred reloading Expo Go; do not ask again now.
 - iPhone reload of `exp://192.168.100.36:8081` remains deferred by user; do not ask again in this continuation.
 
 ## 2026-10-14 — Android microphone permission denial/retry verified

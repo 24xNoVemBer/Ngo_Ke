@@ -2,7 +2,7 @@
 
 ## Kiểm chứng mới nhất — 14/10/2026
 
-- Host recheck hiện tại: Metro `:8081` manifest và iOS bundle HTTP 200; bundle 6.062.091 ký tự có gateway `192.168.100.36:8788`, recorder và helper phủ định mới, không chứa copy “Chưa kết nối máy nhận giọng nói”. Gateway LAN `/health` báo `ready` (Node 24.14.1, faster-whisper 1.2.1 small).
+- Host recheck mới sau restart: Expo Metro `:8081` manifest HTTP 200 và iOS launch asset HTTP 200 (5,528,940 bytes). Text inspection bundle có marker `MIC_PERMISSION_BLOCKED` và gateway `192.168.100.36:8788`, không có copy “Chưa kết nối máy nhận giọng nói”. Gateway `/health` báo `ready` (Node 24.14.1, faster-whisper 1.2.1 small). Người dùng chưa reload Expo Go theo yêu cầu để sau.
 - Năm POST warm liên tiếp bằng clip TTS tổng hợp 19,15 giây đều trả HTTP 200, transcript khác rỗng và echo đúng toàn bộ metadata. Gateway-only p50 7.536 ms, p95 nearest-rank 7.727 ms; không gồm mic, app upload, matcher, playback hoặc thiết bị thật.
 - Re-run mobile hiện tại: `npm test` 167/167, typecheck, lint và `expo install --check` pass. Regression giữ 16 transcript ASR near-miss ở `unknown` trong đúng node. Người dùng chưa reload bundle mới `:8081` trên iPhone.
 - V3 permanent-denial fix: khi Android trả quyền mic `canAskAgain=false`, dock giờ phân biệt trạng thái bị chặn, vẫn cho gõ và mở App Settings; sau khi cấp quyền có thể quay lại nhấn thử lại. Release APK mới 121,247,352 bytes, SHA-256 `ED49FF5702BE20002184876F20FB34B828DF7BEFEA1F22A48FCE2F7944DC80E2` build thành công, cài lên AVD API 37 và kiểm denial → Settings → grant → recording → cancel idle. Không gửi recording. AVD `-no-audio`; chi tiết/ảnh trong Android evidence README.

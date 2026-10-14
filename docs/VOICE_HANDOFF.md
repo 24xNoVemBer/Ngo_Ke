@@ -3,6 +3,7 @@
 ## Bằng chứng mới nhất — 14/10/2026
 
 - Người dùng xác nhận lượt thứ hai trên iPhone có meter, transcript/Q&A đúng và nghe được câu trả lời; không có audio/log độc lập. Preview mới `exp://192.168.100.36:8081` được để sau.
+- Metro `:8081` đã được restart sau khi `/status` còn trả 200 nhưng manifest/bundle bị treo. Hiện manifest và iOS launch asset đều HTTP 200; bundle chứa mã nhánh `canAskAgain=false` và gateway `192.168.100.36:8788`. Gateway health ready. URL thử hiện tại vẫn là `exp://192.168.100.36:8081`; iPhone chưa reload theo ý anh.
 - Trên APK Android release API 37, đã kiểm đủ nhánh mic: từ chối quyền → fallback gõ → thử lại → cấp quyền → recorder vào `00:02` → Hủy về idle; quyền còn granted. Bằng chứng ở `agent_docs/evidence/voice/android-emulator/README.md`. AVD `-no-audio`, nên đây không phải kiểm lời nói/meter/STT.
 - Bản APK mới sau nhánh “bị chặn”: 121.247.352 byte, SHA-256 `ED49FF5702BE20002184876F20FB34B828DF7BEFEA1F22A48FCE2F7944DC80E2`. Nút Mở Cài đặt đã mở đúng trang microphone của app; cấp quyền rồi quay lại, recorder start/cancel hoạt động. Xem ảnh/report trong README Android evidence. `npm test` hiện 167/167.
 - Kiểm thêm trên APK này: sau Settings recovery, lượt thu thứ hai hiện `Đang thu · 00:00`; Hủy về idle. Runtime permission còn granted, không gửi clip; AVD `-no-audio`.
