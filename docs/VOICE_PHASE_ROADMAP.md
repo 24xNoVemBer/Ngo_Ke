@@ -4,6 +4,7 @@
 
 - Trên APK release source/AVD API 37, mic permission denial → typed fallback → retry prompt → grant → recorder `Đang thu · 00:02` → Hủy về idle; permission được để ở trạng thái granted. Đây là kiểm tra quyền/UI recovery trên AVD `-no-audio`, không xác nhận meter có tín hiệu, speech hay STT. Ảnh được liệt kê trong `agent_docs/evidence/voice/android-emulator/README.md`.
 - Latest V3 fix: nếu `canAskAgain=false`, app hiện đường Mở Cài đặt; cấp quyền trên Android rồi quay lại, retry thu được và Hủy về idle. APK release hiện tại 121.247.352 byte, SHA-256 `ED49FF5702BE20002184876F20FB34B828DF7BEFEA1F22A48FCE2F7944DC80E2`, cài/chạy trên AVD API 37. Xem V3 review và README evidence.
+- Sau khi phục hồi quyền trên cùng APK, hai lượt thu–Hủy kế tiếp đều quay về idle; lượt hai vào `Đang thu · 00:00`. AVD không có audio, nên chỉ xác nhận lifecycle.
 - Kết quả kiểm mobile hiện hành đã được xác nhận lại ở `docs/VOICE_TEST_REPORT.md`: `npm test` 167/167, typecheck, lint và Expo dependency check đều pass; con số 165/165 trong dòng snapshot cũ bên dưới đã lỗi thời.
 - Recheck host hiện tại: Metro `:8081` manifest và iOS bundle HTTP 200; bundle 6.062.091 ký tự có gateway LAN, recorder và helper phủ định mới, không có copy trạng thái chưa kết nối. Gateway `192.168.100.36:8788/health` báo `ready`. iPhone chưa reload bundle này.
 - Đo gateway riêng bằng 5 lượt warm trên cùng clip TTS tổng hợp 19,15 giây: 5/5 HTTP 200, transcript và context echo hợp lệ; p50 7.536 ms, p95 nearest-rank 7.727 ms. Đây không phải stop→transcript→audio trên thiết bị.

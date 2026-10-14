@@ -5,6 +5,7 @@
 - Roadmap V3 required an Open Settings path for a permanently denied microphone; `useVoiceSession` previously always showed the same retry state. It now checks Expo permission `canAskAgain`, distinguishes blocked permission, and exposes an accessible `Mở Cài đặt` action through `Linking.openSettings()` while preserving the typed fallback.
 - Regression + validation: `npm test` 167/167, typecheck, lint, dependency check pass. Android release `assembleRelease` built successfully with scoped JDK 17/Android SDK environment; 121,247,352 bytes, SHA-256 `ED49FF5702BE20002184876F20FB34B828DF7BEFEA1F22A48FCE2F7944DC80E2`. Installed on API 37 AVD.
 - AVD permission denial → app blocked-state → Open Settings → allow while in use → return/retry entered recording → cancel to idle; `RECORD_AUDIO` remains granted. AVD is `-no-audio`; no speech/meter/STT claim. Screenshots in `agent_docs/evidence/voice/android-emulator/README.md`.
+- Repeated two mic starts after Settings recovery on the current APK: second showed `Đang thu · 00:00`, then Cancel returned idle; AppOps operation ended and package permission remained granted. No recording submitted.
 - iPhone reload of `exp://192.168.100.36:8081` remains deferred by user; do not ask again in this continuation.
 
 ## 2026-10-14 — Android microphone permission denial/retry verified
