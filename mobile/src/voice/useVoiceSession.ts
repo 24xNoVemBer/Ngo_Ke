@@ -10,6 +10,7 @@ import { prepareVoiceRecorderForTurn, startVoiceRecorder } from './recorderPrepa
 import { hasReachedVoiceRecordingLimit } from './recordingLimit';
 import { createVoiceRequestBody, transcribeVoiceRequest } from './transcribe';
 import { isPlaybackRequestCurrent, restartAudioPlayer, stopAudioPlayer } from './playback';
+import { recordVoicePerformance, voicePerformanceNow } from './performance';
 
 export type VoiceStage = 'idle' | 'preparing' | 'recording' | 'stopping' | 'ready' | 'transcribing' | 'error';
 export type VoiceMode = 'demo' | 'live';
@@ -83,6 +84,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
   const abortRef = useRef<AbortController | null>(null);
   const permissionPendingRef = useRef(false);
   const readyRecordingRef = useRef<{ turnId: string; uri: string; durationMs: number } | null>(null);
+  const cancelStartedAtRef = useRef<number | null>(null);
   const requestRef = useRef(0);
   const previousScopeRef = useRef(scope);
 
@@ -94,6 +96,13 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
     setStage(next);
   }, []);
 
+  const finishCancelPerformance = useCallback(() => {
+    const startedAt = cancelStartedAtRef.current;
+    if (startedAt === null || stageRef.current !== 'idle') return;
+    cancelStartedAtRef.current = null;
+    recordVoicePerformance('cancel-to-idle', voicePerformanceNow() - startedAt);
+  }, []);
+
   const stopPlayback = useCallback(async () => {
     requestRef.current += 1;
     setActiveTrackId(null);
@@ -103,6 +112,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
   const cancel = useCallback(() => {
     const currentStage = stageRef.current;
     if (turnRef.current === null) return;
+    cancelStartedAtRef.current = voicePerformanceNow();
     turnRef.current = null;
     abortRef.current?.abort();
     abortRef.current = null;
@@ -112,19 +122,22 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
       removeRecording(readyRecordingRef.current?.uri);
       readyRecordingRef.current = null;
       changeStage('idle');
+      finishCancelPerformance();
     } else if (currentStage === 'recording') {
       changeStage('stopping');
       void recorder.stop().catch(() => undefined).finally(async () => {
         removeRecording(recorder.uri);
         try { await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }); } catch { /* Cancellation still closes the UI. */ }
         if (stageRef.current === 'stopping') changeStage('idle');
+        finishCancelPerformance();
       });
     } else if (currentStage === 'preparing') {
       void setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(() => undefined);
     } else if (currentStage !== 'stopping') {
       changeStage('idle');
+      finishCancelPerformance();
     }
-  }, [changeStage, recorder]);
+  }, [changeStage, finishCancelPerformance, recorder]);
 
   const startRecording = useCallback(async () => {
     if (!isFocused || !['idle', 'error'].includes(stageRef.current)) return;
@@ -183,9 +196,10 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
       if (!isCurrentTurn() && stageRef.current === 'preparing') {
         if (turnRef.current?.turnId === context.turnId) turnRef.current = null;
         changeStage('idle');
+        finishCancelPerformance();
       }
     }
-  }, [changeStage, datasetRevision, isFocused, mode, nodeId, recorder, scope, stopPlayback]);
+  }, [changeStage, datasetRevision, finishCancelPerformance, isFocused, mode, nodeId, recorder, scope, stopPlayback]);
 
   const stopAtRecordingLimit = useCallback(async (durationMs: number) => {
     const context = turnRef.current;
@@ -200,6 +214,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
       if (!isCurrentTurn()) {
         removeRecording(uri);
         changeStage('idle');
+        finishCancelPerformance();
         return;
       }
       if (!uri) throw new Error('INVALID_AUDIO');
@@ -214,9 +229,10 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
         changeStage('error');
       } else {
         changeStage('idle');
+        finishCancelPerformance();
       }
     }
-  }, [changeStage, recorder]);
+  }, [changeStage, finishCancelPerformance, recorder]);
 
   const submitRecording = useCallback(async () => {
     const context = turnRef.current;
@@ -224,6 +240,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
     if (!context || (!isReady && stageRef.current !== 'recording')) return;
     const readyRecording = readyRecordingRef.current;
     if (isReady && (!readyRecording || readyRecording.turnId !== context.turnId)) return;
+    const submitStartedAt = voicePerformanceNow();
     const isCurrentTurn = () => isCurrentVoiceTurn(turnRef.current, scopeRef.current, context);
     changeStage('stopping');
     let recordingUri: string | null = null;
@@ -272,6 +289,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
 
       const transcript = await transcribeVoiceRequest(apiBaseUrl, body, controller, transcriptContext);
       if (!isCurrentTurn()) return;
+      recordVoicePerformance('stop-to-transcript', voicePerformanceNow() - submitStartedAt);
       turnRef.current = null;
       changeStage('idle');
       onTranscriptRef.current(transcript, context);
@@ -300,10 +318,13 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
       } else if (!isCurrentTurn()) {
         if (turnRef.current?.turnId === context.turnId) turnRef.current = null;
         const finalStage = stageRef.current as VoiceStage;
-        if (finalStage === 'stopping' || finalStage === 'transcribing') changeStage('idle');
+        if (finalStage === 'stopping' || finalStage === 'transcribing') {
+          changeStage('idle');
+          finishCancelPerformance();
+        }
       }
     }
-  }, [apiBaseUrl, changeStage, recorder, recording.durationMillis]);
+  }, [apiBaseUrl, changeStage, finishCancelPerformance, recorder, recording.durationMillis]);
 
   const playTrack = useCallback(async (
     id: string,

@@ -104,6 +104,8 @@ function mount(file, props = {}, overrides = {}, exportName) {
     './src/voice/config': { readVoiceApiBaseUrl: () => '' },
     './src/voice/catalog': { voiceCatalogueRevision: 'fixture-revision', voiceTracks: {} },
     '../voice/catalog': { voiceCatalogueRevision: 'fixture-revision', voiceTracks: {} },
+    '../voice/performance': { recordVoicePerformance() {}, voicePerformanceNow: () => 0 },
+    './performance': { recordVoicePerformance() {}, voicePerformanceNow: () => 0 },
     '../voice/useVoiceSession': { useVoiceSession: () => ({
       stage: 'idle', error: null, recordingDurationMs: 0, metering: -60,
       playback: { playing: false, currentTime: 0, duration: 0 }, activeTrackId: null, playbackError: null,

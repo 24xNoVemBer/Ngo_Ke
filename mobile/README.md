@@ -14,10 +14,12 @@ Quét mã Metro bằng Expo Go trên thiết bị cùng mạng với máy phát 
 
 ## Chia sẻ preview iOS qua Expo Go
 
-- [Trang update trên Expo.dev](https://expo.dev/accounts/valentino241/projects/ngo-ke-demo/updates/f102185d-c42c-4efc-9101-452655b5f2f3)
+- [Trang update trên Expo.dev](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/f102185d-c42c-4efc-9101-452655b5f2f3)
 - [Mở trực tiếp trong Expo Go trên iPhone](exp://u.expo.dev/update/01a14018-58fd-7282-a486-46294348b2ca)
 
-Cài Expo Go trước, rồi mở link thứ hai trên iPhone; cũng có thể mở trang Expo.dev để xem QR. Đây là JavaScript/asset preview chạy bên trong Expo Go, không phải IPA/TestFlight. Bản chia sẻ không nhúng gateway LAN: màn hình, dữ liệu mô phỏng và audio đóng gói dùng được, còn nhận dạng STT cần một gateway có thể truy cập từ thiết bị. Để cập nhật preview, chạy từ `mobile/`:
+Đây **không phải link công khai**. Project `ngo-ke-demo` đã được chuyển từ `valentino241` sang tổ chức `valentino241s-team` ngày 15/10/2026. Thành viên cần đăng nhập Expo Go bằng tài khoản thuộc tổ chức; quyền Viewer đủ để xem project qua Expo Go ([thông báo Expo](https://expo.dev/changelog/expo-go-loading-changes-may-2026), [loại tài khoản và quyền](https://docs.expo.dev/accounts/account-types/)). Không chia sẻ thông tin đăng nhập cá nhân. Biến môi trường cấp project đi theo project; biến và secret cấp account không đi theo, nên chỉ cần tạo lại trong team nếu cấu hình thực sự dùng chúng. Liên kết GitHub EAS chưa được kết nối; Git remote cục bộ không bị ảnh hưởng.
+
+Cài Expo Go rồi mở link chỉ có tác dụng khi tài khoản có quyền truy cập project. Đây là JavaScript/asset preview chạy bên trong Expo Go, không phải IPA/TestFlight. Bản chia sẻ không nhúng gateway LAN: màn hình, dữ liệu mô phỏng và audio đóng gói dùng được, còn nhận dạng STT cần một gateway có thể truy cập từ thiết bị. Muốn phân phối cho người dùng iPhone ngoài tổ chức, cần bản iOS phân phối riêng như TestFlight. Để cập nhật preview, chạy từ `mobile/`:
 
 ```powershell
 $env:CI = '1'
@@ -47,7 +49,7 @@ node tools/voice/gateway/server.mjs
 npm start -- --lan --port 8081 --go --max-workers 2
 ```
 
-Thay `<DEV_LAN_IP>` bằng địa chỉ LAN hiện tại của máy chạy gateway, giữ các biến khác đang có trong `.env.local`. File này bị Git bỏ qua. Lệnh giữ profile GPU đã xác minh trên máy dev RTX; trên máy không có runtime CUDA/cuDNN pinned, đổi `NGOKE_VOICE_ASR_PROFILE` thành `small-cpu`. Mỗi khi đổi URL, khởi động lại Metro để bundle nhận cấu hình mới. Gateway preview dùng HTTP, không xác thực và không phù hợp để mở ra Internet hoặc Wi‑Fi công cộng. Xem [VOICE_HANDOFF.md](../docs/VOICE_HANDOFF.md) để biết cách mở APK/preview, kiểm tra gateway và các giới hạn.
+Thay `<DEV_LAN_IP>` bằng địa chỉ LAN hiện tại của máy chạy gateway, giữ các biến khác đang có trong `.env.local`. File này bị Git bỏ qua. Lệnh giữ profile GPU đã xác minh trên máy dev RTX; trên máy không có runtime CUDA/cuDNN pinned, đổi `NGOKE_VOICE_ASR_PROFILE` thành `small-cpu`. Mỗi khi đổi URL, khởi động lại Metro để bundle nhận cấu hình mới. Gateway preview dùng HTTP, không xác thực và không phù hợp để mở ra Internet hoặc Wi‑Fi công cộng. Trên máy dev hiện tại, Windows đang đánh dấu Wi‑Fi là `Public` nên Metro và gateway LAN đang dừng; chỉ khởi động lại khi dùng Wi‑Fi riêng tin cậy. Xem [VOICE_HANDOFF.md](../docs/VOICE_HANDOFF.md) để biết cách mở APK/preview, kiểm tra gateway và các giới hạn.
 
 Trong app, vào Demo, chọn chương, nhấn mic để thu, rồi nhấn **Gửi**; **Hủy** hoặc Back kết thúc lượt. Chip gợi ý không tự bật tiếng. Gateway và Metro phải đang chạy để thử STT; giao diện, dữ liệu demo và audio đóng gói vẫn có thể xem khi offline.
 

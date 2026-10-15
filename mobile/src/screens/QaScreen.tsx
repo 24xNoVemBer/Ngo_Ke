@@ -23,6 +23,7 @@ import { AppIcon } from '../components/AppIcon';
 import { ExpandableInputDrawer } from '../components/ExpandableInputDrawer';
 import { useMotionState } from '../hooks/MotionPreferences';
 import { useVoiceSession, type VoiceTurnContext } from '../voice/useVoiceSession';
+import { recordVoicePerformance, voicePerformanceNow } from '../voice/performance';
 import { parseVoiceIntent, resolveFirstOptionReference, type VoiceOptionContext } from '../voice/intent';
 import { voiceTracks } from '../voice/catalog';
 import { colors, radius, spacing, typography } from '../theme';
@@ -92,6 +93,7 @@ export function QaScreen({
   const voiceOptionContext = useRef<VoiceOptionContext | null>(null);
   const lastTrack = useRef<{ id: string; text: string; kind: 'story' | 'answer'; nodeId: string; revision: string } | null>(null);
   const playbackIntent = useRef(0);
+  const pendingVoicePlayback = useRef<{ turnId: string; trackId: string; startedAt: number } | null>(null);
 
   useEffect(() => {
     setAsked(null);
@@ -195,17 +197,21 @@ export function QaScreen({
     } else {
       voiceOptionContext.current = null;
     }
+    pendingVoicePlayback.current = null;
     const currentPlaybackIntent = ++playbackIntent.current;
     const playbackStopped = Promise.resolve(voiceSession.stopPlayback());
     if (source === 'voice' && nextMatch.status === 'matched' && currentNode && mode === 'demo') {
       const id = `${nextMatch.entry.id}-answer`;
+      if (context) pendingVoicePlayback.current = { turnId: context.turnId, trackId: id, startedAt: voicePerformanceNow() };
       lastTrack.current = { id, text: nextMatch.entry.answer, kind: 'answer', nodeId: currentNode.id, revision: datasetRevision };
       void playbackStopped.then((stopped) => {
         if (currentPlaybackIntent !== playbackIntent.current) return;
         if (stopped !== false) return voiceSession.playTrack(id, nextMatch.entry.answer, 'answer', currentNode.id);
+        if (context && pendingVoicePlayback.current?.turnId === context.turnId) pendingVoicePlayback.current = null;
         setVoiceActionCard({ kind: 'notice', message: 'Lời kể chưa dừng hẳn. Hãy thử phát lại sau một chút.' });
       });
     } else if (source === 'voice' && nextMatch.status === 'matched') {
+      pendingVoicePlayback.current = null;
       lastTrack.current = null;
       setVoiceActionCard({ kind: 'notice', message: 'Câu trả lời đã khớp. Bản đọc chưa có trong chế độ Live; chạm “Xem lời kể bằng chữ” để mở nội dung.' });
     }
@@ -225,6 +231,13 @@ export function QaScreen({
     isFocused,
     onTranscript: handleVoiceTranscript,
   });
+  const { activeTrackId, playback } = voiceSession;
+  useEffect(() => {
+    const pending = pendingVoicePlayback.current;
+    if (!pending || activeTrackId !== pending.trackId || !playback.playing) return;
+    pendingVoicePlayback.current = null;
+    recordVoicePerformance('transcript-to-audio', voicePerformanceNow() - pending.startedAt);
+  }, [activeTrackId, playback.playing]);
   const playbackError = voiceSession.playbackError ?? (
     voiceSession.activeTrackId !== null && voiceSession.playback.error
       ? 'Không mở được bản đọc. Bạn vẫn có thể xem lời kể bằng chữ.'
