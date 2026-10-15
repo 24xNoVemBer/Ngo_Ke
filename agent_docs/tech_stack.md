@@ -19,7 +19,7 @@
 | Live | GET dataset,8s tổng, no-config/404empty,200ready cần dataset hợp lệ | 1..50node/0..200QA, reviewed metadata bắt buộc; không cache/fallback, body512KiB; QA đang chạy |
 | Camera/GPS | `expo-camera`, `expo-location` theo thao tác | Tương thích SDK/quyền/thiết bị cần kiểm chứng ở Phase 4–5 |
 | Deployment | Deliverable là demo native qua Expo Go | Host backend, tunnel, store/provisioning chưa xác định; deploy cần yêu cầu riêng |
-| Coding assistant | OpenCode trong phiên hiện tại | Không thay cấu hình model/provider toàn cục; trình độ người dùng chưa xác định |
+| Coding assistant | Codex điều phối; W2 Antigravity/Gemini3.8FlashHigh, W3 CodexLuna/xhigh, W4 OpenCodeMuse | Không thay cấu hình model/provider toàn cục; trình độ người dùng chưa xác định |
 | Product AI | Không LLM/agent trong core | Không có API key/provider/eval LLM cần setup; voice là phase riêng |
 
 **Ngân sách/deadline:** chưa xác định. Không tự chọn dịch vụ trả phí hoặc chi phí vận hành. Voice provider/cost ceiling/mạng/microphone/retention/thiết bị hỗ trợ chờ lựa chọn và review riêng; luôn giữ chữ.

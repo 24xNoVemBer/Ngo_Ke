@@ -16,6 +16,8 @@
 | Xác thực | **Chưa dùng** | Không có API key, không `Authorization` |
 | Kiểm dữ liệu | `parseDataset(value, { mode: 'live' })` trong `mobile/src/data/sourceState.ts` | Chung kiểm field/reference; demo đúng6/simulated, live1..50/simulated hoặc reviewed |
 
+Native build dùng plugin `mobile/plugins/withVoiceGatewayNetworkSecurity.cjs` (bản sửa `0ad83c1`): HTTP API ở localhost/private IPv4, gồm `10.0.2.2` cho Android emulator, được cấu hình độc lập voice. HTTPS hoặc không cấu hình không mở ngoại lệ cleartext; HTTP host công khai bị từ chối khi build. Đây là cấu hình native nên cần prebuild/build lại APK; đổi biến Metro không chứng minh APK đã nhận cấu hình. Không đặt URL voice giả để mở API. Build APK mới và nghiệm thu mạng/offline đang chờ W2/W4, chưa phải bằng chứng runtime.
+
 ## Hợp đồng response
 
 `200` với envelope schemaVersion1: `kind`, `disclaimer`, `intro`, `startNodeId`, `nodes[]`, `qa[]`. Live không rỗng, tối đa50 node/200QA; body UTF-8 tối đa512KiB. Các trần field và deadline/cancellation tại spec hiện hành. Reviewed yêu cầu metadata approved/updatedAt hợp lệ trên intro/mỗi node/mỗi QA; simulated luôn được ghi là mô phỏng/chưa xác minh, không suy duyệt từ shape.
@@ -48,7 +50,7 @@ EXPO_PUBLIC_NGOKE_API_BASE_URL=http://<ip>:8086 npm start --prefix mobile
 | `/server-error/api/dataset` | HTTP 500 |
 | `/hang/api/dataset` | không phản hồi (kiểm timeout) |
 
-Đây **không phải backend**; sẽ thay bằng backend thật ở phase sau.
+Đây là công cụ tạo tình huống kiểm adapter; backend thật đã có trong nhánh tích hợp Phase8, không dùng mock làm bằng chứng nghiệm thu backend.
 
 ## Quyết định cho Phase8 đang thực hiện
 
