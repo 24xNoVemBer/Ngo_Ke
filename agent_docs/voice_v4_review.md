@@ -1,9 +1,21 @@
 # Voice V4 — Voice gateway và STT
 
+## Current gateway smoke — revision 8b318b — 15/10/2026
+
+- Gateway `/health` is ready on Node 24.14.1, faster-whisper 1.2.1 and pinned `large-v3-cuda` / CUDA float16.
+- The current voice dataset revision is `8b318b4e9955e3b7affe72cb21ea08cf8123a616eeab2eb1420ab105c7b65e6b`.
+- Ran `node tools/voice/gateway/smoke_test.mjs` against a local 19.15-second synthetic WAV and a tracked 23,886-byte AAC/M4A fixture uploaded as `audio/mp4`. Both returned non-empty transcripts with matching turn metadata; abort/retry, quota, invalid-format, duration and silence guards passed. Fixture SHA-256: `67EB5DF56D2D856663C0E6971734EFA9B0CE176FD0FCB5341170945E854BAB23`. No personal audio was used.
+- The fresh 8-question speech run on the current revision returned 5/8 exact matches, 0 wrong and 3 unknown. This gateway smoke does not upgrade that speech result or establish iPhone end-to-end accuracy; the user deferred reloading current `:8081`.
+
+## Client cancel/double-send race regression — 14/10/2026
+
+- A new mobile hook test holds the native stop promise, calls Gửi again, then holds ASR while trying Gửi once more. The same recorded turn invokes one stop and one transcription request only; cancel during native stop prevents upload.
+- Cancel during ASR or a node/revision scope change aborts the active request; resolving its mocked response afterward does not deliver a transcript to the old or new point. `npm test` 168/168, typecheck/lint/dependency check pass. Gateway smoke separately passes against the live local worker with synthetic audio; the hook regression does not claim phone upload/audio proof.
+
 ## Current host and warm-latency recheck — 14/10/2026
 
 - Metro `:8081` manifest and iOS bundle returned HTTP 200. The latest 6,062,091-character bundle contains the configured LAN gateway, recorder and shared negation helper, and no stale “Chưa kết nối máy nhận giọng nói” UI copy. Gateway health at `192.168.100.36:8788` reports ready with Node 24.14.1 and the pinned faster-whisper-small worker.
-- Five sequential warm requests with the same local synthetic 19.15-second VieNeu clip all returned HTTP 200, non-empty transcript and exact `turnId/locale/mode/nodeId/datasetRevision` echo. Gateway-only latency: p50 7,536 ms; nearest-rank p95 7,727 ms.
+- Five sequential warm requests with the same local synthetic 19.15-second VieNeu clip all returned HTTP 200, non-empty transcript and exact `turnId/locale/mode/nodeId/datasetRevision` echo. Warm LAN request-to-transcript latency: p50 7.536 seconds; nearest-rank p95 7.727 seconds (7,536/7,727 ms).
 - This measurement excludes phone capture, app upload, matcher, response playback and device audio routes. The iPhone has not reloaded the current `:8081` bundle; this is not mobile E2E or hardware p95 evidence.
 - After the Plan negation fix, iOS/Android exports contain the new intent code and all 34 catalogue MP3s byte-for-byte; `npm test` is 166/166 with typecheck/lint passing. The current Android release APK (121,246,512 bytes, SHA-256 `BA973B5F23550367191A3A5ED004FD411CEF6D90ABB5C0FB5A132AA4897221D2`) is installed on API 37 AVD; this confirms typed Plan behavior only, not mic/STT.
 
@@ -87,6 +99,12 @@ Thông tin `<DEV_LAN_IP>` và `<DEV_LAN_IP>` trong ghi chú cũ là IP Wi‑Fi t
 - Preview mới `:8081` đã restart; manifest và iOS launch bundle HTTP 200, có URL gateway LAN. Gateway `/health` HTTP 200, faster-whisper 1.2.1. Người dùng để sau reload Expo Go `:8081`, do đó chưa chứng minh iPhone dùng bundle/cấu hình mới này.
 - Re-run `node tools/voice/gateway/smoke_test.mjs` pass trên Node 24.14.1/faster-whisper 1.2.1 bằng clip TTS tổng hợp local; transcript/context, abort/retry, quota và validation audio guards đạt. Không dùng audio cá nhân; smoke test không thay cho phone/network latency.
 - GV4 còn mở cho đo latency từ điện thoại, lỗi kết nối/quota/timeout/retry thật trên thiết bị, xác minh request trace và triển khai public HTTPS/auth trước bất kỳ public exposure nào.
+
+## Explicit large-v3 CUDA profile and latest local integration — 15/10/2026
+
+- Added a Windows-only, opt-in `large-v3-cuda` profile using faster-whisper 1.2.1, the pinned large-v3 revision, CUDA float16, and hash-pinned local cuBLAS/cuDNN runtime wheels. The live LAN gateway on `:8788` now uses this profile. `small-cpu` remains the default; an unavailable requested CUDA runtime fails startup, with no silent downgrade.
+- Actual app request helpers → gateway → production matcher checks passed for 21/21 expected Q&A after adding two exact aliases for observed synthetic transcript forms; 0 unknown/wrong/transport errors, host p50/p95 570/634 ms. A locally generated M4A reached the expected `qa-02` in 520 ms. Abort/retry, quota and audio-format/duration/silence guards passed gateway smoke tests.
+- These checks used synthetic local audio and do not cover phone Wi-Fi latency, user speech, gateway auth/HTTPS before public exposure, or retention behavior under a deployed service. iPhone reload remains deferred; GV4 stays open for device/network checks and public-exposure requirements.
 
 ## Rejected-audio log privacy regression — 2026-10-14
 

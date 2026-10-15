@@ -137,7 +137,7 @@ function isQaEntry(
     !isNonemptyString(value.answer) ||
     !isNonemptyString(value.nodeId) ||
     !nodeIds.has(value.nodeId) ||
-    !isStringList(value.aliases, 1, 5) ||
+    !isStringList(value.aliases, 1, 7) ||
     !isStringList(value.evidence, 1) ||
     !isStringList(value.followUps, 0, 2) ||
     !isStringList(value.tags, 0)

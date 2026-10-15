@@ -12,6 +12,7 @@ import * as qa from '../src/qa/match.ts';
 import * as confirmation from '../src/qr/confirmPoint.ts';
 import * as recommendation from '../src/recommendation/pick.ts';
 import * as voiceIntent from '../src/voice/intent.ts';
+import * as voiceAppState from '../src/voice/appState.ts';
 
 const fixture = JSON.parse(readFileSync(new URL('../../data/demo.json', import.meta.url), 'utf8'));
 
@@ -504,6 +505,9 @@ test('voice playback and recording expose accessible progress values and a full-
     onPlay() {}, onReplay() {}, onStop() {},
   });
   const playerTree = player.render();
+  const playerTitle = elements(playerTree, 'Text').find((item) => item.props.children === 'Lời kể chương một');
+  assert.ok(playerTitle);
+  assert.equal(playerTitle.props.numberOfLines, undefined);
   const playbackProgress = elements(playerTree, 'View').find((item) => item.props.accessibilityRole === 'progressbar');
   assert.deepEqual(JSON.parse(JSON.stringify(playbackProgress.props.accessibilityValue)), { min: 0, max: 100, now: 25 });
 
@@ -516,6 +520,144 @@ test('voice playback and recording expose accessible progress values and a full-
   assert.deepEqual(JSON.parse(JSON.stringify(recordingProgress.props.accessibilityValue)), { min: 0, max: 100, now: 50 });
   const cancel = elements(dockTree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Hủy bản ghi');
   assert.equal(cancel.props.style.minHeight, 48);
+});
+
+test('duplicate submit, cancel and scope change invalidate pending voice turns', async () => {
+  const deferred = () => {
+    let resolve;
+    const promise = new Promise((done) => { resolve = done; });
+    return { promise, resolve };
+  };
+  let nativeStop = deferred();
+  let asrResponse = deferred();
+  let stopCalls = 0;
+  let transcribeCalls = 0;
+  let requestSignal;
+  let delivered = 0;
+  let isRecording = false;
+  const playbackEvents = [];
+  const audioPlayer = {
+    loop: false,
+    plays: 0,
+    pause() {},
+    play() { playbackEvents.push('play'); this.plays += 1; },
+    replace() { playbackEvents.push('replace'); },
+  };
+  const recorder = {
+    get isRecording() { return isRecording; },
+    uri: 'file:///cache/voice-question.m4a',
+    async prepareToRecordAsync() {},
+    record() { isRecording = true; },
+    stop() { stopCalls += 1; return nativeStop.promise; },
+  };
+  class MockFile {
+    constructor() { this.exists = false; }
+    delete() {}
+    bytes() { return new Uint8Array(); }
+  }
+  const options = {
+    apiBaseUrl: 'http://gateway', scope: 'demo:rev-1:demo-01', nodeId: 'demo-01',
+    mode: 'demo', datasetRevision: 'rev-1', isFocused: true,
+    onTranscript() { delivered += 1; },
+  };
+  const view = mount('../src/voice/useVoiceSession.ts', options, {
+    'expo-audio': {
+      RecordingPresets: { HIGH_QUALITY: {} },
+      useAudioPlayer: () => audioPlayer,
+      useAudioPlayerStatus: () => ({ playing: false, currentTime: 0, duration: 0 }),
+      useAudioRecorder: () => recorder,
+      useAudioRecorderState: () => ({ durationMillis: 1000, metering: -30 }),
+      setAudioModeAsync: async () => { playbackEvents.push('audio-mode'); },
+      requestRecordingPermissionsAsync: async () => ({ granted: true, canAskAgain: true }),
+    },
+    'react-native': { AppState: { currentState: 'active', addEventListener: () => ({ remove() {} }) } },
+    'expo-crypto': {
+      CryptoDigestAlgorithm: { SHA256: 'SHA-256' },
+      digestStringAsync: async () => { playbackEvents.push('hash'); return 'hash'; },
+    },
+    'expo-file-system': { File: MockFile },
+    './catalog': {
+      voiceTracks: {
+        'demo-01-story': { kind: 'story', nodeId: 'demo-01', textHash: 'hash', source: 'story-audio' },
+      },
+      voiceCatalogueRevision: 'rev-1',
+    },
+    './appState': voiceAppState,
+    './recorderPreparation': {
+      prepareVoiceRecorderForTurn: async ({ isCurrent }) => isCurrent(),
+      startVoiceRecorder: async (start, _isActive, isCurrent) => { await start(); return isCurrent(); },
+    },
+    './recordingLimit': { hasReachedVoiceRecordingLimit: () => false },
+    './transcribe': {
+      createVoiceRequestBody: () => ({}),
+      transcribeVoiceRequest: async (_url, _body, controller) => {
+        transcribeCalls += 1;
+        requestSignal = controller.signal;
+        return asrResponse.promise;
+      },
+    },
+    './playback': {
+      isPlaybackRequestCurrent: (request, current, requestedScope, activeScope) => request === current && requestedScope === activeScope,
+      restartAudioPlayer: async () => {},
+      stopAudioPlayer: async (player) => { player.loop = false; return true; },
+    },
+    __globals: { AbortController },
+  }, 'useVoiceSession');
+
+  await view.render().playTrack('demo-01-story', 'Câu chuyện mở đầu', 'story', 'demo-01');
+  assert.deepEqual(playbackEvents, ['hash', 'audio-mode', 'replace', 'play']);
+  assert.equal(audioPlayer.loop, true, 'story playback automatically repeats');
+  assert.equal(audioPlayer.plays, 1);
+
+  await view.render().startRecording();
+  assert.equal(view.render().stage, 'recording');
+  const submission = view.render().submitRecording();
+  assert.equal(view.render().stage, 'stopping');
+  await view.render().submitRecording();
+  assert.equal(stopCalls, 1, 'a second tap cannot stop or submit the same recorder again');
+
+  nativeStop.resolve();
+  for (let i = 0; i < 10 && transcribeCalls === 0; i += 1) await setImmediate();
+  assert.equal(view.render().stage, 'transcribing');
+  await view.render().submitRecording();
+  assert.equal(transcribeCalls, 1, 'a second tap during ASR cannot create another request');
+
+  view.render().cancel();
+  assert.equal(requestSignal.aborted, true);
+  asrResponse.resolve('late transcript');
+  await submission;
+  assert.equal(delivered, 0, 'the canceled turn cannot deliver its late transcript');
+  assert.equal(view.render().stage, 'idle');
+
+  nativeStop = deferred();
+  await view.render().startRecording();
+  const canceledStop = view.render().submitRecording();
+  assert.equal(view.render().stage, 'stopping');
+  view.render().cancel();
+  nativeStop.resolve();
+  await canceledStop;
+  assert.equal(view.render().stage, 'idle', 'cancel during native stop returns the dock to idle');
+  assert.equal(transcribeCalls, 1, 'cancel during native stop prevents upload');
+
+  nativeStop = deferred();
+  asrResponse = deferred();
+  await view.render().startRecording();
+  const staleScopeSubmission = view.render().submitRecording();
+  nativeStop.resolve();
+  for (let i = 0; i < 10 && transcribeCalls < 2; i += 1) await setImmediate();
+  assert.equal(view.render().stage, 'transcribing');
+  assert.equal(transcribeCalls, 2);
+
+  options.scope = 'demo:rev-2:demo-02';
+  options.nodeId = 'demo-02';
+  options.datasetRevision = 'rev-2';
+  view.render(options);
+  assert.equal(requestSignal.aborted, true, 'changing node/revision aborts the prior request');
+  assert.equal(view.render().stage, 'idle');
+  asrResponse.resolve('answer from the previous point');
+  await staleScopeSubmission;
+  assert.equal(delivered, 0, 'the prior point cannot deliver its late transcript');
+  view.unmount();
 });
 
 test('permanently denied microphone exposes an accessible settings action', () => {

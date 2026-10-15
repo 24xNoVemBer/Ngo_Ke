@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { URL } from 'node:url';
 import { findAnswer, normalizeQuestion } from '../src/qa/match.ts';
@@ -8,6 +9,13 @@ import { getSourceState } from '../src/data/sourceState.ts';
 const fixture = JSON.parse(
   readFileSync(new URL('../../data/demo.json', import.meta.url), 'utf8'),
 );
+
+test('demo dataset edits advance the voice turn revision', () => {
+  const source = readFileSync(new URL('../../data/demo.json', import.meta.url));
+  const revision = createHash('sha256').update(source).digest('hex');
+  const catalog = readFileSync(new URL('../src/voice/catalog.ts', import.meta.url), 'utf8');
+  assert.ok(catalog.includes(`export const voiceCatalogueRevision = "${revision}";`));
+});
 
 test('normalize folds case, diacritics, spacing and trailing punctuation', () => {
   assert.equal(normalizeQuestion('  Ngõ   Kể  '), 'ngo ke');
@@ -70,6 +78,41 @@ test('question outside the approved list returns unknown with no answer', () => 
   }
 });
 
+test('observed synthetic ASR transcripts resolve to their intended exact answers', () => {
+  const transcripts = [
+    ['demo-02', 'qa-lam', 'Ông Lâm Nhữ An ra sao?'],
+    ['demo-04', 'qa-flowers', 'Hai chồng giàn hoa giấy trong sân'],
+    ['demo-04', 'qa-knot', 'Nút thắp trên rằm cây nhắc ăn điều gì?'],
+    ['demo-04', 'qa-che', 'Cốc tre của bà Nhi gợi lại ký ức nào?'],
+    ['demo-02', 'qa-lam', 'Ông Lâm nhửa an ra sao?'],
+    ['demo-04', 'qa-flowers', '2 trồng giàn hoa giấy trong sân.'],
+    ['demo-04', 'qa-flowers', 'Ai trồng ràn hoa giấy trong sân?'],
+    ['demo-04', 'qa-knot', 'nút thắp trên giảng cây nhắc ăn điều gì.'],
+    ['demo-04', 'qa-che', 'Cốc chè của bà Nhi gợi lại kỷ ước nào.'],
+    ['demo-05', 'qa-box', 'Chịa chia khóa mở được thứ gì?'],
+    ['demo-05', 'qa-box', 'Việc chìa khóa mở được thứ gì?'],
+    ['demo-05', 'qa-envelope', 'Vì sao ăn đọc lá thư thật trọng?'],
+    ['demo-06', 'qa-letter', 'Mẹ viết gì ở cuối lá thơ?'],
+    ['demo-06', 'qa-light', 'Vì sao mẹ hẹ lúc đèn cuối ngõ sáng?'],
+    ['demo-06', 'qa-home', 'Anh đã tìm thấy đường về như thế nào?'],
+  ];
+
+  for (const [nodeId, expectedId, transcript] of transcripts) {
+    const chapter = fixture.qa.filter((entry) => entry.nodeId === nodeId);
+    const match = findAnswer(chapter, transcript);
+    assert.equal(match.status, 'matched', transcript);
+    assert.equal(match.entry.id, expectedId, transcript);
+    assert.equal(match.entry.nodeId, nodeId, transcript);
+    assert.equal(match.matchedOn, 'alias', transcript);
+    assert.equal(match.entry.answer, fixture.qa.find((entry) => entry.id === expectedId).answer);
+
+    for (const otherNode of fixture.nodes.filter((node) => node.id !== nodeId)) {
+      const otherChapter = fixture.qa.filter((entry) => entry.nodeId === otherNode.id);
+      assert.equal(findAnswer(otherChapter, transcript).status, 'unknown', `${transcript} leaked to ${otherNode.id}`);
+    }
+  }
+});
+
 test('known synthetic ASR near-misses stay unknown instead of guessing', () => {
   const nearMisses = [
     ['demo-02', 'Vì sao, chiếc động hồ không chạy nữa?'],
@@ -78,14 +121,12 @@ test('known synthetic ASR near-misses stay unknown instead of guessing', () => {
     ['demo-02', 'Mánh răng mẹ gửi có ý nghĩa gì?'],
     ['demo-02', 'bánh răng mẹ cười có ý nghĩa gì?'],
     ['demo-02', 'Ông Lâm nhỡ ăn ra sau'],
-    ['demo-02', 'Ông lâm nhửa ăn ra sao?'],
-    ['demo-02', 'Ông Lâm nhửa An ra sao?'],
+    ['demo-02', 'Công lâm nhựa ăn ra sao?'],
     ['demo-03', 'Sợi giây xanh nối những điều gì?'],
     ['demo-03', 'Vậy sao cô Hương vẫn gọi ăn là bé con?'],
     ['demo-03', 'Vậy sao cô Hương vẫn gọi An là bé con?'],
     ['demo-04', '2 trồng dàn hoa giấy trong sân.'],
     ['demo-04', 'Ai trồng dàn hoa giấy trong sân.'],
-    ['demo-04', 'Ai trồng ràn hoa giấy trong sân?'],
     ['demo-04', 'Ai chồng giản hoa giấy trong sân?'],
     ['demo-04', 'nốt thắt trên giản cây nhất ăn điều gì.'],
     ['demo-04', 'Nút tháp chiên dàn cây nhắc ăn điều gì.'],
@@ -94,17 +135,18 @@ test('known synthetic ASR near-misses stay unknown instead of guessing', () => {
     ['demo-04', 'Cốc chè của bà Nhi gọi lại kí ức nào.'],
     ['demo-04', 'ốc che của bà Nhi gợi lại kí ức nào.'],
     ['demo-04', 'Cốc chè của bà Nhi gợi lại kí ức nào.'],
+    ['demo-04', 'Hai trùng giàn hoa giấy trong sân.'],
     ['demo-05', 'Chấp chiều khóa mở được thứ gì?'],
     ['demo-05', 'Chích chiều khóa mở được thứ gì?'],
     ['demo-05', 'chiếc chiều khóa mở được thứ gì?'],
     ['demo-05', 'Chiếc chiều khóa mở được thú gì?'],
+    ['demo-05', 'Vì sao anh đọc lá thư thật chậm?'],
     ['demo-05', 'Vì sao, ăn đọc là thư thật chậm.'],
     ['demo-05', 'Vì sao, ăn đọc lá thư thật trọng.'],
     ['demo-05', 'Dì sao, ăn đọc lá thư thật trọng.'],
     ['demo-05', 'Vì sao, ông đọc lá thư thật trận.'],
     ['demo-05', 'Bà Nhi, để món gì cảnh hộp thứ?'],
     ['demo-06', 'Vì sao, mệ hệ lúc đèn cuối ngọ sáng.'],
-    ['demo-06', 'Anh đã tìm thấy đường về như thế nào?'],
   ];
 
   for (const [nodeId, transcript] of nearMisses) {
@@ -148,10 +190,11 @@ test('qa content failing the reviewed contract is rejected', async (t) => {
     ['answer without evidence', { ...valid, qa: [{ ...first, evidence: [] }, ...valid.qa.slice(1)] }],
     ['blank evidence item', { ...valid, qa: [{ ...first, evidence: ['  '] }, ...valid.qa.slice(1)] }],
     ['no aliases', { ...valid, qa: [{ ...first, aliases: [] }, ...valid.qa.slice(1)] }],
-    ['too many aliases', { ...valid, qa: [{ ...first, aliases: ['a', 'b', 'c', 'd', 'e', 'f'] }, ...valid.qa.slice(1)] }],
+    ['too many aliases', { ...valid, qa: [{ ...first, aliases: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] }, ...valid.qa.slice(1)] }],
     ['followUp not in qa', { ...valid, qa: [{ ...first, followUps: ['qa-khong-ton-tai'] }, ...valid.qa.slice(1)] }],
     ['three followUps', { ...valid, qa: [{ ...first, followUps: [valid.qa[1].id, valid.qa[2].id, valid.qa[3].id] }, ...valid.qa.slice(1)] }],
     ['duplicate id', { ...valid, qa: [first, { ...first, question: 'khác' }, ...valid.qa.slice(1)] }],
+    ['normalized question alias collision', { ...valid, qa: [first, { ...valid.qa[1], aliases: [first.question.toUpperCase() + '?'] }, ...valid.qa.slice(2)] }],
     ['unknown nodeId', { ...valid, qa: [{ ...first, nodeId: 'diem-khong-co' }, ...valid.qa.slice(1)] }],
     ['blank intro', { ...valid, intro: { text: '  ', evidence: ['Nguồn demo'] } }],
     ['intro without evidence', { ...valid, intro: { text: 'Xin chào', evidence: [] } }],

@@ -32,7 +32,7 @@ export function VoicePlayerBar({
           <AppIcon name={playing && active ? 'pause' : 'play'} size={20} color="#24392E" />
         </Pressable>
         <View style={styles.trackInfo}>
-          <Text style={styles.label} numberOfLines={1}>{label}</Text>
+          <Text style={styles.label}>{label}</Text>
           <Text style={styles.time}>{active ? timeLabel(currentTime) : 'Sẵn sàng'} · {timeLabel(total)}</Text>
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel={`Nghe lại ${label}`} onPress={onReplay}

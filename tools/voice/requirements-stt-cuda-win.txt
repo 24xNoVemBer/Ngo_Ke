@@ -1,0 +1,4 @@
+# Optional Windows CUDA runtime for NGOKE_VOICE_ASR_PROFILE=large-v3-cuda.
+# These packages stay in the ignored voice cache and are never bundled with the app.
+nvidia-cublas-cu12==12.9.2.10 --hash=sha256:623f43027d40d44ceadf0043f002bd25cf353e8f13ce90b9a87057019f560661
+nvidia-cudnn-cu12==9.27.0.42 --hash=sha256:06e9b0026f3bad97d2b58666330fabec04fe1672f776661ecb0ce0029c27f142

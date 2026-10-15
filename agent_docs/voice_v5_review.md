@@ -1,5 +1,32 @@
 # Voice V5 — Q&A voice end-to-end
 
+## Current revision 8b318b native and ASR recheck — 15/10/2026
+
+- Fresh synthetic audio through the mobile request helpers → local large-v3 CUDA gateway → production strict matcher returned **5/8 exact, 0 wrong, 3 unknown**. Unknowns were `Công lâm nhựa ăn ra sao?` (chapter 2), `Hai trùng giàn hoa giấy trong sân.` (chapter 4), and `Vì sao anh đọc lá thư thật chậm?` (chapter 5). Their exact near-miss regression tests keep them unknown; no fuzzy fallback was added.
+- Replayed cached transcripts separately: the current matcher still maps the covered 21-question saved sets to their expected IDs. That is matcher replay, not fresh ASR accuracy or real speech proof.
+- On current Android dataset revision `8b318b4e9955e3b7affe72cb21ea08cf8123a616eeab2eb1420ab105c7b65e6b`, typed chapter-4 alias `Ai trong ran hoa giay trong san` returned the expected flowers answer; choosing its `Nút thắt…` follow-up advanced to the next local suggestion. Chapter 1’s suggested question also showed its correct answer. See [`android37-native-release-final-2f15c3-2026-10-15`](evidence/voice/android37-native-release-final-2f15c3-2026-10-15/README.md). AVD has no audio; no mic/STT/audible playback claim.
+- Current suite passes 170/170. Real spoken Q&A plus follow-up across six chapters on the current iPhone bundle remains pending; previous two-turn success was user-reported on `:8089`.
+
+## Earlier large-v3 transcript coverage — revision 5a82b1 (superseded) — 15/10/2026
+
+- Added four explicit observed large-v3 variants for `qa-lam`, `qa-flowers`, `qa-knot`, and `qa-che`; the `qa-home` variant was already an alias. Matcher remains exact and chapter-scoped. The bounded alias limit is now six to cover `qa-flowers` without unbounded input.
+- The current matcher replays the cached 21-question synthetic benchmark at 21/21 expected IDs for both small and large-v3 transcripts, zero unknown/wrong. It does not rerun STT and does not establish accuracy on human speech.
+- Mobile tests: 170/170; typecheck, lint, Expo dependency check pass. The catalogue remains valid at 34/34 and unchanged in audio content. The app dataset/catalogue revision is `5a82b1d4fa223b2170fd9fa2c761a01479b4e3e159a81a6de72f65566a8d2568`.
+- Rebuilt Android release APK and installed it on API 37 AVD. In chapter 4, typing `Hai chong gian hoa giay trong san` returned the correct `qa-flowers` answer and answer text. Screenshot evidence: `agent_docs/evidence/voice/android37-native-release-asr-alias-2026-10-15/answer-text.png`. AVD has no audio; this is not microphone/STT/audio proof.
+- Still pending: current `:8081` iPhone reload and spoken six-chapter coverage, human listening QC, real-device audio interruptions/routes, accessibility and performance.
+
+## Native Android reader/player recheck — 14/10/2026
+
+- APK `com.valentino241.ngokedemo` đang cài trên AVD khớp byte-for-byte với `mobile/android/app/build/outputs/apk/release/app-release.apk`: 121,247,808 bytes, SHA-256 `D6BB16DCE259002D38D112DACA28E9DD91BF5D0681C005AEC9BB83025E8AB50D`.
+- Ở chương 6, chạm câu canonical đầu tiên `qa-letter` (“Mẹ viết gì ở cuối lá thư?”) mở đúng đáp án trong catalogue khi người dùng bấm Xem chữ. Chữ đóng mặc định trước thao tác. Khi player đang phát, mở rồi thu gọn chữ không đưa thời gian về đầu; ảnh cho thấy 00:09/00:11 lúc chữ mở và player vẫn ở trạng thái phát, gần cuối clip ngay sau khi thu gọn.
+- Ảnh: `evidence/voice/android37-native-release-qa6-answer-text-playing-2026-10-14.png` và `evidence/voice/android37-native-release-qa6-answer-text-collapsed-playing-2026-10-14.png`.
+- AVD `-no-audio`: đây là kiểm tra native UI, câu trả lời đã chọn và trạng thái/progress của player, không xác nhận âm thanh nghe được hay STT. Lần quét sáu chương trước đánh dấu sai vì đòi thấy chữ trong khi chữ mặc định bị ẩn; không dùng lần quét đó làm lỗi app hoặc làm bằng chứng cho đủ sáu chương. Speech E2E sáu chương vẫn pending.
+
+## Cancelled late-transcript regression — 14/10/2026
+
+- Added a hook-level test that holds the transcript response, cancels the turn or changes its node/revision scope, then resolves the response. The stale transcript is not delivered. Duplicate Gửi is also ignored during native stop and transcription, so the turn creates one request only; targeted UI-flow tests 34/34 and full mobile tests 168/168 pass.
+- The ASR response is controlled in this regression; it proves client cancellation/context guards, not live six-chapter speech matching. Physical E2E remains pending.
+
 ## Local synthetic question ASR sweep — 14/10/2026
 
 - Dùng VieNeu v3 Turbo local để tạo audio tổng hợp từ 21 câu hỏi canonical, rồi chạy trực tiếp faster-whisper-small đã pin (`language=vi`, `beam_size=5`, `vad_filter=true`) và đối chiếu transcript bằng `findAnswer` thật của app trong đúng node.
@@ -9,6 +36,13 @@
 - Một sweep tổng hợp riêng trong `tools/voice/.cache/qa-asr-smoke/` đạt 12/21 match chính xác với cấu hình baseline; vocabulary prompt đạt 11/21, tắt VAD đạt 12/21. Sweep cũ ở trên đạt 14/21; vì lượt sinh riêng nên không gộp thành một điểm. Không đưa prompt vào production và không thêm alias cho các transcript sai/không rõ nghĩa.
 - Đây là probe offline bằng giọng tổng hợp, gọi cùng model/tham số nhưng không qua app→gateway, không phải lời nói của người dùng hoặc kiểm tra mic/điện thoại. Report tạm và audio nằm trong `tools/voice/.cache/qa-asr-smoke/`; WAV được xóa sau decode.
 - Kết quả này chỉ cho thấy unknown fallback cần tiếp tục được dùng; GV5 vẫn chờ speech E2E thật trên đủ sáu chương. Không đổi source hoặc alias theo lỗi phát âm tổng hợp.
+
+## Paired local STT model check — 15/10/2026
+
+- Dùng cùng một bộ 21 WAV được VieNeu v3 Turbo tạo cục bộ để đối chiếu model small và large-v3 pinned, đều `language=vi`, `beam_size=5`, `vad_filter=true`, rồi match exact trong đúng dataset/node.
+- Small CPU/int8 nhận đúng 12/21 (9 unknown, 0 sai); p50/p95 1,684/1,872 ms. Large-v3 CPU/int8 nhận đúng 16/21 (5 unknown, 0 sai); p50/p95 7,722/8,370 ms. Large-v3 lên 3/3 ở chương 5 và 2/3 ở chương 6, nhưng vẫn 0/3 ở chương 4; `qa-lam` và `qa-home` cũng còn unknown.
+- Chưa chuyển gateway: large-v3 dùng model.bin 2.9 GiB và chậm hơn 4.6× ở p50 trên CPU. GPU inference chưa chạy được do thiếu `cublas64_12.dll`, dù CTranslate2 nhận thiết bị; không cài CUDA runtime. Small vẫn giữ `unknown` thay vì ghép sai. Kết quả chỉ là một lượt audio tổng hợp, không phải kiểm lời nói người dùng.
+- Raw report và audio hashes ở `tools/voice/.cache/qa-asr-model-comparison.json` (bị ignore); audio tạm đã tự xóa. Gateway không đổi model.
 
 ## iPhone follow-up retest — 14/10/2026
 
@@ -100,3 +134,17 @@ Bản thu từ recorder Android sau khi sửa đã tới STT worker thật. Vì 
 
 - Đã cân nhắc bỏ dấu phẩy nội câu trong normalizer để cứu transcript tổng hợp `qa-envelope`, nhưng không áp dụng: transcript âm tính `Vì sao, chiếc động hồ không chạy nữa?` sẽ trùng canonical `Vì sao chiếc đồng hồ không chạy nữa?` sau khi bỏ dấu câu và dấu tiếng Việt, khiến matcher trả lời câu gần đúng một cách im lặng.
 - Giữ matcher exact và không thêm alias chỉ dựa trên VieNeu/ASR tổng hợp. Bộ regression hiện giữ transcript này ở `unknown`; cải thiện tỷ lệ nhận đúng cần đánh giá bằng transcript người dùng có quyền chia sẻ hoặc model STT tốt hơn, không nới matcher mơ hồ.
+
+## Explicit aliases for observed small-model transcripts — 15/10/2026
+
+- Updated the earlier conservative decision after a labeled, local benchmark showed the pinned small STT model returned nine unique transcript variants for nine known canonical questions. Added only those complete strings as per-question aliases; no approximate/fuzzy match or cross-chapter lookup was introduced. An unrelated near miss remains `unknown`.
+- The app's exact matcher replayed the cached 21 synthetic Q&A transcripts with **21/21 expected IDs, 0 unknown, 0 wrong**. This improves deterministic handling of the measured synthetic utterances, but does not establish accuracy for human speech.
+- Added tests for all nine observed aliases and for rejection in the other five chapters. `npm test` passes 170/170. The demo dataset revision advanced to `5a191de3080dd27f420210b60017abd29bc9eda6ea3168aa8b305f78cdc79971`.
+- On the rebuilt Android API 37 APK, entering `Ong Lam nhua an ra sao?` at chapter 2 resolves to `qa-lam`; opening the answer text shows the correct response. Evidence is in `agent_docs/evidence/voice/android37-native-release-current-2026-10-15/voice-alias-answer.png`. This was typed input on an emulator, not a spoken test.
+- The iPhone has not reloaded the current `:8081` bundle; six-chapter human speech, noise conditions and real-device interruption/error cases remain open.
+
+## Large-v3 end-to-end and chapter-4 native alias — 15/10/2026
+
+- The local gateway now runs pinned large-v3 on CUDA float16. After accepting two full observed synthetic transcript variants as exact, question-local aliases, the mobile request helper → live gateway → production matcher returned 21/21 expected Q&A, 0 unknown, 0 wrong, 0 transport/context errors, with host p50/p95 of 570/634 ms. A real M4A helper request reached `qa-02` in 520 ms. This is synthetic audio, not human accuracy.
+- Installed API 37 release APK `B171E9C88288097F15F0DCBB15036F7D808373ACCCA6D22D9030833AADFB85B2`. At chapter 4, typing normalized `Ai trong ran hoa giay trong san?` showed the expected `qa-flowers` answer. The same question at chapter 1 correctly returned unknown, confirming node-local matching. Evidence: `agent_docs/evidence/voice/android37-native-release-current-2026-10-15/qa04-flowers-manual-alias-answer-2026-10-15.png`.
+- Unit/integration fixtures still keep exact IDs and reject cross-chapter lookup. The emulator cannot verify microphone/STT/audio playback. Human speech on the current iPhone bundle, noisy speech, interruption/error recovery and device latency remain open; the user deferred the `:8081` iPhone retest.

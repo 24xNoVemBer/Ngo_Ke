@@ -71,16 +71,19 @@ function rawQuestionBefore(input: string, command: string): string {
 }
 
 export function parseVoiceIntent(input: string, collectingPlan = false, currentDraft: PlanDraft = {}): VoiceIntent {
+  if (/^\s*đừng(?:\s|$|[,!.?])/iu.test(input)) return { type: 'question' };
   const text = normalizeQuestion(input);
   if (!text) return { type: 'question' };
 
   const exactCommands: Record<string, VoiceIntent['type']> = {
-    'nghe loi ke': 'listen', 'bat dau nghe': 'listen', 'phat loi ke': 'listen',
+    'nghe loi ke': 'listen', 'bat dau nghe': 'listen', 'bat dau nghe loi ke': 'listen',
+    'phat loi ke': 'listen', 'bat dau phat loi ke': 'listen',
     'nghe lai': 'replay', 'phat lai': 'replay', 'doc lai': 'replay',
-    'dung': 'stop', 'dung nghe': 'stop', 'dung phat': 'stop', 'dung lai': 'stop',
+    'dung': 'stop', 'dung nghe': 'stop', 'dung ngay': 'stop', 'dung phat': 'stop', 'dung lai': 'stop',
     'mo chuong ke': 'next', 'mo chuong tiep theo': 'next', 'sang chuong ke': 'next',
     'diem ke tiep': 'next',
     'mo qr': 'open-qr', 'quet ma qr': 'open-qr', 'mo camera': 'open-qr', 'mo may quet ma': 'open-qr',
+    'mo may quet ma qr': 'open-qr',
     'mo gps': 'open-gps', 'mo the gps': 'open-gps', 'xem vi tri': 'open-gps', 'xac dinh diem bang gps': 'open-gps',
   };
   const exact = exactCommands[text];

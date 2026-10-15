@@ -33,3 +33,29 @@
 
 - QaScreen test confirms “Chương kế là gì?” and “Điểm kế tiếp là điểm nào?” do not change chapter; explicit “Mở chương kế” selects the next available chapter.
 - UI-flow tests pass 24/24; full suite passes 146/146; typecheck and lint pass. Transcript input is controlled, so actual Vietnamese speech recognition and user comprehension still need device testing.
+
+## Android API 37 action surfaces — 15/10/2026
+
+- The latest SDK57 release APK measured the Plan manual-input control at 48 dp high on the API 37 AVD (126 px at 420 dpi). With the keyboard open, the topic field and “Dùng” button remained visible; topic/time entry selected Ẩm thực and 30 minutes, produced the expected two simulated picks (10 + 20 minutes), and opening “Bếp đầu hè” reached that chapter's Q&A.
+- The action drawer exposed distinct Plan, QR and GPS choices. Opening GPS showed an explicit “Lấy vị trí của tôi” button and no location prompt; the source only requests foreground permission from that button, and candidate selection has a separate confirmation. The QR screen likewise showed an explicit “Bật camera và quét QR” button; permission is requested only when it is tapped, and an accepted QR result still needs confirmation. Camera/location were not started on the emulator.
+- Evidence: `agent_docs/evidence/voice/android37-native-sdk57-2026-10-15/README.md`. The AVD has no audio; these checks do not test voice recognition of action commands or real GPS/QR hardware. Real Vietnamese voice intent recognition remains pending on a phone.
+- Mobile tests 168/168, typecheck, lint, dependency check, iOS JavaScript export and Android `assembleRelease` passed. Latest APK: 121,247,924 bytes, SHA-256 `EEC6430CC94BC70CAD01B5A58C954DA4B1333ECC1F49FFDB1BE8BCF4C3D9E1CF`.
+
+## Regression câu phủ định — 15/10/2026
+
+- `normalizeQuestion` làm “đừng nghe” trùng chuỗi với lệnh “dừng nghe”. Parser giờ nhận diện phủ định có dấu ở đầu câu trước khi chuẩn hóa; “Đừng nghe”, “Đừng mở QR/chương kế” và “Không cần mở GPS” không kích hoạt hành động, còn “Dừng nghe” vẫn dừng phát.
+- TTS tổng hợp cục bộ “Đừng nghe.” và “Dừng nghe.” bằng VieNeu Đoan Trang, rồi gửi qua gateway large-v3 CUDA đang chạy. ASR trả lần lượt “Đừng nghe.” và “Dừng ngay!”; parser giữ câu phủ định ở `question` và nhận “Dừng ngay!” là `stop` bằng alias chính xác. Không dùng audio người dùng.
+- Thêm hồi quy trong `mobile/tests/voiceIntent.test.mjs`. Toàn suite 170/170, typecheck, lint và `git diff --check` đạt. Probe này là synthetic TTS→STT, chưa xác nhận cách người dùng thật phát âm.
+- Rebuild/cài APK API 37 sau alias: 121,248,988 bytes, SHA-256 `F6CD6178BD99D303E2C714963B3F414314D7DE9B883098976648DA9A2CF20B49`; installed `base.apk` khớp hash. Native flow Landing → Home → chapter 1 → answer → mở text khi player chạy đạt; xem `agent_docs/evidence/voice/android37-native-release-v6-negation-2026-10-15/README.md`.
+
+## Current APK and integration follow-up — 15/10/2026
+
+- APK used for this chapter-isolation check was `B171E9C88288097F15F0DCBB15036F7D808373ACCCA6D22D9030833AADFB85B2`. Chapter-4 typed alias resolved to the expected answer; chapter 1 correctly kept that chapter-4 question unknown. See `agent_docs/evidence/voice/android37-native-release-current-2026-10-15/qa04-flowers-manual-alias-answer-2026-10-15.png`.
+- Synthetic mobile helper → large-v3 gateway → production matcher coverage is 21/21 after two exact aliases (0 wrong/unknown/context errors, host p50/p95 570/634 ms). This does not prove real speech recognition or spoken action recognition. The broad parser/Plan/QR/GPS code and UI checks above remain covered by unit/UI tests; real voice action comprehension and physical camera/GPS use remain pending.
+- Current validation is 170/170 mobile tests, typecheck, lint, Expo dependency check and the 34/34 audio catalogue validator. The AVD has no audio; the iPhone `:8081` retest remains deferred.
+
+## Spoken action probe through the current helper and gateway — 15/10/2026
+
+- Replayed locally generated VieNeu clips through the production mobile multipart helpers, current LAN gateway and `parseVoiceIntent`. “Bắt đầu nghe lời kể” was transcribed exactly and resolved to `listen`; “Mở máy quét mã QR” was transcribed as “Mở máy quét mạ.” and resolved to `open-qr` through the existing accent/punctuation normalization and exact command table.
+- Added exact aliases for those action forms and changed the idle dock hint to the proven phrase “Phát lời kể”; direct parser regressions pass. No fuzzy intent mapping was added. The synthetic clips do not establish real-world recognition or comprehension.
+- The earlier spoken-action probe used APK `17BF0EF342B0E41E4A90972101B260BD1E75D9654F80FDC5BFA469464E6EF3D3`. The latest APK after V6 fixes is `F6CD6178BD99D303E2C714963B3F414314D7DE9B883098976648DA9A2CF20B49`; all 34 packaged MP3 hashes match source. Real spoken action coverage on iPhone, and physical QR/GPS use, remain pending.

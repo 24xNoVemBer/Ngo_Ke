@@ -1,5 +1,85 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-15 — Revalidation after remaining-effort estimate
+
+- Re-ran current mobile checks against the dirty working tree: `npm test` 171/171, TypeScript, ESLint, Expo dependency compatibility, and `git diff --check` passed. The only diff-check output is existing LF/CRLF warnings.
+- Revalidated all 34 catalogue items: integrity checks pass, 7.0 minutes / 5.04 MB; highest synthetic WER remains `qa-flowers-answer` 23.1%. This is automated transcript/format/hash validation, not human listening QC.
+- Current LAN gateway smoke passed on faster-whisper 1.2.1 with the 19.15-second locally generated clip, including abort/retry, quota, invalid format, duration, and silence handling. No private audio was sent.
+- Native-container probe passed with a local synthetic 23,886-byte AAC/M4A clip uploaded as `audio/mp4`: gateway returned HTTP 200, preserved turn/node/mode/revision, and transcribed “Con ngõ này có gì để xem?”. This does not verify audio recorded by Expo Go or a physical iPhone.
+- Promoted that probe into a repeatable gateway smoke regression with tracked fixture `tools/voice/gateway/test-fixtures/ios-aac-smoke.m4a` (SHA-256 `67EB5DF56D2D856663C0E6971734EFA9B0CE176FD0FCB5341170945E854BAB23`). `node tools/voice/gateway/smoke_test.mjs` passed using WAV and AAC/M4A, abort/retry, quota, invalid-format, duration and silence cases.
+- Updated the current V4 review and handoff with the M4A regression and fresh host/device status; relabeled the older API 37 V6 evidence heading as superseded so it cannot be mistaken for the current release snapshot.
+- Expanded the current iPhone handoff from a single chapter-1 example to exact question/follow-up speech pairs for all six chapters, derived directly from `data/demo.json`; the on-device acceptance record remains pending.
+- Metro `:8081` serves both loopback and LAN. Its current iOS dev bundle returns HTTP 200 (5,523,970 bytes) and contains revision `8b318b…`, gateway `192.168.100.36:8788`, the “Phát lời kể” hint, and `MIC_PERMISSION_BLOCKED`. Gateway health is ready on `large-v3-cuda` / CUDA float16. This remains host delivery evidence; the user has deferred reloading it on iPhone.
+- Fresh continuation check: Metro `127.0.0.1:8081/status` returned HTTP 200; LAN gateway `192.168.100.36:8788/health` is ready on Node 24.14.1 / faster-whisper 1.2.1 / `large-v3-cuda` / CUDA float16. ADB lists only `emulator-5554`, no physical Android device.
+- Tried advancing V3 on the API 37 AVD with audio enabled and `hostmicon`: native `AudioRecord` opened, but the 1.84-second local synthetic sample produced no metering signal. The clip was canceled without upload; AVD `-no-audio`, hostmic off, and animation scales `1` were restored. Evidence is explicitly inconclusive at `agent_docs/evidence/voice/android37-host-audio-route-attempt-2026-10-15/`.
+- Dataset SHA-256, `voiceCatalogueRevision`, and manifest revision still agree at `8b318b4e9955e3b7affe72cb21ea08cf8123a616eeab2eb1420ab105c7b65e6b` (34 entries). Android release APK is still `2f15c3c0992434a42b13cb4b09c363826542ddfa215eb8f3e9d5db03e22a1e0d`.
+- ASR tuning review found no safe decode change: the previously tested vocabulary `initial_prompt` reduced synthetic exact matches from 14/21 to 11/21; keep exact matching and the three known utterances unknown until measured evidence supports a bounded fix.
+- Reviewed the current matcher/intent, gateway and voice UI diffs. The source validator already rejects normalized Q&A/alias collisions; a full demo audit found 21 questions and 82 aliases with zero collisions, and `qa.test.mjs` now has a regression case for a case/punctuation-normalized collision. This is dataset/validator evidence, not live-phone accuracy.
+- Added a hook-level regression in `uiFlows.test.mjs` confirming manually started story playback sets the native player loop. The test mock now includes Expo Crypto's SHA-256 enum so it exercises the playback path; full suite passes at 171/171.
+- Brought `VOICE_INTERACTION_UX_SPEC.md` up to date: its front matter now describes implemented native behavior and identifies the pre-implementation status and V0–V4 proposal as history. The current page documents the auto-repeat preference and links to the live components and V0–V7 evidence.
+- Rechecked the live development hosts after the estimate: LAN Metro `:8081/status` returned HTTP 200 and `:8788/health` returned ready on Node 24.14.1 / faster-whisper 1.2.1 / large-v3 CUDA float16. This confirms host availability only.
+- Open acceptance remains human listening QC, current-bundle iPhone spoken coverage across all six chapters, real-device audio/interruption and screen-reader checks, and hardware latency/performance. The AVD has no usable audio input/output. Do not mark the goal complete. No commit or push.
+
+## 2026-10-15 — Current revision 8b318b native and catalogue recheck
+
+- Current `data/demo.json`, `voiceCatalogueRevision`, and manifest `sourceDataSha256` agree at `8b318b4e9955e3b7affe72cb21ea08cf8123a616eeab2eb1420ab105c7b65e6b`; 34-entry manifest SHA-256 is `34925f5d005fa7fb684c4f8fac19992865b581c6eeaa6bde0e9183431c9be05a`.
+- Fresh current checks: mobile **171/171**, typecheck, lint, Expo dependency check, V1 validator **34/34**, local gateway smoke and `git diff --check` pass. Validator reports 7.0 minutes / 5.04 MB; highest synthetic WER is `qa-flowers-answer` 23.1%. This does not replace human listening QC.
+- A fresh 8-question synthetic helper → live `large-v3-cuda` gateway → strict production matcher run on revision `8b318b…` matched 5/8 exactly, with 0 wrong and 3 ambiguous transcripts intentionally left unknown: `Công lâm nhựa ăn ra sao?`, `Hai trùng giàn hoa giấy trong sân.`, and `Vì sao anh đọc lá thư thật chậm?`. Their unknown status is regression-tested; do not add broad/fuzzy aliases to inflate recall. Cached transcript replay at 21/21 remains matcher-only evidence.
+- Current Android API 37 release APK is 121,249,588 bytes, SHA-256 `2f15c3c0992434a42b13cb4b09c363826542ddfa215eb8f3e9d5db03e22a1e0d`; installed base APK hash matches. Its embedded revision is current and all 34 MP3 hashes match source. Current native typed chapter-4 alias and follow-up flow plus chapter-1 answer/player/text state are captured in `agent_docs/evidence/voice/android37-native-release-final-2f15c3-2026-10-15/README.md`. The AVD has no audio hardware.
+- On this APK, a 20-cycle recorder stress pass showed AppOps active/stopped 20/20, PID unchanged, PSS 192,569 → 204,956 KB (+12,387 KB) in one run. This is lifecycle evidence only, not a leak or hardware performance conclusion; AVD has no usable audio.
+- Fresh iOS Expo export succeeded (1,073 modules): `mobile/dist/ios/_expo/static/js/ios/index-34b34ad94926be47472ea9cee2796235.hbc`, SHA-256 `d285830810720d64dbd0f5c0579bc6f0cb8b4c26185853795f2790b8333dc477`. Metro `:8081` status, iOS manifest and launch bundle return HTTP 200; current bundle is 5,531,244 bytes and includes revision `8b318b…`, gateway URL and `MIC_PERMISSION_BLOCKED`, without stale disconnected copy. Gateway `:8788/health` is ready on faster-whisper 1.2.1 / large-v3 CUDA. This is host/LAN evidence only.
+- The user deferred reloading `exp://192.168.100.36:8081`; previous two-turn iPhone success was reported on `:8089`. Human listening QC, current-bundle iPhone spoken coverage, physical audio/interruption routes, screen readers and hardware performance remain open. No commit/push.
+
+## 2026-10-15 — Earlier large-v3 alias snapshot (superseded by 8b318b)
+
+- Added four exact aliases for saved large-v3 transcript variants in `qa-lam`, `qa-flowers`, `qa-knot`, and `qa-che`; the fifth transcript (`qa-home`) was already covered. Increased the bounded per-entry alias limit from 5 to 6 for the six-alias `qa-flowers` entry. `data/demo.json`, `mobile/src/voice/catalog.ts`, and `mobile/assets/voice/manifest.json` now share dataset revision `5a82b1d4fa223b2170fd9fa2c761a01479b4e3e159a81a6de72f65566a8d2568`.
+- The cached 21-question synthetic transcript sets re-evaluated through the production exact matcher at **21/21** expected IDs for both small and large-v3, with zero unknown or wrong matches. This replays saved synthetic transcripts; it is not a new ASR run or a human-speech accuracy claim. `npm test` passes 170/170; typecheck, lint, Expo dependency check and `git diff --check` pass.
+- Revalidated the audio catalogue: 34/34 entries pass; MP3 source/text/audio hashes, decode, format, duration and levels are unchanged. Updated manifest file SHA-256: `e59696011be1501097b08f11091a903f8b9a88d30d2914fcc255d1c28db774ba`. Human listening QC remains pending.
+- Rebuilt and installed Android API 37 release APK: 121,249,288 bytes, SHA-256 `A44C99FF04125D5C24DD45ADFEA8C74EB8675C53EA00B4C2B45CEFEF95538BBC`; installed base APK hash matches. On the native app, entering `Hai chong gian hoa giay trong san` in chapter 4 returned the `qa-flowers` answer; see `agent_docs/evidence/voice/android37-native-release-asr-alias-2026-10-15/README.md`. The AVD has no usable audio, so this is not mic/STT or audible playback proof.
+- `npm run build:ios` passed; HBC export is `index-0462bc7bf16834cfd89e7154fb994480.hbc`, SHA-256 `35D9DBA66BAC6ECD1D429DE99CC75019524740685C345943036B7D8AA0E07108`. Metro `:8081` serves a fresh HTTP 200 bundle (5,523,808 characters) containing the new revision and alias and no old revision; gateway smoke passed with local synthetic audio. The user has deferred reloading `exp://192.168.100.36:8081`; previous two-turn success was reported on `:8089`.
+- Still open: human listening QC for all 34 clips; spoken six-chapter coverage and device failure/audio-route/interruption checks on the current iPhone bundle; physical-device accessibility and performance. Goal remains active; no commit or push.
+
+## 2026-10-15 — V6 ASR correction and latest native release
+
+- Local VieNeu TTS clips sent only to the local LAN gateway: “Đừng nghe.” → transcript “Đừng nghe.”; “Dừng nghe.” → “Dừng ngay!”. Parser now leaves the first as a question and maps the observed second transcript to exact `stop`; no user audio was used. Full mobile suite 170/170; typecheck, lint and `git diff --check` pass.
+- Rebuilt/installed API 37 APK: 121,248,988 bytes, SHA-256 `F6CD6178BD99D303E2C714963B3F414314D7DE9B883098976648DA9A2CF20B49`; installed base APK hash matches. Native Landing → Home → alley → chapter-1 Q&A/answer → open story text flow passed; answer player remained at `00:04 / 00:10`. Evidence: `agent_docs/evidence/voice/android37-native-release-v6-negation-2026-10-15/README.md`.
+- APK MP3 SHA-256 multiset matches all 34 source clips. `npm run build:ios` succeeded; exported HBC is `index-e44b07b146d3b8e5f8490498dfdad2b4.hbc`, SHA-256 `DB6FE8BE6FFA17E4B4B4E596440B84B34A89164DBAA429E1859037522824175F`. Metro `:8081/status` is HTTP 200 and gateway `:8788/health` is ready on `large-v3-cuda`.
+- Still pending: human listening QC for 34 clips; iPhone reload of `exp://192.168.100.36:8081` and spoken coverage; physical-device mic/audio routes, interruption, screen-reader and performance. AVD has no audio and cannot close those gates.
+
+## 2026-10-15 — Earlier native UI and V6 speech-intent verification
+
+- Reinstalled/relaunched the current Android API 37 release APK (121,248,752 bytes; SHA-256 `17BF0EF342B0E41E4A90972101B260BD1E75D9654F80FDC5BFA469464E6EF3D3`). Fresh UI path reached Home → Q&A; tapping “Đây là điểm nào?” showed the correct chapter-1 answer without autoplay. Starting its answer player, then opening the answer text, kept playback active at 00:02/00:10; Back returned to Home. Native captures: `agent_docs/evidence/voice/android37-native-release-current-2026-10-15/latest-player-text-open.png` and `latest-back-home.png`.
+- Current APK ZIP contains 34 MP3s; SHA-256 multiset comparison matched all 34 source files byte-for-byte (0 missing/extra). This checks packaged audio integrity only; the AVD has no usable audio output/input.
+- Replayed two local VieNeu synthetic action clips through the app's actual `createVoiceRequestBody` / `transcribeVoiceRequest` helpers, live `:8788` large-v3 CUDA gateway, and production `parseVoiceIntent`: “Bắt đầu nghe lời kể” → `listen`; “Mở máy quét mã QR” → transcript “Mở máy quét mạ.” → `open-qr`. Exact normalization/aliases only; no fuzzy selection. Synthetic speech is not human accuracy evidence.
+- Current validation: 170/170 mobile tests, typecheck, lint, Expo dependency check and `git diff --check` pass. Gateway health is ready (`large-v3-cuda`); Metro `:8081/status` is running. `uiautomator dump` intermittently returned the pre-transition tree while fresh screenshots showed the active Home/Q&A route, so route evidence was captured from the screen after transitions.
+- V6 negation regression: “Đừng nghe” collided with normalized “Dừng nghe” and was interpreted as `stop`. The parser now checks an initial accented “đừng” before normalization; four negative examples stay non-actions while “Dừng nghe” remains `stop`. Full suite remains 170/170, typecheck/lint pass. This is transcript-level evidence only.
+- Fetched the iOS launch manifest through LAN IP `192.168.100.36`: HTTP 200, `hostUri`/debugger host `192.168.100.36:8081`. Its warm launch-bundle fetch returned HTTP 200 in 5.25 seconds, 5,530,710 bytes, and includes the configured gateway URL, current revision, V6 phrase “Phát lời kể”, both exact action forms, and no stale disconnected copy. This proves host/LAN delivery; iPhone reload is still deferred.
+- Repeated the mic state cycle on the same APK: start → Hủy → start → Hủy. Both starts displayed `Đang thu · 00:01`; the dock returned to idle after each cancel, no clip was sent, and `cmd appops get` showed no active recording after the final cancel. Evidence: `latest-recorder-first.png`, `latest-recorder-second.png`, `latest-recorder-after-cancel.png`. The AVD has no audio signal, so this still cannot verify moving meter or speech recognition.
+- Stress-repeated that native cycle 20 times on APK `17BF…`: mic AppOps was running on 20/20 starts and stopped on 20/20 cancels; process PID stayed `18546`. AVD PSS changed from 188,050 KB to 194,054 KB (+6,004 KB) in one run, too small/short a sample to claim leak or performance. Final idle capture: `latest-recorder-stress-idle.png`.
+- Still pending: listener QC for all 34 clips; reload/current spoken six-chapter tests on iPhone (deferred by user); physical audio routing/interruption; TalkBack/VoiceOver and hardware performance. Goal stays active; no commit/push.
+
+## 2026-10-15 — Revalidate Voice preview and current release
+
+- Metro `:8081` was healthy; gateway `:8788` had stopped between sessions. Restarted gateway on `0.0.0.0:8788`; LAN health is ready (Node 24.14.1, faster-whisper 1.2.1). iOS and Android Expo Go manifests and bundles both returned HTTP 200 with the gateway URL.
+- Fresh checks: mobile 168/168; typecheck, lint, Expo dependency check, catalogue 34/34, gateway synthetic-audio smoke, and `git diff --check` pass.
+- Installed current 121,247,924-byte Android release APK (SHA-256 `236072DF9F8E3C8B3952D0C4A4CA13F63A22C8844EDB7015A9BC917263FF4243`) on API 37 AVD. Font scale 2.0 surfaced player-title truncation; removed the shared component’s one-line cap, rebuilt, and verified the full title wraps. Home → chapter 1 reader, text/player interaction and recorder cancel also rechecked. Evidence: `agent_docs/evidence/voice/android37-native-release-current-2026-10-15/README.md`.
+- At Android font scale 2.0 on this APK, all six chapter selectors and story/player/voice/text-input/notebook controls remained reachable; after scroll all four question suggestions and the voice dock were visible/enabled. Recorder start/cancel worked at large scale; restored font_scale to 1.0. TalkBack remains untested.
+- AVD has no audio. Human listening of 34 clips, current-bundle iPhone reload/speech retest (user deferred), physical audio routes, full six-chapter speech/failure coverage, hardware screen-reader and performance remain pending. Goal remains active; no commit/push.
+
+## 2026-10-15 — AlleySelect touch-target audit
+
+- Audited and fixed AlleySelect native hit areas: back 48×48 dp; search and clear-search controls at least 48 dp high; demo action and filter chips at least 48 dp high. Filter chips now expose button role, label and selected state to accessibility services.
+- Rebuilt/installed API 37 SDK57 APK: 121,247,928 bytes, SHA-256 `E7D5BD8D8D0B34A23F77BA97CA20A5A0D6A42D7D175FF50858D8C9874899F0F7`. UIAutomator confirmed search/clear and that “Ẩm thực” selects and changes the list count to two; “Tất cả” restores the default list.
+- `npm test` 168/168, typecheck, lint and `:app:assembleRelease` pass. Native screenshots/XML are under `agent_docs/evidence/voice/android37-native-sdk57-2026-10-15/`.
+- AVD has no audio and this check did not exercise TalkBack/VoiceOver, microphone/STT, audible output or iPhone. These remain pending; no commit or push was made.
+
+## 2026-10-15 — Android Reduce Motion integration check
+
+- React Native 0.86.3 reads Android `Settings.Global.TRANSITION_ANIMATION_SCALE` for `AccessibilityInfo.isReduceMotionEnabled()` and observes changes while a React instance is active. The app's native stack switches transitions to `animation: 'none'` when the shared motion preference is reduced.
+- On the running API 37 AVD, set only `transition_animation_scale=0`, tapped the Home “Khám phá các con ngõ Hà Nội” action, and captured the fully rendered “Chọn Con Ngõ” screen within 80 ms. All three animation settings were restored to `1`; verified by rereading them. Evidence: `agent_docs/evidence/voice/android37-native-sdk57-2026-10-15/android37-reduced-motion-navigation.png` and `.xml`.
+- This is reduced-motion navigation evidence on an emulator, not TalkBack/VoiceOver or iPhone accessibility proof. No source changes were needed.
+- Rechecked host preview: Metro `:8081/status`, iOS bundle and gateway `:8788/health` return HTTP 200/ready. Bundle is 6,073,393 bytes, embeds `192.168.100.36:8788`, includes `MIC_PERMISSION_BLOCKED`, and omits the stale disconnected copy; cached fetch is 0.18 seconds. The first uncached probe timed out at 25 seconds before a later successful build response. iPhone reload remains user-deferred.
+
 ## 2026-10-14 — V5 regression covers all recorded synthetic ASR misses
 
 - Compared the three cached synthetic ASR probe reports with the chapter-scoped Q&A tests: all 33 unique observed miss transcripts now have same-node `unknown` regressions. Corrected the `qa-che` case from `demo-05` to its actual owner, `demo-04`.
@@ -42,13 +122,13 @@
 - Re-run trên workspace: 5/5 intent tests, `npm test` 164/164, typecheck, lint, Expo dependency check pass.
 - iOS/Android Expo exports thật trong `mobile/dist`: HBC lần lượt 2.454.864/2.455.067 byte; metadata có 34 MP3 mỗi platform, 34/34 byte-identical với nguồn. Metro iOS bundle mới `:8081` trả HTTP 200, 6.061.640 ký tự, có gateway/parser và hai marker phủ định.
 - Android release APK mới build thành công: `mobile/android/app/build/outputs/apk/release/app-release.apk`, 121.246.208 byte, SHA-256 `EBF2BD54A8036DF72149059C67AA99D0E8C29E4AD8AE2D0A1E9F850E9FD08404`. APK có parser fix, gateway URL, 34/34 audio byte-identical. Chưa cài vì `adb devices` hiện không thấy thiết bị/AVD.
-- Gateway LAN `:8788` hiện ready. Năm lượt warm với cùng clip TTS 19,15 giây: p50 7.536 ms, p95 nearest-rank 7.727 ms; đây chỉ là gateway/STT, không đo app/thiết bị.
+- Gateway LAN `:8788` hiện ready. Năm lượt warm với cùng clip TTS 19,15 giây: p50 7.536 giây, p95 nearest-rank 7.727 giây (7,536/7,727 ms); đây chỉ là request-to-transcript qua LAN, không đo thu mic/app/thiết bị.
 - Ghi chú tại thời điểm đó chưa có yêu cầu commit/push; sau đó người dùng đã yêu cầu tự động push mỗi phần việc hoàn tất. Còn: người dùng reload `:8081` trên iPhone (đã để sau), speech qua 6 chương/21 Q&A và failure paths, nghe tay 34 clip, audio routes/accessibility/performance thật.
 
 ## 2026-10-14 — Recheck Metro, gateway và độ trễ STT tổng hợp
 
 - Metro `:8081` còn chạy; manifest và bundle iOS trả HTTP 200. Bundle hiện tại 6,061,583 ký tự, có gateway LAN `192.168.100.36:8788`, recorder và `parseVoiceIntent`, không còn copy “Chưa kết nối máy nhận giọng nói”. Gateway `/health` trên đúng IP LAN trả `ready` với faster-whisper-small.
-- Gửi cùng clip TTS tổng hợp 19,15 giây qua gateway 5 lần liên tiếp: cả 5 HTTP 200, transcript khác rỗng, echo đủ `turnId/locale/mode/nodeId/datasetRevision`; warm p50 7,536 ms, p95 nearest-rank 7,727 ms. Chỉ đo gateway/STT qua LAN, không tính mic iPhone, upload app, xử lý Q&A hay phát audio.
+- Gửi cùng clip TTS tổng hợp 19,15 giây qua gateway 5 lần liên tiếp: cả 5 HTTP 200, transcript khác rỗng, echo đủ `turnId/locale/mode/nodeId/datasetRevision`; warm p50 7.536 giây, p95 nearest-rank 7.727 giây (7,536/7,727 ms). Chỉ đo request-to-transcript gateway/STT qua LAN, không tính mic iPhone, upload từ app, Q&A hay phát audio.
 - Mobile kiểm lại `npm test` 164/164, typecheck, lint và Expo dependency check pass. Người dùng chưa reload `:8081` trên iPhone theo yêu cầu để sau; không nâng kết quả user-reported ở `:8089` thành bằng chứng cho bundle này.
 
 ## 2026-10-14 — APK Android V6 retest và Metro :8081
@@ -615,3 +695,118 @@ Lịch sử: Part4 có22/22 kiểm tra tài liệu; shell/emulator cũ trong `ph
 - Android API 37 AVD ran the current release APK after enlarging small voice-screen controls, announcing the selected Home mood, and adding runtime-measured bottom scroll space for the fixed dock. UIAutomator bounds show visible controls at 48 dp minimum height; the final question chip is fully visible after scrolling.
 - Native evidence: `agent_docs/evidence/voice/android37-native-release-a11y-qa-2026-10-14.png` and matching UI hierarchy XMLs. This is emulator bounds/tree evidence only, not a TalkBack/VoiceOver check.
 - After source changes: mobile tests 167/167, typecheck, lint, and Android `assembleRelease` pass. iPhone reload/test on `exp://192.168.100.36:8081` remains deferred by user; do not ask again yet.
+
+## Android chapter-6 answer/text playback recheck — 14/10/2026
+
+- Re-read current repository status and preserved all untracked local items. No source changes were made in this continuation; no commit/push.
+- Current installed Android API 37 APK and local `app-release.apk` match exactly: `com.valentino241.ngokedemo`, version 0.1.0, 121,247,808 bytes, SHA-256 `D6BB16DCE259002D38D112DACA28E9DD91BF5D0681C005AEC9BB83025E8AB50D`.
+- On chapter 6, selected the canonical first question `qa-letter`; answer text remained hidden until Xem chữ, then the UI hierarchy showed the exact catalogue answer. While the answer player was running, opening/collapsing text left the player playing near the same end position rather than resetting to zero. Screenshots: `android37-native-release-qa6-answer-text-playing-2026-10-14.png` and `android37-native-release-qa6-answer-text-collapsed-playing-2026-10-14.png`.
+- AVD uses `-no-audio`; this is a native UI/player-state check, not audible playback, mic/STT, or hardware speech proof. Prior six-chapter sweep searched for answer text that is intentionally hidden; mark that check invalid, not an app failure and not six-chapter proof. Only chapter 6 was verified in this continuation.
+- Current host spot-check: Metro `http://192.168.100.36:8081/status` and gateway `/health` both return HTTP 200; gateway reports `ready`. `mobile/.env.local` exists and is not tracked. This confirms host readiness/config only, not that Expo Go on iPhone loaded the bundle.
+- Still open: listen to all 34 clips; iPhone reload/test on deferred `:8081`; real mic→STT→Q&A across six chapters; device audio routes/interruption, screen-reader/accessibility, performance, and remaining failure paths. Goal remains active.
+
+## Duplicate-submit and late-response regression — 14/10/2026
+
+- Failure-path audit found the hook rejected duplicate Gửi by synchronously entering `stopping`, but there was no direct test proving repeated calls during `stopping`/`transcribing` or cancel of an in-flight transcription.
+- Added a controlled-promise regression in `mobile/tests/uiFlows.test.mjs`: one stop and one ASR request despite duplicate calls; cancel during stop prevents upload, cancel/point-revision change during ASR aborts, and later resolved transcripts are discarded. Targeted suite 34/34; full suite 168/168; typecheck, lint and Expo dependency check pass. The live gateway smoke also passed against Node 24.14.1/faster-whisper 1.2.1 using only the local synthetic clip and its validation cases.
+- Rechecked Metro `:8081/status` and gateway `/health`: both HTTP 200, gateway `ready`; `.env.local` is present and untracked. These host checks do not confirm Expo Go on iPhone has reloaded `:8081`.
+- Do not treat controlled hook tests or no-audio AVDs as voice hardware proof. Real iPhone test is still deferred by the user, human listening of 34 assets is pending, and speech coverage across all six chapters is not established. Goal remains active; no commit/push.
+
+## Android native six-chapter Q&A UI sweep — 14/10/2026
+
+- Revalidated the installed API 37 APK against the local artifact by pulling `base.apk`: both are 121,247,808 bytes with SHA-256 `D6BB16DCE259002D38D112DACA28E9DD91BF5D0681C005AEC9BB83025E8AB50D`, version 0.1.0.
+- Tapped one suggested-question chip in each chapter. All six displayed a chapter-matching answer source, a Ready answer player (no chip autoplay), and the collapsed answer-text action. Captured six native screenshots plus UIAutomator XML under `agent_docs/evidence/voice/android37-six-chapter-ui-2026-10-14/`; README records method and per-chapter question.
+- The six-chapter sweep is native UI/routing evidence only: this AVD has no audio hardware and did not exercise mic, STT, audible output, or iPhone. The old sweep that expected text to be visible by default was invalid; this new check fixes that verification mistake.
+- Re-ran mobile validation: `npm test` 168/168, typecheck, lint, Expo dependency check and `git diff --check` pass. Only docs/evidence changed during this sweep; no app source changed.
+- No source code changed. User-deferred iPhone reload on `:8081`, human QC of 34 clips, physical audio/accessibility/performance checks remain pending. Goal stays active; no commit/push.
+
+## Android six-chapter reader disclosure — 14/10/2026
+
+- On the matching API 37 release APK, selected the first canonical suggested Q&A in each chapter. Before tapping Xem chữ, the exact answer was absent from UIAutomator; after tapping, it exactly matched the approved `data/demo.json` answer. Tapping Thu gọn removed it again. In all six chapters the answer player remained Ready and never autoplayed.
+- Saved open/collapsed PNG and accessibility XML pairs under `agent_docs/evidence/voice/android37-six-chapter-reader-2026-10-14/`; README records the questions, method, APK hash and limits.
+- Rechecked mobile tests 168/168, typecheck, lint, Expo dependency check; docs/evidence only, no app source changes. AVD has no audio, so microphone/STT/audible playback and iPhone behavior remain unverified; user-deferred iPhone bundle reload and human QC of 34 clips remain pending. Goal active; no commit/push.
+
+## Android font-scale QA — 14/10/2026
+
+- On the installed API 37 release APK (SHA-256 `D6BB16DCE259002D38D112DACA28E9DD91BF5D0681C005AEC9BB83025E8AB50D`), checked Q&A at system font scales 1.5 and 2.0. At 2.0 the answer remained collapsed/Ready; after scrolling both follow-up chips fit above the fixed dock. Evidence: `agent_docs/evidence/voice/android37-font-scale-2026-10-14/README.md`.
+- No app source changed. The AVD has no audio; TalkBack/iPhone Dynamic Type, real-device voice/audio routes, human listening QC and performance remain pending. Changing font scale while the app was open recreated the activity and reset navigation to Prologue during this test; changing scale while backgrounded was not checked. Goal active; no commit/push.
+
+## Android SDK57 reader/player evidence — 15/10/2026
+
+- Verified the API 37 AVD-installed APK against the local release artifact: `com.valentino241.ngokedemo` 0.1.0, 121,247,816 bytes, SHA-256 `B11555198EBF7CDCD78A8A241E1FFEF4EF5B35B5BB4A5701331055DF46B66083`.
+- Reached chapter 1 from Home, selected “Đây là điểm nào?”, and opened answer text while the player advanced to `00:08 / 00:10` and continued through replay. Screenshots and limits are in `agent_docs/evidence/voice/android37-native-sdk57-2026-10-15/README.md`.
+- Android Back from Q&A → point selector → Home succeeded, process remained present, no recent fatal React Native/AndroidRuntime exception; no conclusion about iOS SafeArea.
+- AVD has no audio hardware. `uiautomator dump` returned `could not get idle state`; discarded its stale XML. This does not prove audible playback, mic/STT, iPhone, or screen-reader behavior. iPhone reload of `exp://192.168.100.36:8081` remains user-deferred. Goal active; no commit/push.
+- Restarted local Metro and gateway after observing both ports refused connections. Current `:8081` status/manifest/iOS bundle return HTTP 200; bundle is 5,529,479 bytes and includes the gateway URL and mic-permission recovery. Gateway `192.168.100.36:8788/health` is ready; gateway smoke passed using only local synthetic audio. Mobile checks pass 168/168, typecheck, lint and Expo dependency check. User has deferred iPhone reload; no commit/push.
+- Revalidated the canonical V1 catalogue: 34/34 clips, 7.0 minutes / 5.04 MB, manifest SHA-256 `90747665D049CC3B4AF018672EF0935805F324236986D8F2047DC79B440113E9`; highest ASR WER remains 23.1% on `qa-flowers-answer`. No human listening checklist item has been completed.
+
+## Android Plan and QR/GPS surface retest — 15/10/2026
+
+- Fixed Plan's manual-input toggle to a 48 dp minimum. The latest API 37 release APK measures 126 px at 420 dpi; topic/time fields and apply buttons also measure 48 dp. Android keyboard remained usable. Entering `am thuc` + 30 minutes returned two simulated recommendations totaling 30 minutes; selecting “Bếp đầu hè” opened the matching chapter.
+- Opened the separate action drawer, GPS screen and QR screen on the AVD. Both screens show an explicit start button; no location/camera permission is requested just by entering the screen. The source requires a separate confirmation after a candidate result. No GPS, camera, or mic was started.
+- Latest APK: 121,247,924 bytes, SHA-256 `EEC6430CC94BC70CAD01B5A58C954DA4B1333ECC1F49FFDB1BE8BCF4C3D9E1CF`. Android release build passed (377 tasks; 71 executed); mobile suite 168/168, typecheck, lint, dependency check, iOS JS export and `git diff --check` passed. Evidence: `agent_docs/evidence/voice/android37-native-sdk57-2026-10-15/README.md`.
+- Opened the new APK ZIP and confirmed 34/34 bundled MP3 SHA-256 hashes match source assets; no audio file is missing or extra.
+- AVD has no audio: no proof of voice command recognition, audible playback, physical camera/GPS, TalkBack/VoiceOver, iOS native behavior, or performance. iPhone reload of `exp://192.168.100.36:8081` remains deferred. Goal stays active; no commit/push.
+
+## Metro Expo Go launch bundle restore — 15/10/2026
+
+- Before restart, Metro `:8081/status` was HTTP 200 while the iOS launch asset timed out at 90s and 230s. Restarted only Metro in the foreground without `--clear`; it loaded `.env.local` and advertised `exp://192.168.100.36:8081`. Gateway `:8788` was left running.
+- The current iOS manifest launch asset returned HTTP 200 in 9.5s (5,529,995 response bytes); a warm repeat returned in 0.51s. Its contents include `192.168.100.36:8788` and `MIC_PERMISSION_BLOCKED`, and exclude “Chưa kết nối máy nhận giọng nói”. Gateway health is ready on Node 24.14.1/faster-whisper 1.2.1.
+- After recovery, reran mobile tests 168/168, typecheck, lint, Expo dependency compatibility, V1 catalogue validation, gateway synthetic-ASR smoke (abort/retry, quota and media guards), and `git diff --check`; all passed. No user audio was used.
+- User has deferred reloading the refreshed bundle on iPhone. This proves host/LAN delivery only, not behavior on that device. Goal remains active; no commit/push.
+
+## Paired local ASR model check — 15/10/2026
+
+- Compared pinned `faster-whisper-small` and `Systran/faster-whisper-large-v3` on one identical set of 21 VieNeu-generated canonical Q&A WAVs using vi, beam 5, VAD and exact app matching. Small CPU/int8: 12/21, 9 unknown, 0 wrong, p50/p95 1.684/1.872s. Large-v3 CPU/int8: 16/21, 5 unknown, 0 wrong, p50/p95 7.722/8.370s, weighted RTF 3.863; per chapter 6/6, 2/3, 3/3, 0/3, 3/3, 2/3.
+- Large-v3 model card license is MIT; model.bin 2.9 GiB. CTranslate2 detects CUDA but runtime inference fails on missing `cublas64_12.dll`. No CUDA install, gateway switch, personal audio or upload. Keep small model: CPU large-v3 adds 4 exact matches but is 4.6× slower and still leaves 5 unknown. Do not loosen exact matcher from synthetic-only errors.
+- Full local metrics are ignored at `tools/voice/.cache/qa-asr-model-comparison.json`; temporary WAVs were removed. This does not validate human speech. Goal remains active; no commit/push.
+
+## Android large-font player retest — 15/10/2026
+
+- Rechecked current release APK `236072DF9F8E3C8B3952D0C4A4CA13F63A22C8844EDB7015A9BC917263FF4243` at Android font scale 2.0. The full player title wraps to two lines; all four question chips and voice/typing/notebook controls remain enabled after scrolling. Evidence: `agent_docs/evidence/voice/android37-native-release-current-2026-10-15/player-title-fix-reader-scrolled.png` and matching UIAutomator XML.
+- Font scale restored to 1.0. Emulator-only layout evidence; audio, TalkBack, iOS Dynamic Type and physical-device behavior remain unverified. Goal remains active; no commit/push.
+
+## Q&A transcript aliases and current native build — 15/10/2026
+
+- Added nine unique, complete transcript variants observed from the pinned small STT model to their matching chapter-local Q&A aliases. This is exact allowlisting, not fuzzy matching. Replayed the cached 21 synthetic question transcripts through the app matcher: **21/21 expected IDs, 0 unknown, 0 wrong**. No user audio was used; this is not human-speech accuracy proof.
+- Added regressions for all aliases, cross-chapter rejection and demo revision freshness. `npm test` 170/170; typecheck, lint, Expo dependency check, V1 validator and gateway smoke pass. Dataset hash / `voiceCatalogueRevision` / manifest `sourceDataSha256`: `5a191de3080dd27f420210b60017abd29bc9eda6ea3168aa8b305f78cdc79971`. Manifest file SHA-256: `E62F27FC7432BAAA71601C12650186674358606FECCCE63DEC8A834C7AA77232`.
+- Rebuilt/installed Android API 37 APK: 121,248,588 bytes, SHA-256 `582E38AF52AA0A3B8C63FDB16CF9A9D029BD597414F59A5F111D088DC57726E8`; APK contains all 34 source-matching audio files. Typed chapter-2 alias resolves to expected `qa-lam` text. Evidence folder: `agent_docs/evidence/voice/android37-native-release-current-2026-10-15/`.
+- iOS export and live Metro `:8081` bundle are current; the Metro bundle includes revision/alias/gateway and returns HTTP 200. Gateway `:8788` is ready. User deferred iPhone reload. Human audio QC, spoken six-chapter phone coverage, physical Android audio, accessibility and performance remain pending. Goal active; no commit/push.
+
+## 2026-10-15 — GPU STT integration and chapter-local native alias
+
+- Restarted the LAN gateway on `:8788` with the explicit `large-v3-cuda` profile: faster-whisper 1.2.1, pinned large-v3 revision, CUDA float16. CUDA/cuDNN runtime wheels are hash-pinned in ignored `tools/voice/.cache`; no system CUDA, mobile dependency, paid service, or personal audio was used. The `small-cpu` profile remains the no-GPU default; GPU startup fails clearly instead of silently falling back.
+- On 21 locally synthesized canonical questions, large-v3 first recognized 19/21 with no wrong chapter answer. Added the two observed, full transcript variants as exact aliases to their own Q&A entries. The actual mobile request helpers → live GPU gateway → production chapter/revision matcher then returned 21/21 expected entries, 0 unknown, 0 wrong, 0 transport/context errors; p50/p95 570/634 ms. A real M4A request helper path mapped to `qa-02` in 520 ms. Gateway abort/retry, quota, format, duration and silence smoke checks passed. This is synthetic-only evidence, not human speech accuracy.
+- Rebuilt Android API 37 release APK: 121,248,708 bytes, SHA-256 `B171E9C88288097F15F0DCBB15036F7D808373ACCCA6D22D9030833AADFB85B2`. At chapter 4, the packaged app accepted the normalized exact alias and showed the expected `qa-flowers` answer. The earlier unknown at chapter 1 was correct because cross-chapter matching is forbidden. Screenshot: `agent_docs/evidence/voice/android37-native-release-current-2026-10-15/qa04-flowers-manual-alias-answer-2026-10-15.png`.
+- `npm test` 170/170, typecheck, lint, Expo dependency check, catalogue validator 34/34, and Android build pass. Gateway remains on `:8788`; Metro `:8081` bundle is current, but user deferred iPhone reload. Human listening QC, spoken six-chapter iPhone coverage, physical Android audio, hardware routes/interruption, screen readers and performance remain open. Voice goal remains active; no commit/push.
+
+## 2026-10-15 — Historical small-CPU 21-question gateway-to-app baseline (superseded)
+
+- Generated 21 canonical Vietnamese questions locally with VieNeu TTS and passed them through the actual mobile request-body/transcription helpers, local faster-whisper-small HTTP gateway, and production exact Q&A matcher with node/revision context. Result: 15/21 expected entries, 6 unknown (`qa-01`, `qa-flowers`, `qa-knot`, `qa-box`, `qa-envelope`, `qa-light`), 0 wrong, 0 transport/context errors; host E2E p50/p95 1.749/2.336 s.
+- Repeated the six misses to inspect recognition; outputs varied by TTS take. A static story-vocabulary `initial_prompt` did not resolve them, so no aliases were added from that sample. This supersedes interpreting the cached 21/21 transcript replay as fresh speech-recognition accuracy; it remains matcher-only synthetic evidence.
+- This was the initial small-CPU baseline and is superseded by the large-v3 GPU helper→gateway→matcher result recorded above. Human listening, current iPhone reload/spoken coverage, real-device routing/accessibility/performance remain open. User deferred the `:8081` reload; no commit/push.
+
+## Current Voice status override — 15/10/2026
+
+The large-v3 GPU integration and Android chapter-4 alias evidence above supersede the historical 15/21 small-CPU result immediately above. Current synthetic helper→gateway→matcher result is 21/21 after two exact local aliases; this does not establish human-speech accuracy or close device gates.
+
+## 2026-10-15 — Current bundle and phase-review audit
+
+- Rechecked Metro `/status` (HTTP 200) and gateway `/health` (ready, `large-v3-cuda`). A PowerShell `Invoke-WebRequest` bundle fetch timed out, but retrying the same LAN iOS bundle with `curl` returned HTTP 200 in 5.26 seconds / 6,073,980 bytes; content includes current revision `1e49f3f7c5443091fcccf1b0ed39d3944f5bd79c5869f48640595b6958df25bf`, a new alias and gateway URL, without stale disconnected copy. User still deferred reloading iPhone.
+- Refreshed V1–V7 review notes, mobile README, and Voice handoff with latest manifest/APK/profile evidence and explicit remaining hardware/human QC limits. Startup instructions set `NGOKE_VOICE_ASR_PROFILE=large-v3-cuda` on this RTX host (use `small-cpu` without pinned CUDA/cuDNN). No source code changed in this continuation. Full catalogue validator completed after an earlier 100-second caller timeout: 34/34 clips, 7.0 minutes / 5.04 MB, no source/text/hash/format/duration/level failures; highest WER remains `qa-flowers-answer` 23.1% and `qa-cake-answer` 18.9%.
+- Remaining gates: listener sign-off for 34 clips; current iPhone bundle spoken tests across six chapters; physical audio routes/interruption; screen readers and hardware performance. Do not mark goal complete. No commit/push.
+
+## Android simulated-call interruption check — 15/10/2026
+
+- Re-ran mobile tests (170/170), typecheck, lint, Expo dependency check and `git diff --check`; re-ran the catalogue validator (34/34). The installed API 37 APK byte-matches local `17BF0EF342B0E41E4A90972101B260BD1E75D9654F80FDC5BFA469464E6EF3D3`.
+- Started a recorder turn, confirmed AppOps active, then answered an emulator GSM call. The dialer became top-resumed and Ngõ Kể AppOps stopped; after hangup, returning to the app showed idle `Nhấn để hỏi` and no mic auto-resume. An incoming-call notification alone did not interrupt while Ngõ Kể stayed foregrounded.
+- Evidence: `agent_docs/evidence/voice/android37-native-release-current-2026-10-15/recorder-call-interrupt.png`, `recorder-call-answered.png`, `recorder-after-call-return.png`. No audio was sent. The AVD has no audio signal; physical call/routing, current iPhone `:8081` reload, spoken six-chapter coverage, 34-clip listening QC, screen-reader and hardware performance gates remain open. Goal active; no commit/push.
+- During a separate active recording, tapping “Điểm kế tiếp” moved from chapter 1 to chapter 2 and stopped AppOps capture; the dock showed idle on chapter 2. Evidence: `agent_docs/evidence/voice/android37-native-release-current-2026-10-15/recorder-next-point.png`. No clip was sent; this closes only an AVD lifecycle case.
+- TalkBack was available on the AVD, but ADB coordinate taps were not a valid touch-exploration/double-tap test and produced ambiguous navigation. No screen-reader pass is claimed; the service was restored disabled, Q&A returned idle, and AppOps showed no active recording. Real TalkBack/VoiceOver remains pending.
+
+## 2026-10-15 — Final served bundle recheck after alias updates
+
+- Verified the authoritative dataset SHA-256, `voiceCatalogueRevision`, and manifest `sourceDataSha256` all equal `5a82b1d4fa223b2170fd9fa2c761a01479b4e3e159a81a6de72f65566a8d2568`; the current 34-entry manifest SHA-256 is `e59696011be1501097b08f11091a903f8b9a88d30d2914fcc255d1c28db774ba`. This supersedes earlier same-day snapshots `5a191…` and `1e49…`.
+- Fresh host checks returned HTTP 200 for Metro `:8081/status`, the iOS manifest and its launch bundle. The 5,523,808-character bundle contains the current revision, the `Cốc tre của bà Nhi gợi lại ký ức nào?` alias and gateway URL, and omits the stale revision. Gateway `:8788/health` is ready on `large-v3-cuda`.
+- Rechecked `npm test` (**170/170, 0 failures**), typecheck, lint, Expo dependency check and `git diff --check`; all pass. Current iOS HBC SHA-256: `35D9DBA66BAC6ECD1D429DE99CC75019524740685C345943036B7D8AA0E07108`. Current Android release APK SHA-256: `A44C99FF04125D5C24DD45ADFEA8C74EB8675C53EA00B4C2B45CEFEF95538BBC`.
+- Host preview availability is verified, but this does not prove the iPhone loaded it. The user deferred that reload. Human listening QC, six-chapter spoken iPhone coverage, real hardware audio routes/interruption, screen readers and device performance remain open; goal remains active and no commit/push was made.

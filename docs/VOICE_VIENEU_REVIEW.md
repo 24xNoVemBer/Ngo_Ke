@@ -1,8 +1,15 @@
 # VieNeu cho voice Ngõ Kể
 
-Kiểm ngày 13/10/2026, theo đề xuất của người dùng dùng `https://www.vieneu.io/#/studio` nếu phương án ban đầu mất phí. Đây là nghiên cứu và điều chỉnh plan, chưa cài engine, mua gói hoặc tạo audio.
+Ghi chú kế hoạch ban đầu ngày 13/10/2026, theo đề xuất dùng `https://www.vieneu.io/#/studio` nếu phương án ban đầu mất phí. Phần này ghi lại giai đoạn nghiên cứu trước khi triển khai; trạng thái mới nhất ở bên dưới.
 
-## Kết luận dùng vào đâu
+## Trạng thái triển khai hiện tại — 15/10/2026
+
+- V0 đã probe VieNeu v3 Turbo local trên cùng lời thoại; preset Đoan Trang được chọn vì WER tổng hợp thấp hơn Ngọc Linh (7.9% so với 13.0%). Model card mô tả Đoan Trang là giọng nữ miền Bắc tự nhiên; số đo ASR không thay thế đánh giá độ ấm/tự nhiên bằng tai người.
+- Đã tạo 34 audio canonical bằng `vieneu==3.7.1`, model revision `61b85e3d937fbbacb387714180e8182823512523`, codec revision `ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae`. Validator gần nhất đạt 34/34, tổng 7.0 phút / 5.04 MB; source, catalogue revision và manifest cùng hash `8b318b4e9955e3b7affe72cb21ea08cf8123a616eeab2eb1420ab105c7b65e6b`.
+- Preset dùng model có license Apache-2.0 và không clone giọng cá nhân; thông tin gói, license và attribution ở [`mobile/assets/voice/LICENSES.md`](../mobile/assets/voice/LICENSES.md).
+- QC nghe đủ 34 clip và xác nhận chủ quan giọng nữ miền Bắc ấm/tự nhiên vẫn pending. Checklist: [`agent_docs/voice_v1_listening_checklist.md`](../agent_docs/voice_v1_listening_checklist.md). Không coi WER/hash/validator là bằng chứng đã nghe.
+
+## Nghiên cứu và đề xuất (13/10/2026, trước khi triển khai)
 
 VieNeu là ứng viên phù hợp cho **tạo giọng đọc TTS**, đặc biệt theo phương án tạo file trước cho story/Q&A cố định. Cần phân biệt **Studio/Cloud API tính phí** với **SDK/model mã nguồn mở chạy trên máy riêng**. Dùng tên VieNeu không có nghĩa mọi cách dùng đều miễn phí hoặc cùng chất lượng.
 

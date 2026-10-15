@@ -38,6 +38,13 @@ TTS RTF = generation time ÷ audio duration; smaller is faster. ASR RTF = recogn
 | `faster-whisper-small` local worker | No per-call API charge; one model download and local CPU; clips remain on host/LAN; Node gateway plus Python child worker to operate | Three synthetic clips for the selected voice; median recognition 3.985 s, max 5.049 s, exact Vietnamese WER 17/216 words (7.9%); diacritic-folded WER 11/216 words (5.1%) | Chosen for the no-credential/no-paid-service path; real mic, noise, and phone/LAN latency remain pending |
 | FPT.AI Speech-to-Text cloud | Sends audio to provider; requires API key; paid quotas documented but current pricing/trial could not be verified from the stale page | Docs only; no account, key, audio upload, or latency measurement | Not selected; can be evaluated later with an authorized key and current quote |
 
+## Paired local model check on all 21 Q&A prompts — 15/10/2026
+
+- Ran `tools/voice/benchmark_qa_asr.py` on one fresh set of 21 locally synthesized canonical questions. The same temporary WAV files were evaluated by the pinned small model and `Systran/faster-whisper-large-v3` revision `edaa852ec7e145841d8ffdb056a99866b5f0a478`; both used Vietnamese, beam size 5, VAD, and the app's exact matcher. No personal audio was recorded or uploaded.
+- Small CPU/int8: **12/21 exact**, 9 unknown, 0 wrong answers; recognition p50 1.684s, p95 1.872s, weighted RTF 0.846. Large-v3 CPU/int8: **16/21 exact**, 5 unknown, 0 wrong answers; p50 7.722s, p95 8.370s, weighted RTF 3.863. Per chapter, large-v3 was 6/6, 2/3, 3/3, 0/3, 3/3, 2/3. An earlier independently generated small-model set scored 14/21; scores across different TTS generations are not pooled.
+- The pinned large-v3 model card in the downloaded snapshot states MIT; its `model.bin` is 2.9 GiB. CTranslate2 reports a CUDA device, but GPU inference fails because this host lacks `cublas64_12.dll`; no CUDA runtime was installed. CPU large-v3 improves exact matches by four on this sample, but is 4.6× slower at p50 and still misses five, so production remains the smaller CPU model with safe `unknown` fallback. Synthetic speech does not predict human speech accuracy.
+- Raw metrics/transcripts and audio SHA-256 values are in the ignored local file `tools/voice/.cache/qa-asr-model-comparison.json`; temporary WAVs were deleted at process exit. The comparison did not change the gateway or production model.
+
 ## Evidence and limits
 
 - Probe scripts: `tools/voice/probe_v0.py`, `tools/voice/probe_asr_v0.py`; pinned packages: `tools/voice/requirements-tts.txt`, `tools/voice/requirements-stt.txt`.
@@ -45,3 +52,9 @@ TTS RTF = generation time ÷ audio duration; smaller is faster. ASR RTF = recogn
 - Tests used only text from `data/demo.json` synthesized locally. Nothing was sent to VieNeu Cloud, FPT, or another STT service.
 - The command that first generated the files exited non-zero only while printing Vietnamese JSON to a Windows CP1252 console; the WAVs and JSON were written successfully. The probe script now sets UTF-8 output. Re-run after that fix is not needed to validate the already-created files.
 - The selected preset remains subject to listening for emotional quality; recognition scores cannot establish “warm and natural”. No real microphone, street noise, Android/iOS audio session, or public gateway has been tested in V0.
+
+## Large-v3 GPU comparison and local runtime — 15/10/2026
+
+- Confirmed the dev PC has an RTX 5060 Laptop GPU with 8 GB VRAM. faster-whisper 1.2.1 loaded pinned `large-v3` revision `edaa852ec7e145841d8ffdb056a99866b5f0a478` with CUDA float16. Across 21 fresh locally synthesized questions, initial canonical exact-match coverage was 19/21 with 0 wrong answers; two repeatable transcript forms were later accepted as exact aliases on their own question IDs.
+- The actual helper→gateway→production matcher path then yielded 21/21 expected Q&A at 570/634 ms p50/p95 on this PC. The existing small CPU profile remains available/default; GPU is opt-in and startup fails explicitly when its local runtime is absent. CUDA/cuDNN wheels are pinned by hashes and kept in ignored cache.
+- This supports selecting large-v3 for this local preview based on measured synthetic quality/latency. It does not test human accents/noise, listening quality of the requested female voice, license suitability for distribution, mobile runtime or service/public-gateway terms. Human TTS listening and physical-device checks remain pending.

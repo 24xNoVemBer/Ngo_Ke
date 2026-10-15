@@ -2,6 +2,8 @@
 
 **Trạng thái:** chưa có clip nào được đánh dấu nghe/QC chủ quan. Không tick “đạt” dựa trên ASR hoặc kiểm tra file.
 
+**Bản hiện tại:** dataset revision `8b318b4e9955e3b7affe72cb21ea08cf8123a616eeab2eb1420ab105c7b65e6b`; manifest SHA-256 `34925f5d005fa7fb684c4f8fac19992865b581c6eeaa6bde0e9183431c9be05a`. Lần kiểm tự động gần nhất đạt 34/34 về nguồn, nội dung, hash, MP3, duration và level; mục bên dưới vẫn cần nghe từng clip.
+
 Nghe hết từng clip, đối chiếu kịch bản [“Bức thư cuối ngõ”](../docs/VOICE_FICTION_SCRIPT.md) và nguồn [data/demo.json](../data/demo.json). Với mỗi mục, ghi nghe đủ, kết luận và mốc lỗi nếu cần tạo lại. Chú ý đọc thiếu/lặp/cắt chữ, tên riêng và dấu tiếng Việt, nhịp ngắt, tiếng xì/click, âm lượng và độ tự nhiên. Nếu có thể, kiểm thêm qua loa điện thoại và tai nghe.
 
 **Ưu tiên nghe trước:** `qa-flowers-answer` (23.1% WER), `qa-cake-answer` (18.9%), `demo-01-caption` (17.6%), `demo-04-caption` và `demo-05-caption` (14.3%). ASR có thể nhầm từ đồng âm/gần âm; chỉ đánh dấu tạo lại khi người nghe xác nhận clip thực sự phát âm sai.

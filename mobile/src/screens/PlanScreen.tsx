@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   toggleInputButton: {
-    minHeight: 44,
+    minHeight: 48,
     justifyContent: 'center',
     paddingVertical: spacing.xs,
     alignSelf: 'flex-start',

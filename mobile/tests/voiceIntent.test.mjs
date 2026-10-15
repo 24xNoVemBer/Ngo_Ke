@@ -4,6 +4,16 @@ import { parseVoiceIntent, resolveFirstOptionReference } from '../src/voice/inte
 
 test('voice commands stay distinct from questions and mixed requests require a choice', () => {
   assert.deepEqual(parseVoiceIntent('Mở chương tiếp theo'), { type: 'next' });
+  assert.deepEqual(parseVoiceIntent('Bắt đầu nghe lời kể.'), { type: 'listen' });
+  assert.deepEqual(parseVoiceIntent('Bắt đầu phát lời kể.'), { type: 'listen' });
+  for (const input of ['Đừng nghe', 'Đừng mở QR', 'Đừng mở chương tiếp theo', 'Không cần mở GPS']) {
+    assert.deepEqual(parseVoiceIntent(input), { type: 'question' });
+  }
+  assert.deepEqual(parseVoiceIntent('Dừng nghe'), { type: 'stop' });
+  assert.deepEqual(parseVoiceIntent('Dừng ngay!'), { type: 'stop' });
+  assert.deepEqual(parseVoiceIntent('Mở máy quét mã QR.'), { type: 'open-qr' });
+  assert.deepEqual(parseVoiceIntent('Xem vị trí.'), { type: 'open-gps' });
+  assert.deepEqual(parseVoiceIntent('Xác định điểm bằng GPS.'), { type: 'open-gps' });
   assert.deepEqual(parseVoiceIntent('Điểm kế tiếp là điểm nào?'), { type: 'question' });
   const mixed = parseVoiceIntent('Điểm kế tiếp là điểm nào? Mở chương tiếp theo');
   assert.equal(mixed.type, 'clarify');

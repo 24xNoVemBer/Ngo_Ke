@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-require-imports -- Metro needs statically analyzable asset requires. */
-export const voiceCatalogueRevision = "bdec1b7933a47c7c1b07a6adf5ccdf0c4ec6010a70b2b64055c3efa8b1f1fd46";
+export const voiceCatalogueRevision = "8b318b4e9955e3b7affe72cb21ea08cf8123a616eeab2eb1420ab105c7b65e6b";
 export type VoiceClipKind = 'intro' | 'story' | 'caption' | 'answer';
 export interface VoiceTrack { id: string; kind: VoiceClipKind; nodeId?: string; source: number; textHash: string; durationSeconds: number }
 export const voiceTracks: Record<string, VoiceTrack> = {

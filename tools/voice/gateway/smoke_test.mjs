@@ -82,6 +82,18 @@ try {
   assert.ok(result.durationSeconds > 0);
   assert.ok(typeof result.text === 'string' && result.text.length > 0);
 
+  const m4aBytes = await readFile(path.join(root, 'tools', 'voice', 'gateway', 'test-fixtures', 'ios-aac-smoke.m4a'));
+  const m4aMeta = { ...expected, turnId: `gateway-m4a-${Date.now()}` };
+  const m4aForm = new FormData();
+  m4aForm.append('audio', new Blob([m4aBytes], { type: 'audio/mp4' }), 'native-recording.m4a');
+  for (const [key, value] of Object.entries(m4aMeta)) m4aForm.append(key, value);
+  const m4aResponse = await fetch(`${baseUrl}/v1/transcribe`, { method: 'POST', body: m4aForm });
+  const m4aResult = await m4aResponse.json();
+  assert.equal(m4aResponse.status, 200, JSON.stringify(m4aResult));
+  for (const [key, value] of Object.entries(m4aMeta)) assert.equal(m4aResult[key], value);
+  assert.ok(m4aResult.durationSeconds > 0);
+  assert.ok(typeof m4aResult.text === 'string' && m4aResult.text.length > 0);
+
   const cancelled = new AbortController();
   const cancelMeta = { ...expected, turnId: `gateway-cancel-${Date.now()}` };
   const cancelForm = new FormData();
@@ -166,7 +178,7 @@ try {
   }
   assert.equal(rateLimited, true, 'The source IP quota must reject the request after 12 requests per minute');
 
-  process.stdout.write(`Voice gateway smoke passed: Node ${health.node}, ${health.engine}, ${result.durationSeconds}s local synthetic clip; abort/retry, quota, invalid-format, duration and silence guards passed.\n`);
+  process.stdout.write(`Voice gateway smoke passed: Node ${health.node}, ${health.engine}; ${result.durationSeconds}s synthetic WAV and native AAC/M4A; abort/retry, quota, invalid-format, duration and silence guards passed.\n`);
 } finally {
   child.kill('SIGTERM');
 }

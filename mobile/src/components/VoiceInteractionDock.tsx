@@ -87,7 +87,7 @@ export function VoiceInteractionDock({
                       : stage === 'error' ? 'Thử lại bằng giọng nói' : 'Nhấn để hỏi'}
               </Text>
               <Text style={styles.subtitle}>
-                {busy ? 'Bạn có thể hủy bất cứ lúc nào' : 'Nghe lời kể rồi hỏi tiếp'}
+                {busy ? 'Bạn có thể hủy bất cứ lúc nào' : 'Nói “Phát lời kể” rồi hỏi tiếp'}
               </Text>
             </>
           )}

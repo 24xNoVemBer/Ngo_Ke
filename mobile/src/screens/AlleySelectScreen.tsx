@@ -156,7 +156,6 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
           accessibilityRole="button"
           accessibilityLabel="Quay lại trang chính"
           onPress={() => navigation.goBack()}
-          hitSlop={5}
           style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
         >
           <Text style={styles.backBtnIcon}>‹</Text>
@@ -214,6 +213,7 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
           <View style={styles.addressSearchBox}>
             <Text style={styles.searchBoxIcon}>🔍</Text>
             <TextInput
+              accessibilityLabel="Tìm phố hoặc ngõ"
               value={searchQuery}
               onChangeText={setSearchQuery}
               multiline={false}
@@ -227,6 +227,7 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
                 accessibilityRole="button"
                 accessibilityLabel="Xóa từ khóa tìm kiếm"
                 onPress={() => setSearchQuery('')}
+                style={styles.clearSearchButton}
               >
                 <Text style={styles.clearSearchIcon}>✕</Text>
               </Pressable>
@@ -259,6 +260,9 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
                 return (
                   <Pressable
                     key={filter}
+                    accessibilityRole="button"
+                    accessibilityLabel={filter}
+                    accessibilityState={{ selected: isSelected }}
                     onPress={() => setSelectedFilter(filter)}
                     style={[
                       styles.filterChip,
@@ -350,9 +354,9 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   backBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#EFE8DA',
     alignItems: 'center',
     justifyContent: 'center',
@@ -492,10 +496,18 @@ const styles = StyleSheet.create({
   },
   addressInputField: {
     flex: 1,
+    minHeight: 48,
     fontSize: 12.5,
     color: '#2C221E',
     fontWeight: '500',
     paddingVertical: 0,
+    textAlignVertical: 'center',
+  },
+  clearSearchButton: {
+    minWidth: 48,
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   clearSearchIcon: {
     fontSize: 12,
@@ -506,6 +518,7 @@ const styles = StyleSheet.create({
   nearestAlleyPill: {
     flexDirection: 'row',
     alignItems: 'center',
+    minHeight: 48,
     backgroundColor: 'rgba(235, 175, 75, 0.15)',
     paddingHorizontal: 12,
     paddingVertical: 7,
@@ -532,13 +545,14 @@ const styles = StyleSheet.create({
     color: '#8C5A40',
   },
   filterChipsRow: {
-    gap: 6,
+    gap: 8,
     paddingTop: 2,
   },
   filterChip: {
     backgroundColor: '#F5ECE0',
     paddingHorizontal: 12,
-    paddingVertical: 5,
+    minHeight: 48,
+    justifyContent: 'center',
     borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: '#E2D5BE',
@@ -548,7 +562,7 @@ const styles = StyleSheet.create({
     borderColor: '#1E6B4A',
   },
   filterChipText: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '600',
     color: '#5C483D',
   },

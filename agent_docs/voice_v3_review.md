@@ -1,5 +1,23 @@
 # Voice V3 — Microphone recorder
 
+## Current APK 20-cycle recorder lifecycle check — 15/10/2026
+
+- On the current Android API 37 release APK (dataset revision `8b318b4e9955e3b7affe72cb21ea08cf8123a616eeab2eb1420ab105c7b65e6b`), performed 20 consecutive mic-start/cancel cycles. AppOps reported `RECORD_AUDIO (running)` on 20/20 starts and stopped after 20/20 cancels; process PID stayed `26924`. PSS changed 192,569 → 204,956 KB (+12,387 KB) in one run; this is not enough to infer a leak or phone performance.
+- Evidence: `agent_docs/evidence/voice/android37-native-release-final-2f15c3-2026-10-15/recorder-stress-20-start.png` and `recorder-stress-20-idle.png`.
+- The AVD has no usable audio input, so the static meter line is not a signal-level pass. This does not establish actual speech capture, STT upload, iPhone recorder lifecycle, or hardware audio behavior.
+
+## AVD host-audio route probe — inconclusive — 15/10/2026
+
+- Restarted the API 37 AVD with audio enabled and activated its host microphone. The native app opened `AudioRecord` and AppOps showed recording active; a locally generated 1.84-second WAV was played through host speakers while the mic was open.
+- The live meter showed no input level, so the test clip was canceled without upload. Evidence: `agent_docs/evidence/voice/android37-host-audio-route-attempt-2026-10-15/README.md`.
+- This is an AVD/host routing limitation, not a device voice pass or confirmed product defect. Host mic was disabled, animation scales restored, and the AVD restarted with `-no-audio`.
+
+## Duplicate submit and cancel while processing — 14/10/2026
+
+- Added a hook-level regression in `mobile/tests/uiFlows.test.mjs` with native recorder stop and ASR response deliberately held pending. The first Gửi moves the stage to `stopping`; another call does not stop/send the same recording again. A second call during `transcribing` also does not create a new request.
+- Cancel while native stop is pending returns to idle without upload. Cancel during transcription aborts the request; a late resolved transcript is ignored and the stage returns to idle. Targeted UI-flow suite: 34/34; full mobile suite: 168/168; typecheck, lint and Expo dependency check pass.
+- Dependencies are controlled test doubles. This proves client state/race guards, not a second physical microphone submission or live iPhone behavior.
+
 ## Permanently blocked permission → Android Settings recovery — 14/10/2026
 
 - Roadmap yêu cầu có lối Mở Cài đặt khi OS không hỏi quyền mic nữa. Hook trước đó chỉ hiện “Thử lại bằng giọng nói”; `canAskAgain` chưa được xét. Đã bổ sung phân biệt quyền còn hỏi lại với quyền bị chặn, thông báo riêng và nút mở cài đặt hệ thống.
@@ -150,3 +168,31 @@
 - Người dùng xác nhận lượt voice thứ hai trên iPhone có meter chạy, transcript, Q&A đúng và audio nghe được; điều này thay thế ghi chú cũ rằng meter lượt hai chưa được xác nhận. Kết quả là user-reported trên Expo Go `:8089`, chưa có trace native độc lập.
 - Android API 37 release kiểm tra quyền từ chối → Settings → cấp quyền → thu/Hủy và lượt start/cancel kế tiếp; AVD `-no-audio` nên không xác nhận meter có tín hiệu âm thanh.
 - GV3 vẫn mở cho retest bundle `:8081` (người dùng để sau), hủy/interruption/cuộc gọi/input route trên thiết bị thật và vòng thu→Gửi/Hủy với mic thật.
+
+## Current host preview status — 15/10/2026
+
+- Latest direct LAN fetch of the iOS bundle from Metro `:8081` returned HTTP 200 in 5.26 seconds and contains the configured gateway URL and current dataset revision. Gateway `:8788` is ready on explicit large-v3 CUDA profile. This confirms the host preview path, not a reload on the iPhone.
+- The user-reported second-turn success on `:8089` still confirms one real iPhone happy path (meter, transcript, answer and audio), but the current `:8081` bundle and failure/interruption paths have not been retested on-device. Android AVD recorder/permission checks cannot prove real mic signal.
+
+## Latest APK sequential recorder recheck — 15/10/2026
+
+- On current API 37 release APK `17BF0EF342B0E41E4A90972101B260BD1E75D9654F80FDC5BFA469464E6EF3D3`, started recording, canceled, started again, and canceled again. Both starts reached `Đang thu · 00:01`; each cancellation returned to idle. No recording was submitted, and Android AppOps reported no active mic operation after the final cancel.
+- Screenshots: `agent_docs/evidence/voice/android37-native-release-current-2026-10-15/latest-recorder-first.png`, `latest-recorder-second.png`, and `latest-recorder-after-cancel.png`.
+- The AVD has no audio input, so the flat meter and this cycle do not prove speech signal, second-turn meter response, STT, or iPhone behavior. The current `:8081` bundle is verified on the host; the user has deferred the iPhone reload.
+
+## Current APK recorder lifecycle stress — 15/10/2026
+
+- Repeated start → cancel 20 times on API 37 AVD using the latest APK. Android AppOps showed mic running on 20/20 starts and not running on 20/20 cancels; app process PID remained `18546`. Final native screen shows the recorder dock idle: `agent_docs/evidence/voice/android37-native-release-current-2026-10-15/latest-recorder-stress-idle.png`.
+- PSS was 188,050 KB before and 194,054 KB after the one 20-turn run (+6,004 KB). This is one emulator sample, not a leak or performance conclusion. No clip was sent; no input signal was available, so meter movement, actual speech, STT and iPhone behavior remain pending.
+
+## Simulated call interruption on Android API 37 — 15/10/2026
+
+- On the installed APK matching local SHA-256 `17BF0EF342B0E41E4A90972101B260BD1E75D9654F80FDC5BFA469464E6EF3D3`, AppOps confirmed recording was active before a simulated GSM call was answered. The dialer then became foreground and AppOps no longer showed an active Ngõ Kể recording.
+- After ending the call, returning to Ngõ Kể showed the idle `Nhấn để hỏi` state; the recorder did not resume. The incoming-call overlay by itself kept Ngõ Kể foregrounded and did not stop recording.
+- Screenshots are in `agent_docs/evidence/voice/android37-native-release-current-2026-10-15/`: `recorder-call-interrupt.png`, `recorder-call-answered.png`, and `recorder-after-call-return.png`.
+- This is emulator lifecycle evidence only. The AVD has no audio input; ringing behavior and audio interruption on physical Android/iPhone remain unverified.
+
+## Chapter change during recording — 15/10/2026
+
+- During another active recording on the same byte-matched APK, tapping “Điểm kế tiếp” changed Q&A from chapter 1 to chapter 2, returned the dock to idle, and stopped AppOps recording.
+- Evidence: `agent_docs/evidence/voice/android37-native-release-current-2026-10-15/recorder-next-point.png`. No clip was submitted; the AVD has no audio signal.

@@ -55,4 +55,4 @@ This development gateway has no account authentication and uses HTTP on localhos
 
 ## Model and license
 
-The worker uses `Systran/faster-whisper-small` revision `536b0662742c02347bc0e980a01041f333bce120`, CPU `int8`, Vietnamese locale. The model repository declares MIT; `faster-whisper==1.2.1` is pinned separately in `tools/voice/requirements-stt.txt`. No paid key or cloud quota is used.
+The default worker profile uses `Systran/faster-whisper-small` revision `536b0662742c02347bc0e980a01041f333bce120`, CPU `int8`, and Vietnamese locale. An explicit Windows-only `large-v3-cuda` profile uses `Systran/faster-whisper-large-v3` revision `edaa852ec7e145841d8ffdb056a99866b5f0a478`, CUDA `float16`, and hash-pinned optional runtime packages from `tools/voice/requirements-stt-cuda-win.txt`. The worker reports its active profile/device/model from `/health`; selecting a profile never falls back silently. Both model repositories declare MIT; `faster-whisper==1.2.1` is pinned separately in `tools/voice/requirements-stt.txt`. No paid key or cloud quota is used.

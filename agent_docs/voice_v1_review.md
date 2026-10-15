@@ -1,8 +1,25 @@
 # Voice V1 — Audio catalogue
 
-**Ngày:** 14/10/2026
+## Current revision 8b318b validation — 15/10/2026
+
+- Correct voice venv validation completed successfully: **34/34** entries; MP3 decode/format, source and text/audio hashes, duration, level, node and revision checks pass. Total duration 7.0 minutes, 5.04 MB. Manifest SHA-256 `34925f5d005fa7fb684c4f8fac19992865b581c6eeaa6bde0e9183431c9be05a`; source revision `8b318b4e9955e3b7affe72cb21ea08cf8123a616eeab2eb1420ab105c7b65e6b`.
+- Highest measured synthetic ASR WER is `qa-flowers-answer` 23.1%, followed by `qa-cake-answer` 18.9% and `demo-01-caption` 17.6%. These scores flag passages for human review; they are not a pronunciation/naturalness assessment.
+- Human listening of the full catalogue remains pending, so GV1 is only integrity/format/coverage-pass, not subjective audio-quality-pass.
+
+## Earlier catalogue validation — revision 5a82b1 (superseded) — 15/10/2026
+
+- The alias change updated only source metadata; no narration text or MP3 changed. Validator passes 34/34 entries for source/text/audio hashes, node/revision, MP3 decode/format/duration and level. Manifest file SHA-256: `e59696011be1501097b08f11091a903f8b9a88d30d2914fcc255d1c28db774ba`; dataset source SHA-256: `5a82b1d4fa223b2170fd9fa2c761a01479b4e3e159a81a6de72f65566a8d2568`.
+- Human listening of all 34 clips remains pending; synthetic ASR WER cannot certify pronunciation or naturalness.
+
+**Ngày:** 15/10/2026
 **Trạng thái:** catalogue tự động đạt; nghe/QC chủ quan còn chờ người nghe thật.
 **Gate GV1:** đạt phần integrity/format/độ phủ; chưa tuyên bố đã đạt chất lượng phát âm.
+
+## Earlier catalogue validation before alias update — 15/10/2026
+
+- Ran `tools/voice/.venv/Scripts/python.exe tools/voice/validate_catalogue_v1.py`: all 34 clips checked, 7.0 minutes / 5.04 MB; current manifest SHA-256 remains `90747665D049CC3B4AF018672EF0935805F324236986D8F2047DC79B440113E9`. Integrity, text/node/revision, MP3 format, duration and level checks reported no failures.
+- Highest synthetic-ASR WER remains `qa-flowers-answer` 23.1%, `qa-cake-answer` 18.9%, `demo-01-caption` 17.6%, and `demo-04-caption`/`demo-05-caption` 14.3%. These are prioritization signals, not human pronunciation scores.
+- All 34 listening checklist entries remain unchecked. Naturalness, names, pacing, pauses and phone-speaker/headphone loudness still require human listening; no audio was changed from ASR alone.
 
 ## Revalidation ASR của 34 clip — 14/10/2026
 
@@ -37,3 +54,20 @@ Revalidation ngày 14/10/2026 bằng cùng validator: **34/34** clip hợp lệ;
 - Raw report/model cache nằm trong `tools/voice/.cache/` và bị ignore; audio sản phẩm/license đi cùng `mobile/assets/voice/`.
 
 **Còn lại:** nghe tay toàn bộ 34 clip và đánh dấu/re-tạo chính xác clip nghe lỗi; nếu giọng đọc tên riêng hoặc độ tự nhiên không đạt thì cần chọn lại preset và tái tạo catalogue. Không dùng transcript ASR để gọi nội dung là QC âm học hoàn tất.
+
+## Revalidation after Q&A alias revision — 15/10/2026
+
+- QA aliases changed the source dataset hash to `5a191de3080dd27f420210b60017abd29bc9eda6ea3168aa8b305f78cdc79971`; `mobile/assets/voice/manifest.json` now records that `sourceDataSha256`. The 34 story/caption/answer texts and audio files did not change.
+- Re-ran `tools/voice/.venv/Scripts/python.exe tools/voice/validate_catalogue_v1.py`: **34/34** clips still pass source, text, node, hash, MP3 format, duration and level checks. New manifest SHA-256: `E62F27FC7432BAAA71601C12650186674358606FECCCE63DEC8A834C7AA77232`.
+- Rebuilt APK contains 34/34 source-matching MP3 hashes. Human listening QC remains pending; ASR WER is not a listening-quality pass.
+
+## Previous large-v3 alias snapshot — superseded by later aliases — 15/10/2026
+
+- The two large-v3 transcript aliases advanced the dataset/catalogue revision to `1e49f3f7c5443091fcccf1b0ed39d3944f5bd79c5869f48640595b6958df25bf`; manifest file SHA-256 is `383BBD7C33DC8034C43AF46CE94D3514E27A04DC7FE36F7ABD123B2842553A3B`. No canonical story/caption/answer text or MP3 was changed by those aliases.
+- Re-ran the catalogue validator against this revision: 34/34 clips, 7.0 minutes / 5.04 MB, no source/text/hash/MP3/duration/level failures. Highest synthetic ASR WER remains `qa-flowers-answer` 23.1%, followed by `qa-cake-answer` 18.9%; these are review priorities, not audio-quality verdicts.
+- The current API 37 APK is `B171E9C88288097F15F0DCBB15036F7D808373ACCCA6D22D9030833AADFB85B2`; all 34 embedded audio hashes match their source assets. The existing listening checklist still has all 34 clips unmarked. Human listening remains the only open V1 gate; synthetic ASR and file validation cannot close it.
+
+## Earlier final catalogue revision — 5a82b1 (superseded) — 15/10/2026
+
+- Final dataset/catalogue revision and manifest `sourceDataSha256`: `5a82b1d4fa223b2170fd9fa2c761a01479b4e3e159a81a6de72f65566a8d2568`; manifest SHA-256: `e59696011be1501097b08f11091a903f8b9a88d30d2914fcc255d1c28db774ba`. It contains the exact small- and large-v3 transcript aliases; the 34 canonical narration strings and MP3 bytes are unchanged.
+- Validator remains 34/34 for text/source/audio hashes, node/revision, decode, format, duration and level. This is integrity evidence only; all 34 listening checklist rows remain unmarked. GV1 stays open until a person listens and signs off.

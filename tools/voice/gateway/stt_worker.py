@@ -13,7 +13,38 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CACHE = ROOT / "tools" / "voice" / ".cache"
 sys.path.insert(0, str(ROOT / "tools" / "voice"))
-from asr_model import WHISPER_MODEL, WHISPER_REVISION, load_model
+from asr_model import LARGE_V3_MODEL, LARGE_V3_REVISION, WHISPER_MODEL, WHISPER_REVISION, load_model
+
+CUDA_DLL_HANDLES = []
+
+
+def load_selected_model():
+    profile = os.environ.get("NGOKE_VOICE_ASR_PROFILE", "small-cpu")
+    if profile == "small-cpu":
+        model_id, revision, device, compute_type = WHISPER_MODEL, WHISPER_REVISION, "cpu", "int8"
+        cache_dir = CACHE / "whisper"
+    elif profile == "large-v3-cuda":
+        if os.name != "nt":
+            raise RuntimeError("large-v3-cuda profile currently requires Windows CUDA runtime files")
+        runtime = CACHE / "cuda-runtime" / "nvidia"
+        for directory in (runtime / "cublas" / "bin", runtime / "cudnn" / "bin"):
+            if not directory.is_dir():
+                raise RuntimeError(f"CUDA runtime directory missing: {directory}")
+            CUDA_DLL_HANDLES.append(os.add_dll_directory(str(directory)))
+        model_id, revision, device, compute_type = LARGE_V3_MODEL, LARGE_V3_REVISION, "cuda", "float16"
+        cache_dir = CACHE / "huggingface"
+    else:
+        raise RuntimeError(f"Unsupported NGOKE_VOICE_ASR_PROFILE: {profile}")
+
+    model = load_model(cache_dir, model_id, revision, device, compute_type)
+    return model, {
+        "profile": profile,
+        "engine": "faster-whisper==1.2.1",
+        "model": model_id,
+        "revision": revision,
+        "device": device,
+        "computeType": compute_type,
+    }
 
 
 def send(value: dict[str, object]) -> None:
@@ -28,8 +59,8 @@ def main() -> None:
     os.environ["HF_HUB_OFFLINE"] = "1"
     os.environ.setdefault("HF_HOME", str(CACHE / "huggingface"))
 
-    model = load_model(CACHE / "whisper")
-    send({"type": "ready", "engine": "faster-whisper==1.2.1", "model": WHISPER_MODEL, "revision": WHISPER_REVISION})
+    model, engine = load_selected_model()
+    send({"type": "ready", **engine})
 
     for line in sys.stdin:
         try:

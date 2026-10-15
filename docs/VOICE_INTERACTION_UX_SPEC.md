@@ -1,6 +1,10 @@
 # Ngõ Kể — Trải nghiệm trò chuyện với người kể
 
-Ngày: 13/10/2026. Đây là thiết kế và plan triển khai để review, chưa phải voice đã chạy. Yêu cầu mới: có voice, tương tác thật, xem lại giao diện hiện tại và làm trải nghiệm trực tiếp hơn.
+**Cập nhật trạng thái: 15/10/2026.** Tài liệu bắt đầu là thiết kế trước triển khai ngày 13/10. Voice hiện đã chạy trong app native; các câu “chưa triển khai/chưa chọn” bên dưới là snapshot lịch sử, không phải trạng thái repo. Roadmap và báo cáo V0–V7 là nguồn chuẩn cho gate và tiến độ.
+
+Hành vi hiện đã triển khai: nhấn mic để thu, bấm Gửi hoặc Hủy; nhập chữ chỉ mở khi bấm Gõ; transcript, lời kể và đáp án ẩn mặc định. Play bắt đầu theo thao tác người dùng và tự lặp qua native player; Stop, mic handoff, đổi scope hoặc background dừng vòng lặp. Chip Q&A không tự phát tiếng. Mở/đóng chữ không reset audio. Các chi tiết nằm trong [VoiceInteractionDock](../mobile/src/components/VoiceInteractionDock.tsx), [VoicePlayerBar](../mobile/src/components/VoicePlayerBar.tsx), [useVoiceSession](../mobile/src/voice/useVoiceSession.ts) và [QaScreen](../mobile/src/screens/QaScreen.tsx).
+
+Catalogue hiện có 34 audio canonical: intro, sáu story, sáu caption và 21 answer; được tạo bằng VieNeu v3 Turbo / Đoan Trang. Gateway STT đang chạy cục bộ trên LAN với faster-whisper large-v3 CUDA; matcher giữ nguyên phạm vi câu hỏi từng chương và trả unknown khi không khớp chắc chắn. Kiểm tra tự động hiện 171/171, nhưng nghe QC 34 clip và nghiệm thu audio trên thiết bị thật vẫn pending. Xem [báo cáo kiểm thử](VOICE_TEST_REPORT.md), [handoff](VOICE_HANDOFF.md) và [roadmap](VOICE_PHASE_ROADMAP.md).
 
 ## 1. Những gì đã chốt
 
@@ -141,7 +145,7 @@ Một `turnId` gắn `nodeId + datasetRevision + mode`. Kết quả quyền/STT/
 - Reduce Motion dùng provider đã có: trạng thái vẫn đổi, không pulse/zoom/di chuyển lớn; vẫn cập nhật progress cần thiết. Accessibility không đọc liên tục số giây hoặc từng bar waveform.
 - Screen reader có nhãn “Bắt đầu thu câu hỏi”, “Dừng và gửi câu hỏi”, “Hủy câu nói”, busy/disabled đúng. Không bắt giữ/drag để dùng mic; không để screen reader đọc đáp án đồng thời với TTS.
 
-## 7. Voice thật: phương án kỹ thuật tối thiểu
+## 7. Thiết kế kỹ thuật ban đầu (snapshot trước V0)
 
 ### Phương án đề xuất
 
@@ -172,7 +176,7 @@ FPT TTS trả URL bất đồng bộ, docs mô tả file có thể chưa sẵn n
 - File âm thanh thô chỉ dùng xử lý lượt hiện tại; xóa file tạm theo lifecycle, không lưu lịch sử audio/DB mặc định. Retention phía nhà cung cấp, quyền dùng nội dung và quota cần kiểm trước chọn connector, không hứa “không lưu” thay nhà cung cấp.
 - Chưa có dịch vụ/credential/backend thật trong repo; không gọi `tools/mock-api` là voice thật. Nếu dùng native STT ngoài bộ module Expo Go, cần development build theo tài liệu Expo; phương án ghi clip + HTTP này không mặc định yêu cầu module STT native.
 
-## 8. Thứ tự triển khai sau review
+## 8. Thứ tự triển khai ban đầu — bảng V0–V4 là lịch sử
 
 **Roadmap hiện hành:** [VOICE_PHASE_ROADMAP.md](VOICE_PHASE_ROADMAP.md), chi tiết **V0–V7**, có nhiệm vụ/file/kiểm thử/gate từng phase. Bảng V0–V4 dưới đây là chia đợt sơ bộ từ lượt thiết kế trước, chỉ giữ để truy vết; không dùng mã đợt này để duyệt triển khai nữa. Theo roadmap mới: V0 probe/chốt, V1 audio, V2 UI/nghe, V3 thu, V4 STT, V5 Q&A end-to-end, V6 hành động và V7 nghiệm thu.
 
@@ -203,7 +207,9 @@ V1–V4 là thứ tự thực hiện, không cấp quyền vượt gate. Không 
 11. Đo riêng stop-record→transcript và transcript→audio bắt đầu, p50/p95 trên cùng thiết bị/mạng/corpus. Ghi cả lỗi; chưa đặt SLA hứa hẹn trước probe connector.
 12. Regression core 111 ca hiện có, thêm controller/request-token/intent/manifest/native integration tests; Expo export không thay kiểm voice phần cứng.
 
-## 10. Việc cần anh quyết / việc anh tự làm
+## 10. Checklist review ban đầu — đã được thay thế
+
+Các câu hỏi review dưới đây thuộc plan 13/10. Prompt người dùng ngày 15/10 đã khóa quyết định sản phẩm và cho phép tiếp tục xuyên suốt V0–V7; chỉ các kiểm tra con người/thiết bị còn pending trong phần trạng thái ở đầu tài liệu cần hoàn tất.
 
 ### Cần anh quyết
 
