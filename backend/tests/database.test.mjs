@@ -4,7 +4,7 @@ import { readFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { openDatabase, migrate, importDataset, readDataset } from '../src/database.mjs';
-import { parseDataset } from '../../mobile/src/data/sourceState.ts';
+import { MAX_BODY_BYTES, parseDataset } from '../../mobile/src/data/sourceState.ts';
 
 const sample = JSON.parse(readFileSync(new URL('../../data/demo.json', import.meta.url), 'utf8'));
 
@@ -70,7 +70,7 @@ test('seed cannot erase orphaned user content', (t) => {
   assert.equal(db.prepare('SELECT name FROM nodes WHERE id = ?').get('demo-01').name, 'Recoverable edit');
 });
 
-test('live parser rejects payloads above the shared byte and record limits', () => {
+test('live parser enforces disclaimer field and record limits', () => {
   const oversized = structuredClone(sample);
   oversized.disclaimer = 'x'.repeat(600 * 1024);
   assert.equal(parseDataset(oversized, { mode: 'live' }), undefined);
@@ -78,6 +78,22 @@ test('live parser rejects payloads above the shared byte and record limits', () 
   const tooManyNodes = structuredClone(sample);
   tooManyNodes.nodes = Array.from({ length: 51 }, (_, i) => ({ ...sample.nodes[0], id: 'node-' + i }));
   assert.equal(parseDataset(tooManyNodes, { mode: 'live' }), undefined);
+});
+
+test('import rejects an aggregate body over the shared budget before replacing data', (t) => {
+  const { db } = database(t);
+  migrate(db);
+  importDataset(db, sample);
+
+  const oversized = structuredClone(sample);
+  assert.ok(oversized.qa.length >= 21);
+  for (const entry of oversized.qa) entry.evidence = Array(20).fill('x'.repeat(2000));
+  const parsed = parseDataset(oversized, { mode: 'live' });
+  assert.ok(parsed, 'all aggregate fields and counts should remain parser-valid');
+  assert.ok(Buffer.byteLength(JSON.stringify(parsed), 'utf8') > MAX_BODY_BYTES);
+
+  assert.throws(() => importDataset(db, oversized, { replace: true }), /512 KiB/);
+  assert.deepEqual(readDataset(db), sample);
 });
 
 test('review metadata survives the SQLite roundtrip without changing its values', (t) => {
