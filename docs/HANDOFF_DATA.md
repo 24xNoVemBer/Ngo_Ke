@@ -2,6 +2,8 @@
 
 **Đọc trước khi gửi dữ liệu.** App không tự sinh nội dung và không hiện bản ghi chưa được duyệt.
 
+> **Cập nhật16/10/2026:** theo [hợp đồng Phase7.1/8](PHASE_7_1_8_EXECUTION_SPEC.md), sample có thể phục vụ live khi server opt-in và luôn ghi mô phỏng; không biến sample thành dữ liệu thật đã duyệt. Reviewed yêu cầu approved/updatedAt hợp lệ trên intro/node/QA, evidence trên intro/QA. Giữ fixture/audio Việt khóa; chỉ mở locale/nội dung mới sau nghiệm thu8 theo yêu cầu riêng.
+
 **Quyết định 03/10/2026 của người dùng:** dữ liệu MVP **do dự án sinh** và ghi rõ là **mô phỏng** (đã có trong `data/demo.json`); khi nào có dữ liệu thật thì thay sau và **không chặn** việc làm MVP. Tài liệu này mô tả cách thay bằng dữ liệu thật mà không phá logic app.
 
 ## App cần gì
@@ -25,7 +27,7 @@ Bản mẫu đầy đủ: [`../data/README.md`](../data/README.md). Yêu cầu t
 
 1. `schemaVersion: 1`, `kind: "simulated"` khi nội dung còn là mô phỏng.
 2. `disclaimer` nói rõ dữ liệu có phải địa điểm thật hay không.
-3. **Đúng 6 node** trong `nodes` (giữ nguyên số lượng để không phá màn hình đã duyệt; cần nhiều hơn thì báo người dùng để mở phạm vi).
+3. **Demo đúng6 node/simulated**; live **1..50 node** và0..200 QA, kind simulated/reviewed theo hợp đồng mới. Body UTF-8 tối đa512KiB;200rỗng là shape error, canonical empty404.
 4. Mỗi `node` cần: `id` (thường, không dấu, duy nhất), `name`, `summary`, `tags`, `visitMinutes`, `available`, `visited`, `story`, `caption`, `latitude`, `longitude`.
 5. `tags` chỉ nhận `an thuc`, `chuyen xua`, `kham pha tu do`.
 6. `caption` tối đa khoảng 220 ký tự — đọc được khi đứng ngoài trời.

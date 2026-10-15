@@ -4,20 +4,22 @@
 
 **Cập nhật03/10 Phase1:** greenfield được xác nhận; fixture6 điểm mô phỏng đã được đồng ý và Home bundled/native emulator/offline sau nạp bundle đã thử. Không có source cũ phải cung cấp. Chi tiết: [phase_1_completion.md](phase_1_completion.md).
 
+**Cập nhật16/10:** Phase7.1/8 đã được phép chạy xuyên suốt; [spec hiện hành](../docs/PHASE_7_1_8_EXECUTION_SPEC.md), backend/adapter có code trong nhánh tích hợp. Coordinator kiểm với Node24.14.1; các version môi trường03/10 dưới đây là lịch sử, không phải kết quả máy hiện tại. Native E2E/API37 đang do W4 kiểm, chưa nghiệm thu8.
+
 ## Stack và trạng thái
 
 | Thành phần | Theo nguồn | Chưa xác định / điều kiện |
 | --- | --- | --- |
 | Frontend | Expo57.0.26, React19.2.3, React Native0.86.3; TypeScript6.0.3 strict; npm lockfile | Node24.19.0/npm11.17.0; emulator Android17/API37 +Expo Go57.0.9 đã thử; điện thoại thật/iOS chưa thử |
 | Navigation/UI/state | React Navigation native7.5.0/native-stack7.20.0; React state, StyleSheet, font hệ thống, safe-area5.7.0/screens4.26.2 | State trong phiên, không persistence; native layout/Back cần điện thoại |
-| Backend | Node24 +JSON API sẽ viết mới ở Phase6 | Phase6 chưa duyệt; chưa chốt route/schema/framework |
-| Database | SQLite phía backend | File/bảng/cột/index/ORM/migration chưa xác minh; không đặt schema hoặc API ghi mobile |
-| Shared core | Logic mới cho phase cần dùng, một nguồn thuật toán | Không có core cũ; chốt module khi duyệt phase2/3/5, không dựngweb preview để khớp đường dẫn |
-| Demo | `data/demo.json` mới: schemaVersion1/kind simulated/disclaimer/6 nodeID+tên; bundled | Type guard/tests/Android runtime/hai export đã thử; Metro watchFolders chỉ `../data`; không evidence/tọa độ/ETA |
-| Live | API hiện có, URL theo môi trường, record thật đã review | Method/path/auth/payload/timeout và dataset thật chưa biết |
+| Backend | Node24, built-in node:http, không npm dependencies | Phase8 GET dataset/health/ready, CLI migrate/setup/seed/import; không chat/LLM/admin/deploy |
+| Database | Built-in node:sqlite, STRICT/FK/WAL/transactions, migration version1 | Temp DB tests/backup/rollback đã thử; không tự migrate/replace DB người dùng |
+| Shared core | mobile/src/data/sourceState.ts validator; qa/match.ts và recommendation/pick.ts | Backend import validator trực tiếp với Node24; không nhân matcher/schema, không web preview |
+| Demo | data/demo.json schemaVersion1/simulated,6node/21QA, bundled | Evidence mô phỏng, tọa độ/ETA không dùng thực địa; giữ fixture/hash/audio Việt cũ |
+| Live | GET dataset,8s tổng, no-config/404empty,200ready cần dataset hợp lệ | 1..50node/0..200QA, reviewed metadata bắt buộc; không cache/fallback, body512KiB; QA đang chạy |
 | Camera/GPS | `expo-camera`, `expo-location` theo thao tác | Tương thích SDK/quyền/thiết bị cần kiểm chứng ở Phase 4–5 |
 | Deployment | Deliverable là demo native qua Expo Go | Host backend, tunnel, store/provisioning chưa xác định; deploy cần yêu cầu riêng |
-| Coding assistant | OpenCode trong phiên hiện tại | Không thay cấu hình model/provider toàn cục; trình độ người dùng chưa xác định |
+| Coding assistant | Codex điều phối; W2 Antigravity/Gemini3.8FlashHigh, W3 CodexLuna/xhigh, W4 OpenCodeMuse | Không thay cấu hình model/provider toàn cục; trình độ người dùng chưa xác định |
 | Product AI | Không LLM/agent trong core | Không có API key/provider/eval LLM cần setup; voice là phase riêng |
 
 **Ngân sách/deadline:** chưa xác định. Không tự chọn dịch vụ trả phí hoặc chi phí vận hành. Voice provider/cost ceiling/mạng/microphone/retention/thiết bị hỗ trợ chờ lựa chọn và review riêng; luôn giữ chữ.
