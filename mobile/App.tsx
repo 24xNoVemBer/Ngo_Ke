@@ -40,7 +40,7 @@ const navigationTheme = {
 // app.json is the fallback; the environment variable wins so each environment
 // can point elsewhere without a code change.
 const liveBaseUrl = readLiveConfig(
-  process.env,
+  { EXPO_PUBLIC_NGOKE_API_BASE_URL: process.env.EXPO_PUBLIC_NGOKE_API_BASE_URL },
   appConfig.expo.extra as Record<string, unknown> | undefined,
 );
 const voiceApiBaseUrl = readVoiceApiBaseUrl(
