@@ -2,6 +2,10 @@
 
 ## 2026-10-16 — Quyền chạy xuyên suốt và chuyển coordinator
 
+- **Đang chạy, không chờ duyệt:** spec/authorization commit `743bf0cca787f99a53880113b162f6e0f6cb365e`; ba worktree worker đã fast-forward sạch từ baseline. W2 dispatch `ctx_ed5570ab53d0`, terminal `term_892bb0f8-c804-4ff7-bdad-df34cdcf018a`, screen xác nhận **Gemini 3.8 Flash High** đang làm việc dù receipt ban đầu turn-start-unobserved; không restart. W3 dispatch `ctx_f0b49f17faa9`, terminal `term_570a9369-0162-4f5f-8502-e116ca3b66ef`, requested/effective **gpt-6-luna/xhigh**, đang làm backend.
+- W4a guards task `task_204b87e28fc2`, dispatch `ctx_845b114e58cc`, terminal `term_7ce15b8a-092d-4c0f-b110-74faa5d313f3`, branch `valentino/review-backend`. Orca từ chối `opencode2 --model` ở worker-start; CLI OpenCode2 2.0.29 cũng không nhận model flag ở top-level. Đã mở session rỗng, chọn **Muse Spark 1.3 Free** bằng `/models`, variant Default, xác nhận screen rồi mới dispatch; không agent nào coding bằng model khác. Receipt reused-terminal không chứng minh model; bằng chứng là screen trước/sau dispatch. W4a chỉ guard tests, chưa native E2E; W4 T3 sẽ review backend SHA sau W3.
+- Fixture khóa đã đối chiếu chỉ đọc:6node/21QA,23898byte,max story481/max answer206/intro339 ký tự; limit live không cần sửa fixture/hash/audio. Evidence bắt buộc trên intro/QA theo shape hiện có, không tự thêm node evidence.
+
 - Người dùng: **“chạy end-to-end đi, hiện tại ch cần t duyệt”**. G1 `gate_9adcdfaeecad` và G2 `gate_6cfb2aa8cf5f` đã resolve theo yêu cầu thật; Phase7.1/8 được triển khai theo `docs/PHASE_7_1_8_EXECUTION_SPEC.md`, không có nghĩa đã nghiệm thu.
 - Coordinator là Codex/W1, Run `run_a728dba15869`, terminal `term_552bec4b-7fac-4495-8bff-f9f21901b7ed`; T0 completed. Baseline `9a3931848b13f283155056128bd3ce5aee71a90a`, nhánh backend `6e0c5bf` chỉ tuyển nền phù hợp.
 - W2 Antigravity app/test app, W3 Codex gpt-6-luna/xhigh backend/test backend, W4 OpenCode **Muse** `opencode/muse-spark-1.3-contributor-free` theo lựa chọn người dùng; W1 không source sản phẩm. Chưa tự đổi model hoặc merge main/push.

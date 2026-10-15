@@ -2,6 +2,16 @@
 
 > **16/10/2026:** G1/G2 Run run_a728dba15869 đã resolve theo yêu cầu người dùng “chạy end-to-end đi, hiện tại ch cần t duyệt”. Quyền triển khai không đồng nghĩa test/phase đã đạt. Theo [spec Phase7.1/8](docs/PHASE_7_1_8_EXECUTION_SPEC.md); ghi pass/fail/pending và SHA thật trước khi chuyển sang đợt VI/EN.
 
+## Kiểm thực hiện Phase7.1/8 — đang chạy
+
+- [x] Quyền chạy xuyên suốt và hợp đồng được ghi bằng chỉ dẫn người dùng; baseline source9a39318, spec commit743bf0c.
+- [x] W2 Antigravity/Gemini3.8FlashHigh, W3 CodexLuna/xhigh, W4 OpenCodeMuse được kiểm tại launch/screen; file ownership riêng.
+- [ ] W2 parser/adapter/app tests có SHA và validation reviewed/empty/limits/cancellation, không hồi quy voice.
+- [ ] W3 backend không chat/LLM, test migration/backup/rollback/HTTP thật và CLI có SHA.
+- [ ] W4 guard không pass0/0, integration/security/native E2E có báo cáo pass/fail/pending theo SHA.
+- [ ] Tích hợp local được kiểm độc lập; các giới hạn GPS/QR/iOS/điện thoại thật được ghi đúng bằng chứng.
+- [ ] Chỉ mở đợt VI/EN sau khi Phase8 thực sự đạt, không suy từ worker_done.
+
 > Checklist dự án dựa trên template Part 4 trong yêu cầu và gate của [plan](docs/TECH_DEMO_PLAN.md). Không có bản `/templates/REVIEW-CHECKLIST.md` để copy nguyên văn; nguồn và giới hạn ghi ở [setup_review.md](agent_docs/setup_review.md).
 
 Chỉ dùng các mục thuộc phase đang review; không đánh dấu phase tương lai. Checkbox là tiêu chí, không phải lịch sử duyệt. Bằng chứng người dùng duyệt ghi trong `MEMORY.md`.
