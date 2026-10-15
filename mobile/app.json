@@ -12,6 +12,7 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
+      "runtimeVersion": "exposdk:57.0.0",
       "infoPlist": {
         "NSCameraUsageDescription": "Cho phép Ngõ Kể dùng camera để quét mã QR của điểm.",
         "NSLocationWhenInUseUsageDescription": "Cho phép Ngõ Kể đọc vị trí một lần để gợi ý điểm gần nhất. App không theo dõi vị trí nền."
@@ -68,7 +69,17 @@
     ],
     "extra": {
       "apiBaseUrl": "",
-      "voiceApiBaseUrl": ""
+      "voiceApiBaseUrl": "",
+      "eas": {
+        "projectId": "53f37ee9-2fea-4300-a792-27aa74b994a2"
+      }
+    },
+    "owner": "valentino241",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/53f37ee9-2fea-4300-a792-27aa74b994a2"
     }
   }
 }

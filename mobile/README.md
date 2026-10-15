@@ -12,6 +12,21 @@ npm start -- --go
 
 Quét mã Metro bằng Expo Go trên thiết bị cùng mạng với máy phát triển. Lệnh trên chạy giao diện; để thử nhận dạng giọng nói, cần khởi động gateway theo mục dưới đây.
 
+## Chia sẻ preview iOS qua Expo Go
+
+- [Trang update trên Expo.dev](https://expo.dev/accounts/valentino241/projects/ngo-ke-demo/updates/f102185d-c42c-4efc-9101-452655b5f2f3)
+- [Mở trực tiếp trong Expo Go trên iPhone](exp://u.expo.dev/update/01a14018-58fd-7282-a486-46294348b2ca)
+
+Cài Expo Go trước, rồi mở link thứ hai trên iPhone; cũng có thể mở trang Expo.dev để xem QR. Đây là JavaScript/asset preview chạy bên trong Expo Go, không phải IPA/TestFlight. Bản chia sẻ không nhúng gateway LAN: màn hình, dữ liệu mô phỏng và audio đóng gói dùng được, còn nhận dạng STT cần một gateway có thể truy cập từ thiết bị. Để cập nhật preview, chạy từ `mobile/`:
+
+```powershell
+$env:CI = '1'
+$env:EXPO_NO_DOTENV = '1'
+npx eas-cli@latest update --branch ios-preview --platform ios --environment preview --clear-cache --message "Mô tả thay đổi"
+```
+
+Giữ `EXPO_NO_DOTENV=1` khi publish để không đưa URL gateway riêng trong `.env.local` vào bundle.
+
 ## Preview Voice trong mạng phát triển
 
 Voice dùng recorder/player native và gateway STT chạy riêng bằng Node.js 24. Làm theo [hướng dẫn cài model và tạo audio](../tools/voice/README.md) trước lần chạy đầu.
@@ -32,7 +47,7 @@ node tools/voice/gateway/server.mjs
 npm start -- --lan --port 8081 --go --max-workers 2
 ```
 
-Thay `<DEV_LAN_IP>` bằng địa chỉ LAN hiện tại của máy chạy gateway, giữ các biến khác đang có trong `.env.local`. File này bị Git bỏ qua. Lệnh giữ profile GPU đã xác minh trên máy dev RTX; trên máy không có runtime CUDA/cuDNN pinned, đổi `NGOKE_VOICE_ASR_PROFILE` thành `small-cpu`. Mỗi khi đổi URL, khởi động lại Metro để bundle nhận cấu hình mới. Preview hiện được xác minh ở `exp://192.168.100.36:8081`; sau khi khởi động lại, mở URL/QR Metro mới trên điện thoại cùng Wi‑Fi riêng tin cậy. Gateway preview dùng HTTP, không xác thực và không phù hợp để mở ra Internet hoặc Wi‑Fi công cộng. Xem [VOICE_HANDOFF.md](../docs/VOICE_HANDOFF.md) để biết cách mở APK/preview, kiểm tra gateway và các giới hạn.
+Thay `<DEV_LAN_IP>` bằng địa chỉ LAN hiện tại của máy chạy gateway, giữ các biến khác đang có trong `.env.local`. File này bị Git bỏ qua. Lệnh giữ profile GPU đã xác minh trên máy dev RTX; trên máy không có runtime CUDA/cuDNN pinned, đổi `NGOKE_VOICE_ASR_PROFILE` thành `small-cpu`. Mỗi khi đổi URL, khởi động lại Metro để bundle nhận cấu hình mới. Gateway preview dùng HTTP, không xác thực và không phù hợp để mở ra Internet hoặc Wi‑Fi công cộng. Xem [VOICE_HANDOFF.md](../docs/VOICE_HANDOFF.md) để biết cách mở APK/preview, kiểm tra gateway và các giới hạn.
 
 Trong app, vào Demo, chọn chương, nhấn mic để thu, rồi nhấn **Gửi**; **Hủy** hoặc Back kết thúc lượt. Chip gợi ý không tự bật tiếng. Gateway và Metro phải đang chạy để thử STT; giao diện, dữ liệu demo và audio đóng gói vẫn có thể xem khi offline.
 
@@ -55,20 +70,20 @@ npm run check:dependencies
 - Test mobile 171/171, typecheck, lint, Expo dependency check, catalogue validator 34/34, gateway smoke và iOS Expo export đều đạt. Validator đo 7 phút / 5,04 MB; WER tổng hợp cao nhất là 23,1% ở `qa-flowers-answer`. Nghe QC bằng người thật vẫn pending.
 - Lượt STT tổng hợp mới nhất qua helper app → gateway `large-v3-cuda` → matcher exact: 5/8 câu khớp chính xác, 0 câu trả sai, 3 câu chưa khớp. Câu mơ hồ vẫn hiện unknown; không bật fuzzy matching. Kết quả cached 21/21 chỉ kiểm matcher trên transcript đã lưu, không phải độ chính xác STT mới.
 - Bản Android API 37 `com.valentino241.ngokedemo`: 121.249.588 byte, SHA-256 `2f15c3c0992434a42b13cb4b09c363826542ddfa215eb8f3e9d5db03e22a1e0d`; hash installed APK trùng. Bản này có revision hiện tại và đủ 34 MP3 đúng hash nguồn. Native typed Q&A/follow-up, player/text state và stress test thu/Hủy 20 chu kỳ được kiểm trên AVD: [bằng chứng Android hiện tại](../agent_docs/evidence/voice/android37-native-release-final-2f15c3-2026-10-15/README.md). AVD không có tín hiệu âm thanh hữu dụng.
-- iOS Expo export: `index-34b34ad94926be47472ea9cee2796235.hbc`, SHA-256 `d285830810720d64dbd0f5c0579bc6f0cb8b4c26185853795f2790b8333dc477`. Expo Go `exp://192.168.100.36:8081`, manifest/bundle và gateway `:8788` đều đã xác minh qua LAN; bundle mới có revision hiện tại và URL gateway. Anh chưa reload bundle này trên iPhone.
+- iOS Expo Go preview: EAS Update runtime `exposdk:57.0.0`, group `f102185d-c42c-4efc-9101-452655b5f2f3`. Link chia sẻ nằm ở đầu README. Đây không phải bản cài độc lập; gateway STT không được đưa vào bundle công khai.
 - Còn mở: nghe duyệt 34 clip; kiểm giọng nói sáu chương trên iPhone bundle mới; đường loa/tai nghe/cuộc gọi/chạy nền trên thiết bị thật; TalkBack/VoiceOver và đo hiệu năng thiết bị. Đây là preview LAN, không phải IPA hay public release.
 
 ## Snapshot kiểm chứng trước revision 8b318b — 15/10/2026
 
 - Lượt kiểm hiện tại: `npm test` 168/168, typecheck, lint và `npx expo install --check` đạt; gateway smoke test đạt trên clip TTS tổng hợp local, gồm abort/retry, quota, định dạng, thời lượng và im lặng. Không dùng audio riêng tư.
-- Preview local/LAN đã xác minh: sau khi Metro `:8081` bị treo ở iOS launch asset, chỉ Metro được restart (không xóa transform cache; gateway tiếp tục chạy). Manifest và launch asset hiện HTTP 200; bundle 5.529.995 byte, request đầu 9,5 giây và request ấm 0,51 giây, có URL gateway và mã phục hồi quyền mic, không còn thông báo kết nối cũ. Gateway `http://192.168.100.36:8788/health` báo ready trên Node 24.14.1/faster-whisper 1.2.1. Dùng `exp://192.168.100.36:8081` trên cùng Wi‑Fi; iPhone chưa reload theo quyết định trước đó.
+- Preview local/LAN đã xác minh: sau khi Metro `:8081` bị treo ở iOS launch asset, chỉ Metro được restart (không xóa transform cache; gateway tiếp tục chạy). Manifest và launch asset hiện HTTP 200; bundle 5.529.995 byte, request đầu 9,5 giây và request ấm 0,51 giây, có URL gateway và mã phục hồi quyền mic, không còn thông báo kết nối cũ. Gateway trên Node 24.14.1/faster-whisper 1.2.1 báo ready. Dùng địa chỉ LAN hiện tại của máy dev và cùng Wi‑Fi; iPhone chưa reload theo quyết định trước đó.
 - APK Android SDK 57 trên AVD khớp file local: 121.247.816 byte, SHA-256 `B11555198EBF7CDCD78A8A241E1FFEF4EF5B35B5BB4A5701331055DF46B66083`. Chương 1 hiển thị Q&A đúng; mở lời đáp bằng chữ trong lúc player chạy không làm dừng chữ hoặc reset tiến trình. Ảnh và giới hạn: [`android37-native-sdk57-2026-10-15`](../agent_docs/evidence/voice/android37-native-sdk57-2026-10-15/README.md). AVD không có audio, nên đây không chứng minh âm thanh nghe được hay mic/STT.
 - Bản release sau chỉnh AlleySelect (trước Plan retest): 121.247.928 byte, SHA-256 `E7D5BD8D8D0B34A23F77BA97CA20A5A0D6A42D7D175FF50858D8C9874899F0F7`. Trên AVD, tìm/xóa từ khóa hoạt động; chip lọc có trạng thái đã chọn và vùng bấm cao tối thiểu 48 dp. Chi tiết: cùng [bộ bằng chứng native](../agent_docs/evidence/voice/android37-native-sdk57-2026-10-15/README.md).
 - APK release mới nhất sau chỉnh Plan: 121.247.924 byte, SHA-256 `EEC6430CC94BC70CAD01B5A58C954DA4B1333ECC1F49FFDB1BE8BCF4C3D9E1CF`. APK có đủ 34 MP3 với hash khớp nguồn. Plan control nhập tay 48 dp; keyboard và nút áp dụng còn nhìn thấy; nhập Ẩm thực + 30 phút trả hai gợi ý đúng và mở đúng “Bếp đầu hè”. GPS/QR screen chỉ bắt đầu sau nút riêng. AVD không audio; voice action thật và phần cứng vẫn pending. Xem [bộ bằng chứng native](../agent_docs/evidence/voice/android37-native-sdk57-2026-10-15/README.md).
 - Reduce Motion Android được kiểm trên APK đang chạy bằng `transition_animation_scale=0`: Home → “Chọn Con Ngõ” đã hiện đủ trong cửa sổ chụp 80 ms; các scale hệ thống đã khôi phục về `1`. Bằng chứng ở cùng thư mục; đây chưa phải kiểm TalkBack/VoiceOver.
 
 - `npm test` 168/168, typecheck, lint, Expo dependency check và `git diff --check` đạt; `node tools/voice/gateway/smoke_test.mjs` pass trên clip TTS tổng hợp local. Regression kiểm Gửi trùng, Hủy khi dừng/nhận dạng và đổi scope trong lúc request chờ; dependency native/network là test doubles. Các JS exports không phải IPA/APK.
-- Người dùng xác nhận lượt voice thứ hai liên tiếp trên iPhone có meter, transcript, câu trả lời đúng và audio nghe được; đây là happy path do người dùng báo trên Expo Go `:8089`, không có trace độc lập. Fresh iOS/Android JS exports (1.073/1.068 modules) gồm đủ 34 MP3 mỗi nền tảng, hash set khớp source và gateway URL được nhúng. Metro `:8081/status`, manifest iOS và launch bundle hiện trả HTTP 200; Gateway `/health` trả HTTP 200, Node 24.14.1/faster-whisper 1.2.1. Người dùng để sau reload `exp://192.168.100.36:8081`.
+- Người dùng xác nhận lượt voice thứ hai liên tiếp trên iPhone có meter, transcript, câu trả lời đúng và audio nghe được; đây là happy path do người dùng báo trên Expo Go `:8089`, không có trace độc lập. Fresh iOS/Android JS exports (1.073/1.068 modules) gồm đủ 34 MP3 mỗi nền tảng, hash set khớp source và gateway URL được nhúng. Metro `:8081/status`, manifest iOS và launch bundle hiện trả HTTP 200; Gateway `/health` trả HTTP 200, Node 24.14.1/faster-whisper 1.2.1. Người dùng để sau reload địa chỉ Expo Go LAN hiện tại.
 - Validator audio chạy bằng `tools/voice/.venv`: 34/34 clip đạt hash/nội dung/codec/duration/level; manifest SHA-256 `90747665D049CC3B4AF018672EF0935805F324236986D8F2047DC79B440113E9`. Nghe duyệt bằng người thật vẫn pending.
 - APK permission-recovery trên Android (121,247,352 byte, SHA-256 `ED49FF5702BE20002184876F20FB34B828DF7BEFEA1F22A48FCE2F7944DC80E2`) đã kiểm denial → Settings → cấp lại → thu/Hủy trên AVD API 37; bundle có gateway URL và đủ 34 MP3 hash-match nguồn. AVD `-no-audio`, không chứng minh tiếng, meter có tín hiệu hay STT.
 - APK QA UI/player trước đó (121,247,808 byte, SHA-256 `D6BB16DCE259002D38D112DACA28E9DD91BF5D0681C005AEC9BB83025E8AB50D`) đã kiểm chương 6 `qa-letter`; ảnh ở `agent_docs/evidence/voice/android37-native-release-qa6-answer-text-*.png`. Đây là bằng chứng của APK cũ, AVD `-no-audio`.
