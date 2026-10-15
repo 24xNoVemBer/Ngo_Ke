@@ -2,7 +2,7 @@ const { AndroidConfig, withAndroidManifest, withInfoPlist } = require('@expo/con
 const process = require('node:process');
 const { URL } = require('node:url');
 
-const LOCAL_NETWORK_DESCRIPTION = 'Ngõ Kể kết nối với máy chủ nhận dạng giọng nói trên cùng mạng Wi‑Fi để xử lý câu hỏi.';
+const LOCAL_NETWORK_DESCRIPTION = 'Ngõ Kể kết nối với máy chủ nhận dạng giọng nói hoặc API trên cùng mạng Wi‑Fi để xử lý.';
 
 function privateIpv4Host(host) {
   if (host === 'localhost') return true;
@@ -12,13 +12,33 @@ function privateIpv4Host(host) {
     parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31 || parts[0] === 192 && parts[1] === 168;
 }
 
-function gatewayHost(config) {
-  const endpoint = process.env.EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL || config.extra?.voiceApiBaseUrl;
-  if (!endpoint) return undefined;
-  const url = new URL(endpoint);
+function resolveHttpEndpointHost(endpoint, label) {
+  if (!endpoint || typeof endpoint !== 'string' || !endpoint.trim()) return undefined;
+  const url = new URL(endpoint.trim());
   if (url.protocol !== 'http:') return undefined;
-  if (!privateIpv4Host(url.hostname)) throw new Error('Voice gateway HTTP must use a private IPv4/localhost; use HTTPS for other hosts.');
+  if (!privateIpv4Host(url.hostname)) {
+    throw new Error(`${label} HTTP must use a private IPv4/localhost; use HTTPS for other hosts.`);
+  }
   return url.hostname;
+}
+
+function gatewayHost(config) {
+  const endpoint = process.env.EXPO_PUBLIC_NGOKE_VOICE_API_BASE_URL || config?.extra?.voiceApiBaseUrl;
+  return resolveHttpEndpointHost(endpoint, 'Voice gateway');
+}
+
+function apiHost(config) {
+  const endpoint = process.env.EXPO_PUBLIC_NGOKE_API_BASE_URL || config?.extra?.apiBaseUrl;
+  return resolveHttpEndpointHost(endpoint, 'API endpoint');
+}
+
+function resolveCleartextHosts(config) {
+  const voice = gatewayHost(config);
+  const api = apiHost(config);
+  const hosts = [];
+  if (voice) hosts.push(voice);
+  if (api && !hosts.includes(api)) hosts.push(api);
+  return hosts;
 }
 
 function configureLocalGatewayInfoPlist(infoPlist, allowLocalGateway) {
@@ -32,7 +52,7 @@ function configureLocalGatewayInfoPlist(infoPlist, allowLocalGateway) {
 }
 
 module.exports = function withVoiceGatewayNetworkSecurity(config) {
-  const allowLocalGateway = Boolean(gatewayHost(config));
+  const allowLocalGateway = resolveCleartextHosts(config).length > 0;
   const withAndroid = withAndroidManifest(config, (mod) => {
     const application = AndroidConfig.Manifest.getMainApplicationOrThrow(mod.modResults);
     delete application.$['android:networkSecurityConfig'];
@@ -52,4 +72,6 @@ module.exports = function withVoiceGatewayNetworkSecurity(config) {
 
 module.exports.privateIpv4Host = privateIpv4Host;
 module.exports.gatewayHost = gatewayHost;
+module.exports.apiHost = apiHost;
+module.exports.resolveCleartextHosts = resolveCleartextHosts;
 module.exports.configureLocalGatewayInfoPlist = configureLocalGatewayInfoPlist;
