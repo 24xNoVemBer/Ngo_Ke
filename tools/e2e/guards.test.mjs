@@ -110,7 +110,7 @@ describe('resolveAdbTarget: portable SDK/adb/device/port', () => {
         ANDROID_SDK_ROOT: '/sdk',
         ANDROID_SERIAL: 'emulator-5554',
         ANDROID_ADB_SERVER_PORT: '5038',
-        NGOKE_DEV_HOST: '10.0.0.2',
+        NGOKE_DEV_HOST: '10.0.2.2',
         NGOKE_EXPO_PORT: '8091',
       },
       platform: 'linux',
@@ -119,7 +119,7 @@ describe('resolveAdbTarget: portable SDK/adb/device/port', () => {
     assert.equal(res.adbBin, join('/sdk', 'platform-tools', 'adb'));
     assert.equal(res.serial, 'emulator-5554');
     assert.equal(res.serverPort, 5038);
-    assert.equal(res.metroHost, '10.0.0.2');
+    assert.equal(res.metroHost, '10.0.2.2');
     assert.equal(res.metroPort, 8091);
   });
   it('uses adb.exe on Windows and plain adb on POSIX', () => {

@@ -1,5 +1,12 @@
 #!/usr/bin/env node
 /**
+ * HISTORICAL (Phase 8): superseded by tools/e2e/native-flow.mjs, which targets
+ * the current UX (Prologue -> Landing -> drawer hub, fixture node names).
+ * This script's labels ('Bắt đầu nghe giới thiệu và hỏi đáp', 'Điểm demo 0X',
+ * …) belong to the pre-rebuild UX and no longer exist on screen, so running
+ * it now yields honest NOT-pass results, not app bugs. Kept for reference;
+ * do not use for Phase 8 QA. Guards (parseRuns/out-dir/adb) still maintained.
+ *
  * Repeatable demo scenario for Ngõ Kể (Phase 7, R7.01).
  *
  *   node tools/e2e/demo-scenario.mjs [--runs 3] [--out-dir <path>]
@@ -133,25 +140,54 @@ async function tapLabel(label, options) {
     return false;
   }
   const [x1, y1, x2, y2] = hit.bounds;
-  await shell(['shell', 'input', 'tap', String((x1 + x2) / 2), String((y1 + y2) / 2)]);
+  await shell(['shell', 'input', 'tap', String(Math.round((x1 + x2) / 2)), String(Math.round((y1 + y2) / 2))]);
   await sleep(1600);
   return true;
 }
 
 async function screenshot(name) {
-  const png = await shell(['exec-out', 'screencap', '-p']);
-  writeFileSync(join(EVIDENCE, `${name}.png`), png, 'binary');
+  // Binary-safe: never decode the PNG through a text encoding (a prior
+  // PowerShell redirect produced an invalid UTF-16 file, now discarded).
+  const result = spawnSync(ADB[0], [...ADB.slice(1), 'exec-out', 'screencap', '-p'], {
+    encoding: 'buffer',
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  if (result.error) throw result.error;
+  if (result.status !== 0) throw new Error(`adb screencap -> ${result.status}`);
+  const sig = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  const idx = result.stdout.indexOf(sig);
+  if (idx < 0) throw new Error('screencap returned no PNG data');
+  writeFileSync(join(EVIDENCE, `${name}.png`), result.stdout.subarray(idx));
+}
+
+async function tapVisible(nodes, fragment) {
+  const hit = nodes.find((node) => node.label.includes(fragment) && node.visible);
+  if (!hit) return false;
+  const [x1, y1, x2, y2] = hit.bounds;
+  await shell(['shell', 'input', 'tap', String(Math.round((x1 + x2) / 2)), String(Math.round((y1 + y2) / 2))]);
+  await sleep(1600);
+  return true;
 }
 
 async function relaunch() {
   await shell(['shell', 'am', 'force-stop', 'host.exp.exponent']);
   await sleep(2000);
   await shell(['shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', `exp://${IP}:${EXPO_PORT}`, 'host.exp.exponent']);
-  for (let i = 0; i < 14; i += 1) {
+  for (let i = 0; i < 20; i += 1) {
     await sleep(2500);
-    const text = screenText(await uiDump(`boot-${i}`));
+    const nodes = await uiDump(`boot-${i}`);
+    const text = screenText(nodes);
     if (text.includes('Nguồn dữ liệu')) {
       return true;
+    }
+    // Walk the entry flow forward: Prologue -> Landing -> Home.
+    if (text.includes('Bắt đầu dạo ngõ')) {
+      await tapVisible(nodes, 'Bắt đầu dạo ngõ');
+      continue;
+    }
+    if (text.includes('Mở con ngõ')) {
+      await tapVisible(nodes, 'Mở con ngõ');
+      continue;
     }
   }
   return false;
@@ -210,7 +246,7 @@ async function runScenario(runIndex) {
     const hit = await find('Chọn điểm Điểm demo 03 bằng tay');
     if (!hit) return false;
     const [x1, y1, x2, y2] = hit.bounds;
-    await shell(['shell', 'input', 'tap', String((x1 + x2) / 2), String((y1 + y2) / 2)]);
+    await shell(['shell', 'input', 'tap', String(Math.round((x1 + x2) / 2)), String(Math.round((y1 + y2) / 2))]);
     await sleep(1600);
     return true;
   });
@@ -229,7 +265,7 @@ async function runScenario(runIndex) {
     const hit = await find('Bắt đầu nghe giới thiệu và hỏi đáp');
     if (!hit) return false;
     const [x1, y1, x2, y2] = hit.bounds;
-    await shell(['shell', 'input', 'tap', String((x1 + x2) / 2), String((y1 + y2) / 2)]);
+    await shell(['shell', 'input', 'tap', String(Math.round((x1 + x2) / 2)), String(Math.round((y1 + y2) / 2))]);
     await sleep(1600);
     return screenText(await uiDump(`r${runIndex}-qa2`)).includes('Điểm demo 03');
   });
