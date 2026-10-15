@@ -137,7 +137,7 @@ function mount(file, props = {}, overrides = {}, exportName) {
   const code = ts.transpileModule(readFileSync(new URL(file, import.meta.url), 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
   }).outputText;
-  runInNewContext('(function(require,module,exports){' + code + '\n})', { process: { env: {} }, setTimeout, clearTimeout, ...overrides.__globals })((id) => {
+  runInNewContext('(function(require,module,exports){' + code + '\n})', { process: { env: {} }, setTimeout, clearTimeout, AbortController: globalThis.AbortController, ...overrides.__globals })((id) => {
     if (modules[id]) return modules[id];
     if (/\/screens\//.test(id) || /\/components\//.test(id) || id === './UnavailableScreen') {
       const name = id.split('/').at(-1);

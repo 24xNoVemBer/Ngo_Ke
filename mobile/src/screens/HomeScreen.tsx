@@ -634,7 +634,11 @@ export function HomeScreen({
                   {source.mode === 'live'
                     ? liveBusy
                       ? 'LIVE · đang tải…'
-                      : 'LIVE · dữ liệu mô phỏng từ máy chủ'
+                      : source.status === 'ready'
+                        ? source.dataset.kind === 'reviewed'
+                          ? 'LIVE · dữ liệu đã duyệt'
+                          : 'LIVE · dữ liệu mô phỏng (chưa xác minh)'
+                        : 'LIVE · chưa có dữ liệu'
                     : 'DEMO · nội dung mô phỏng'}
                 </Text>
                 <Text style={styles.sourceTitle}>
