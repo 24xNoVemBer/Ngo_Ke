@@ -68,6 +68,16 @@ test('empty databases and corrupt stored data report empty or bounded server err
   assert.doesNotMatch(response.body.error.message, /SQL|sqlite|path|stack/i);
 });
 
+test('over-budget stored datasets fail closed instead of being served', async (t) => {
+  const { db, request } = await running(t, { simulated: true });
+  db.prepare('UPDATE qa SET evidence = ?').run(JSON.stringify(Array(20).fill('x'.repeat(2000))));
+
+  const response = await request('/api/dataset');
+  assert.equal(response.status, 503);
+  assert.equal(response.body.error.code, 'DATABASE_UNAVAILABLE');
+  assert.doesNotMatch(JSON.stringify(response.body), /xxxxxxxx/);
+});
+
 test('unsupported routes, query strings, and methods fail without exposing server internals', async (t) => {
   const { request } = await running(t, { simulated: true });
   for (const path of ['/api/chat', '/api/llm', '/api/voice', '/api/nodes', '/api/dataset?x=1']) {

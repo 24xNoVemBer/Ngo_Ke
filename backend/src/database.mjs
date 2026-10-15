@@ -1,7 +1,7 @@
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { dirname } from 'node:path';
-import { parseDataset } from '../../mobile/src/data/sourceState.ts';
+import { MAX_BODY_BYTES, parseDataset } from '../../mobile/src/data/sourceState.ts';
 
 export function openDatabase(path) {
   if (path !== ':memory:') mkdirSync(dirname(path), { recursive: true });
@@ -44,6 +44,12 @@ function withReview(record, reviewStatus, updatedAt) {
   return reviewStatus === null ? record : { ...record, reviewStatus, updatedAt };
 }
 
+function assertBodyLimit(dataset) {
+  if (Buffer.byteLength(JSON.stringify(dataset), 'utf8') > MAX_BODY_BYTES) {
+    throw new Error('Dataset exceeds the 512 KiB body limit');
+  }
+}
+
 export function readDataset(db) {
   assertMigrated(db);
   db.exec('BEGIN');
@@ -75,6 +81,7 @@ export function readDataset(db) {
       }, q.review_status, q.updated_at)),
     };
     if (!parseDataset(dataset, { mode: 'live' })) throw new Error('Invalid dataset stored in database');
+    assertBodyLimit(dataset);
     db.exec('COMMIT');
     return dataset;
   } catch (error) {
@@ -87,6 +94,7 @@ export function readDataset(db) {
 export function importDataset(db, value, { replace = false } = {}) {
   const dataset = parseDataset(value, { mode: 'live' });
   if (!dataset) throw new Error('Invalid dataset: schema, evidence or references');
+  assertBodyLimit(dataset);
   assertMigrated(db);
   db.exec('BEGIN IMMEDIATE');
   try {
