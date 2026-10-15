@@ -67,9 +67,10 @@ export default function App(): ReactElement {
       return;
     }
     let cancelled = false;
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : undefined;
     setLiveBusy(true);
-    loadLiveSource({ baseUrl: liveBaseUrl }).then((next) => {
-      if (!cancelled) {
+    loadLiveSource({ baseUrl: liveBaseUrl, signal: controller?.signal }).then((next) => {
+      if (!cancelled && !controller?.signal.aborted) {
         setLiveSource(next);
         setCurrentNodeId(undefined);
         setConfirmedNodeId(undefined);
@@ -79,6 +80,7 @@ export default function App(): ReactElement {
     });
     return () => {
       cancelled = true;
+      controller?.abort();
     };
   }, [mode, liveRevision]);
 
