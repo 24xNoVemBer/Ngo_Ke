@@ -124,14 +124,19 @@ async function preflight() {
   } catch (error) {
     problems.push(`adb unreachable: ${error.message}`);
   }
-  try {
-    const res = await fetch(`http://${IP === '10.0.2.2' || IP === '127.0.0.1' ? '127.0.0.1' : IP}:${EXPO_PORT}/status`, {
-      signal: AbortSignal.timeout(10000),
-    });
-    if (res.status !== 200) problems.push(`Metro /status -> ${res.status}`);
-  } catch (error) {
-    problems.push(`Metro unreachable at ${IP}:${EXPO_PORT} (${error.message})`);
+  // The configured host may be emulator-only (10.0.2.2); probe it, else loopback.
+  // The actual delivery URI stays NGOKE_DEV_HOST — both routes may be valid.
+  metroProbeUrl = null;
+  for (const host of [IP, '127.0.0.1']) {
+    try {
+      const res = await fetch(`http://${host}:${EXPO_PORT}/status`, { signal: AbortSignal.timeout(10000) });
+      if (res.status === 200) {
+        metroProbeUrl = `http://${host}:${EXPO_PORT}/status`;
+        break;
+      }
+    } catch { /* try next host */ }
   }
+  if (!metroProbeUrl) problems.push(`Metro unreachable at ${IP}:${EXPO_PORT} (tried host + loopback)`);
   try {
     await shell(['shell', 'settings', 'get', 'global', 'transition_animation_scale']);
   } catch (error) {
@@ -237,7 +242,7 @@ async function relaunch(tag) {
     const { nodes, dumpAvailable } = await uiDump(`${tag}-boot-${i}`);
     if (!dumpAvailable) continue;
     const t = textOf(nodes);
-    if (/Đã mở \d\/6 câu chuyện · Demo/.test(t) || (t.includes('Nguồn dữ liệu') && t.includes('Cổng ngõ'))) return true;
+    if (t.includes('Đọc lời kể điểm đang chọn') && t.includes('Điểm 01:')) return true;
     if (t.includes('developer menu')) {
       await tapFrag(nodes, 'Continue');
       continue;
@@ -357,7 +362,13 @@ async function runOnce(runIndex) {
   // Call only from Home; use ensureHome() first after screens that trap back().
   async function openDrawer(tag) {
     const { nodes } = await uiDump(`${tag}-drawerhub`);
-    if (await tapFrag(nodes, 'Sổ tay')) {
+    // Prefer the exact accessibility label; fall back to the visible tab text.
+    if (await tapFrag(nodes, 'Mở sổ tay ngõ phố')) {
+      await sleep(1800);
+      return true;
+    }
+    const retry = await uiDump(`${tag}-drawerhub2`);
+    if (await tapFrag(retry.nodes, 'Sổ tay')) {
       await sleep(1800);
       return true;
     }
@@ -365,8 +376,9 @@ async function runOnce(runIndex) {
   }
 
   function isHome(t) {
-    // Header counter advances as stories open (0/6 -> 1/6 …), so match the pattern.
-    return /Đã mở \d\/6 câu chuyện · (Demo|Live)/.test(t) || (t.includes('Nguồn dữ liệu') && t.includes('Cổng ngõ'));
+    // Stable Home controls only: the visited counter (0/6 -> 1/6 …) must never
+    // gate navigation, and the legacy 'Nguồn dữ liệu' root assumption is gone.
+    return t.includes('Đọc lời kể điểm đang chọn') && t.includes('Điểm 01:');
   }
   async function ensureHome(tag) {
     for (let i = 0; i < 6; i += 1) {
@@ -517,6 +529,8 @@ async function runOnce(runIndex) {
 
 let exitCode = 0;
 let priorAnim = null;
+let animTouched = false;
+let metroProbeUrl = null;
 try {
   const fatal = await preflight();
   if (fatal.length > 0) {
@@ -527,10 +541,12 @@ try {
     try {
       const raw = (await shell(['shell', 'settings', 'get', 'global', 'transition_animation_scale'])).trim();
       priorAnim = raw.length > 0 && raw !== 'null' ? raw : null;
+      await shell(['shell', 'settings', 'put', 'global', 'transition_animation_scale', '0']);
+      animTouched = true; // restore below only because we changed it
     } catch {
       priorAnim = null;
+      animTouched = false;
     }
-    await shell(['shell', 'settings', 'put', 'global', 'transition_animation_scale', '0']);
     // Camera/location pre-grants keep the manual-choice paths deterministic.
     // Manual-success coverage only; denial branches are NOT covered by this.
     for (const perm of ['android.permission.CAMERA', 'android.permission.ACCESS_FINE_LOCATION', 'android.permission.ACCESS_COARSE_LOCATION']) {
@@ -551,7 +567,7 @@ try {
       date: new Date().toISOString(),
       sourceSha: gitHead(),
       device: await deviceInfo(),
-      metro: `exp://${IP}:${EXPO_PORT} (bundle built from the source tree at sourceSha; use the 10.0.2.2 route only, never 10.0.0.2)`,
+      metro: `exp://${IP}:${EXPO_PORT} (delivery route from NGOKE_DEV_HOST; bundle built from the source tree at sourceSha; Metro probed at ${metroProbeUrl})`,
       backend: 'LAN backend owned by this run (temp DB, SERVE_SIMULATED_DATA=true); live step depends on the Metro-baked API URL',
       runs: results,
       allRunsPassed: verdict.allRunsPassed && results.length === RUNS,
@@ -563,12 +579,16 @@ try {
     if (!summary.allRunsPassed) exitCode = 1;
   }
 } finally {
-  try {
-    if (priorAnim === null) {
-      await shell(['shell', 'settings', 'delete', 'global', 'transition_animation_scale']);
-    } else {
-      await shell(['shell', 'settings', 'put', 'global', 'transition_animation_scale', priorAnim]);
-    }
-  } catch { /* best effort restore */ }
+  // Restore only when this run changed the setting; a failed read must never
+  // be treated as "originally unset" (that would delete a value we never saw).
+  if (animTouched) {
+    try {
+      if (priorAnim === null) {
+        await shell(['shell', 'settings', 'delete', 'global', 'transition_animation_scale']);
+      } else {
+        await shell(['shell', 'settings', 'put', 'global', 'transition_animation_scale', priorAnim]);
+      }
+    } catch { /* best effort restore */ }
+  }
 }
 process.exitCode = exitCode;

@@ -9,6 +9,7 @@ Task: `task_d82ac6443e6d` · Run `run_a728dba15869` · Worker W4 (OpenCode Muse)
 | --- | --- | --- |
 | Integration base (HEAD at start) | `d49b550a0dc57acffce16ab5dae82983f16b2af4` | merge W2 parser + W3 backend + W4a guards |
 | W2 app parser/adapter | `c16b662` + `0422ed5` | shared `parseDataset` live contract, live adapter, abort/timeout |
+| W2 live-env fix (cherry-picked, no hand edit) | `4b7ffcb` → local `1de3364` | explicit `process.env.EXPO_PUBLIC_…` for bundler inlining (dev bundles evaluated `process.env` at runtime, so Expo-Go live passed; production Babel inlines statically, so the release APK needed this) |
 | W3 backend | `2963fb8` + `c1b65fc` | Node24 + node:http/node:sqlite read-only JSON API |
 | W3 boundary fix (cherry-picked, no hand edit) | `0399821` → local `7179193` | 512KiB aggregate budget on import/read |
 | Voice netsec plugin (cherry-picked, separate integration) | `0ad83c1` → local `94b4653` | private-HTTP API allowlist, API-only, no journey impact |
@@ -49,6 +50,13 @@ Backend: temp DB (6 nodes / 21 QA simulated), `0.0.0.0:8086` + `SERVE_SIMULATED_
 - Manual fault injection (own server stopped/restarted): backend down → `Chưa có dữ liệu
   hỏi đáp` + `Thử lại`, stays live, no demo fallback; retry-while-down still errors;
   restart + retry → live ready with 6 nodes.
+- Release APK (`app-release.apk`, 125,227,724 bytes,
+  SHA-256 `F4FF952226F614F37E6F33BE30375628F38DD1D290021D7C65DAA96204FD2F0E`,
+  app source `4b7ffcb`, installed as `com.valentino241.ngokedemo` with byte-identical
+  on-device hash): offline cold start (airplane mode) renders Prologue → Home with all
+  six fixture nodes in demo; live switch loads the LAN backend (drawer source/count/
+  origin + live map `Đã mở 0/6 câu chuyện · Live`); airplane-mode retry → error state
+  with no fallback. Old `BA6D9F` APK is superseded and was never used as proof.
 
 ## Pending / not covered (honest)
 
@@ -59,6 +67,7 @@ Backend: temp DB (6 nodes / 21 QA simulated), `0.0.0.0:8086` + `SERVE_SIMULATED_
 - Physical device / iPhone: emulator-only in this task.
 - Offline cold start against the release APK: blocked on the W2 APK build (prebuild/
   assemble in progress); Expo-bundle cold start was exercised via force-stop + relaunch.
+  → CLOSED: verified on the `F4FF95` release build (see above).
 - `tools/voice`: never run in Phase 7.1/8 per scope.
 
 ## Findings for owners (no W4 source edits made)
