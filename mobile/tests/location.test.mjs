@@ -56,19 +56,29 @@ test('no reading and no coordinates are refused', () => {
 test('a closed point is never suggested', () => {
   const closed = nodes.map((node) => (node.id === nodes[2].id ? { ...node, available: false } : node));
   const result = pickCandidate(closed, at(nodes[2]), LIMITS);
-  assert.notEqual(result.kind === 'candidate' && result.node.id, nodes[2].id);
+  if (result.kind === 'candidate') {
+    assert.notEqual(result.node.id, nodes[2].id);
+    assert.equal(result.node.available, true);
+  }
+  const allClosed = nodes.map((node) => ({ ...node, available: false }));
+  const closedResult = pickCandidate(allClosed, at(nodes[2]), LIMITS);
+  assert.equal(closedResult.kind, 'no-coordinates');
 });
 
 // Regression: R5.02 — receiving a candidate must never confirm a point by itself.
 test('no result claims a point is confirmed', () => {
-  const kinds = [
-    pickCandidate(nodes, undefined, LIMITS).kind,
-    pickCandidate(nodes, { ...at(nodes[0]), accuracy: 999 }, LIMITS).kind,
-    pickCandidate(nodes, { latitude: 10.9, longitude: 106.9, accuracy: 5 }, LIMITS).kind,
-    pickCandidate(nodes, at(nodes[0]), LIMITS).kind,
+  const results = [
+    pickCandidate(nodes, undefined, LIMITS),
+    pickCandidate(nodes, { ...at(nodes[0]), accuracy: 999 }, LIMITS),
+    pickCandidate(nodes, { latitude: 10.9, longitude: 106.9, accuracy: 5 }, LIMITS),
+    pickCandidate(nodes, at(nodes[0]), LIMITS),
   ];
-  for (const kind of kinds) {
-    assert.doesNotMatch(String(kind), /confirm/i);
+  const allowedKinds = new Set(['needs-position', 'poor-accuracy', 'no-coordinates', 'outside-cluster', 'candidate']);
+  for (const res of results) {
+    assert.ok(allowedKinds.has(res.kind));
+    assert.notEqual(res.kind, 'confirmed');
+    assert.equal('confirmed' in res, false);
+    assert.doesNotMatch(String(res.kind), /confirm/i);
   }
 });
 

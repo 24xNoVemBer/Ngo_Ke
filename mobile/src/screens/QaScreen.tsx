@@ -496,7 +496,9 @@ export function QaScreen({
               </View>
 
               <View style={styles.disclaimerPill}>
-                <Text style={styles.disclaimerPillText}>Ảnh minh họa · {mode === 'demo' ? 'Truyện hư cấu' : 'điểm mô phỏng · nguồn Live'}</Text>
+                <Text style={styles.disclaimerPillText}>
+                  Ảnh minh họa · {mode === 'demo' ? 'Truyện hư cấu' : (dataset?.kind === 'reviewed' ? 'điểm đã duyệt · nguồn Live' : 'điểm mô phỏng · nguồn Live')}
+                </Text>
               </View>
             </View>
 

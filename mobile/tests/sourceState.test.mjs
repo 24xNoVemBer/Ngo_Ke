@@ -311,6 +311,28 @@ test('reviewed dataset requires complete approved reviewStatus and valid UTC upd
   invalidDate.nodes[0].updatedAt = 'not-a-valid-date';
   assert.equal(parseDataset(invalidDate, { mode: 'live' }), undefined);
 
+  // Calendar-invalid dates that JS Date.parse normally rolls over to subsequent months
+  const feb30Node = makeReviewedFixture();
+  feb30Node.nodes[0].updatedAt = '2026-02-30T00:00:00Z';
+  assert.equal(parseDataset(feb30Node, { mode: 'live' }), undefined, 'Feb 30 does not exist');
+
+  const nonLeapFeb29Node = makeReviewedFixture();
+  nonLeapFeb29Node.nodes[0].updatedAt = '2026-02-29T00:00:00Z';
+  assert.equal(parseDataset(nonLeapFeb29Node, { mode: 'live' }), undefined, '2026 is not a leap year');
+
+  const april31Node = makeReviewedFixture();
+  april31Node.nodes[0].updatedAt = '2026-04-31T00:00:00Z';
+  assert.equal(parseDataset(april31Node, { mode: 'live' }), undefined, 'April only has 30 days');
+
+  const hour25Node = makeReviewedFixture();
+  hour25Node.nodes[0].updatedAt = '2026-10-16T25:00:00Z';
+  assert.equal(parseDataset(hour25Node, { mode: 'live' }), undefined, 'Hour 25 is invalid');
+
+  // Valid leap year date
+  const leapFeb29Node = makeReviewedFixture();
+  leapFeb29Node.nodes[0].updatedAt = '2024-02-29T12:00:00Z';
+  assert.ok(parseDataset(leapFeb29Node, { mode: 'live' }), '2024-02-29 is a valid leap year date');
+
   // Missing reviewStatus on QA
   const missingQaStatus = makeReviewedFixture();
   delete missingQaStatus.qa[0].reviewStatus;
