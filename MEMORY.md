@@ -2,6 +2,11 @@
 
 ## 2026-10-16 — Quyền chạy xuyên suốt và chuyển coordinator
 
+- **Review bổ sung đã sửa:** coordinator tái hiện payload858996byte với21QA/evidence20×2000, mỗi field hợp lệ nhưng tổng vượt512KiB. W3a task `task_403bc95a8337`, dispatch `ctx_d2d2b56b782b` hoàn tất commit `0399821706d985227c02e1d87f16859d3ecae52c`: chặn tổng UTF-8 tại import/read; replace lỗi giữ DB cũ, dữ liệu DB quá trần→503. Coordinator kiểm độc lập19/19 backend tests đạt, đã merge local integration; W4 được yêu cầu nhận patch và kiểm lại HTTP trước final.
+- **Native QA chưa đạt:** harness Phase7 cũ đang lệch UI Landing/chọn ngõ của baselineB, các lượt chạy thực đã ghi allRunsPassed=false, không che bằng chứng. Một PNG debug redirect qua PowerShell bị UTF16 (headerfffe...), không dùng làm evidence; yêu cầu chụp mới binary-safe. W4 sở hữu sửa harness, không sửa app chỉ để test xanh.
+- W2 hỗ trợ QA chỉ đọc: task `task_1ac80f77371f`, dispatch `ctx_7d229f41511b`, terminal Antigravity giữ nguyên, mapping accessible labels/canonicalQA cho Muse; không điều khiển thiết bị hoặc sửa source/tools cùng W4. Đợt VI/EN vẫn chờ nghiệm thu8 thật.
+- Vận hành: receipt outcome_unknown không có nghĩa worker chết. Với W3a đã thấy `[Pasted Content 6178 chars]` trong composer, gửi Enter một lần rồi worker chạy; không relaunch hoặc đổi model. Chỉ nudge sau quan sát cụ thể, không ack hộ mailbox.
+
 - **Mốc kiểm độc lập:** W2 hoàn tất c16b662 +0422ed5, tree sạch; coordinator tự chạy197/197 test đạt. W3 backend2963fb8 + shared parser cherry-picks tới c1b65fc71021804444ea3c7058cb72daa9bf0776, tree sạch; coordinator tự chạy17/17 backend tests đạt. W4a00c6ee2 guard33/33 được coordinator kiểm lại đạt.
 - Nhánh/worktree tích hợp local `valentino/phase8-integration` ở `C:/Users/LEGION/orca/workspaces/ngoke/phase8-integration`, SHA d49b550a0dc57acffce16ab5dae82983f16b2af4; merge các nhánh mới W2/W3/W4, không nhánh C cũ/main. W4 worktree đã fast-forward sạch tới SHA này.
 - W4b hoàn tất môi trường: AVD Medium_Phone_API_37.0/emulator-5554, API37 boot_completed=1, launcher PID36188/qemu38528,593 npm packages theo lockfile, không đổi lockfile; PID log trong tools/e2e/.runs/emulator-boot/. Emulator do W4 khởi chạy có chủ đích giữ cho QA.

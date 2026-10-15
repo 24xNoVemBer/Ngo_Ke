@@ -4,7 +4,7 @@
 
 **Quyết định 03/10/2026 của người dùng:** backend **do dự án tự viết** (Node 24 + JSON API + SQLite theo plan), không chờ đội ngoài. Dữ liệu MVP là **dữ liệu mô phỏng do dự án sinh**; khi nào có dữ liệu thật thì thay sau, không chặn MVP.
 
-**Trạng thái16/10/2026:** backend đã triển khai ở `valentino/backend-luna` (backend commit2963fb8, shared parser tích hợp tại c1b65fc); nhánh tích hợp d49b550 có app/backend/guard. Coordinator đã kiểm197 app/17 backend/33 guard tests đạt; W4 đang review/HTTP/native E2E, **chưa tuyên bố nghiệm thu**. Backend không npm dependencies hoặc route chat/LLM. Phase6/mock server là lịch sử kiểm adapter.
+**Trạng thái16/10/2026:** backend đã triển khai ở `valentino/backend-luna` (backend2963fb8, parser c1b65fc, fix tổngbody0399821); nhánh `valentino/phase8-integration` có app/backend/guard và patch tổngbody. Coordinator đã kiểm197 app/19 backend/33 guard tests đạt; W4 đang review/HTTP/native E2E, **chưa tuyên bố nghiệm thu**. Backend không npm dependencies hoặc route chat/LLM. Phase6/mock server là lịch sử kiểm adapter.
 
 ## Kết nối phía app
 

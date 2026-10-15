@@ -10,7 +10,7 @@
 
 ## Trạng thái và quyền thực hiện
 
-- **Phase hiện tại: 8, đang kiểm tích hợp/review; chưa tuyên bố nghiệm thu.** Phase7.1 app và guard đã có commit; coordinator kiểm độc lập197 app tests,33 guard tests và17 backend tests đạt. GPS/QR thật/iPhone vẫn cần bằng chứng riêng, không suy từ test Node hoặc export.
+- **Phase hiện tại: 8, đang kiểm tích hợp/review; chưa tuyên bố nghiệm thu.** Phase7.1 app và guard đã có commit; coordinator kiểm độc lập197 app tests,33 guard tests và19 backend tests (sau fix tổngbody0399821) đạt. Native E2E đang sửa harness lệch baseline; GPS/QR thật/iPhone vẫn cần bằng chứng riêng, không suy từ test Node hoặc export.
 - **Implementation approved: Phase7.1 và Phase8** theo yêu cầu chạy end-to-end ở trên; không chờ user duyệt lại từng task. Voice đã triển khai nhưng goal cũ tạm dừng; chỉ scope VI/EN riêng được mở sau Phase8 đạt.
 - Công cụ: **Orca orchestration**, Codex/W1 điều phối, Antigravity/W2 app, Codex Luna/W3 backend, OpenCode Muse/W4 review/QA. Trình độ A/B/C của người dùng chưa xác định.
 - Đọc `MEMORY.md` trước khi làm việc để biết nhiệm vụ, bằng chứng duyệt và bước tiếp theo.
