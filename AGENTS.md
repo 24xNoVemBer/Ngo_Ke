@@ -1,5 +1,13 @@
 # AGENTS.md — Ngõ Kể
 
+## Quyền hiện hành — 16/10/2026 (ưu tiên hơn trạng thái lịch sử bên dưới)
+
+- Người dùng yêu cầu: **“chạy end-to-end đi, hiện tại ch cần t duyệt”**; đã cho phép điều phối triển khai Phase 7.1 và Phase 8, không dừng xin duyệt lại từng task. G1/G2 của Run `run_a728dba15869` đã được resolve theo chỉ dẫn này; đây không phải tuyên bố nghiệm thu đã đạt.
+- Baseline: `9a3931848b13f283155056128bd3ce5aee71a90a`. Đọc `docs/PHASE_7_1_8_EXECUTION_SPEC.md` trước coding; các task DRAFT trong Orca dùng spec cuối tại tài liệu này và chỉ dẫn mới nhất của coordinator.
+- Coordinator/W1 là Codex trong worktree `plan-architecture`, chỉ sửa tài liệu/hợp đồng, không viết source sản phẩm. W2 Antigravity sở hữu app/test app; W3 Codex `gpt-6-luna`/`xhigh` sở hữu backend/test backend; W4 OpenCode `opencode/muse-spark-1.3-contributor-free` sở hữu E2E/review/QA. Không âm thầm đổi model.
+- Voice cũ đã triển khai nhưng tạm dừng; Phase 7.1/8 không đổi engine/audio/matcher. Sau khi Phase 8 thực sự đạt nghiệm thu, thực hiện yêu cầu hậu Phase 8 trong `E:/Project/Ngo_Ke/ngoke/docs/CLAUDE_POST_PHASE8_STORY_EN_PROMPT.md`, với Codex làm coordinator; chỉ các thay đổi voice cần cho VI/EN trong yêu cầu đó được mở.
+- Không merge vào main/push/deploy, không ghi/stash/checkout workspace chính `E:/Project/Ngo_Ke/ngoke`, không ghi đè WIP. Có quyền commit cục bộ đúng phần sở hữu; cài dependency có sẵn bằng lockfile khi cần. Không LLM/chat/AR/dẫn đường/public hosting.
+
 ## Trạng thái và quyền thực hiện
 
 - **Phase hiện tại: 7. Trạng thái: kiểm thử và bàn giao Phase 7 đã xong; G7 chờ anh duyệt demo.** Phase 1–4 đã duyệt; nội dung và tọa độ vẫn là mô phỏng; **nhánh GPS candidate/outside-cluster chưa kiểm được trên emulator** (máy ảo không cấp fix GPS); quét QR thật chưa kiểm end-to-end; điện thoại thật/iOS chưa kiểm tra; audit còn cảnh báo.

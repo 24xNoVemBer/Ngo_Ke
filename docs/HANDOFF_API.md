@@ -1,5 +1,7 @@
 # Handoff API — Ngõ Kể
 
+> **Hợp đồng thực hiện 16/10/2026:** [spec Phase7.1/8](PHASE_7_1_8_EXECUTION_SPEC.md#hợp-đồng-live-cuối-cho-đợt-này) thay các quy tắc lịch sử bên dưới về parser dùng chung demo/live, nhãn “đã duyệt”, node count và 200 rỗng. Giữ GET dataset và deadline8s; live mở 1..50 node với simulated/reviewed, reviewed cần metadata approved/updatedAt từng record; empty canonical404, 200 rỗng/sai envelope là error. Phase8 được người dùng cho phép chạy xuyên suốt, backend đang được triển khai, chưa phải đã nghiệm thu. Không API chat/LLM hoặc fallback demo.
+
 **Quyết định 03/10/2026 của người dùng:** backend **do dự án tự viết** (Node 24 + JSON API + SQLite theo plan), không chờ đội ngoài. Dữ liệu MVP là **dữ liệu mô phỏng do dự án sinh**; khi nào có dữ liệu thật thì thay sau, không chặn MVP.
 
 **Trạng thái:** backend thật **chưa được viết**. Phase 6 chỉ làm phía app (adapter live) và máy chủ kiểm chứng tạm. Phạm vi “toàn cục” của backend đã được người dùng chốt nguyên tắc; chi tiết endpoint sẽ trình trước khi code.

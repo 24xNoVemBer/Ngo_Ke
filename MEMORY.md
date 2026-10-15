@@ -1,5 +1,14 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-16 — Quyền chạy xuyên suốt và chuyển coordinator
+
+- Người dùng: **“chạy end-to-end đi, hiện tại ch cần t duyệt”**. G1 `gate_9adcdfaeecad` và G2 `gate_6cfb2aa8cf5f` đã resolve theo yêu cầu thật; Phase7.1/8 được triển khai theo `docs/PHASE_7_1_8_EXECUTION_SPEC.md`, không có nghĩa đã nghiệm thu.
+- Coordinator là Codex/W1, Run `run_a728dba15869`, terminal `term_552bec4b-7fac-4495-8bff-f9f21901b7ed`; T0 completed. Baseline `9a3931848b13f283155056128bd3ce5aee71a90a`, nhánh backend `6e0c5bf` chỉ tuyển nền phù hợp.
+- W2 Antigravity app/test app, W3 Codex gpt-6-luna/xhigh backend/test backend, W4 OpenCode **Muse** `opencode/muse-spark-1.3-contributor-free` theo lựa chọn người dùng; W1 không source sản phẩm. Chưa tự đổi model hoặc merge main/push.
+- Kiểm T0: Node24.14.1, 19 mobile test files,138pass/2fail (thiếu typescript và @expo/config-plugins), chưa npm ci; worktree sạch. Camera/retry/parseTimeBudget đã sửa ở baseline, không làm lại. Chưa chạy backend/E2E/native trong T0.
+- Giữ workspace chính E:/Project/Ngo_Ke/ngoke chỉ đọc và mọi WIP; không nhập toàn bộ UI/voice của main hoặc nhánh backend. Voice cũ tạm dừng, không đổi engine/audio/matcher trong Phase7.1/8.
+- Sau Phase8 **thực sự đạt nghiệm thu**, thực hiện tài liệu `docs/CLAUDE_POST_PHASE8_STORY_EN_PROMPT.md` ở workspace chính với Codex làm coordinator: task `task_29530ca62743`, phụ thuộc T4 tích hợp. Người dùng cho phép scope VI/EN cần thiết khi đó, không mở goal voice cũ; không hỏi duyệt lại từng task nội bộ.
+
 ## 2026-10-15 — Revalidation after remaining-effort estimate
 
 - Re-ran current mobile checks against the dirty working tree: `npm test` 171/171, TypeScript, ESLint, Expo dependency compatibility, and `git diff --check` passed. The only diff-check output is existing LF/CRLF warnings.

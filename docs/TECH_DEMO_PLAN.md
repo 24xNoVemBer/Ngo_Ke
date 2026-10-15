@@ -1,5 +1,7 @@
 # Ngõ Kể — kế hoạch app mobile demo theo từng phase
 
+> **Trạng thái hiện hành 16/10/2026:** người dùng yêu cầu chạy end-to-end không chờ duyệt lại; Phase7.1/8 theo [spec thực hiện](PHASE_7_1_8_EXECUTION_SPEC.md) được phép triển khai. Nội dung phase0/7 đang chờ duyệt và giả định source/backend cũ bên dưới là lịch sử. Nghiệm thu từng phần vẫn phải có bằng chứng; voice cũ tạm dừng, scope VI/EN chỉ mở sau Phase8 theo yêu cầu riêng. Không merge main/push/deploy.
+
 Ngày cập nhật: 02/10/2026  
 Phạm vi: phần Tech của người A  
 Trạng thái: **đang chờ người dùng review kế hoạch; chưa bắt đầu phase native mobile**.

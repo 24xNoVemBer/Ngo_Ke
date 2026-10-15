@@ -1,5 +1,7 @@
 # Review Checklist — Ngõ Kể
 
+> **16/10/2026:** G1/G2 Run run_a728dba15869 đã resolve theo yêu cầu người dùng “chạy end-to-end đi, hiện tại ch cần t duyệt”. Quyền triển khai không đồng nghĩa test/phase đã đạt. Theo [spec Phase7.1/8](docs/PHASE_7_1_8_EXECUTION_SPEC.md); ghi pass/fail/pending và SHA thật trước khi chuyển sang đợt VI/EN.
+
 > Checklist dự án dựa trên template Part 4 trong yêu cầu và gate của [plan](docs/TECH_DEMO_PLAN.md). Không có bản `/templates/REVIEW-CHECKLIST.md` để copy nguyên văn; nguồn và giới hạn ghi ở [setup_review.md](agent_docs/setup_review.md).
 
 Chỉ dùng các mục thuộc phase đang review; không đánh dấu phase tương lai. Checkbox là tiêu chí, không phải lịch sử duyệt. Bằng chứng người dùng duyệt ghi trong `MEMORY.md`.

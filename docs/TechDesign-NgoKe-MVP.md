@@ -1,5 +1,7 @@
 # Technical Design Document: Ngõ Kể MVP
 
+> **16/10/2026:** thiết kế hiện hành cho đợt thực hiện là [Phase7.1/8 spec](PHASE_7_1_8_EXECUTION_SPEC.md). Quyền triển khai do người dùng yêu cầu chạy xuyên suốt, không còn trạng thái “Implementation approved: false” của bản nháp lịch sử dưới đây. Backend được tuyển nền từ 6e0c5bf, không nhận là backend có sẵn đã được duyệt; không chat/LLM/voice trong Phase8.
+
 ## Executive Summary
 
 **System:** Ngõ Kể  
