@@ -10,9 +10,9 @@
 
 ## Trạng thái và quyền thực hiện
 
-- **Phase hiện tại: 7. Trạng thái: kiểm thử và bàn giao Phase 7 đã xong; G7 chờ anh duyệt demo.** Phase 1–4 đã duyệt; nội dung và tọa độ vẫn là mô phỏng; **nhánh GPS candidate/outside-cluster chưa kiểm được trên emulator** (máy ảo không cấp fix GPS); quét QR thật chưa kiểm end-to-end; điện thoại thật/iOS chưa kiểm tra; audit còn cảnh báo.
-- **Implementation approved: Phase 7 (R7.01–R7.03).** Người dùng nói “Tôi duyệt phase [6]. Hãy triển khai phase 7 theo TECH_DEMO_PLAN.md, kiểm tra và bàn giao để tôi review.” Voice vẫn chưa được duyệt. Phase này **đóng băng scope**: chỉ kiểm thử, sửa lỗi trong phạm vi đã duyệt và viết bàn giao; không thêm tính năng, không tự thêm chuẩn accessibility định lượng.
-- Công cụ đang dùng: **OpenCode**. Trình độ A/B/C của người dùng chưa xác định; không suy từ vai trò “người A”.
+- **Phase hiện tại: 8, đang kiểm tích hợp/review; chưa tuyên bố nghiệm thu.** Phase7.1 app và guard đã có commit; coordinator kiểm độc lập197 app tests,33 guard tests và17 backend tests đạt. GPS/QR thật/iPhone vẫn cần bằng chứng riêng, không suy từ test Node hoặc export.
+- **Implementation approved: Phase7.1 và Phase8** theo yêu cầu chạy end-to-end ở trên; không chờ user duyệt lại từng task. Voice đã triển khai nhưng goal cũ tạm dừng; chỉ scope VI/EN riêng được mở sau Phase8 đạt.
+- Công cụ: **Orca orchestration**, Codex/W1 điều phối, Antigravity/W2 app, Codex Luna/W3 backend, OpenCode Muse/W4 review/QA. Trình độ A/B/C của người dùng chưa xác định.
 - Đọc `MEMORY.md` trước khi làm việc để biết nhiệm vụ, bằng chứng duyệt và bước tiếp theo.
 
 ## Nguồn chuẩn và đọc theo nhu cầu
@@ -47,6 +47,8 @@ Giữ các hướng dẫn đang có, kể cả hướng dẫn toàn cục. Nếu
 
 ## Quy tắc phase — bắt buộc
 
+Các quy tắc dưới là mặc định cho scope chưa được cấp quyền. Riêng Run hiện hành, người dùng đã cho phép chạy xuyên suốt Phase7.1/8 và scope VI/EN sau nghiệm thu Phase8; không tạo thêm cửa xin duyệt nội bộ. Vẫn kiểm chứng trước khi chuyển bước và báo đúng phần pending.
+
 1. **Chỉ thực hiện một phase mỗi lần. Chỉ bắt đầu phase sau khi người dùng duyệt rõ ràng phase đó.** Hoàn tất tài liệu, kiểm tra đạt hoặc nhận yêu cầu “chỉnh cho chuẩn” không phải quyền sang phase mới.
 2. Trước coding, đề xuất cách làm ngắn trong phase được phép và chờ duyệt. Duyệt plan Phase 0 là điều kiện trước khi tạo native project; chỉ triển khai Phase 1 khi người dùng cho phép rõ ràng. Một lần duyệt không mở tất cả các phase.
 3. Thực hiện từng tính năng trong phase; kiểm tra sau thay đổi, sửa lỗi trước khi tiếp tục. Chỉ sửa feedback trong phase hiện tại. Scope mới cần cập nhật plan và review trước coding.
@@ -61,15 +63,15 @@ Giữ các hướng dẫn đang có, kể cả hướng dẫn toàn cục. Nếu
 | 4 | Camera, QR, 2D placeholder + caption, chọn tay (G4) | **Đã được người dùng duyệt 03/10/2026** (quét QR thật vẫn chưa kiểm end-to-end) |
 | 5 | GPS candidate, xác nhận/chọn lại (G5) | **Đã được người dùng duyệt 03/10/2026** (nhánh candidate/outside-cluster chưa chạy thật trên thiết bị) |
 | 6 | Live gọi API, tách demo/live, handoff data/UI (G6) | **Đã được người dùng duyệt 03/10/2026** (chưa có backend thật) |
-| 7 | Offline, kiểm thử end-to-end, bàn giao demo (G7) | Đã bàn giao; chờ anh xem demo và chốt mở phase backend |
-| 8 (chưa mở) | Backend Node 24 + SQLite, phạm vi toàn cục | Chờ anh duyệt scope; phải trình spec trước khi code |
-| Voice riêng | Sau core; duyệt riêng + connector/giọng người dùng chọn (GV) | Chưa được duyệt |
+| 7 | Offline, kiểm thử end-to-end, bàn giao demo (G7) | Đã bàn giao;7.1 đang được kiểm cùng Phase8 theo quyền mới |
+| 8 | Backend Node24+SQLite, dataset/health/ready và CLI nội bộ | Được phép triển khai theo spec; code/unit test xong, đang QA tích hợp |
+| Voice riêng | Goal V0–V7 cũ và scope VI/EN sau8 | Goal cũ tạm dừng; VI/EN đã được yêu cầu, chưa mở trước nghiệm thu8 |
 
 ## Backend và dữ liệu MVP — quyết định của người dùng (03/10/2026)
 
 - **Backend do dự án tự viết**, không chờ nhóm ngoài: Node 24 + JSON API + SQLite theo plan. Không có sẵn gì để dùng.
 - **Dữ liệu MVP do dự án sinh** và ghi rõ là **mô phỏng** (đã có trong `data/demo.json`). Khi nào có data thật thì thay sau, **không chặn** việc làm MVP.
-- Vì vậy `tools/mock-api/` chỉ là công cụ kiểm chứng tạm thời; backend thật là một **phase riêng**, cần người dùng duyệt trước khi code.
+- `tools/mock-api/` chỉ là công cụ kiểm chứng tạm thời; backend Phase8 đã được mở theo quyền hiện hành. Nền phù hợp được tuyển từ6e0c5bf, không nhập toàn nhánh hoặc các module chat/LLM/voice.
 - MVP được phép dùng dữ liệu mô phỏng, nhưng **không** được bịa lịch sử/nguồn/địa điểm thật và phải ghi rõ nguồn của mọi câu trả lời.
 - Hết phase core demo mới xét phase Voice, và cần người dùng dẫn dắt cùng connector/giọng do họ chọn.
 
@@ -84,11 +86,11 @@ Quy tắc: không tự quyết thay; không coi là đã xử lý; không giấu
 
 ## Đóng băng scope sau Phase 7
 
-Core demo đã qua đủ phase và bàn giao. Từ đây **không** mở thêm tính năng vào app khi chưa có phase mới được người dùng duyệt; muốn sửa hành vi đã duyệt thì ghi vào review và chờ quyết định.
+Core demo đã bàn giao. Scope hiện hành là spec Phase7.1/8 và scope VI/EN được yêu cầu riêng sau nghiệm thu8; không tự thêm tính năng ngoài hai phạm vi đó hoặc mở lại toàn bộ goal voice cũ.
 
 ## Sản phẩm và ranh giới không được tự mở rộng
 
-Ngõ Kể là tech demo native Android/iOS bằng **Expo + React Native**, khám phá con ngõ qua Q&A cố định, gợi ý điểm và người kể 2D/caption trên camera. Backend theo plan: **Node 24 + JSON API + SQLite**; source chưa có trong workspace này.
+Ngõ Kể là tech demo native Android/iOS bằng **Expo + React Native**, khám phá con ngõ qua Q&A cố định, gợi ý điểm và người kể 2D/caption trên camera. Backend **Node24+JSON API+SQLite** ở nhánh `valentino/backend-luna` và nhánh tích hợp `valentino/phase8-integration`; không yêu cầu tìm source cũ.
 
 - **Không tự thêm chatbot LLM, AR/3D, voice, dẫn đường hoặc deploy.** Không sinh đáp án tự do, lip-sync, OCR, nhận diện công trình, tracking nền, push remote hoặc phát hành store. Voice/AR cần scope và duyệt riêng; core không phụ thuộc voice.
 - **Không xây web/PWA** (quyết định 03/10/2026): không dựng `public/`, web preview hay PWA ở bất kỳ phase nào; mọi nghiệm thu chạy trên app native. Backend/API live vẫn thuộc phạm vi.
