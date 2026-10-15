@@ -43,7 +43,7 @@ EXPO_PUBLIC_NGOKE_API_BASE_URL=http://<ip>:8086 npm start --prefix mobile
 | Endpoint | Trạng thái |
 | --- | --- |
 | `/api/dataset` | có dữ liệu hợp lệ |
-| `/empty/api/dataset` | rỗng |
+| `/empty/api/dataset` | Fixture200nodes[] lịch sử, thiếu envelope nên adapter hiện hành phải báo shape error; empty hợp lệ dùng404 |
 | `/broken/api/dataset` | mất nguồn ở một câu |
 | `/server-error/api/dataset` | HTTP 500 |
 | `/hang/api/dataset` | không phản hồi (kiểm timeout) |
