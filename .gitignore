@@ -30,6 +30,9 @@ yarn-error.*
 .env
 .env*.local
 
+# Local E2E run output (fresh folders per run; committed evidence stays read-only)
+tools/e2e/.runs/
+
 # Local voice model environment and generated probe/catalogue files
 tools/voice/.venv/
 tools/voice/.cache/

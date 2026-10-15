@@ -2,24 +2,62 @@
 /**
  * Repeatable demo scenario for Ngõ Kể (Phase 7, R7.01).
  *
- *   node tools/e2e/demo-scenario.mjs [--runs 3]
+ *   node tools/e2e/demo-scenario.mjs [--runs 3] [--out-dir <path>]
  *
  * It drives the Android emulator over adb and walks the accepted scenario:
  *   giới thiệu -> hỏi -> chọn chủ đề -> nhận điểm -> xác nhận -> xem lời kể -> hỏi tiếp
  * Each run records every step so a failure can be traced to a single step, and
  * the script exits non-zero when any run fails.
+ *
+ * Guards (W4a): --runs must be a finite integer >= 1 (missing/invalid values
+ * exit 2 and never report a pass); an empty result set never passes; output
+ * defaults to a fresh gitignored folder under tools/e2e/.runs/ (override with
+ * --out-dir or E2E_OUT_DIR) so committed evidence is never overwritten; the
+ * adb target is resolved portably (ANDROID_SDK_ROOT/ANDROID_HOME/ANDROID_SDK,
+ * ANDROID_SERIAL, adb server port 5037 by default, NGOKE_DEV_HOST/NGOKE_EXPO_PORT).
  */
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  buildAdbBase,
+  exitBadRuns,
+  parseRuns,
+  resolveAdbTarget,
+  resolveOutDir,
+  selectDevice,
+  summarizeRuns,
+} from './e2e-env.mjs';
 
-const SDK = process.env.ANDROID_SDK ?? '/mnt/d/Dev/Android/Sdk';
-const ADB = [join(SDK, 'platform-tools/adb.exe'), '-P', '5039', '-s', '127.0.0.1:5557'];
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const EVIDENCE = join(ROOT, 'agent_docs/evidence/phase-7');
-const RUNS = Number(process.argv[process.argv.indexOf('--runs') + 1] ?? 3);
-const IP = process.env.NGOKE_DEV_HOST ?? '172.28.197.254';
+
+const parsed = parseRuns(process.argv);
+if (!parsed.ok) exitBadRuns(parsed.error);
+const RUNS = parsed.runs;
+
+const outResolved = resolveOutDir({ argv: process.argv, root: ROOT });
+if (!outResolved.ok) exitBadRuns(outResolved.error);
+const EVIDENCE = outResolved.dir;
+
+const adbTarget = resolveAdbTarget();
+if (!adbTarget.ok) {
+  process.stderr.write(`ERROR: ${adbTarget.error}\n`);
+  process.exit(2);
+}
+const IP = adbTarget.metroHost;
+const EXPO_PORT = adbTarget.metroPort;
+let ADB = buildAdbBase(adbTarget);
+// Require an explicit, connected device before doing anything else.
+{
+  const probe = spawnSync(ADB[0], ['-P', String(adbTarget.serverPort), 'devices'], { encoding: 'utf8' });
+  const picked = selectDevice(probe.stdout ?? '', adbTarget.serial);
+  if (!picked.ok) {
+    process.stderr.write(`ERROR: ${picked.error}\nRefusing to report a pass with no usable device.\n`);
+    process.exit(1);
+  }
+  ADB = buildAdbBase({ ...adbTarget, serial: picked.serial });
+}
 mkdirSync(EVIDENCE, { recursive: true });
 
 function adb(args, timeout = 40000) {
@@ -108,7 +146,7 @@ async function screenshot(name) {
 async function relaunch() {
   await shell(['shell', 'am', 'force-stop', 'host.exp.exponent']);
   await sleep(2000);
-  await shell(['shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', `exp://${IP}:8085`, 'host.exp.exponent']);
+  await shell(['shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', `exp://${IP}:${EXPO_PORT}`, 'host.exp.exponent']);
   for (let i = 0; i < 14; i += 1) {
     await sleep(2500);
     const text = screenText(await uiDump(`boot-${i}`));
@@ -215,8 +253,9 @@ const summary = {
   date: '2026-10-16',
   scenario: 'giới thiệu → hỏi → chủ đề → nhận điểm → xác nhận → lời kể → hỏi tiếp',
   runs: results,
-  allRunsPassed: results.every((entry) => entry.passed),
+  allRunsPassed: summarizeRuns(results.map((entry) => ({ passed: entry.passed }))).allRunsPassed,
 };
+summary.allRunsPassed = summary.allRunsPassed && results.length === RUNS;
 writeFileSync(join(EVIDENCE, 'scenario-runs.json'), `${JSON.stringify(summary, null, 2)}\n`);
 const total = results.reduce((sum, entry) => sum + entry.steps.length, 0);
 const passed = results.reduce((sum, entry) => sum + entry.steps.filter((s) => s.passed).length, 0);

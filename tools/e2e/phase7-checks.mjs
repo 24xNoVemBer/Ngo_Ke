@@ -3,18 +3,51 @@
  * Phase 7 checks (R7.02): fallbacks, mode switching, keyboard, font scale and
  * accessibility labels on the Android emulator.
  *
- *   node tools/e2e/phase7-checks.mjs
+ *   node tools/e2e/phase7-checks.mjs [--out-dir <path>]
+ *
+ * Guards (W4a): an empty check set never passes; output defaults to a fresh
+ * gitignored folder under tools/e2e/.runs/ (override with --out-dir or
+ * E2E_OUT_DIR) so committed evidence is never overwritten; the adb target
+ * is resolved portably (ANDROID_SDK_ROOT/ANDROID_HOME/ANDROID_SDK,
+ * ANDROID_SERIAL, adb server port 5037 by default, NGOKE_DEV_HOST/NGOKE_EXPO_PORT).
  */
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  buildAdbBase,
+  resolveAdbTarget,
+  resolveOutDir,
+  selectDevice,
+  summarizeChecks,
+  exitBadRuns,
+} from './e2e-env.mjs';
 
-const SDK = process.env.ANDROID_SDK ?? '/mnt/d/Dev/Android/Sdk';
-const ADB = [join(SDK, 'platform-tools/adb.exe'), '-P', '5039', '-s', '127.0.0.1:5557'];
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const EVIDENCE = join(ROOT, 'agent_docs/evidence/phase-7');
-const IP = process.env.NGOKE_DEV_HOST ?? '172.28.197.254';
+
+const outResolved = resolveOutDir({ argv: process.argv, root: ROOT });
+if (!outResolved.ok) exitBadRuns(outResolved.error);
+const EVIDENCE = outResolved.dir;
+
+const adbTarget = resolveAdbTarget();
+if (!adbTarget.ok) {
+  process.stderr.write(`ERROR: ${adbTarget.error}\n`);
+  process.exit(2);
+}
+const IP = adbTarget.metroHost;
+const EXPO_PORT = adbTarget.metroPort;
+let ADB = buildAdbBase(adbTarget);
+// Require an explicit, connected device before doing anything else.
+{
+  const probe = spawnSync(ADB[0], ['-P', String(adbTarget.serverPort), 'devices'], { encoding: 'utf8' });
+  const picked = selectDevice(probe.stdout ?? '', adbTarget.serial);
+  if (!picked.ok) {
+    process.stderr.write(`ERROR: ${picked.error}\nRefusing to report a pass with no usable device.\n`);
+    process.exit(1);
+  }
+  ADB = buildAdbBase({ ...adbTarget, serial: picked.serial });
+}
 mkdirSync(EVIDENCE, { recursive: true });
 
 function adb(args, timeout = 40000) {
@@ -92,7 +125,7 @@ async function shot(name) {
 async function relaunch() {
   await shell(['shell', 'am', 'force-stop', 'host.exp.exponent']);
   await sleep(2000);
-  await shell(['shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', `exp://${IP}:8085`, 'host.exp.exponent']);
+  await shell(['shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', `exp://${IP}:${EXPO_PORT}`, 'host.exp.exponent']);
   for (let i = 0; i < 14; i += 1) {
     await sleep(2500);
     if (text(await uiDump(`c-boot-${i}`)).includes('Nguồn dữ liệu')) return true;
@@ -263,6 +296,6 @@ await sleep(2000);
 need('font scale restored', (await shell(['shell', 'settings', 'get', 'system', 'font_scale'])).trim() === '1.0');
 
 writeFileSync(join(EVIDENCE, 'phase7-checks.json'), `${JSON.stringify({ date: '2026-10-16', checks }, null, 2)}\n`);
-const passed = checks.filter((c) => c.passed).length;
-process.stdout.write(`\n${passed}/${checks.length} checks passed\n`);
-process.exit(passed === checks.length ? 0 : 1);
+const verdict = summarizeChecks(checks.map((c) => ({ passed: c.passed })));
+process.stdout.write(`\n${verdict.passed}/${verdict.total} checks passed\n`);
+process.exit(verdict.allPassed ? 0 : 1);
