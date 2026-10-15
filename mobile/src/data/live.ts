@@ -18,6 +18,27 @@ export type LiveOptions = {
   signal?: AbortSignal;
 };
 
+export function getUtf8ByteLength(text: string): number {
+  if (typeof TextEncoder !== 'undefined') {
+    return new TextEncoder().encode(text).length;
+  }
+  let bytes = 0;
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    if (code <= 0x7f) {
+      bytes += 1;
+    } else if (code <= 0x7ff) {
+      bytes += 2;
+    } else if (code >= 0xd800 && code <= 0xdbff) {
+      bytes += 4;
+      i++;
+    } else {
+      bytes += 3;
+    }
+  }
+  return bytes;
+}
+
 /**
  * The live URL comes from the environment first so each environment can point
  * somewhere else without a code change; app.json is the fallback.
@@ -123,7 +144,7 @@ export async function loadLiveSource(options: LiveOptions): Promise<SourceState>
       return liveError('shape');
     }
 
-    const actualBytes = new TextEncoder().encode(text).length;
+    const actualBytes = getUtf8ByteLength(text);
     if (actualBytes > MAX_BODY_BYTES) {
       return liveError('shape');
     }
