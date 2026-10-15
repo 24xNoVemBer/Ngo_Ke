@@ -6,8 +6,8 @@
 
 - [x] Quyền chạy xuyên suốt và hợp đồng được ghi bằng chỉ dẫn người dùng; baseline source9a39318, spec commit743bf0c.
 - [x] W2 Antigravity/Gemini3.8FlashHigh, W3 CodexLuna/xhigh, W4 OpenCodeMuse được kiểm tại launch/screen; file ownership riêng.
-- [ ] W2 parser/adapter/app tests có SHA và validation reviewed/empty/limits/cancellation, không hồi quy voice.
-- [ ] W3 backend không chat/LLM, test migration/backup/rollback/HTTP thật và CLI có SHA.
+- [x] W2 parser/adapter/app tests tại c16b662 +0422ed5: coordinator chạy197/197 đạt; fixture/audio/engine/matcher voice giữ nguyên. Bản sửa API-only native config0ad83c1 đã review và test network độc lập đạt; native APK đang build.
+- [x] W3 backend2963fb8 +0399821 không chat/LLM: coordinator chạy19/19 đạt, gồm migration/backup/rollback/HTTP/aggregate512KiB; không thay dataset/audio demo.
 - [ ] W4 guard không pass0/0, integration/security/native E2E có báo cáo pass/fail/pending theo SHA.
 - [ ] Tích hợp local được kiểm độc lập; các giới hạn GPS/QR/iOS/điện thoại thật được ghi đúng bằng chứng.
 - [ ] Chỉ mở đợt VI/EN sau khi Phase8 thực sự đạt, không suy từ worker_done.
