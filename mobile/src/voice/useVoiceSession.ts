@@ -110,6 +110,8 @@ export function useVoiceSession({
   const readyRecordingRef = useRef<{ turnId: string; uri: string; durationMs: number } | null>(null);
   const cancelStartedAtRef = useRef<number | null>(null);
   const requestRef = useRef(0);
+  const activePlaybackRef = useRef<{ request: number; scope: string; collectionId: string; locale: Locale; nodeId: string; datasetRevision: string } | null>(null);
+  const observedPlaybackErrorRef = useRef(false);
   const previousScopeRef = useRef(scope);
   const previousCollectionIdRef = useRef(collectionId);
   const previousLocaleRef = useRef(locale);
@@ -154,6 +156,7 @@ export function useVoiceSession({
 
   const stopPlayback = useCallback(async () => {
     requestRef.current += 1;
+    activePlaybackRef.current = null;
     setActiveTrackId(null);
     return stopAudioPlayer(player);
   }, [player]);
@@ -218,7 +221,6 @@ export function useVoiceSession({
     nativeRecoveryPendingRef.current = context.turnId;
     setError(null);
     setPermissionBlocked(false);
-    setPlaybackError(null);
     changeStage('preparing');
 
     try {
@@ -442,7 +444,9 @@ export function useVoiceSession({
       setPlaybackError(translate(locale, 'voice.notice.audio_unavailable'));
       return;
     }
+    const retryingFailedTrack = playbackError !== null || Boolean(playback.error);
     const request = ++requestRef.current;
+    activePlaybackRef.current = null;
     const requestedScope = scope;
     const requestedLocale = locale;
     const requestedCollectionId = collectionId;
@@ -458,7 +462,8 @@ export function useVoiceSession({
         return;
       }
       player.loop = true;
-      if (activeTrackId === id) {
+      if (activeTrackId === id && !retryingFailedTrack) {
+        activePlaybackRef.current = { request, scope, collectionId, locale, nodeId: expectedNodeId, datasetRevision };
         if (restart) {
           await restartAudioPlayer(player, isCurrentRequest);
         } else if (playback.playing) player.pause();
@@ -467,6 +472,7 @@ export function useVoiceSession({
       }
       await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
       if (!isCurrentRequest()) return;
+      activePlaybackRef.current = { request, scope, collectionId, locale, nodeId: expectedNodeId, datasetRevision };
       player.replace(track.source as AudioSource);
       setActiveTrackId(id);
       player.play();
@@ -475,7 +481,7 @@ export function useVoiceSession({
         setPlaybackError(translate(locale, 'voice.notice.audio_unavailable'));
       }
     }
-  }, [activeTrackId, collectionId, datasetRevision, locale, playback.playing, player, scope]);
+  }, [activeTrackId, collectionId, datasetRevision, locale, playback.error, playback.playing, playbackError, player, scope]);
 
   const replayTrack = useCallback(async (
     id: string,
@@ -500,16 +506,31 @@ export function useVoiceSession({
         if (nativeRecoveryPendingRef.current === null) setError(null);
         else setError(messageForError('RECORDER_RECOVERY_PENDING', locale));
         setPermissionBlocked(false);
-        setPlaybackError(null);
         if (nativeRecoveryPendingRef.current === null && stageRef.current !== 'preparing' && stageRef.current !== 'stopping') changeStage('idle');
       }
+      if (scopeChanged || !isFocused) setPlaybackError(null);
     }
   }, [cancel, changeStage, collectionId, isFocused, locale, scope, stopPlayback]);
+
+  useEffect(() => {
+    const hasNativeError = Boolean(playback.error);
+    const isNewNativeError = hasNativeError && !observedPlaybackErrorRef.current;
+    observedPlaybackErrorRef.current = hasNativeError;
+    if (!isNewNativeError) return;
+
+    const activePlayback = activePlaybackRef.current;
+    if (!isFocused || !activePlayback || activePlayback.request !== requestRef.current
+        || activePlayback.scope !== scope
+        || activePlayback.collectionId !== collectionId || activePlayback.locale !== locale
+        || activePlayback.nodeId !== nodeId || activePlayback.datasetRevision !== datasetRevision) return;
+    setPlaybackError(translate(locale, 'voice.notice.audio_unavailable'));
+  }, [activeTrackId, collectionId, datasetRevision, isFocused, locale, nodeId, playback.error, scope]);
 
   useEffect(() => {
     return () => {
       cancel();
       requestRef.current += 1;
+      activePlaybackRef.current = null;
     };
   }, [cancel]);
 

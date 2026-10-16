@@ -33,6 +33,7 @@ function mountVoiceSession({ prepare = async () => {}, stop = async () => {}, tr
   let result;
   let recording = false;
   let durationMillis = 1000;
+  let playbackStatus = { playing: false, currentTime: 0, duration: 0, error: null };
   let recorderStops = 0;
   let recorderStarts = 0;
   let recorderPrepares = 0;
@@ -93,7 +94,7 @@ function mountVoiceSession({ prepare = async () => {}, stop = async () => {}, tr
     'expo-audio': {
       RecordingPresets: { HIGH_QUALITY: {} },
       useAudioPlayer: () => player,
-      useAudioPlayerStatus: () => ({ playing: false, currentTime: 0, duration: 0 }),
+      useAudioPlayerStatus: () => playbackStatus,
       useAudioRecorder: () => recorder,
       useAudioRecorderState: () => ({ durationMillis, metering: -30 }),
       setAudioModeAsync: async () => {},
@@ -151,6 +152,7 @@ function mountVoiceSession({ prepare = async () => {}, stop = async () => {}, tr
     options,
     playerEvents,
     playerSources,
+    set playbackStatus(status) { playbackStatus = status; },
     get counts() { return { recorderStops, recorderStarts, recorderPrepares, fileDeletes, transcribeCalls }; },
     set duration(value) { durationMillis = value; },
     unmount() { slots.forEach((slot) => slot?.cleanup?.()); },
@@ -288,6 +290,98 @@ test('playback keeps kind and node checks in the hook with the four-field catalo
     { collectionId: 'fiction-letter', locale: 'en', contentId: 'story', datasetRevision: 'rev-1' },
     { collectionId: 'fiction-letter', locale: 'en', contentId: 'story', datasetRevision: 'rev-1' },
   ]);
+  view.unmount();
+});
+
+test('native playback failure stays visible, retry reloads the source, and scope change clears stale errors', async () => {
+  const previousRequire = globalThis.require;
+  globalThis.require = () => 'ma-may-vietnamese-audio';
+  let catalog;
+  try {
+    catalog = await import('../src/voice/localizedCatalog.ts');
+  } finally {
+    if (previousRequire === undefined) delete globalThis.require;
+    else globalThis.require = previousRequire;
+  }
+
+  const dataset = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.vi.json', import.meta.url), 'utf8'));
+  const manifest = JSON.parse(readFileSync(new URL('../assets/voice/post8/remaining/manifest.json', import.meta.url), 'utf8'));
+  const localeCatalogue = manifest.catalogues['old-quarter-pilot'].vi;
+  const node = dataset.nodes.find((item) => item.id === 'oldquarter-ma-may');
+  const id = `${node.id}-story`;
+  const textHash = (text) => createHash('sha256').update(text, 'utf8').digest('hex');
+  const track = catalog.lookupVoiceTrack({
+    collectionId: 'old-quarter-pilot', locale: 'vi', contentId: id, datasetRevision: localeCatalogue.datasetRevision,
+  });
+  assert.equal(track?.kind, 'story');
+  assert.equal(track?.nodeId, node.id);
+  assert.equal(track?.textHash, textHash(node.story));
+
+  const options = {
+    mode: 'live', collectionId: 'old-quarter-pilot', locale: 'vi', datasetRevision: localeCatalogue.datasetRevision,
+    scope: `live:old-quarter-pilot:vi:${localeCatalogue.datasetRevision}:${node.id}`, nodeId: node.id, isFocused: true,
+  };
+  const view = mountVoiceSession({
+    lookupTrack: catalog.lookupVoiceTrack,
+    hash: async (_algorithm, text) => textHash(text),
+    options,
+  });
+  await view.render().playTrack(id, node.story, 'story', node.id);
+  assert.deepEqual(view.playerEvents, ['replace', 'play']);
+  assert.deepEqual(view.playerSources, [track.source]);
+
+  view.playbackStatus = { playing: false, currentTime: 0, duration: 48.49 };
+  await view.render().playTrack(id, node.story, 'story', node.id);
+  assert.deepEqual(view.playerEvents, ['replace', 'play', 'play']);
+  assert.deepEqual(view.playerSources, [track.source]);
+
+  view.playbackStatus = { playing: false, currentTime: 0, duration: 48.49, error: 'EACCES /private/mm-may.mp3' };
+  assert.equal(view.render().playbackError, 'vi:voice.notice.audio_unavailable');
+  view.playbackStatus = { playing: false, currentTime: 0, duration: 0, error: null };
+  assert.equal(view.render().playbackError, 'vi:voice.notice.audio_unavailable');
+
+  await view.render().playTrack(id, node.story, 'story', node.id);
+  assert.deepEqual(view.playerEvents, ['replace', 'play', 'play', 'replace', 'play']);
+  assert.deepEqual(view.playerSources, [track.source, track.source]);
+  assert.equal(view.render().playbackError, null);
+
+  view.playbackStatus = { playing: false, currentTime: 0, duration: 48.49, error: 'EACCES /private/mm-may.mp3' };
+  assert.equal(view.render().playbackError, 'vi:voice.notice.audio_unavailable');
+  view.playbackStatus = { playing: false, currentTime: 0, duration: 0, error: null };
+  assert.equal(view.render().playbackError, 'vi:voice.notice.audio_unavailable');
+  const englishRevision = manifest.catalogues['old-quarter-pilot'].en.datasetRevision;
+  const nextScope = {
+    ...options,
+    locale: 'en',
+    datasetRevision: englishRevision,
+    scope: `live:old-quarter-pilot:en:${englishRevision}:${node.id}`,
+  };
+  view.render(nextScope);
+  assert.equal(view.render().activeTrackId, null);
+  assert.equal(view.render().playbackError, null);
+  view.playbackStatus = { playing: false, currentTime: 0, duration: 0, error: 'late stale /private/mm-may.mp3' };
+  assert.equal(view.render().playbackError, null);
+
+  view.playbackStatus = { playing: false, currentTime: 0, duration: 0, error: null };
+  const englishDataset = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.en.json', import.meta.url), 'utf8'));
+  const englishNode = englishDataset.nodes.find((item) => item.id === node.id);
+  const englishId = `${englishNode.id}-story`;
+  const englishTrack = catalog.lookupVoiceTrack({
+    collectionId: 'old-quarter-pilot', locale: 'en', contentId: englishId, datasetRevision: englishRevision,
+  });
+  assert.equal(englishTrack?.kind, 'story');
+  assert.equal(englishTrack?.nodeId, englishNode.id);
+  assert.equal(englishTrack?.textHash, textHash(englishNode.story));
+  await view.render().playTrack(englishId, englishNode.story, 'story', englishNode.id);
+  assert.equal(view.playerSources.at(-1), englishTrack.source);
+  view.playbackStatus = { playing: false, currentTime: 0, duration: 69.825, error: 'EACCES /private/mm-may-en.mp3' };
+  assert.equal(view.render().playbackError, 'en:voice.notice.audio_unavailable');
+  view.render({ ...nextScope, isFocused: false });
+  assert.equal(view.render().activeTrackId, null);
+  assert.equal(view.render().playbackError, null);
+  view.playbackStatus = { playing: false, currentTime: 0, duration: 0, error: 'late navigation /private/mm-may-en.mp3' };
+  assert.equal(view.render().playbackError, null);
+  assert.ok(view.playerEvents.includes('pause'));
   view.unmount();
 });
 
