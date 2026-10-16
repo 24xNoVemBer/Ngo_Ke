@@ -1,5 +1,18 @@
 # Handoff API — Ngõ Kể
 
+> **Post8 đang triển khai, chưa nghiệm thu:** [hợp đồng Việt/Anh](POST8_EXECUTION_SPEC.md) thêm schema2 và `/api/v2/dataset?locale=vi|en`, `/api/v2/ready?locale=vi|en`; đây là thay đổi có chủ đích, không nhận là Phase8 đã có locale. V1 bên dưới giữ nguyên. Demo bundle hai collection, live không fallback hoặc gọi dò V1. Backend không thêm dependency, không chat/LLM.
+
+## Hợp đồng Việt/Anh bổ sung
+
+- V2 locale bắt buộc và duy nhất `vi|en`, extra/duplicate/unsupported query400`INVALID_INPUT`; GET duy nhất,405`METHOD_NOT_ALLOWED`/AllowGET. Body thành công là schema2 dataset đầy đủ, thêm `locale`+`collectionId`, `Content-Language` phải khớp. Deadline app giữ8s cho request/body/parse/revision, một lần GET; đổi mode/locale/collection/unmount hủy và bỏ mọi phản hồi cũ.
+- Zero publication hoặc simulated bị policy ẩn: dataset404`NO_REVIEWED_DATA`, ready503 cùngcode. Partial pair/corrupt JSON/hash/identity sai503`DATASET_INVALID`; DB không truy cập được503`DATABASE_UNAVAILABLE`. Không biến dữ liệu lỗi thành rỗng. Error envelope `{error:{code,message}}`, UI chọn thông điệp bản địa hóa bằngcode, không hiển thị rawmessage.
+- Ready200 `{status:'ready',database:'ok',dataset:kind,locale,collectionId,schemaVersion:2}`. Không thêm probe readiness trong adapter; endpoint dành kiểm tra vận hành/QA khi được gọi rõ.
+- V2 demo/live1..50node/0..200QA, simulated/reviewed. Fiction vẫn6node/21QA. Reviewed yêu cầu approved/UTCupdatedAt trên intro/node/QA và evidence theo parser. Simulated giữ nhãn mô phỏng, mặc định server ẩn nhưV1, chỉ expose với explicit`SERVE_SIMULATED_DATA=true`. Không chuyển fiction thành reviewed.
+- Tọa độV2 được null/null khi không có nguồn; mộtnull hoặc số ngoài bounds làshapeerror. GPS chỉ xét cặp hợp lệ, không thay bằng0/tọa độdemo; V1 numeric không đổi. Mọi giới hạn body512KiB/story2000/caption220/answer2000/aliases1..7/followUps0..2 củaPhase8 giữ nguyên.
+- V2revision là SHA256 UTF8 của canonicalJSON object-key-sort đệ quy, arrays giữ thứ tự/text giữ nguyên, shared helper Node/mobile. Digest không nằm trong chínhbody. VIfictionV1 giữ nguyên rawrevision8b318b… và34clip.
+- Migration002 additive giữ bảngV1; `import-localized --vi <file> --en <file>` validate cảpair trước mutation, transaction xuất bản hai locale cùngcollection/identity, khôngpartial. Backup trước migrate/replace DB có dữ liệu, test trên bản sao/restore; startup không tự migrate. Hiện task chỉ dùngDBtemp, không chạy vàoDB người dùng.
+- Chi tiết nghiệm thu, ownership và trạng thái triển khai ở spec/MEMORY; đây là contract, không là báo cáo test pass.
+
 > **Hợp đồng thực hiện 16/10/2026:** [spec Phase7.1/8](PHASE_7_1_8_EXECUTION_SPEC.md#hợp-đồng-live-cuối-cho-đợt-này) thay các quy tắc lịch sử bên dưới về parser dùng chung demo/live, nhãn “đã duyệt”, node count và 200 rỗng. Giữ GET dataset và deadline8s; live mở 1..50 node với simulated/reviewed, reviewed cần metadata approved/updatedAt từng record; empty canonical404, 200 rỗng/sai envelope là error. Quyền thực hiện được người dùng chốt; kết quả kiểm thử/giới hạn nghiệm thu ghi bên dưới. Không API chat/LLM hoặc fallback demo.
 
 **Quyết định 03/10/2026 của người dùng:** backend **do dự án tự viết** (Node 24 + JSON API + SQLite theo plan), không chờ đội ngoài. Dữ liệu MVP là **dữ liệu mô phỏng do dự án sinh**; khi nào có dữ liệu thật thì thay sau, không chặn MVP.
