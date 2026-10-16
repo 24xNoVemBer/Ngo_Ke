@@ -697,13 +697,6 @@ test('duplicate submit, cancel and scope change invalidate pending voice turns',
       digestStringAsync: async () => { playbackEvents.push('hash'); return 'hash'; },
     },
     'expo-file-system': { File: MockFile },
-    '../data/locale': { DEFAULT_LOCALE: 'vi' },
-    '../i18n/translator': { translate: (_locale, key) => key },
-    './localizedCatalog': {
-      DEFAULT_VOICE_COLLECTION: 'fiction-letter',
-      lookupVoiceTrack: () => ({ kind: 'story', nodeId: 'demo-01', textHash: 'hash', source: 'story-audio' }),
-    },
-    './performance': { recordVoicePerformance() {}, voicePerformanceNow: () => 0 },
     './catalog': {
       voiceTracks: {
         'demo-01-story': { kind: 'story', nodeId: 'demo-01', textHash: 'hash', source: 'story-audio' },
