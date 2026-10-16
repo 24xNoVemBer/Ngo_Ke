@@ -27,7 +27,8 @@ export const TOPIC_LABELS: Record<Topic, string> = {
 
 const TOPIC_ORDER: Topic[] = ['an thuc', 'chuyen xua', 'kham pha tu do'];
 
-export function hasTopicNegation(text: string): boolean {
+export function hasTopicNegation(text: string, _locale: 'vi' | 'en' = 'vi'): boolean {
+  void _locale;
   const normalized = normalizeQuestion(text);
   const withoutSpaceNoun = normalized.replace(/\bkhong gian\b/g, ' ');
   return (
@@ -35,7 +36,8 @@ export function hasTopicNegation(text: string): boolean {
   );
 }
 
-export function parseTopic(text: string): Topic | undefined {
+export function parseTopic(text: string, _locale: 'vi' | 'en' = 'vi'): Topic | undefined {
+  void _locale;
   const normalized = normalizeQuestion(text);
   if (normalized.length === 0 || hasTopicNegation(normalized)) {
     return undefined;
@@ -54,7 +56,8 @@ export function parseTopic(text: string): Topic | undefined {
 }
 
 /** Read a duration in minutes; returns undefined when the text is not one. */
-export function parseTimeBudget(text: string): number | undefined {
+export function parseTimeBudget(text: string, _locale: 'vi' | 'en' = 'vi'): number | undefined {
+  void _locale;
   const normalized = normalizeQuestion(text).replace(/^(?:khoang|toi co|minh co|co|about|around|i have)\s+/, '');
   if (normalized === 'nua tieng' || normalized === 'nua gio' || normalized === 'half an hour' || normalized === 'half hour') return 30;
   if (normalized === 'an hour' || normalized === 'one hour' || normalized === '1 hour') return 60;

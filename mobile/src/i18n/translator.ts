@@ -28,6 +28,15 @@ export type TranslationKey =
   | 'voice.notice.reference_changed'
   | 'voice.notice.audio_unavailable'
   | 'voice.notice.quota_exceeded'
+  // Voice intent messages (for clarify / ambiguous handling)
+  | 'voice.intent.clarify_action'
+  | 'voice.intent.clarify_plan'
+  | 'voice.intent.clarify_plan_question'
+  | 'voice.intent.ambiguous_topic_multiple'
+  | 'voice.intent.ambiguous_topic_negation'
+  | 'voice.intent.ambiguous_duration_unrecognized'
+  | 'voice.intent.ambiguous_duration_multiple'
+  | 'voice.intent.ambiguous_duration_range'
   // Voice stages / a11y announcements
   | 'voice.stage.preparing'
   | 'voice.stage.recording'
@@ -198,6 +207,15 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'voice.notice.audio_unavailable': 'Không mở được bản đọc. Bạn vẫn có thể xem lời kể bằng chữ.',
     'voice.notice.quota_exceeded': 'Đã đạt giới hạn {seconds} giây. Nhấn Gửi để tiếp tục hoặc Huỷ để ghi âm lại.',
 
+    'voice.intent.clarify_action': 'Bạn muốn nghe câu trả lời hay thực hiện thao tác vừa nói?',
+    'voice.intent.clarify_plan': 'Bạn muốn hỏi về trải nghiệm hay mở phần chọn hành trình?',
+    'voice.intent.clarify_plan_question': 'Bạn muốn hỏi về trải nghiệm hay mở phần chọn hành trình?',
+    'voice.intent.ambiguous_topic_multiple': 'Mình nghe thấy hơn một chủ đề. Hãy chọn một chủ đề bên dưới.',
+    'voice.intent.ambiguous_topic_negation': 'Mình không muốn tự chọn chủ đề khi câu có lời phủ định. Hãy chạm một chủ đề bên dưới.',
+    'voice.intent.ambiguous_duration_unrecognized': 'Mình chưa hiểu thời lượng. Hãy chọn số phút bên dưới.',
+    'voice.intent.ambiguous_duration_multiple': 'Mình nghe thấy hơn một khoảng thời gian. Hãy chọn một mức bên dưới.',
+    'voice.intent.ambiguous_duration_range': 'Thời lượng cần từ 1 đến 180 phút. Hãy chọn lại bên dưới.',
+
     'voice.stage.preparing': 'Đang bật micro.',
     'voice.stage.recording': 'Đang thu câu hỏi. Chạm Gửi để kết thúc hoặc Hủy bản ghi.',
     'voice.stage.ready': 'Đã thu xong. Chạm Gửi để hỏi tiếp hoặc Hủy bản ghi.',
@@ -365,6 +383,15 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'voice.notice.reference_changed': 'The question list has changed. Please select a question below.',
     'voice.notice.audio_unavailable': 'Audio recording is unavailable. You can still read the story text.',
     'voice.notice.quota_exceeded': 'Maximum {seconds} seconds reached. Tap Send to continue or Cancel to record again.',
+
+    'voice.intent.clarify_action': 'Do you want to hear the answer or perform the action you just said?',
+    'voice.intent.clarify_plan': 'Do you want to ask about an experience or open the route planner?',
+    'voice.intent.clarify_plan_question': 'Do you want to ask about an experience or open the route planner?',
+    'voice.intent.ambiguous_topic_multiple': 'I heard more than one topic. Please choose one topic below.',
+    'voice.intent.ambiguous_topic_negation': 'Cannot choose a topic automatically when the request contains a negation. Please tap a topic below.',
+    'voice.intent.ambiguous_duration_unrecognized': 'Could not recognize the duration. Please select the number of minutes below.',
+    'voice.intent.ambiguous_duration_multiple': 'I heard more than one time duration. Please select one duration below.',
+    'voice.intent.ambiguous_duration_range': 'Duration must be between 1 and 180 minutes. Please select again below.',
 
     'voice.stage.preparing': 'Enabling microphone.',
     'voice.stage.recording': 'Recording your question. Tap Send when finished or Cancel to discard.',
