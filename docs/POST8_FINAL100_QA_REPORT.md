@@ -188,9 +188,12 @@ stop and capture the active card).
 (4) TalkBack/keyboard scope correction: enabling the TalkBack service with no
 crash is a service exercise only; `talkback-drawer.png` shows no focus ring,
 so spoken output and focus order are NOT claimed. Full-QWERTY keyboard stays
-NOT VERIFIED (Gboard toolbar-strip mode on this AVD); proven only: real IME
-(LatinIME default), focused field + cursor, typed text, usable Send/X, fully
-rendered emoji board.
+NOT VERIFIED with no causal claim and no new user gate: the Gboard
+toolbar-strip observation is unattributed (see (6)). Proven only: real IME
+(LatinIME default), focused field + cursor, typed text, usable Send/X. The
+expanded emoji board was observed live in an unsaved preview only — no
+expanded-IME PNG exists in final-d0ff, so it is excluded from evidence; the
+next native task captures one actual full IME panel.
 
 (5) Restore audit (exact, no invention): AVD config change was
 `hw.keyboard=yes→no` in `D:/Android/avd/Medium_Phone.avd/config.ini`, via
@@ -207,3 +210,13 @@ null value), accessibility services null, accessibility_enabled 0, wifi_on 1.
 Own AVD kept running for imminent final QA (launcher child PID 41588, AVD up
 since 00:32; earlier parent PID 4100 exited); no personal device touched, no
 services started. Nothing deleted in this task.
+
+(6) Cold-boot correction (root audit, honest): the `hw.keyboard=no` edit was
+only ever an ATTEMPT, never a proven test. Stop-Process on launcher PID 41708
+plus relaunch with `-no-snapshot-load` is not reboot proof: the actual
+`qemu-system-x86_64` PID 41588 has host StartTime 00:32:14 (predating the
+kill), and guest `uptime` at 01:15:51 reads 1:10. No guest reboot is
+demonstrated, so the config change cannot be claimed tested and no
+qwerty2-causes-strip inference is made. Continuation resource: actual owned
+qemu is PID 41588 — the final native task must stop that qemu process, not
+just a launcher PID.
