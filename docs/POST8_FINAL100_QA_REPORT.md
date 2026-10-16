@@ -69,3 +69,10 @@ audibility (AVD has no audio); real GPS fix; QR scan; physical
 device/iPhone (MCP enumerated the personal iPhone but never acted on it);
 bulk-54 human QC; final combined rebuild native retest. Emulator stopped
 after evidence; settings/permissions restored exactly.
+
+## 8. Native final-2d9b (2026-10-16, release 93c8 on emulator-5554 via mobile-mcp)
+
+Build: candidate 2d9b210, APK SHA-256 93c8d639c23ca9090d8f92ab7d8eee1757ce71ba5d5d986e4e76300344fb8c36 (96,637,278 bytes, installed hash identical; supersedes withdrawn 7cf7 early-read). Guard passes on this file (100/100 + manifest entries). Evidence: tools/e2e/.runs/final-2d9b/ (MCP refs + binary PNG).
+
+PASS: cold EN OS fallback; MM EN story 00:24/01:09 + MM VI 00:31/00:48 + DX VI 00:38/00:46 + fiction EN 00:09/00:24 with pause/stop and progress, no autoplay; locale switch preserving point; VI BM Q&A sourced; font200 clean on Prologue/AlleySelect/Home/drawer/Qa/Location/Plan/keyboard(real IME) except the known Notebook wrap and Sto clipping (both routed, fixes pending); Plan pick card complete (name/time badge/Explore) at 200; settings/permissions restored exactly; emulator stopped after evidence.
+PENDING (honest): in-place locale during active playback; human listening and mic audibility; real GPS fix; QR scan; physical device/iPhone; bulk-54 human QC.
