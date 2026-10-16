@@ -34,10 +34,19 @@ No product code/data/audio edits. W1 fixes copy, then materializes JSON.
   geometry after 2 queries — no mock). **Supported.**
 - MM: form/life/1999 trace to MM1 + MM2; 2004 dates and hours excluded. Geometry
   way/323366879 verified durable (page live, v7, “Heritage House”, addr 87/Mã Mây).
-  **One fix (W1):** story says sources place the house “trong thế kỷ mười chín”,
+  **WITHDRAWN 2026-10-16 (adjudication, replaces the struck fix below):** re-read
+  of the MM2 primary shows “cuối thế kỷ XIX, đầu thế kỷ XX” belongs to the general
+  street/area paragraph, while the explicit building sentence reads “Ngôi nhà 87
+  Mã Mây được xây dựng khoảng cuối thế kỷ XIX.” W4 had conflated the neighbourhood
+  period with the building date — that inference was false and is withdrawn in
+  full; no date harm was published (the copy was never changed on this basis).
+  The common “thế kỷ mười chín” wording stands supported across MM1 (early-19) /
+  MM2 (late-19), early/late disagreement kept as recorded. Pilot copy `939d8b1`
+  remains valid; no re-translation needed.
+  ~~**One fix (W1):** story says sources place the house “trong thế kỷ mười chín”,
   but MM2's range runs into the early 20th c. (“cuối TK19, đầu TK20”). Recommend
   “khoảng cuối thế kỷ 19, đầu thế kỷ 20” + keep the early/late disagreement
-  explicit, in VI/EN story and mm-restore answer. Not a reject.
+  explicit, in VI/EN story and mm-restore answer. Not a reject.~~
 - DX: position/trade trace to DX1; food list 2024-dated with non-independence
   noted; prices/hours/tenure/safety/allergy excluded; Q3 refusal correct.
   Geometry marketplace way/1212230635 (Nominatim-verified; retail way correctly
