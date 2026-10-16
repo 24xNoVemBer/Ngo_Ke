@@ -62,7 +62,7 @@ export function parseTimeBudget(text: string, _locale: 'vi' | 'en' = 'vi'): numb
   if (normalized === 'nua tieng' || normalized === 'nua gio' || normalized === 'half an hour' || normalized === 'half hour') return 30;
   if (normalized === 'an hour' || normalized === 'one hour' || normalized === '1 hour') return 60;
   if (normalized === 'hour and a half' || normalized === 'one and a half hours' || normalized === '1.5 hours' || normalized === '1.5 hour') return 90;
-  const legacyHour = normalized.match(/^(?:(\d+)\s*)?(?:tieng|gio|hours?)(?:\s+(ruoi)|\s+(\d+)\s*phut)?$/);
+  const legacyHour = normalized.match(/^(?:(\d+)\s*)?(?:tieng|gio|hours?)(?:\s+(ruoi)|\s+(\d+)\s*(?:phut|minutes?|mins?))?$/);
   const legacyMinutes = normalized.match(/^(\d+)\s*(?:phut|minutes?|mins?|m)?$/);
   if (legacyHour || legacyMinutes) {
     const value = legacyHour

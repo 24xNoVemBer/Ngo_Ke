@@ -105,7 +105,7 @@ function AlleyCardItem({
 }
 
 export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Props): ReactElement {
-  const { t } = useLocale();
+  const { t, setCollectionId } = useLocale();
   const insets = useSafeAreaInsets();
   const { fontScale } = useWindowDimensions();
 
@@ -134,6 +134,11 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
   });
 
   function handleSelectAlley(alleyId: string): void {
+    if (alleyId === 'phat-loc' || alleyId === 'old-quarter-pilot') {
+      setCollectionId('old-quarter-pilot');
+    } else {
+      setCollectionId('fiction-letter');
+    }
     navigation.navigate('Home', { alleyId });
   }
 

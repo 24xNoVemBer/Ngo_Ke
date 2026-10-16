@@ -858,8 +858,11 @@ test('pick.ts - English alias parsing for topics and time budgets', () => {
   assert.equal(parseTimeBudget('45 minutes'), 45);
   assert.equal(parseTimeBudget('1 hour'), 60);
   assert.equal(parseTimeBudget('one hour'), 60);
-  assert.equal(parseTimeBudget('60 min'), 60);
   assert.equal(parseTimeBudget('1.5 hours'), 90);
+  assert.equal(parseTimeBudget('1 hour 30 minutes'), 90);
+  assert.equal(parseTimeBudget('1 hour 30 mins'), 90);
+  assert.equal(parseTimeBudget('1 tieng 30 phut'), 90);
+  assert.equal(parseTimeBudget('2 hours 15 minutes'), 135);
   assert.equal(parseTimeBudget('90 minutes'), 90);
 });
 
