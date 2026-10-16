@@ -201,7 +201,36 @@ by design — W2 owns hook tests). 16/16 observed behaviors pass.
   force-idles without the candidate's own `canCleanUpVoiceTurn` check; `start`
   finally clears `permissionPendingRef` even if a newer turn set it.
 
-## Native firstpoint BM VI/EN (2026-10-16, release d1ee78 on emulator-5554)
+## Native final-100 (2026-10-16, release 13b27f on emulator-5554 via mobile-mcp)
+
+Build: candidate `5eae095`, APK SHA-256
+`13b27ffd1c0494b7fa55f246ec8c64a0362e5f615188c444e940cc1542e05bfb`
+(96,636,130 bytes, installed hash identical). Prior f2d0 findings (MM/DX
+silent playback failure) were root-caused to a stale Expo asset manifest
+(46-MP3 manifest vs 100-MP3 ZIP); this build carries the regenerated
+132-entry/100-MP3 manifest and is a different artifact — old evidence below
+is kept historical, new evidence governs.
+
+PASS (all via mobile-mcp element refs on the project emulator, never the
+listed iPhone): cold EN OS fallback; EN BM story 00:11/01:01 + answer
+00:12/00:15 with stop; VI switch preserving point; MM EN story 00:24/01:09;
+MM VI story 00:31/00:48; DX VI story 00:38/00:46; fiction EN story
+00:09/00:24; VI BM answer with source + follow-ups; navigation-stop +
+locale switch with no autoplay; QR denial (camera off + manual); GPS denial
+via real OS dialog + manual confirm; unknown-Q refusal; mic permission
+dialog → native recording → ready → cancel → idle; font 200 clean on
+Prologue/Home/drawer/Qa/Location EN except the Home dock “Notebook” tab
+wraps to two lines (“Noteboo/k”) — minor, routed to W2; full session
+operable with reduce-motion on; all settings/permissions restored exactly.
+PENDING (honest): in-place locale switch during active playback/recording
+(no in-Qa toggle exists; hook-level covered separately); human listening and
+mic audibility (AVD has no audio); real GPS fix; QR scan; physical
+device/iPhone; bulk-54 human QC beyond synthetic evidence.
+New guard `tools/e2e/audit_apk_assets.py` (+4 stdlib unittests, all pass):
+FAILS stale f2d0 with exactly the 54 missing manifest entries, PASSES fixed
+13b2 (100/100 multiset + per-file MD5/entry/name checks).
+
+## Limits (not covered here) — HISTORICAL d68223e section (superseded above)
 
 Build: candidate `d68223e`, APK SHA-256
 `d1ee78850c77c4e8595c53421e699402a4feefec1b0419d9b2295e405bfdcb6f`
@@ -234,11 +263,12 @@ distinct. No new app defects blocking feasibility beyond these.
 
 ## Limits (not covered here)
 
-100-audio coverage is NOT claimed: only the 100-track text inventory plus the
-34 original VI assets exist; 66 new tracks pending. Audio bytes/format,
-native vertical, TTS/STT, devices and 2026 freshness belong to later passes
-per `docs/POST8_QA_PLAN.md`. W2 owns V2 parser tests (not duplicated);
-W3 TTS in progress.
+100-track text inventory verified; all 100 audio assets exist with hashes but
+bulk-54 human listening/naturalness is NOT claimed (synthetic evidence only);
+native vertical firstpoint done on BM + new-asset spots (MM/DX/fiction EN
+stories); full six-node spoken coverage, TTS/STT engine detail, devices and
+2026 freshness belong to later passes per `docs/POST8_QA_PLAN.md`. W2 owns V2
+parser tests (not duplicated); W3 TTS in progress.
 
 ## Shared-parser readonly review (beyond the 3 known V2-loader bugs)
 
