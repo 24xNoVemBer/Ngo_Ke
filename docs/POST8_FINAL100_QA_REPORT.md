@@ -24,18 +24,20 @@ a11y "Open alley notebook" (EN) / "Mở sổ tay ngõ phố" (VI) via MCP elemen
 (raw dumps persisted); Camera manual BM → active card "CONFIRMED STOP" with
 "Illustration photo · reviewed stops" + "Photo: Dự án Ngõ Kể" at 200;
 keyboard — expanded Gboard emoji panel preserved at keyboard height with
-approved "Where are we?" typed, usable Send/X, canonical submit → correct
-Answer 00:12 + source (alphabet/QWERTY keys NOT VERIFIED, no QWERTY user
-gate). No new FAIL; typed-Qa food-reason is NOT tested as ordinary question
+approved "Where are we?" typed, enabled Send + X + chips in one shot
+(`qa-ime-panel-text-200.png`; earlier `qa-ime-panel-200.png` had empty
+input), canonical submit → correct Answer 00:12 + source (alphabet/QWERTY
+keys NOT VERIFIED, no QWERTY user gate). No new FAIL; typed-Qa food-reason is NOT tested as ordinary question
 per root (voice-callback path is unit/source-covered). NOT VERIFIED (unchanged
 scope): full-QWERTY layer, spoken TalkBack/focus order, animation timing,
 human listening/naturalness, mic audibility, real GPS fix, QR scan, physical
 device/iPhone, bulk/66-new-audio human QC, 18/36 unknown ASR. Restore: runtime
 font 1.0, all 3 animation scales 1, network on, show_ime key deleted (was
-NULL), a11y services null/enabled 0; actual owned qemu 41588 stopped via
-`adb emu kill` (process gone, device gone); config.ini SHA equals pre-task
-`0CE6D3D5…0375`, backup preserved at `final-66c/config.ini.pre-task-backup`
-(never deleted). Preserved db02248 audit: old backup was deleted with hash
+NULL), a11y services null; accessibility_enabled reads 1 on fresh boot
+(device default — left untouched, no put issued this task); actual owned qemu
+39048 (this round; prior 41588) stopped via `adb emu kill` (process gone,
+device gone); config.ini SHA equals pre-task `0CE6D3D5…0375`, backup
+preserved at `final-66c/config.ini.pre-task-backup` (never deleted). Preserved db02248 audit: old backup was deleted with hash
 never recorded, prior cold-boot attempt not proven, prior camera photo
 caption was NOT VERIFIED, TalkBack was service-exercise only.
 
