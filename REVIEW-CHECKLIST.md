@@ -2,6 +2,21 @@
 
 > **16/10/2026:** G1/G2 Run run_a728dba15869 đã resolve theo yêu cầu người dùng “chạy end-to-end đi, hiện tại ch cần t duyệt”. Quyền triển khai không đồng nghĩa test/phase đã đạt. Theo [spec Phase7.1/8](docs/PHASE_7_1_8_EXECUTION_SPEC.md); ghi pass/fail/pending và SHA thật trước khi chuyển sang đợt VI/EN.
 
+## Việt/Anh hậu Phase8 — đã tích hợp và kiểm theo phạm vi môi trường
+
+- [x] Inventory/hợp đồng VI/EN, fiction riêng và pilot3điểm có nguồn đã triển khai; không mở lại toàn bộ goalVoiceV0–V7.
+- [x] Source build66c5fc4, APK6c0623d6…96,638,626bytes; hash bản đóng băng/installedbase khớp,132asset/100MP3mapping+100ZIP/sourceguard đạt.34VI gốc giữ bytes.
+- [x] Coordinator257app/type/lint đạt; sửa Landing/Postcardfont200, Plan/Qa topic/reasons, HomeDrawerkind và QaDocka11ylabel có kiểm đúng callers. Backend/data/voiceengine không đổi trong lượt sửa cuối.
+- [x] W4sameMuse + coordinator xem ảnh thật: source/currentAPK/phạm vi ca cũ không đổi được phân biệt; ảnh gắn nhầm màn và blanketpass cũ đã rút. Xem `docs/POST8_FINAL100_QA_REPORT.md` và `docs/POST8_COORDINATOR_REVIEW.md`.
+- [x] Đã kiểm floatingemojiIME với inputEN+Sendenabled và canonicalanswer; không suy thành dockedresize/QWERTY/appCancelX luôn rõ. Voicecallbackreason có actualcomponenttest, không giảtypedQa thành voiceintent.
+- [x] ASR36synthetic18expected/18unknown/0wrong được ghi đúng giới hạn; không đổi aliases/expected để che unknown, không nhận echo forcedlocale là independentlanguageQC.
+- [x] Runtime đã khôi phục; root kiểm không còn emulator/qemu/ADBdevice, config khớp backup được giữ. Audit backup cũ/originalhash chưa đo vẫn ghi rõ.
+- [ ] Human listening/cách đọc tên/giọng EN và66audio mới **[ngoài plan core, thuộc scopeVI/EN đã mở]**; chưa shippingQC.
+- [ ] Thiết bị thật/iPhone, GPSfix/QRscan thật; iOSexport không thay nativeiPhone.
+- [ ] QWERTY/dockedkeyboard, appCancelX khi floatingpanel che lên, TalkBackspoken/focusorder và timinganimation chưa xác minh; không blanketnative/a11yPASS.
+
+Không có quyết định/credential/ngân sách chặn phần triển khai. Việc người dùng chốt giọng/nghe QC và tự thử thiết bị được ghi riêng trong guide/review; không tạo lại gate duyệt task nội bộ.
+
 ## Kiểm thực hiện Phase7.1/8 — đã đạt trên môi trường hiện có
 
 - [x] Quyền chạy xuyên suốt và hợp đồng được ghi bằng chỉ dẫn người dùng; baseline source9a39318, spec commit743bf0c.
