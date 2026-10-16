@@ -39,6 +39,12 @@ test('locale.ts - definitions, validation, and fallback', () => {
 
   assert.equal(parseLocale('en'), 'en');
   assert.equal(parseLocale('vi'), 'vi');
+  assert.equal(parseLocale('en-US'), 'en');
+  assert.equal(parseLocale('en_GB'), 'en');
+  assert.equal(parseLocale('vi-VN'), 'vi');
+  assert.equal(parseLocale('vi_VN'), 'vi');
+  assert.equal(parseLocale('english'), 'vi');
+  assert.equal(parseLocale('viola'), 'vi');
   assert.equal(parseLocale('ja'), 'vi');
   assert.equal(parseLocale(undefined), 'vi');
   assert.equal(parseLocale(null), 'vi');
@@ -483,4 +489,26 @@ test('nearest.ts - candidate filtering with nullable coordinates', () => {
   const onlyNullNodes = [nodesWithNullCoords[0]];
   const noCoordsCandidate = pickCandidate(onlyNullNodes, position, limits);
   assert.equal(noCoordsCandidate.kind, 'no-coordinates');
+});
+
+test('sourceState.ts - Old Quarter pilot datasets (d3e1e15)', () => {
+  const oqViPath = join(__dirname, '../../data/localized/old-quarter.vi.json');
+  const oqEnPath = join(__dirname, '../../data/localized/old-quarter.en.json');
+  const oqVi = JSON.parse(readFileSync(oqViPath, 'utf8'));
+  const oqEn = JSON.parse(readFileSync(oqEnPath, 'utf8'));
+
+  assert.equal(isDatasetV2(oqVi), true);
+  assert.equal(isDatasetV2(oqEn), true);
+
+  const parsedVi = parseDatasetV2(oqVi, { expectedLocale: 'vi' });
+  const parsedEn = parseDatasetV2(oqEn, { expectedLocale: 'en' });
+  assert.ok(parsedVi);
+  assert.ok(parsedEn);
+  assert.equal(parsedVi.nodes.length, 3);
+  assert.equal(parsedEn.nodes.length, 3);
+  assert.equal(parsedVi.qa.length, 9);
+  assert.equal(parsedEn.qa.length, 9);
+
+  const pairResult = validateDatasetV2Pair(parsedVi, parsedEn);
+  assert.deepEqual(pairResult, { ok: true });
 });

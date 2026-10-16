@@ -14,13 +14,10 @@ export function parseLocale(value: unknown, fallback: Locale = DEFAULT_LOCALE): 
   }
   if (typeof value === 'string') {
     const normalized = value.trim().toLowerCase();
-    if ((LOCALES as readonly string[]).includes(normalized)) {
-      return normalized as Locale;
-    }
-    if (normalized.startsWith('en')) {
+    if (normalized === 'en' || normalized.startsWith('en-') || normalized.startsWith('en_')) {
       return 'en';
     }
-    if (normalized.startsWith('vi')) {
+    if (normalized === 'vi' || normalized.startsWith('vi-') || normalized.startsWith('vi_')) {
       return 'vi';
     }
   }
