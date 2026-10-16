@@ -1,5 +1,13 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-16 — Post8 đang triển khai song song, chưa nghiệm thu
+
+- Baseline post8 `91ddfbd`, nhánh local riêng `valentino/post8-plan/ui/backend/qa`; Phase8 vẫn giữ nguyên. Không git merge/push/main writes ở phạm vi mới; tích hợp sau bằng cherry-pick từng commit đã review vào candidate riêng.
+- Hợp đồng `docs/POST8_EXECUTION_SPEC.md` chốt ở `cde7d22` sau W2/W3 phản biện: V1 giữ nguyên, schema2 locale/collection/null geometry, API V2 additive, migration002 atomic pair với backup, canonical JSON key-sort helper dùng chung. W2 stage1 shared parser/translator/tests `task_f434958b0c19`/`ctx_b0a14a3261a7`; W3 EnglishTTS/ASR probe `task_dd9453f389af`/`ctx_bea9871df188`, giữ actual Gemini3.8FlashHigh/Codex6Luna xhigh. W4 vẫn Muse Spark1.3Free Default.
+- English fiction đủ6node/21QA/34track-text tại `data/localized/fiction.en.json`, W1 kiểm identity/graph/limits/alias collision; `data/demo.json` hash8b318b… không đổi và34VI assets chưa tái sinh. Pilot3point/9QA/16track mỗi locale đang draft `docs/content/POST8_PILOT_COPY.md`+glossary (bb7abaf,939d8b1); chưa publication hoặc audioQC. W4 toàn văn review `task_2ad0e9c43760`/`ctx_02d31a4185c8`.
+- Source reviewW4 `b1f4fbd` đã đối chiếu BM/MM/DX, primary portal, food2024; cần giữ legend và xung đột ngày, không tự thêm mốc chính xác/giá/giờ. OSM có2footprint tham chiếu+ODbL attribution; Bạch Mã null/chọn tay, không mock GPS.
+- Việc cần người dùng quyết: hiện không có blocker quyền/ngân sách/credential; tiếp tục end-to-end theo chỉ dẫn. Việc người dùng tự làm khi có thiết bị: thử GPS fix/QR thật/Android thật+iPhone và nghe QC VI/EN; chưa thực hiện trên máy thật, không nhận là pass. Quyền voice cũ V0–V7 vẫn tạm dừng, chỉ mở thay đổi cần cho scope Việt/Anh.
+
 ## 2026-10-16 — Phase8 đã chốt, bắt đầu phạm vi Việt/Anh
 
 - Baseline tích hợp `e3acedf` có toàn bộ code/test/QA của W2/W3/W4; W4 QA commits34073d7 +f097b52. Coordinator kiểm độc lập201 app +67 backend/guard/HTTP (19+33+15) đạt; code cây mobile/data/backend/tools giống hệt cây QA. Native rerun19/19 đúng34073d7 ở `test-opencode/tools/e2e/.runs/20261016-084203/native-flow.json`; đã xem denial XML và ảnh APK offline/error.

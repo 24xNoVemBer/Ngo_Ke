@@ -2,7 +2,7 @@
 
 W1/Codex biên tập; đây là evidence plan và claim ledger, chưa phải dataset được công bố. Baseline code91ddfbd. Pilot dự kiến là một tuyến nội dung **Phố cổ Hà Nội / Hanoi Old Quarter**, tối đa3 điểm: đền Bạch Mã, nhà87 Mã Mây, chợ Đồng Xuân. Đây không phải3 chương của truyện hư cấu. Không dùng tọa độ sáu node demo hoặc nhân vật/lá thư của “Bức thư cuối ngõ” làm lịch sử thật.
 
-Ngày kiểm nguồn:2026-10-16. Tìm nguồn bằng web search hiện có; agent-reach Doctor xác nhận web/Jina Reader sẵn, Exa/mcporter chưa có. Jina đọc các trang tourism360 và chinhphu HTTP200; trang phường Hoàn Kiếm qua Jina trả422, nội dung đã có trong kết quả web nhưng cần kiểm trực tiếp trước claim cuối. Không cài tool hoặc dùng tài khoản/cookie.
+Ngày kiểm nguồn:2026-10-16. Tìm nguồn bằng web search hiện có; agent-reach Doctor xác nhận web/Jina Reader sẵn, Exa/mcporter chưa có. Jina đọc các trang tourism360 và chinhphu HTTP200; trang phường Hoàn Kiếm qua Jina trả422, W4 sau đó đọc trực tiếp trang primary để đối chiếu (b1f4fbd, `../POST8_SOURCE_REVIEW.md`). Không cài tool hoặc dùng tài khoản/cookie. Trang Hoàn Kiếm360 ghi cơ quan chủ quản UBND quận Hoàn Kiếm, chịu trách nhiệm Ban quản lý Hồ Hoàn Kiếm và Phố cổ Hà Nội; đây là wording của portal, không dùng tên đơn vị hành chính cũ làm địa giới2026.
 
 ## Nguồn đã tìm/đọc
 
@@ -23,21 +23,21 @@ Không sao chép nguyên đoạn; lời kể sẽ viết lại và chỉ đưa f
 
 | Claim ID | Tiếng Việt để biên tập | English meaning | Evidence / trạng thái |
 | --- | --- | --- | --- |
-| BM-address | Đền Bạch Mã tại76 Hàng Buồm. | Bạch Mã Temple is at76 Hàng Buồm. | BM1/BM2; chờ W4 kiểm primary BM2. Không dùng tên phường cũ làm địa giới2026. |
+| BM-address | Đền Bạch Mã tại76 Hàng Buồm. | Bạch Mã Temple is at76 Hàng Buồm. | BM1/BM2 đã W4 kiểm primary, b1f4fbd. Không dùng tên phường cũ làm địa giới2026. |
 | BM-guardian | Đền thờ Long Đỗ, gắn với Trấn Đông trong Thăng Long tứ trấn. | Dedicated to Long Đỗ and associated with the eastern guardian of Thăng Long. | BM1/BM2; facts ổn định cần đối chiếu. |
 | BM-legend | Theo truyền thuyết, dấu chân ngựa trắng chỉ đường đắp thành cho vua Lý. | A local legend tells of a white horse whose tracks guided the building of the citadel. | BM1; **legend**, không tường thuật như sự kiện lịch sử đã chứng minh. Không thêm nhân vật/cảnh tưởng tượng. |
 | BM-observe | Mời nhìn kết cấu mái/nhà nối tiếp và vật liệu gỗ, chỉ dùng chi tiết có profile mô tả. | Invite visitors to look at the roof and connected timber spaces described in the heritage profile. | BM1; không hứa được vào cung cấm, không nhận đang thấy cảnh hiện tại qua GPS. |
 | MM-form | Nhà87 Mã Mây có dạng nhà ống hẹp mặt tiền, phát triển sâu, các khoảng sân lấy sáng và thoáng khí. | A narrow tube house extends back from the street, with courtyards bringing light and air. | MM1/MM2; đồng nhất. |
 | MM-life | Không gian từng kết hợp sinh hoạt gia đình và việc bán hàng. | The house combined family life with trade. | MM1/MM2; không bịa tên gia đình hay cảnh đối thoại. |
 | MM-restoration | Công trình được phục hồi theo hợp tác Hà Nội–Toulouse vào1999. | Restored through Hà Nội–Toulouse cooperation in1999. | MM1/MM2; chỉ giữ năm, không ngày công nhận2004 đang lệch. |
-| DX-position | Chợ nằm trong Phố cổ; ngõ chợ Đồng Xuân ở phía đông. | The market is in the Old Quarter; Ngõ Chợ Đồng Xuân is on its eastern side. | DX1; chờ nguồn thứ2/geometry. |
+| DX-position | Chợ nằm trong Phố cổ; ngõ chợ Đồng Xuân ở phía đông. | The market is in the Old Quarter; the market alley is on its eastern side. | DX1; W4 đối chiếu vị trí, geometry tham chiếu bên dưới. |
 | DX-trade | Chợ có vai trò bán buôn, vẫn có hàng bán lẻ. | It serves wholesale trade, with retail stalls as well. | DX1; nói chức năng chung, không hứa quầy cụ thể đang mở. |
-| DX-food | Món ăn cụ thể/giải thích thành phần sẽ chỉ thêm khi có nguồn đáng tin. | Add specific dishes/ingredient descriptions only after supporting sources are checked. | **Chưa đủ nguồn, không công bố claim.** Không hứa dị ứng/chế độ ăn, không tự thêm quán/giờ/giá. |
+| DX-food | Phóng sự2024 ghi nhận bún chả, bún ốc, bánh tôm, nộm, chè; bún ốc là bún với ốc. | Reporting in2024 recorded these dishes; bún ốc is a rice noodle dish with snails. | VOV Giao thông04/10/2024, [Ngõ chợ ẩm thực Đồng Xuân](https://vovgiaothong.vn/newsaudio/ngo-cho-am-thuc-dong-xuan-d41101.html), W1/W4 đọc Jina200. [Hà Nội Online12/10/2024](https://hanoionline.vn/thien-duong-am-thuc-ngo-cho-dong-xuan-272414.htm) có phần văn trùng, **không tính là nguồn độc lập thứ hai**. Tuổi nguồn phải hiện trong EN/VI; không xác nhận menu/quầy/giá/giờ hiện tại, không hứa phù hợp dị ứng/chế độ ăn. |
 
 ## Việc phải đóng trước publish
 
-1. W4 đối chiếu primary ownership/các claim; tìm nguồn lịch sử/ẩm thực khác cho Đồng Xuân nếu có. Nếu không đủ, rút bớt chi tiết hoặc số điểm, không điền chuyện tưởng tượng để đủ3.
-2. Tọa độ cả3 điểm hiện **chưa được xác minh**. Không lấy số của fixture, không tự nhận là tọa độ đã đo. Cần geometry có URL/ID nguồn và mức chắc chắn; nếu chưa có, hợp đồng/UI phải thể hiện thiếu GPS và vẫn chọn tay.
+1. W4 đã đối chiếu primary ownership/các claim ở b1f4fbd; bản VI/EN và tính tự nhiên vẫn phải qua review toàn văn trước publication. Không điền chuyện tưởng tượng để đủ3, không nâng niên đại xung đột thành fact chính xác.
+2. Bạch Mã **chưa có tọa độ kiểm chứng**, schema2 dùng null/null và UI chọn tay. W4 tra OSM cho [87 Mã Mây way323366879](https://www.openstreetmap.org/way/323366879):21.0343659,105.8535931; [Đồng Xuân marketplace way1212230635](https://www.openstreetmap.org/way/1212230635):21.0382556,105.8496710. Đây là tham chiếu footprint tòa nhà từ Nominatim, không tọa độ đã đo/cổng vào. Không trộn với retailway1255852379. Nếu dùng, UI/evidence phải ghi © OpenStreetMap contributors, [ODbL1.0/copyright](https://www.openstreetmap.org/copyright); kiểm thực địa trước bất kỳ phạm vi dẫn đường tương lai. Không lấy số của fixture thay thế.
 3. Thời lượng trải nghiệm sẽ là gợi ý biên tập, không phải ETA đi bộ đã đo. Không mở dẫn đường hoặc suy khoảng cách thực từ sơ đồ trang sách.
 4. Chọn1 điểm hoàn chỉnh để review luồng VI/EN trước khi nhân catalogue. Scope EN truyện cũ vẫn đủ6 chương/21QA/intro/caption, không bị thay thế bằng pilot.
 5. Glossary: giữ **Bạch Mã, Long Đỗ, Hàng Buồm, Mã Mây, Đồng Xuân, Hà Nội** có dấu trong display; English giải thích ngắn theo nghĩa đã chốt. TTS thử cách đọc riêng, không đổi mất tên gốc trong chữ.
