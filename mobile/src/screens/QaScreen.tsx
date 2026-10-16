@@ -866,6 +866,7 @@ export function QaScreen({
             onOpenInput={() => setIsInputDrawerVisible(true)}
             onOpenSettings={voiceSession.permissionBlocked ? () => { void Linking.openSettings().catch(() => undefined); } : undefined}
             onQuickAction={onOpenNotebook}
+            quickActionLabel={t('home.notebook_label')}
           />
         </View>
       </ImageBackground>

@@ -3040,7 +3040,40 @@ test('QaScreen localizes inline voice pick reasons in EN without leaking raw Vie
   const allTexts = elements(tree, 'Text').map((t) => [].concat(t.props?.children).join(''));
   assert.ok(allTexts.some((t) => t.startsWith('Matches Alley food · ')), 'Voice pick reason is localized in EN');
   assert.equal(allTexts.some((t) => t.includes('Hợp chủ đề')), false, 'No raw Vietnamese "Hợp chủ đề" in EN QaScreen');
+  const dockEn = elements(tree, 'VoiceInteractionDock')[0]?.props;
+  assert.equal(dockEn?.quickActionLabel, 'Open alley notebook', 'QaScreen passes localized home.notebook_label as quickActionLabel in EN');
   view.unmount();
+
+  // VI mode quick action label check
+  const viewVi = mount('../src/screens/QaScreen.tsx', properties(), {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+    '../voice/useVoiceSession': {
+      useVoiceSession: () => ({
+        stage: 'idle',
+        error: null,
+        recordingDurationMs: 0,
+        metering: -60,
+        playback: { playing: false, currentTime: 0, duration: 0 },
+        activeTrackId: null,
+        playbackError: null,
+        startRecording() {},
+        submitRecording() {},
+        cancel() {},
+        stopPlayback() {},
+        playTrack() {},
+        replayTrack() {},
+      }),
+    },
+  });
+  const treeVi = viewVi.render();
+  const dockVi = elements(treeVi, 'VoiceInteractionDock')[0]?.props;
+  assert.equal(dockVi?.quickActionLabel, 'Mở sổ tay ngõ phố', 'QaScreen passes localized home.notebook_label as quickActionLabel in VI');
+  viewVi.unmount();
 });
 
 
