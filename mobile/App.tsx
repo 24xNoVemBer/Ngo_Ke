@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useState, type ReactElement } from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { loadLiveSource, readLiveConfig } from './src/data/live';
+import { loadLiveSource, loadLiveSourceV2, readLiveConfig } from './src/data/live';
 import { getSourceState, type Mode, type SourceState } from './src/data/sourceState';
 import { areas, type RootStackParamList } from './src/navigation';
 import { AlleySelectScreen } from './src/screens/AlleySelectScreen';
@@ -19,9 +19,21 @@ import { UnavailableScreen } from './src/screens/UnavailableScreen';
 import { MotionProvider, useMotionPreferences } from './src/hooks/MotionPreferences';
 import { colors } from './src/theme';
 import { readVoiceApiBaseUrl } from './src/voice/config';
-import { voiceCatalogueRevision } from './src/voice/catalog';
 import type { PlanDraft } from './src/recommendation/pick';
-import demoData from '../data/demo.json';
+import { LocaleProvider, type LocaleContextValue } from './src/context/LocaleContext';
+import { type Locale } from './src/data/locale';
+import {
+  DEFAULT_COLLECTION_ID,
+  getBundledDataset,
+  getCollectionRevision,
+  type CollectionId,
+} from './src/data/collections';
+import {
+  readPersistedLocaleAsync,
+  writePersistedLocaleAsync,
+  resolveEffectiveLocale,
+} from './src/data/localeStorage';
+import { t } from './src/i18n/translator';
 import appConfig from './app.json';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -51,14 +63,44 @@ const voiceApiBaseUrl = readVoiceApiBaseUrl(
 export default function App(): ReactElement {
   const motion = useMotionPreferences();
   const [routeName, setRouteName] = useState('Prologue');
+  const [locale, setLocaleState] = useState<Locale>(() => resolveEffectiveLocale(undefined));
+  const [collectionId, setCollectionIdState] = useState<CollectionId>(DEFAULT_COLLECTION_ID);
   const [mode, setMode] = useState<Mode>('demo');
   const [currentNodeId, setCurrentNodeId] = useState<string | undefined>();
   const [confirmedNodeId, setConfirmedNodeId] = useState<string | undefined>();
   const [readNodeIds, setReadNodeIds] = useState<ReadonlySet<string>>(new Set());
   const [planDraft, setPlanDraft] = useState<PlanDraft>({});
-  const [liveSource, setLiveSource] = useState<SourceState>(() => getSourceState('live'));
+  const [liveSource, setLiveSource] = useState<SourceState>(() => getSourceState('live', undefined, locale));
   const [liveBusy, setLiveBusy] = useState(false);
   const [liveRevision, setLiveRevision] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    readPersistedLocaleAsync().then((saved) => {
+      if (!cancelled && saved) {
+        setLocaleState(saved);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const setLocale = useCallback((next: Locale) => {
+    setLocaleState(next);
+    void writePersistedLocaleAsync(next);
+  }, []);
+
+  const setCollectionId = useCallback((next: CollectionId) => {
+    setCollectionIdState(next);
+  }, []);
+
+  useEffect(() => {
+    setCurrentNodeId(undefined);
+    setConfirmedNodeId(undefined);
+    setReadNodeIds(new Set());
+    setPlanDraft({});
+  }, [collectionId, locale]);
 
   // Live always comes from the backend; it never borrows the demo fixture.
   useEffect(() => {
@@ -69,9 +111,13 @@ export default function App(): ReactElement {
     let cancelled = false;
     const controller = typeof AbortController !== 'undefined' ? new AbortController() : undefined;
     setLiveBusy(true);
-    loadLiveSource({ baseUrl: liveBaseUrl, signal: controller?.signal }).then((next) => {
+    const loader = typeof loadLiveSourceV2 === 'function'
+      ? () => loadLiveSourceV2({ baseUrl: liveBaseUrl, locale, signal: controller?.signal })
+      : () => loadLiveSource({ baseUrl: liveBaseUrl, signal: controller?.signal });
+
+    loader().then((next) => {
       if (!cancelled && !controller?.signal.aborted) {
-        setLiveSource(next);
+        setLiveSource(next as unknown as SourceState);
         setCurrentNodeId(undefined);
         setConfirmedNodeId(undefined);
         setReadNodeIds(new Set());
@@ -82,7 +128,7 @@ export default function App(): ReactElement {
       cancelled = true;
       controller?.abort();
     };
-  }, [mode, liveRevision]);
+  }, [mode, liveRevision, locale]);
 
   const retryLive = useCallback(() => {
     if (!liveBusy) {
@@ -91,7 +137,9 @@ export default function App(): ReactElement {
     }
   }, [liveBusy]);
 
-  const source = mode === 'demo' ? getSourceState(mode, demoData) : liveSource;
+  const source = mode === 'demo'
+    ? getSourceState(mode, getBundledDataset(collectionId, locale))
+    : liveSource;
   // Viewing a story does not confirm the user's physical location.
   const activeNodeId = source.status === 'ready'
     ? (source.dataset.nodes.find((node) => node.id === currentNodeId && node.available)?.id
@@ -116,7 +164,7 @@ export default function App(): ReactElement {
     if (next === mode) return;
     setMode(next);
     if (next === 'live') {
-      setLiveSource(getSourceState('live'));
+      setLiveSource(getSourceState('live', undefined, locale));
       setLiveBusy(true);
     }
     setCurrentNodeId(undefined);
@@ -126,7 +174,18 @@ export default function App(): ReactElement {
   };
   const lightStatusBar = routeName === 'Prologue' || routeName === 'Landing' || routeName === 'AlleySelect'
     || ((routeName === 'Home' || routeName === 'Qa') && source.status === 'ready');
+
+  const localeContextValue: LocaleContextValue = {
+    locale,
+    setLocale,
+    collectionId,
+    setCollectionId,
+    isReady: true,
+    t: (key, params) => t(locale, key, params),
+  };
+
   return (
+    <LocaleProvider value={localeContextValue}>
     <MotionProvider value={motion}>
     <SafeAreaProvider>
       {/* Expo Go on iOS uses application-level status bar control. */}
@@ -210,7 +269,13 @@ export default function App(): ReactElement {
                   key={`${mode}:${liveRevision}:${activeNodeId}`}
                   mode={mode}
                   dataset={source.dataset}
-                  datasetRevision={mode === 'demo' ? voiceCatalogueRevision : `live-${liveRevision}`}
+                  datasetRevision={
+                    mode === 'demo'
+                      ? getCollectionRevision(collectionId, locale)
+                      : (liveSource.status === 'ready' && 'revision' in liveSource.dataset
+                          ? (liveSource.dataset as { revision: string }).revision
+                          : `live-${liveRevision}`)
+                  }
                   voiceApiBaseUrl={voiceApiBaseUrl}
                   currentNodeId={activeNodeId}
                   onSelectNode={selectNode}
@@ -231,7 +296,7 @@ export default function App(): ReactElement {
               )
             }
           </Stack.Screen>
-          <Stack.Screen name="Plan" options={{ title: 'Chọn trải nghiệm' }}>
+          <Stack.Screen name="Plan" options={{ title: t(locale, 'plan.title') }}>
             {(props) =>
               source.status === 'ready' ? (
                 <PlanScreen mode={mode} nodes={source.dataset.nodes} draft={planDraft} onDraftChange={setPlanDraft} onSelectNode={(nodeId) => {
@@ -244,7 +309,7 @@ export default function App(): ReactElement {
               )
             }
           </Stack.Screen>
-          <Stack.Screen name="Camera" options={{ title: 'Camera và người kể' }}>
+          <Stack.Screen name="Camera" options={{ title: t(locale, 'camera.title') }}>
             {() =>
               source.status === 'ready' ? (
                 <CameraScreen nodes={source.dataset.nodes} onConfirmNode={confirmNode} />
@@ -253,7 +318,7 @@ export default function App(): ReactElement {
               )
             }
           </Stack.Screen>
-          <Stack.Screen name="Location" options={{ title: 'Xác nhận điểm GPS' }}>
+          <Stack.Screen name="Location" options={{ title: t(locale, 'location.title') }}>
             {() =>
               source.status === 'ready' && activeNodeId !== undefined ? (
                 <LocationScreen
@@ -275,5 +340,6 @@ export default function App(): ReactElement {
       </NavigationContainer>
     </SafeAreaProvider>
     </MotionProvider>
+    </LocaleProvider>
   );
 }

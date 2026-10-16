@@ -13,6 +13,7 @@ import * as confirmation from '../src/qr/confirmPoint.ts';
 import * as recommendation from '../src/recommendation/pick.ts';
 import * as voiceIntent from '../src/voice/intent.ts';
 import * as voiceAppState from '../src/voice/appState.ts';
+import * as translator from '../src/i18n/translator.ts';
 
 const fixture = JSON.parse(readFileSync(new URL('../../data/demo.json', import.meta.url), 'utf8'));
 
@@ -124,6 +125,60 @@ function mount(file, props = {}, overrides = {}, exportName) {
     './MotionPreferences': { useMotionState: () => ({ active: false, reducedMotion: true }) },
     '../theme/motion': { motionDurations: { fast: 220, ambientPulse: 2400 }, motionEasings: {}, motionScales: {}, motionSprings: { tactilePress: {} } },
     './AppIcon': { AppIcon: 'AppIcon' },
+    '../i18n/translator': translator,
+    './src/i18n/translator': translator,
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        setLocale() {},
+        collectionId: 'fiction-letter',
+        setCollectionId() {},
+        isReady: true,
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+      LocaleProvider: ({ children }) => children,
+    },
+    './src/context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        setLocale() {},
+        collectionId: 'fiction-letter',
+        setCollectionId() {},
+        isReady: true,
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+      LocaleProvider: ({ children }) => children,
+    },
+    './src/data/collections': {
+      DEFAULT_COLLECTION_ID: 'fiction-letter',
+      getBundledDataset: () => fixture,
+      getCollectionRevision: () => 'fixture-revision',
+      AVAILABLE_COLLECTIONS: [],
+      getLocalizedCollections: () => [],
+    },
+    '../data/collections': {
+      DEFAULT_COLLECTION_ID: 'fiction-letter',
+      getBundledDataset: () => fixture,
+      getCollectionRevision: () => 'fixture-revision',
+      AVAILABLE_COLLECTIONS: [],
+      getLocalizedCollections: () => [],
+    },
+    './src/data/localeStorage': {
+      readPersistedLocaleAsync: async () => 'vi',
+      writePersistedLocaleAsync: async () => {},
+      resolveEffectiveLocale: () => 'vi',
+    },
+    '../data/localeStorage': {
+      readPersistedLocaleAsync: async () => 'vi',
+      writePersistedLocaleAsync: async () => {},
+      resolveEffectiveLocale: () => 'vi',
+    },
+    './src/data/locale': {
+      isLocale: (v) => v === 'vi' || v === 'en',
+    },
+    '../data/locale': {
+      isLocale: (v) => v === 'vi' || v === 'en',
+    },
     '../hooks/useMotion': {
       usePulseLoop: () => ({ scaleAnim: 1, opacityAnim: 1 }),
       usePressSpring: () => ({ scaleAnim: 1, handlePressIn() {}, handlePressOut() {} }),

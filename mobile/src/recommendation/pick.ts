@@ -30,7 +30,9 @@ const TOPIC_ORDER: Topic[] = ['an thuc', 'chuyen xua', 'kham pha tu do'];
 export function hasTopicNegation(text: string): boolean {
   const normalized = normalizeQuestion(text);
   const withoutSpaceNoun = normalized.replace(/\bkhong gian\b/g, ' ');
-  return /\b(?:khong|bo qua|tranh|loai tru)\b/.test(withoutSpaceNoun) || /\bdung chon\b/.test(normalized);
+  return (
+    /\b(?:khong|bo qua|tranh|loai tru|dung chon|no|not|dont|don't|never|neither|without|exclude|avoid|skip|ignore)\b/.test(withoutSpaceNoun)
+  );
 }
 
 export function parseTopic(text: string): Topic | undefined {
@@ -38,16 +40,27 @@ export function parseTopic(text: string): Topic | undefined {
   if (normalized.length === 0 || hasTopicNegation(normalized)) {
     return undefined;
   }
+  if (/\b(?:food|culinary|dining|eat|eating)\b/.test(normalized)) {
+    return 'an thuc';
+  }
+  if (/\b(?:history|stories|story|ancient|heritage|memory|memories|nostalgia)\b/.test(normalized)) {
+    return 'chuyen xua';
+  }
+  if (/\b(?:explore|exploration|free|discovery|roam|wander)\b/.test(normalized)) {
+    return 'kham pha tu do';
+  }
   return TOPIC_ORDER.find((topic) => normalized.includes(topic))
     ?? TOPIC_ORDER.find((topic) => normalized.includes(normalizeQuestion(TOPIC_LABELS[topic])));
 }
 
 /** Read a duration in minutes; returns undefined when the text is not one. */
 export function parseTimeBudget(text: string): number | undefined {
-  const normalized = normalizeQuestion(text).replace(/^(?:khoang|toi co|minh co|co)\s+/, '');
-  if (normalized === 'nua tieng' || normalized === 'nua gio') return 30;
+  const normalized = normalizeQuestion(text).replace(/^(?:khoang|toi co|minh co|co|about|around|i have)\s+/, '');
+  if (normalized === 'nua tieng' || normalized === 'nua gio' || normalized === 'half an hour' || normalized === 'half hour') return 30;
+  if (normalized === 'an hour' || normalized === 'one hour' || normalized === '1 hour') return 60;
+  if (normalized === 'hour and a half' || normalized === 'one and a half hours' || normalized === '1.5 hours' || normalized === '1.5 hour') return 90;
   const legacyHour = normalized.match(/^(?:(\d+)\s*)?(?:tieng|gio|hours?)(?:\s+(ruoi)|\s+(\d+)\s*phut)?$/);
-  const legacyMinutes = normalized.match(/^(\d+)\s*(?:phut|minutes?)?$/);
+  const legacyMinutes = normalized.match(/^(\d+)\s*(?:phut|minutes?|mins?|m)?$/);
   if (legacyHour || legacyMinutes) {
     const value = legacyHour
       ? Number(legacyHour[1] ?? 1) * 60 + (legacyHour[2] ? 30 : Number(legacyHour[3] ?? 0))

@@ -15,7 +15,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { Mode } from '../data/sourceState';
 import type { RootStackParamList } from '../navigation';
-import { ALLEY_LIST, HERO_PHOTO } from '../assets/photoMap';
+import { HERO_PHOTO } from '../assets/photoMap';
 import { useMotionState } from '../hooks/MotionPreferences';
 import { AppIcon } from '../components/AppIcon';
 import { NgoKeLogo } from '../components/NgoKeLogo';
@@ -23,13 +23,17 @@ import {
   useEntranceFadeSlide,
   usePressSpring,
 } from '../hooks/useMotion';
+import { useLocale } from '../context/LocaleContext';
+import { getLocalizedCollections } from '../data/collections';
 import { colors, radius, spacing } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Landing'> & { nodeCount: number; mode?: Mode };
 
-export function LandingScreen({ navigation, nodeCount, mode = 'demo' }: Props): ReactElement {
+export function LandingScreen({ navigation, mode = 'demo' }: Props): ReactElement {
   const insets = useSafeAreaInsets();
   const { width: screenWidth, fontScale } = useWindowDimensions();
+  const { locale, setLocale, setCollectionId, t } = useLocale();
+  const collections = getLocalizedCollections(locale);
 
   const [passportVisible, setPassportVisible] = useState(false);
 
@@ -83,20 +87,26 @@ export function LandingScreen({ navigation, nodeCount, mode = 'demo' }: Props): 
           >
             <NgoKeLogo size="md" variant="horizontal" theme="light" />
 
-            {/* Nút bật/tắt âm thanh không gian ngõ */}
-            <Animated.View
-              style={[
-                styles.soundscapePill,
-              ]}
-            >
-              <Text style={styles.soundscapeIcon}>{mode === 'demo' ? 'DEMO' : 'LIVE'}</Text>
-            </Animated.View>
+            <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+              <Pressable
+                testID="locale-switch"
+                accessibilityRole="button"
+                accessibilityLabel={locale === 'vi' ? 'Switch to English' : 'Chuyển sang Tiếng Việt'}
+                onPress={() => setLocale(locale === 'vi' ? 'en' : 'vi')}
+                style={styles.soundscapePill}
+              >
+                <Text style={styles.soundscapeIcon}>{locale === 'vi' ? 'EN' : 'VI'}</Text>
+              </Pressable>
+              <View style={styles.soundscapePill}>
+                <Text style={styles.soundscapeIcon}>{mode === 'demo' ? 'DEMO' : 'LIVE'}</Text>
+              </View>
+            </View>
           </Animated.View>
 
           {/* Banner thông báo âm thanh không gian khi bật */}
           <View style={styles.soundscapeBanner}>
             <Text style={styles.soundscapeBannerText}>
-              Lời kể bằng chữ · nội dung mô phỏng · {mode === 'demo' ? 'Demo' : 'nguồn Live'}
+              {t('landing.soundscape_banner', { mode: mode === 'demo' ? t('common.demo') : t('common.live') })}
             </Text>
           </View>
 
@@ -128,16 +138,16 @@ export function LandingScreen({ navigation, nodeCount, mode = 'demo' }: Props): 
           >
             <View style={[styles.sectionHeaderRow, fontScale > 1.2 && styles.sectionHeaderStacked]}>
               <View>
-                <Text style={styles.sectionPreTitle}>HÀNH TRÌNH NỔI BẬT</Text>
-                <Text style={styles.sectionMainTitle}>Chọn một con ngõ</Text>
+                <Text style={styles.sectionPreTitle}>{t('landing.featured_section_pre')}</Text>
+                <Text style={styles.sectionMainTitle}>{t('landing.featured_section_title')}</Text>
               </View>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Xem tất cả con ngõ"
+                accessibilityLabel={t('landing.see_all_label')}
                 onPress={() => navigation.navigate('AlleySelect')}
                 style={[styles.seeAllLink, fontScale > 1.2 && styles.seeAllLinkStacked]}
               >
-                <Text style={styles.seeAllText}>Xem tất cả ›</Text>
+                <Text style={styles.seeAllText}>{t('landing.see_all')}</Text>
               </Pressable>
             </View>
 
@@ -146,44 +156,47 @@ export function LandingScreen({ navigation, nodeCount, mode = 'demo' }: Props): 
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.horizontalAlleyScroll}
             >
-              {ALLEY_LIST.map((alley) => (
+              {collections.map((col) => (
                 <Pressable
-                  key={alley.id}
+                  key={col.id}
                   accessibilityRole="button"
-                  accessibilityLabel={`Mở con ngõ ${alley.name}`}
-                  onPress={() => navigation.navigate('Home', { alleyId: alley.id })}
+                  accessibilityLabel={`${t('common.close')} ${col.name}`}
+                  onPress={() => {
+                    setCollectionId(col.id);
+                    navigation.navigate('Home', { alleyId: col.id });
+                  }}
                   style={({ pressed }) => [
                     styles.alleyPreviewCard,
                     { width: Math.min(260, screenWidth * 0.72) },
                     pressed && styles.pressed,
                   ]}
                 >
-                  <Image source={alley.coverPhoto} style={styles.alleyCardImage} />
+                  <Image source={col.coverPhoto} style={styles.alleyCardImage} />
                   <View style={styles.alleyCardScrim} />
 
                   {/* Badge chủ đề */}
                   <View style={styles.cardThemeTag}>
-                    <Text style={styles.cardThemeTagText}>{alley.theme}</Text>
+                    <Text style={styles.cardThemeTagText}>{col.theme}</Text>
                   </View>
 
                   {/* Khoảng cách ước tính */}
                   <View style={styles.cardDistanceBadge}>
-                    <Text style={styles.cardDistanceText}>DEMO</Text>
+                    <Text style={styles.cardDistanceText}>{mode === 'demo' ? 'DEMO' : 'LIVE'}</Text>
                   </View>
 
                   <View style={styles.alleyCardContent}>
-                    <Text style={styles.alleyCardDistrict}>{alley.district}</Text>
-                    <Text style={styles.alleyCardName}>{alley.name}</Text>
+                    <Text style={styles.alleyCardDistrict}>{col.district}</Text>
+                    <Text style={styles.alleyCardName}>{col.name}</Text>
                     <Text style={styles.alleyCardTagline} numberOfLines={2}>
-                      {alley.tagline}
+                      {col.tagline}
                     </Text>
 
                     <View style={styles.alleyCardMetaRow}>
                       <Text style={styles.cardStoryCount}>
-                        Bộ {nodeCount} điểm · {mode === 'demo' ? 'Demo' : 'Live'}
+                        {t('common.stop_count', { count: col.nodeCount })} · {mode === 'demo' ? t('common.demo') : t('common.live')}
                       </Text>
                       <Text style={styles.cardDuration}>
-                        Mô phỏng
+                        {col.kind === 'reviewed' ? t('common.reviewed') : t('common.simulated')}
                       </Text>
                     </View>
                   </View>
@@ -258,8 +271,8 @@ export function LandingScreen({ navigation, nodeCount, mode = 'demo' }: Props): 
 
             <View style={styles.passportHeader}>
               <View>
-                <Text style={styles.passportSheetPhase}>BỘ SƯU TẬP DI SẢN</Text>
-                <Text style={styles.passportSheetTitle}>Hộ Chiếu Ngõ Phố</Text>
+                <Text style={styles.passportSheetPhase}>{t('landing.passport_phase')}</Text>
+                <Text style={styles.passportSheetTitle}>{t('landing.passport_title')}</Text>
               </View>
               <Pressable
                 onPress={() => setPassportVisible(false)}
@@ -271,12 +284,12 @@ export function LandingScreen({ navigation, nodeCount, mode = 'demo' }: Props): 
 
             <ScrollView contentContainerStyle={styles.passportScrollContent}>
               <Text style={styles.passportGuideText}>
-                Đây là mẫu trình bày sổ tay. Demo chưa lưu lịch sử ghé thăm; các trang bên dưới chưa có dấu xác nhận.
+                {t('landing.passport_guide')}
               </Text>
 
               <View style={styles.stampsGrid}>
-                {ALLEY_LIST.map((alley) => (
-                  <View key={alley.id} style={styles.stampCard}>
+                {collections.map((col) => (
+                  <View key={col.id} style={styles.stampCard}>
                     <View
                       style={[
                         styles.stampCircle,
@@ -288,11 +301,11 @@ export function LandingScreen({ navigation, nodeCount, mode = 'demo' }: Props): 
                           styles.stampCodeText,
                         ]}
                       >
-                        MẪU
+                        {t('landing.badge_sample')}
                       </Text>
                     </View>
-                    <Text style={styles.stampAlleyName}>{alley.name}</Text>
-                    <Text style={styles.stampThemeText}>{alley.theme}</Text>
+                    <Text style={styles.stampAlleyName}>{col.name}</Text>
+                    <Text style={styles.stampThemeText}>{col.theme}</Text>
                   </View>
                 ))}
               </View>

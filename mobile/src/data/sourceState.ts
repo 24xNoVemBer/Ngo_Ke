@@ -648,9 +648,9 @@ export function validateDatasetV2Pair(
   return { ok: true };
 }
 
-export function getSourceState(mode: Mode, demoData?: unknown): SourceState {
+export function getSourceState(mode: Mode, demoData?: unknown, locale: Locale = 'vi'): SourceState {
   if (mode === 'live') {
-    return liveEmpty('no-config');
+    return liveEmpty('no-config', locale);
   }
 
   const dataset = parseDataset(demoData, { mode: 'demo' });

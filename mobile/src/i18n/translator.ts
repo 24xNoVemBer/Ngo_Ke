@@ -28,8 +28,6 @@ export type TranslationKey =
   | 'voice.notice.reference_changed'
   | 'voice.notice.audio_unavailable'
   | 'voice.notice.quota_exceeded'
-  // Common UI
-  | 'common.close'
   // Voice stages / a11y announcements
   | 'voice.stage.preparing'
   | 'voice.stage.recording'
@@ -48,7 +46,128 @@ export type TranslationKey =
   | 'live.reason.network.title'
   | 'live.reason.network.detail'
   | 'live.reason.timeout.title'
-  | 'live.reason.timeout.detail';
+  | 'live.reason.timeout.detail'
+  // Common UI
+  | 'common.close'
+  | 'common.back'
+  | 'common.cancel'
+  | 'common.send'
+  | 'common.retry'
+  | 'common.loading'
+  | 'common.demo'
+  | 'common.live'
+  | 'common.simulated'
+  | 'common.reviewed'
+  | 'common.error'
+  | 'common.empty'
+  | 'common.stop_count'
+  | 'common.chapter_count'
+  | 'common.change_language'
+  | 'common.switch_to_demo'
+  | 'common.minutes'
+  // Prologue
+  | 'prologue.eyebrow'
+  | 'prologue.title'
+  | 'prologue.subtitle'
+  | 'prologue.quote'
+  | 'prologue.start_button'
+  | 'prologue.start_label'
+  | 'prologue.hint'
+  | 'prologue.lang_vi'
+  | 'prologue.lang_en'
+  // Collections
+  | 'collection.fiction_letter.name'
+  | 'collection.fiction_letter.tagline'
+  | 'collection.fiction_letter.theme'
+  | 'collection.fiction_letter.district'
+  | 'collection.old_quarter_pilot.name'
+  | 'collection.old_quarter_pilot.tagline'
+  | 'collection.old_quarter_pilot.theme'
+  | 'collection.old_quarter_pilot.district'
+  // Landing
+  | 'landing.soundscape_banner'
+  | 'landing.featured_section_pre'
+  | 'landing.featured_section_title'
+  | 'landing.see_all'
+  | 'landing.see_all_label'
+  | 'landing.passport_title'
+  | 'landing.passport_desc'
+  | 'landing.passport_open_label'
+  | 'landing.passport_guide'
+  | 'landing.passport_phase'
+  | 'landing.badge_sample'
+  // Alley select
+  | 'alley_select.title'
+  | 'alley_select.subtitle'
+  | 'alley_select.open_label'
+  | 'alley_select.meta_info'
+  // Home
+  | 'home.open_story'
+  | 'home.stories_opened'
+  | 'home.explore_current'
+  | 'home.unopened'
+  | 'home.opened'
+  | 'home.menu_title'
+  | 'home.language_selector'
+  // QA
+  | 'qa.read_text'
+  | 'qa.collapse_text'
+  | 'qa.prev_stop'
+  | 'qa.prev_stop_label'
+  | 'qa.next_stop'
+  | 'qa.next_stop_label'
+  | 'qa.ask_header'
+  | 'qa.answer_evidence'
+  | 'qa.follow_ups_header'
+  | 'qa.source_disclaimer'
+  | 'qa.photo_note'
+  | 'qa.photographer'
+  | 'qa.type_question_placeholder'
+  | 'qa.open_camera'
+  | 'qa.open_location'
+  | 'qa.open_plan'
+  | 'qa.missing_audio'
+  | 'qa.no_match'
+  // Plan
+  | 'plan.title'
+  | 'plan.subtitle'
+  | 'plan.topic_header'
+  | 'plan.time_header'
+  | 'plan.topic_food'
+  | 'plan.topic_history'
+  | 'plan.topic_explore'
+  | 'plan.custom_topic'
+  | 'plan.custom_time'
+  | 'plan.recommendations_header'
+  | 'plan.recommendations_empty'
+  | 'plan.go_to_stop'
+  | 'plan.estimated_time'
+  // Camera
+  | 'camera.title'
+  | 'camera.enable_button'
+  | 'camera.turn_off_button'
+  | 'camera.scan_again'
+  | 'camera.confirm_point'
+  | 'camera.manual_selection'
+  | 'camera.scanning'
+  | 'camera.permission_denied'
+  | 'camera.permission_blocked'
+  | 'camera.unrecognized_qr'
+  // Location
+  | 'location.title'
+  | 'location.find_button'
+  | 'location.waiting'
+  | 'location.stop_waiting'
+  | 'location.confirm_button'
+  | 'location.manual_list'
+  | 'location.err_poor_accuracy'
+  | 'location.err_outside'
+  | 'location.err_no_coords'
+  | 'location.err_needs_position'
+  // Unavailable
+  | 'unavailable.phase'
+  | 'unavailable.title'
+  | 'unavailable.note';
 
 export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
   vi: {
@@ -76,9 +195,8 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'voice.notice.answer_matched_read_text': 'Câu trả lời đã khớp. Bản đọc chưa có trong chế độ Live; chạm “Xem lời kể bằng chữ” để mở nội dung.',
     'voice.notice.reference_missing': 'Mình chưa có danh sách câu hỏi của lượt trước để biết “câu đầu tiên” là câu nào. Chọn một câu bên dưới nhé.',
     'voice.notice.reference_changed': 'Danh sách câu hỏi vừa thay đổi. Chọn lại một câu bên dưới nhé.',
-    'voice.notice.audio_unavailable': 'Bản đọc chưa sẵn sàng. Bạn vẫn có thể xem lời kể bằng chữ.',
+    'voice.notice.audio_unavailable': 'Không mở được bản đọc. Bạn vẫn có thể xem lời kể bằng chữ.',
     'voice.notice.quota_exceeded': 'Đã đạt giới hạn {seconds} giây. Nhấn Gửi để tiếp tục hoặc Huỷ để ghi âm lại.',
-    'common.close': 'Đóng',
 
     'voice.stage.preparing': 'Đang bật micro.',
     'voice.stage.recording': 'Đang thu câu hỏi. Chạm Gửi để kết thúc hoặc Hủy bản ghi.',
@@ -98,6 +216,127 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'live.reason.network.detail': 'Kiểm tra mạng hoặc URL backend rồi bấm “Thử lại”.',
     'live.reason.timeout.title': 'Máy chủ live phản hồi quá chậm',
     'live.reason.timeout.detail': 'Quá 8 giây không có phản hồi nên app dừng chờ. Bấm “Thử lại”.',
+
+    'common.close': 'Đóng',
+    'common.back': 'Quay lại',
+    'common.cancel': 'Hủy',
+    'common.send': 'Gửi',
+    'common.retry': 'Thử lại',
+    'common.loading': 'Đang tải…',
+    'common.demo': 'Demo',
+    'common.live': 'Live',
+    'common.simulated': 'Mô phỏng',
+    'common.reviewed': 'Đã duyệt',
+    'common.error': 'Lỗi',
+    'common.empty': 'Chưa có dữ liệu',
+    'common.stop_count': '{count} điểm',
+    'common.chapter_count': '{count} chương',
+    'common.change_language': 'Đổi ngôn ngữ',
+    'common.switch_to_demo': 'Chuyển sang Demo',
+    'common.minutes': '{minutes} phút',
+
+    'prologue.eyebrow': 'MỘT TRANG KÝ ỨC HÀ NỘI',
+    'prologue.title': 'NGÕ KỂ',
+    'prologue.subtitle': 'KÝ ỨC NGÕ PHỐ HÀ NỘI',
+    'prologue.quote': '“Trong bóng sớm mai, ngõ nhỏ bâng khuâng thức giấc,\nkể lại lời thì thầm giữa lòng phố cổ.”',
+    'prologue.start_button': 'BẮT ĐẦU DẠO NGÕ',
+    'prologue.start_label': 'Bắt đầu dạo ngõ Hà Nội',
+    'prologue.hint': 'Chạm để mở lối ký ức phố ngõ',
+    'prologue.lang_vi': 'Tiếng Việt',
+    'prologue.lang_en': 'English',
+
+    'collection.fiction_letter.name': 'Phố Hàng Bút',
+    'collection.fiction_letter.tagline': 'Chuyện phiêu lưu giả tưởng 6 chương',
+    'collection.fiction_letter.theme': 'Chuyện xưa',
+    'collection.fiction_letter.district': 'Hoàn Kiếm, Hà Nội',
+    'collection.old_quarter_pilot.name': 'Thử nghiệm Phố Cổ',
+    'collection.old_quarter_pilot.tagline': '3 điểm dừng lịch sử có tư liệu',
+    'collection.old_quarter_pilot.theme': 'Di sản',
+    'collection.old_quarter_pilot.district': 'Phố Cổ, Hoàn Kiếm',
+
+    'landing.soundscape_banner': 'Lời kể bằng chữ · nội dung mô phỏng · {mode}',
+    'landing.featured_section_pre': 'HÀNH TRÌNH NỔI BẬT',
+    'landing.featured_section_title': 'Chọn một con ngõ',
+    'landing.see_all': 'Xem tất cả ›',
+    'landing.see_all_label': 'Xem tất cả con ngõ',
+    'landing.passport_title': 'Hộ chiếu ngõ phố',
+    'landing.passport_desc': 'Xem mẫu sổ tay · chưa lưu lịch sử ghé thăm',
+    'landing.passport_open_label': 'Mở Hộ chiếu ngõ phố',
+    'landing.passport_guide': 'Đây là mẫu trình bày sổ tay. Demo chưa lưu lịch sử ghé thăm; các trang bên dưới chưa có dấu xác nhận.',
+    'landing.passport_phase': 'BỘ SƯU TẬP DI SẢN',
+    'landing.badge_sample': 'MẪU',
+
+    'alley_select.title': 'Bộ sưu tập con ngõ',
+    'alley_select.subtitle': 'Chọn một hành trình để bắt đầu khám phá',
+    'alley_select.open_label': 'Mở {name}',
+    'alley_select.meta_info': 'Bìa minh họa · {count} điểm · {mode}',
+
+    'home.open_story': 'Xem {name}',
+    'home.stories_opened': 'Đã mở {opened}/{total} câu chuyện · {mode}',
+    'home.explore_current': 'Khám phá điểm này',
+    'home.unopened': 'Chưa mở',
+    'home.opened': 'Đã mở',
+    'home.menu_title': 'Tùy chọn',
+    'home.language_selector': 'Ngôn ngữ',
+
+    'qa.read_text': 'Xem lời kể bằng chữ',
+    'qa.collapse_text': 'Thu gọn lời kể',
+    'qa.prev_stop': '‹ Điểm trước',
+    'qa.prev_stop_label': 'Điểm trước đó',
+    'qa.next_stop': 'Điểm tiếp theo ›',
+    'qa.next_stop_label': 'Điểm tiếp theo',
+    'qa.ask_header': 'Hỏi thêm người kể',
+    'qa.answer_evidence': 'Căn cứ',
+    'qa.follow_ups_header': 'Câu hỏi gợi ý tiếp theo',
+    'qa.source_disclaimer': 'Nguồn',
+    'qa.photo_note': 'Ảnh minh họa',
+    'qa.photographer': 'Nhiếp ảnh',
+    'qa.type_question_placeholder': 'Nhập câu hỏi của bạn…',
+    'qa.open_camera': 'Mở camera',
+    'qa.open_location': 'Mở vị trí',
+    'qa.open_plan': 'Chọn trải nghiệm',
+    'qa.missing_audio': 'Bản đọc chưa sẵn sàng cho nội dung này. Bạn vẫn có thể xem lời kể bằng chữ.',
+    'qa.no_match': 'Chưa có dữ liệu cho câu hỏi này. Hãy thử chọn một câu gợi ý bên dưới.',
+
+    'plan.title': 'Chọn trải nghiệm',
+    'plan.subtitle': 'Chọn chủ đề và quỹ thời gian để gợi ý lộ trình',
+    'plan.topic_header': 'Chủ đề',
+    'plan.time_header': 'Quỹ thời gian',
+    'plan.topic_food': 'Ẩm thực ngõ',
+    'plan.topic_history': 'Chuyện xưa hoài niệm',
+    'plan.topic_explore': 'Khám phá tự do',
+    'plan.custom_topic': 'Chủ đề khác',
+    'plan.custom_time': 'Thời gian khác',
+    'plan.recommendations_header': 'Gợi ý điểm dừng',
+    'plan.recommendations_empty': 'Không tìm thấy điểm dừng phù hợp với lựa chọn này.',
+    'plan.go_to_stop': 'Đến điểm này',
+    'plan.estimated_time': '~{minutes} phút',
+
+    'camera.title': 'Camera và người kể',
+    'camera.enable_button': 'Bật camera và quét QR',
+    'camera.turn_off_button': 'Tắt camera',
+    'camera.scan_again': 'Quét lại',
+    'camera.confirm_point': 'Xác nhận điểm này',
+    'camera.manual_selection': 'Hoặc chọn điểm bằng tay',
+    'camera.scanning': 'Đang quét mã QR…',
+    'camera.permission_denied': 'Chưa được cấp quyền camera. Bạn vẫn có thể chọn điểm bằng tay bên dưới.',
+    'camera.permission_blocked': 'Quyền camera đã bị từ chối trong cài đặt hệ thống. Hãy chọn điểm bằng tay bên dưới.',
+    'camera.unrecognized_qr': 'Không nhận mã này. Bạn có thể quét lại hoặc chọn điểm bằng tay.',
+
+    'location.title': 'Xác nhận điểm GPS',
+    'location.find_button': 'Tìm điểm gần nhất qua GPS',
+    'location.waiting': 'Đang đọc tọa độ GPS…',
+    'location.stop_waiting': 'Dừng tìm',
+    'location.confirm_button': 'Xác nhận điểm này',
+    'location.manual_list': 'Danh sách điểm dừng',
+    'location.err_poor_accuracy': 'Tín hiệu GPS yếu (~{meters}), nên app không đoán điểm nào. Hãy thử lại ở nơi thoáng trời hoặc chọn điểm bằng tay bên dưới.',
+    'location.err_outside': 'Bạn đang cách điểm gần nhất khoảng {meters}, vượt ngoài phạm vi ngõ demo. Hãy chọn điểm bằng tay.',
+    'location.err_no_coords': 'Điểm này chưa có tọa độ GPS. Hãy chọn điểm trên danh sách bằng tay.',
+    'location.err_needs_position': 'Chưa nhận được vị trí thiết bị. Vui lòng bấm thử lại hoặc chọn điểm bằng tay.',
+
+    'unavailable.phase': 'Thông báo dữ liệu',
+    'unavailable.title': 'Chưa có dữ liệu hỏi đáp',
+    'unavailable.note': 'Vui lòng chuyển về chế độ Demo để trải nghiệm toàn bộ các tính năng được mô phỏng sẵn.',
   },
   en: {
     'voice.error.MIC_PERMISSION_DENIED': "Ngõ Kể doesn't have permission to use the microphone. You can type your question instead.",
@@ -126,7 +365,6 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'voice.notice.reference_changed': 'The question list has changed. Please select a question below.',
     'voice.notice.audio_unavailable': 'Audio recording is unavailable. You can still read the story text.',
     'voice.notice.quota_exceeded': 'Maximum {seconds} seconds reached. Tap Send to continue or Cancel to record again.',
-    'common.close': 'Close',
 
     'voice.stage.preparing': 'Enabling microphone.',
     'voice.stage.recording': 'Recording your question. Tap Send when finished or Cancel to discard.',
@@ -146,6 +384,127 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'live.reason.network.detail': 'Check your network connection or backend URL and tap “Retry”.',
     'live.reason.timeout.title': 'Live server timed out',
     'live.reason.timeout.detail': 'No response after 8 seconds. Tap “Retry”.',
+
+    'common.close': 'Close',
+    'common.back': 'Back',
+    'common.cancel': 'Cancel',
+    'common.send': 'Send',
+    'common.retry': 'Retry',
+    'common.loading': 'Loading…',
+    'common.demo': 'Demo',
+    'common.live': 'Live',
+    'common.simulated': 'Simulated',
+    'common.reviewed': 'Reviewed',
+    'common.error': 'Error',
+    'common.empty': 'No data',
+    'common.stop_count': '{count} stops',
+    'common.chapter_count': '{count} chapters',
+    'common.change_language': 'Change language',
+    'common.switch_to_demo': 'Switch to Demo',
+    'common.minutes': '{minutes} min',
+
+    'prologue.eyebrow': 'A PAGE OF HANOI MEMORIES',
+    'prologue.title': 'NGÕ KỂ',
+    'prologue.subtitle': 'MEMORIES OF HANOI ALLEYS',
+    'prologue.quote': '“In the early morning shade, the alley wakes,\nwhispering stories deep within the Old Quarter.”',
+    'prologue.start_button': 'START JOURNEY',
+    'prologue.start_label': 'Start exploring Hanoi alleys',
+    'prologue.hint': 'Tap to begin the alley journey',
+    'prologue.lang_vi': 'Tiếng Việt',
+    'prologue.lang_en': 'English',
+
+    'collection.fiction_letter.name': 'Hang But Street - A Fiction Letter',
+    'collection.fiction_letter.tagline': 'A 6-chapter fictional adventure',
+    'collection.fiction_letter.theme': 'Old Stories',
+    'collection.fiction_letter.district': 'Hoan Kiem, Hanoi',
+    'collection.old_quarter_pilot.name': 'Old Quarter Pilot',
+    'collection.old_quarter_pilot.tagline': '3 historical stops with verified sources',
+    'collection.old_quarter_pilot.theme': 'Heritage',
+    'collection.old_quarter_pilot.district': 'Old Quarter, Hoan Kiem',
+
+    'landing.soundscape_banner': 'Text stories · simulated content · {mode}',
+    'landing.featured_section_pre': 'FEATURED JOURNEYS',
+    'landing.featured_section_title': 'Choose an alley',
+    'landing.see_all': 'See all ›',
+    'landing.see_all_label': 'See all alleys',
+    'landing.passport_title': 'Alley Passport',
+    'landing.passport_desc': 'View notebook sample · visit history not saved',
+    'landing.passport_open_label': 'Open Alley Passport',
+    'landing.passport_guide': 'This is a sample notebook. Demo does not yet save visit history; stops below are unconfirmed.',
+    'landing.passport_phase': 'HERITAGE COLLECTION',
+    'landing.badge_sample': 'SAMPLE',
+
+    'alley_select.title': 'Alley Collection',
+    'alley_select.subtitle': 'Choose a journey to start exploring',
+    'alley_select.open_label': 'Open {name}',
+    'alley_select.meta_info': 'Cover photo · {count} stops · {mode}',
+
+    'home.open_story': 'View {name}',
+    'home.stories_opened': 'Opened {opened}/{total} stories · {mode}',
+    'home.explore_current': 'Explore this stop',
+    'home.unopened': 'Unopened',
+    'home.opened': 'Opened',
+    'home.menu_title': 'Options',
+    'home.language_selector': 'Language',
+
+    'qa.read_text': 'Read text',
+    'qa.collapse_text': 'Collapse text',
+    'qa.prev_stop': '‹ Previous stop',
+    'qa.prev_stop_label': 'Previous stop',
+    'qa.next_stop': 'Next stop ›',
+    'qa.next_stop_label': 'Next stop',
+    'qa.ask_header': 'Ask the storyteller',
+    'qa.answer_evidence': 'Evidence',
+    'qa.follow_ups_header': 'Follow-up questions',
+    'qa.source_disclaimer': 'Source',
+    'qa.photo_note': 'Illustration photo',
+    'qa.photographer': 'Photographer',
+    'qa.type_question_placeholder': 'Type your question…',
+    'qa.open_camera': 'Open camera',
+    'qa.open_location': 'Open location',
+    'qa.open_plan': 'Plan experience',
+    'qa.missing_audio': 'Audio recording is unavailable for this content. You can still read the text.',
+    'qa.no_match': 'No data available for this question. Try selecting a suggested question below.',
+
+    'plan.title': 'Choose experience',
+    'plan.subtitle': 'Choose a topic and time budget for route recommendations',
+    'plan.topic_header': 'Topic',
+    'plan.time_header': 'Time budget',
+    'plan.topic_food': 'Alley food',
+    'plan.topic_history': 'Old stories & heritage',
+    'plan.topic_explore': 'Free exploration',
+    'plan.custom_topic': 'Other topic',
+    'plan.custom_time': 'Other duration',
+    'plan.recommendations_header': 'Suggested stops',
+    'plan.recommendations_empty': 'No stops match your selection.',
+    'plan.go_to_stop': 'Go to this stop',
+    'plan.estimated_time': '~{minutes} min',
+
+    'camera.title': 'Camera & storyteller',
+    'camera.enable_button': 'Enable camera & scan QR',
+    'camera.turn_off_button': 'Turn off camera',
+    'camera.scan_again': 'Scan again',
+    'camera.confirm_point': 'Confirm this stop',
+    'camera.manual_selection': 'Or select manually',
+    'camera.scanning': 'Scanning QR code…',
+    'camera.permission_denied': 'Camera permission not granted. You can select a stop manually below.',
+    'camera.permission_blocked': 'Camera permission is blocked in settings. Please select a stop manually below.',
+    'camera.unrecognized_qr': 'Unrecognized code. You can scan again or select manually.',
+
+    'location.title': 'Confirm GPS stop',
+    'location.find_button': 'Find nearest stop via GPS',
+    'location.waiting': 'Reading GPS coordinates…',
+    'location.stop_waiting': 'Stop searching',
+    'location.confirm_button': 'Confirm this stop',
+    'location.manual_list': 'List of stops',
+    'location.err_poor_accuracy': 'GPS accuracy is weak (~{meters}). Please retry outdoors or select a stop manually below.',
+    'location.err_outside': 'You are about {meters} from the nearest stop, outside the tour area. Please select manually.',
+    'location.err_no_coords': 'This stop has no GPS coordinates yet. Please select manually from the list.',
+    'location.err_needs_position': 'Cannot determine device location. Please retry or select manually.',
+
+    'unavailable.phase': 'Data notice',
+    'unavailable.title': 'Q&A data not available',
+    'unavailable.note': 'Please switch to Demo mode to explore all simulated features.',
   },
 };
 

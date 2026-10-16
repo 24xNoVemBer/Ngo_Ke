@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TOPICS, type DemoDataset, type Mode } from '../data/sourceState';
+import { TOPICS, type AnyDemoDataset, type Mode } from '../data/sourceState';
 import { findAnswer, type QaEntry, type QaMatch } from '../qa/match';
 import { pickPoints, TOPIC_LABELS, type PlanDraft } from '../recommendation/pick';
 import { HERO_PHOTO, getNodePhoto, getNodePhotographer } from '../assets/photoMap';
@@ -26,13 +26,14 @@ import { useVoiceSession, type VoiceTurnContext } from '../voice/useVoiceSession
 import { recordVoicePerformance, voicePerformanceNow } from '../voice/performance';
 import { parseVoiceIntent, resolveFirstOptionReference, type VoiceOptionContext } from '../voice/intent';
 import { voiceTracks } from '../voice/catalog';
+import { useLocale } from '../context/LocaleContext';
 import { colors, radius, spacing, typography } from '../theme';
 
 const CHIP_COUNT = 4;
 
 type Props = {
   mode?: Mode;
-  dataset: DemoDataset;
+  dataset: AnyDemoDataset;
   datasetRevision: string;
   voiceApiBaseUrl?: string;
   currentNodeId?: string;
@@ -78,6 +79,7 @@ export function QaScreen({
 }: Props): ReactElement {
   const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
+  const { locale, t } = useLocale();
   const [asked, setAsked] = useState<string | null>(null);
   const [askedSource, setAskedSource] = useState<'voice' | 'text' | 'chip' | null>(null);
   const [match, setMatch] = useState<QaMatch | null>(null);
@@ -200,7 +202,8 @@ export function QaScreen({
     pendingVoicePlayback.current = null;
     const currentPlaybackIntent = ++playbackIntent.current;
     const playbackStopped = Promise.resolve(voiceSession.stopPlayback());
-    if (source === 'voice' && nextMatch.status === 'matched' && currentNode && mode === 'demo') {
+    const isViFiction = locale === 'vi' && (dataset as { collectionId?: string }).collectionId !== 'old-quarter-pilot';
+    if (source === 'voice' && nextMatch.status === 'matched' && currentNode && mode === 'demo' && isViFiction) {
       const id = `${nextMatch.entry.id}-answer`;
       if (context) pendingVoicePlayback.current = { turnId: context.turnId, trackId: id, startedAt: voicePerformanceNow() };
       lastTrack.current = { id, text: nextMatch.entry.answer, kind: 'answer', nodeId: currentNode.id, revision: datasetRevision };
@@ -208,15 +211,19 @@ export function QaScreen({
         if (currentPlaybackIntent !== playbackIntent.current) return;
         if (stopped !== false) return voiceSession.playTrack(id, nextMatch.entry.answer, 'answer', currentNode.id);
         if (context && pendingVoicePlayback.current?.turnId === context.turnId) pendingVoicePlayback.current = null;
-        setVoiceActionCard({ kind: 'notice', message: 'Lời kể chưa dừng hẳn. Hãy thử phát lại sau một chút.' });
+        setVoiceActionCard({ kind: 'notice', message: t('voice.notice.stop_pending') });
       });
     } else if (source === 'voice' && nextMatch.status === 'matched') {
       pendingVoicePlayback.current = null;
       lastTrack.current = null;
-      setVoiceActionCard({ kind: 'notice', message: 'Câu trả lời đã khớp. Bản đọc chưa có trong chế độ Live; chạm “Xem lời kể bằng chữ” để mở nội dung.' });
+      setVoiceActionCard({
+        kind: 'notice',
+        message: mode === 'demo' ? t('voice.notice.audio_unavailable') : t('voice.notice.answer_matched_read_text'),
+      });
     }
   }
 
+  const isViFiction = locale === 'vi' && (dataset as { collectionId?: string }).collectionId !== 'old-quarter-pilot';
   const intro = dataset.intro;
   const entry = match?.status === 'matched' && match.entry.nodeId === currentNode?.id ? match.entry : null;
   const followUps = entry === null ? [] : followUpEntries(entry, nodeQa);
@@ -240,13 +247,13 @@ export function QaScreen({
   }, [activeTrackId, playback.playing]);
   const playbackError = voiceSession.playbackError ?? (
     voiceSession.activeTrackId !== null && voiceSession.playback.error
-      ? 'Không mở được bản đọc. Bạn vẫn có thể xem lời kể bằng chữ.'
+      ? t('voice.notice.audio_unavailable')
       : null
   );
   const storyTrackId = currentNode ? `${currentNode.id}-story` : 'intro';
-  const storyTrack = mode === 'demo' ? voiceTracks[storyTrackId] : undefined;
+  const storyTrack = mode === 'demo' && isViFiction ? voiceTracks[storyTrackId] : undefined;
   const answerTrackId = entry ? `${entry.id}-answer` : '';
-  const answerTrack = mode === 'demo' && entry ? voiceTracks[answerTrackId] : undefined;
+  const answerTrack = mode === 'demo' && isViFiction && entry ? voiceTracks[answerTrackId] : undefined;
   const actionPlanResult = voiceActionCard?.kind === 'plan' && voiceActionCard.draft.topic && voiceActionCard.draft.budgetMinutes
     ? pickPoints(dataset.nodes, voiceActionCard.draft)
     : undefined;

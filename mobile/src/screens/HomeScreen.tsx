@@ -22,6 +22,7 @@ import { CrossfadePhoto } from '../components/CrossfadePhoto';
 import { AlleyTrailView } from '../components/AlleyTrailView';
 import { AppIcon } from '../components/AppIcon';
 import { usePressSpring, usePulseLoop } from '../hooks/useMotion';
+import { useLocale } from '../context/LocaleContext';
 import { radius, spacing } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'> & {
@@ -101,6 +102,7 @@ export function HomeScreen({
   const insets = useSafeAreaInsets();
 
   const motion = useMotionState();
+  const { locale, setLocale, t } = useLocale();
   const alleyMeta = getAlleyMeta(route.params?.alleyId);
   const [mood, setMood] = useState<'morning' | 'dusk' | 'night'>('morning');
 
@@ -186,7 +188,21 @@ export function HomeScreen({
   } = usePressSpring(0.96);
 
   if (source.status !== 'ready' || !nodes.some((node) => node.available)) {
-    return <UnavailableScreen detail={liveBusy ? 'Đang lấy dữ liệu từ máy chủ…' : source.status === 'ready' ? 'Chưa có điểm đang mở trong dữ liệu này.' : source.detail} onBack={() => navigation.goBack()} onSwitchToDemo={() => onModeChange('demo')} onRetry={mode === 'live' ? onRetryLive : undefined} busy={liveBusy} />;
+    return (
+      <UnavailableScreen
+        detail={
+          liveBusy
+            ? t('common.loading')
+            : source.status === 'ready'
+              ? (locale === 'en' ? 'No open points in this dataset.' : 'Chưa có điểm đang mở trong dữ liệu này.')
+              : source.detail
+        }
+        onBack={() => navigation.goBack()}
+        onSwitchToDemo={() => onModeChange('demo')}
+        onRetry={mode === 'live' ? onRetryLive : undefined}
+        busy={liveBusy}
+      />
+    );
   }
 
   return (
@@ -210,7 +226,7 @@ export function HomeScreen({
         <View style={[styles.topHeader, { paddingTop: topHeaderPadding }]}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Quay lại"
+            accessibilityLabel={t('common.back')}
             onPress={() => navigation.goBack()}
             style={({ pressed }) => [styles.backArrowButton, pressed && styles.pressed]}
           >
@@ -218,9 +234,13 @@ export function HomeScreen({
           </Pressable>
 
           <View style={styles.progressHeaderGroup}>
-            <Text style={styles.alleyNameHeader}>{mode === 'demo' ? alleyMeta.name : 'Hành trình từ máy chủ'}</Text>
+            <Text style={styles.alleyNameHeader}>{mode === 'demo' ? alleyMeta.name : (locale === 'en' ? 'Server journey' : 'Hành trình từ máy chủ')}</Text>
             <Text style={styles.progressTitle}>
-              Đã mở {visitedCount}/{nodes.length} câu chuyện · {mode === 'demo' ? 'Demo' : 'Live'}
+              {t('home.stories_opened', {
+                opened: visitedCount,
+                total: nodes.length,
+                mode: mode === 'demo' ? 'Demo' : 'Live',
+              })}
             </Text>
             <View style={styles.progressBarTrack}>
               <View
@@ -248,6 +268,19 @@ export function HomeScreen({
           >
             <Text style={styles.moodHeaderIcon}>
               {mood === 'morning' ? '🌅' : mood === 'dusk' ? '🌇' : '🏮'}
+            </Text>
+          </Pressable>
+
+          {/* Nút đổi ngôn ngữ */}
+          <Pressable
+            testID="locale-switch"
+            accessibilityRole="button"
+            accessibilityLabel={locale === 'vi' ? 'Switch to English' : 'Chuyển sang Tiếng Việt'}
+            onPress={() => setLocale(locale === 'vi' ? 'en' : 'vi')}
+            style={({ pressed }) => [styles.moodHeaderButton, pressed && styles.pressed, { marginLeft: 6 }]}
+          >
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFDF7' }}>
+              {locale === 'vi' ? 'EN' : 'VI'}
             </Text>
           </Pressable>
         </View>

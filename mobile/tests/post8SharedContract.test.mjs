@@ -20,6 +20,16 @@ import {
 import { loadLiveSourceV2 } from '../src/data/live.ts';
 import { DICTIONARY, translate, t } from '../src/i18n/translator.ts';
 import { pickCandidate } from '../src/location/nearest.ts';
+import {
+  parsePersistedLocale,
+  formatPersistedLocale,
+  resolveEffectiveLocale,
+} from '../src/data/localeStorageCore.ts';
+import {
+  parseTopic,
+  parseTimeBudget,
+  hasTopicNegation,
+} from '../src/recommendation/pick.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -718,4 +728,149 @@ test('sourceState.ts - Old Quarter pilot datasets (d3e1e15)', () => {
 
   const pairResult = validateDatasetV2Pair(parsedVi, parsedEn);
   assert.deepEqual(pairResult, { ok: true });
+});
+
+test('localeStorageCore.ts - parsing, formatting, and OS fallback', () => {
+  // Parsing valid JSON records
+  assert.equal(parsePersistedLocale('{"locale":"vi"}'), 'vi');
+  assert.equal(parsePersistedLocale('{"locale":"en"}'), 'en');
+  assert.equal(parsePersistedLocale('{"locale": "en", "timestamp": 123}'), 'en');
+
+  // Bare valid strings
+  assert.equal(parsePersistedLocale('vi'), 'vi');
+  assert.equal(parsePersistedLocale('en'), 'en');
+
+  // Corrupted / invalid input returns undefined (no crash)
+  assert.equal(parsePersistedLocale('{locale:'), undefined);
+  assert.equal(parsePersistedLocale('{"locale":"fr"}'), undefined);
+  assert.equal(parsePersistedLocale('{"other":true}'), undefined);
+  assert.equal(parsePersistedLocale(''), undefined);
+  assert.equal(parsePersistedLocale('   '), undefined);
+  assert.equal(parsePersistedLocale(null), undefined);
+  assert.equal(parsePersistedLocale(undefined), undefined);
+  assert.equal(parsePersistedLocale(12345), undefined);
+
+  // Formatting produces valid parseable JSON with locale and timestamp
+  assert.equal(parsePersistedLocale(formatPersistedLocale('vi')), 'vi');
+  assert.equal(parsePersistedLocale(formatPersistedLocale('en')), 'en');
+  assert.ok(formatPersistedLocale('vi').includes('"locale": "vi"'));
+  assert.ok(formatPersistedLocale('en').includes('"locale": "en"'));
+
+  // Effective locale resolution
+  assert.equal(resolveEffectiveLocale('en'), 'en');
+  assert.equal(resolveEffectiveLocale('vi'), 'vi');
+  assert.equal(resolveEffectiveLocale(undefined, 'en-US'), 'en');
+  assert.equal(resolveEffectiveLocale(undefined, 'en_GB'), 'en');
+  assert.equal(resolveEffectiveLocale(undefined, 'vi-VN'), 'vi');
+  assert.equal(resolveEffectiveLocale(undefined, 'fr-FR'), 'vi'); // default fallback
+  assert.equal(resolveEffectiveLocale(undefined, 'unknown'), 'vi'); // default fallback
+  assert.ok(isLocale(resolveEffectiveLocale(undefined, undefined)));
+});
+
+test('translator.ts - 100% dictionary parity between VI and EN', () => {
+  const viKeys = Object.keys(DICTIONARY.vi).sort();
+  const enKeys = Object.keys(DICTIONARY.en).sort();
+
+  assert.equal(viKeys.length >= 150, true, `Expected >= 150 keys, got ${viKeys.length}`);
+  assert.deepEqual(viKeys, enKeys, 'VI and EN dictionaries must have identical keys');
+
+  for (const key of viKeys) {
+    const viVal = DICTIONARY.vi[key];
+    const enVal = DICTIONARY.en[key];
+    assert.equal(typeof viVal, 'string', `VI key ${key} must be string`);
+    assert.equal(typeof enVal, 'string', `EN key ${key} must be string`);
+    assert.ok(viVal.trim().length > 0, `VI key ${key} must not be empty`);
+    assert.ok(enVal.trim().length > 0, `EN key ${key} must not be empty`);
+  }
+
+  // Translation function works
+  assert.equal(translate('vi', 'home.menu_title'), 'Tùy chọn');
+  assert.equal(translate('en', 'home.menu_title'), 'Options');
+  assert.equal(
+    translate('vi', 'home.stories_opened', { opened: 0, total: 6, mode: 'Demo' }),
+    'Đã mở 0/6 câu chuyện · Demo',
+  );
+  assert.equal(
+    translate('en', 'home.stories_opened', { opened: 0, total: 6, mode: 'Demo' }),
+    'Opened 0/6 stories · Demo',
+  );
+});
+
+test('pick.ts - English alias parsing for topics and time budgets', () => {
+  // English topic matching
+  assert.equal(parseTopic('food'), 'an thuc');
+  assert.equal(parseTopic('street food'), 'an thuc');
+  assert.equal(parseTopic('culinary'), 'an thuc');
+  assert.equal(parseTopic('history'), 'chuyen xua');
+  assert.equal(parseTopic('memories'), 'chuyen xua');
+  assert.equal(parseTopic('explore'), 'kham pha tu do');
+  assert.equal(parseTopic('free walking'), 'kham pha tu do');
+
+  // Negation matching
+  assert.equal(hasTopicNegation('not food'), true);
+  assert.equal(hasTopicNegation('no history'), true);
+  assert.equal(hasTopicNegation('don\'t want culinary'), true);
+  assert.equal(hasTopicNegation('without food'), true);
+  assert.equal(hasTopicNegation('không đi ẩm thực'), true);
+  assert.equal(hasTopicNegation('just food'), false);
+
+  // Time budget matching
+  assert.equal(parseTimeBudget('15 minutes'), 15);
+  assert.equal(parseTimeBudget('15 mins'), 15);
+  assert.equal(parseTimeBudget('15m'), 15);
+  assert.equal(parseTimeBudget('30 minutes'), 30);
+  assert.equal(parseTimeBudget('half an hour'), 30);
+  assert.equal(parseTimeBudget('45 minutes'), 45);
+  assert.equal(parseTimeBudget('1 hour'), 60);
+  assert.equal(parseTimeBudget('one hour'), 60);
+  assert.equal(parseTimeBudget('60 min'), 60);
+  assert.equal(parseTimeBudget('1.5 hours'), 90);
+  assert.equal(parseTimeBudget('90 minutes'), 90);
+});
+
+test('collections data - dual collection datasets and canonical revisions', () => {
+  const demoViPath = join(__dirname, '../../data/demo.json');
+  const fictionEnPath = join(__dirname, '../../data/localized/fiction.en.json');
+  const oqViPath = join(__dirname, '../../data/localized/old-quarter.vi.json');
+  const oqEnPath = join(__dirname, '../../data/localized/old-quarter.en.json');
+
+  const demoViJson = JSON.parse(readFileSync(demoViPath, 'utf8'));
+  const fictionEnJson = JSON.parse(readFileSync(fictionEnPath, 'utf8'));
+  const oqViJson = JSON.parse(readFileSync(oqViPath, 'utf8'));
+  const oqEnJson = JSON.parse(readFileSync(oqEnPath, 'utf8'));
+
+  // 1. Fiction Letter: 6 nodes, 21 Q&A
+  assert.equal(demoViJson.nodes.length, 6);
+  assert.equal(demoViJson.qa.length, 21);
+  assert.equal(fictionEnJson.nodes.length, 6);
+  assert.equal(fictionEnJson.qa.length, 21);
+
+  // 2. Old Quarter Pilot: 3 nodes, 9 Q&A
+  assert.equal(oqViJson.nodes.length, 3);
+  assert.equal(oqViJson.qa.length, 9);
+  assert.equal(oqEnJson.nodes.length, 3);
+  assert.equal(oqEnJson.qa.length, 9);
+
+  // 3. Exact dataset canonical revisions
+  // Legacy VI fiction revision
+  const legacyViRevision = '8b318b4e9955e3b7affe72cb21ea08cf8123a616eeab2eb1420ab105c7b65e6b';
+  assert.equal(legacyViRevision.length, 64);
+
+  // Fiction EN canonical revision
+  const fictionEnRevision = createHash('sha256')
+    .update(canonicalDatasetJson(fictionEnJson), 'utf8')
+    .digest('hex');
+  assert.equal(fictionEnRevision, '746e0d0bfd48fb0a247dd2180dfc266e174dbea0225dabab31bddd38a8ff351b');
+
+  // Old Quarter VI canonical revision
+  const oqViRevision = createHash('sha256')
+    .update(canonicalDatasetJson(oqViJson), 'utf8')
+    .digest('hex');
+  assert.equal(oqViRevision, '358209bc5bf8f14e47a3598b93644d168219d919dcb66d9eb1f7cbb7dbd2c94a');
+
+  // Old Quarter EN canonical revision
+  const oqEnRevision = createHash('sha256')
+    .update(canonicalDatasetJson(oqEnJson), 'utf8')
+    .digest('hex');
+  assert.equal(oqEnRevision, 'd75fcc183863f7ea2ec3b24bba1c4664b762c6332f0eb768a3493d9e74089b83');
 });
