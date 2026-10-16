@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 /**
+ * HISTORICAL (Phase 8): superseded by tools/e2e/native-flow.mjs, which targets
+ * the current UX (Prologue -> Landing -> drawer hub, fixture node names).
+ * This script's labels belong to the pre-rebuild UX and no longer exist on
+ * screen, so running it now yields honest NOT-pass results, not app bugs.
+ * Kept for reference; do not use for Phase 8 QA. Guards still maintained.
+ *
  * Phase 7 checks (R7.02): fallbacks, mode switching, keyboard, font scale and
  * accessibility labels on the Android emulator.
  *
@@ -114,21 +120,49 @@ async function tapLabel(label, options) {
   const hit = await find(label, options?.scroll);
   if (!hit) return false;
   const [x1, y1, x2, y2] = hit.bounds;
-  await shell(['shell', 'input', 'tap', String((x1 + x2) / 2), String((y1 + y2) / 2)]);
+  await shell(['shell', 'input', 'tap', String(Math.round((x1 + x2) / 2)), String(Math.round((y1 + y2) / 2))]);
   await sleep(1600);
   return true;
 }
 async function shot(name) {
-  const png = await shell(['exec-out', 'screencap', '-p']);
-  writeFileSync(join(EVIDENCE, `${name}.png`), png, 'binary');
+  // Binary-safe: never decode the PNG through a text encoding (a prior
+  // PowerShell redirect produced an invalid UTF-16 file, now discarded).
+  const result = spawnSync(ADB[0], [...ADB.slice(1), 'exec-out', 'screencap', '-p'], {
+    encoding: 'buffer',
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  if (result.error) throw result.error;
+  if (result.status !== 0) throw new Error(`adb screencap -> ${result.status}`);
+  const sig = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  const idx = result.stdout.indexOf(sig);
+  if (idx < 0) throw new Error('screencap returned no PNG data');
+  writeFileSync(join(EVIDENCE, `${name}.png`), result.stdout.subarray(idx));
+}
+async function tapVisible(nodes, fragment) {
+  const hit = nodes.find((n) => n.label.includes(fragment) && n.visible);
+  if (!hit) return false;
+  const [x1, y1, x2, y2] = hit.bounds;
+  await shell(['shell', 'input', 'tap', String(Math.round((x1 + x2) / 2)), String(Math.round((y1 + y2) / 2))]);
+  await sleep(1600);
+  return true;
 }
 async function relaunch() {
   await shell(['shell', 'am', 'force-stop', 'host.exp.exponent']);
   await sleep(2000);
   await shell(['shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', `exp://${IP}:${EXPO_PORT}`, 'host.exp.exponent']);
-  for (let i = 0; i < 14; i += 1) {
+  for (let i = 0; i < 20; i += 1) {
     await sleep(2500);
-    if (text(await uiDump(`c-boot-${i}`)).includes('Nguồn dữ liệu')) return true;
+    const nodes = await uiDump(`c-boot-${i}`);
+    if (text(nodes).includes('Nguồn dữ liệu')) return true;
+    // Walk the entry flow forward: Prologue -> Landing -> Home.
+    if (text(nodes).includes('Bắt đầu dạo ngõ')) {
+      await tapVisible(nodes, 'Bắt đầu dạo ngõ');
+      continue;
+    }
+    if (text(nodes).includes('Mở con ngõ')) {
+      await tapVisible(nodes, 'Mở con ngõ');
+      continue;
+    }
   }
   return false;
 }
@@ -151,7 +185,7 @@ await tapLabel('Bắt đầu nghe giới thiệu và hỏi đáp');
 const input = await find('Nhập câu hỏi của bạn', 4);
 if (input) {
   const [x1, y1, x2, y2] = input.bounds;
-  await shell(['shell', 'input', 'tap', String((x1 + x2) / 2), String((y1 + y2) / 2)]);
+  await shell(['shell', 'input', 'tap', String(Math.round((x1 + x2) / 2)), String(Math.round((y1 + y2) / 2))]);
   await sleep(1200);
   await shell(['shell', 'input', 'text', 'gia%skhong%stho%sdiem%snao']);
   await shell(['shell', 'input', 'keyevent', '66']);
@@ -189,7 +223,7 @@ const dialog = await uiDump('c-camera-permission');
 const deny = dialog.find((n) => /Don.t allow|DENY/.test(n.label) && n.visible);
 if (deny) {
   const [x1, y1, x2, y2] = deny.bounds;
-  await shell(['shell', 'input', 'tap', String((x1 + x2) / 2), String((y1 + y2) / 2)]);
+  await shell(['shell', 'input', 'tap', String(Math.round((x1 + x2) / 2)), String(Math.round((y1 + y2) / 2))]);
   await sleep(1800);
 }
 const cameraDenied = text(await uiDump('c-camera-denied'));
@@ -199,7 +233,7 @@ const manual = await find('Chọn điểm Điểm demo 02 bằng tay');
 need('manual choice works without the camera', Boolean(manual));
 if (manual) {
   const [x1, y1, x2, y2] = manual.bounds;
-  await shell(['shell', 'input', 'tap', String((x1 + x2) / 2), String((y1 + y2) / 2)]);
+  await shell(['shell', 'input', 'tap', String(Math.round((x1 + x2) / 2)), String(Math.round((y1 + y2) / 2))]);
   await sleep(1600);
 }
 need('manual choice shows the narrator text', text(await uiDump('c-camera-manual')).includes('Điểm demo 02'));
@@ -216,7 +250,7 @@ const gpsDialog = await uiDump('c-gps-permission');
 const denyGps = gpsDialog.find((n) => /Don.t allow|DENY/.test(n.label) && n.visible);
 if (denyGps) {
   const [x1, y1, x2, y2] = denyGps.bounds;
-  await shell(['shell', 'input', 'tap', String((x1 + x2) / 2), String((y1 + y2) / 2)]);
+  await shell(['shell', 'input', 'tap', String(Math.round((x1 + x2) / 2)), String(Math.round((y1 + y2) / 2))]);
   await sleep(1800);
 }
 const gpsDenied = text(await uiDump('c-gps-denied'));
@@ -233,7 +267,7 @@ for (let i = 0; i < 8; i += 1) {
   const live = nodes.find((n) => n.label.includes('Chế độ live') && n.visible);
   if (live) {
     const [x1, y1, x2, y2] = live.bounds;
-    await shell(['shell', 'input', 'tap', String((x1 + x2) / 2), String((y1 + y2) / 2)]);
+    await shell(['shell', 'input', 'tap', String(Math.round((x1 + x2) / 2)), String(Math.round((y1 + y2) / 2))]);
     break;
   }
   await shell(['shell', 'input', 'swipe', '540', '900', '540', '1950', '300']);
@@ -250,7 +284,7 @@ for (let i = 0; i < 8; i += 1) {
   const demo = nodes.find((n) => n.label.includes('Chế độ demo') && n.visible);
   if (demo) {
     const [x1, y1, x2, y2] = demo.bounds;
-    await shell(['shell', 'input', 'tap', String((x1 + x2) / 2), String((y1 + y2) / 2)]);
+    await shell(['shell', 'input', 'tap', String(Math.round((x1 + x2) / 2)), String(Math.round((y1 + y2) / 2))]);
     break;
   }
   await shell(['shell', 'input', 'swipe', '540', '900', '540', '1950', '300']);

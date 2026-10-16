@@ -16,6 +16,25 @@
 
 Kết quả/exit/log hiện hành: [Phase1 completion](phase_1_completion.md)/[checks.json](evidence/phase-1/fixture-completion/checks.json). Fixture kỹ thuật đã tạo mới theo người dùng duyệt, không chờ source cũ. Test thiếu input là biên adapter; thiếu hẳn file static JSON làm Metro fail. API/device thật/phase sau chưa triển khai hoặc chưa thử; command/emulator đạt không tự đủG1. Không thêm runner/coverage không cần.
 
+## Lệnh và công cụ — Phase 8 (T3, cwd repo root)
+
+> Entry point native hiện hành: `node tools/e2e/native-flow.mjs [--runs 1]`
+> (Prologue → Landing → drawer hub, tên node fixture). `tools/e2e/demo-scenario.mjs`
+> và `tools/e2e/phase7-checks.mjs` là HISTORICAL (labels thuộc UX tiền-rebuild),
+> giữ để tham khảo, không dùng cho QA Phase 8.
+
+- **Unit mobile:** `npm test` trong `mobile/` (197 tests: parser/adapter/UI/voice hồi quy).
+- **Unit backend:** `node --test backend/tests/*.test.mjs` (19 tests, temp DB).
+- **Guard harness:** `node --test tools/e2e/guards.test.mjs` (33 tests thuần, không cần thiết bị).
+- **HTTP tích hợp:** `node --test tools/e2e/phase8-http.test.mjs` (15 tests: backend thật trên
+  loopback + adapter live 8s/timeout/abort/oversize; aggregate >512KiB bị import/read boundary
+  từ chối sau fix W3 0399821).
+- **Native E2E:** `tools/e2e/native-flow.mjs` trên emulator-5554 (API 37, Expo Go 57, Metro bundle
+  đúng SHA + backend LAN temp DB). Yêu cầu env `ANDROID_SERIAL`, `NGOKE_DEV_HOST` đúng route
+  (10.0.2.2, KHÔNG 10.0.0.2), `NGOKE_EXPO_PORT`. Output mặc định vào `tools/e2e/.runs/<stamp>/`
+  (gitignored), không đè evidence đã commit.
+- **Báo cáo QA:** `docs/PHASE_8_QA_REPORT.md` (SHA/build/device/command/pass/fail/pending).
+
 ## Kiểm tra tài liệu ở Phase 0
 
 1. Đối chiếu tên nguồn, user stories, scope, mã yêu cầu và sáu chỉ dấu thành công với ba tài liệu `docs/`.
