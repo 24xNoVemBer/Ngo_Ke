@@ -284,3 +284,7 @@ acceptance found: locale is strict-matched, single-null geometry rejected,
 (key sort, order-preserving arrays, no normalization), and the V1 loader keeps
 its Phase 8 behavior. Existing 213 mobile tests passing is recorded as
 regression signal only, not proof of no further bugs.
+
+## Correction 2026-10-16 (font200 scope, see POST8_FINAL100_QA_REPORT.md §6)
+
+The native final-100 paragraph above overclaimed font200 Home evidence: font200-home-en.png and font200-pilothome-en.png are AlleySelect screens, not Home, and are struck from Home evidence. AlleySelect at 200 keeps the VI filter row and an ellipsized area qualifier. Pilot Home font200-home2-en.png additionally shows reviewed trail cards worded with simulated minutes (wrong per reviewed/editorial/unmeasured contract; AlleyTrailView was not covered by the Location fix) plus the dock Notebook wrap and the Story-circle Sto clipping already routed to W2.
