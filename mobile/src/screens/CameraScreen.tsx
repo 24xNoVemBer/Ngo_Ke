@@ -18,11 +18,9 @@ type Props = {
   collectionId?: string;
 };
 
-export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionId }: Props): ReactElement {
+export function CameraScreen({ nodes, onConfirmNode, collectionKind }: Props): ReactElement {
   const { t, locale } = useLocale();
-  const isReviewed = collectionKind === 'reviewed'
-    || collectionId === 'old-quarter-pilot'
-    || nodes.some((n) => n.id.startsWith('pilot-') || n.id.startsWith('oldquarter-'));
+  const isReviewed = collectionKind === 'reviewed';
   const { foreground } = useMotionState();
   const isFocused = useIsFocused() && foreground;
   const cameraRequest = useRef(0);

@@ -2071,12 +2071,13 @@ test('QaScreen and CameraScreen branch semantic content labels on reviewed-pilot
   assert.ok(textFictionCamera.includes('nội dung mô phỏng'), 'camera footer shows simulated disclaimer');
   viewFictionCamera.unmount();
 
-  // 2. Reviewed pilot collection in Demo mode (W4 F5 fix: must not label reviewed heritage as fiction)
+  // 2. Minimal actual reviewed-pilot collection in Demo mode (reviewed heritage stays sourced)
+  const actualReviewedPilot = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.vi.json', import.meta.url), 'utf8'));
   const pilotQaProps = {
-    currentNode: fixture.nodes[0],
-    nodeQa: fixture.qa.slice(0, 2),
-    dataset: { ...fixture, collectionId: 'old-quarter-pilot', kind: 'reviewed' },
-    collectionId: 'old-quarter-pilot',
+    currentNode: actualReviewedPilot.nodes[0],
+    nodeQa: actualReviewedPilot.qa.filter((q) => q.nodeId === actualReviewedPilot.nodes[0].id),
+    dataset: actualReviewedPilot,
+    collectionId: actualReviewedPilot.collectionId,
     datasetRevision: 'rev-pilot',
     mode: 'demo',
     isFocused: true,
@@ -2098,17 +2099,19 @@ test('QaScreen and CameraScreen branch semantic content labels on reviewed-pilot
     },
   });
   let treePilotQa = viewPilotQa.render();
-  elements(treePilotQa, 'ExpandableInputDrawer')[0].props.onSelectSuggestion('Đây là điểm nào?');
+  elements(treePilotQa, 'ExpandableInputDrawer')[0].props.onSelectSuggestion('Vì sao đền có tên Bạch Mã?');
   treePilotQa = viewPilotQa.render(pilotQaProps);
   const textPilotQa = JSON.stringify(treePilotQa);
   assert.ok(textPilotQa.includes('điểm đã duyệt · nguồn Demo'), 'reviewed pilot shows reviewed demo disclaimer');
   assert.ok(textPilotQa.includes('DEMO · DI SẢN ĐÃ DUYỆT'), 'waveform note shows reviewed heritage');
   assert.ok(textPilotQa.includes('NỘI DUNG CÓ NGUỒN'), 'verified tag shows sourced content');
   assert.equal(textPilotQa.includes('TRUYỆN HƯ CẤU · NGHE NGƯỜI KỂ'), false, 'must not label reviewed heritage as fictional story');
+  assert.equal(textPilotQa.includes('Truyện hư cấu'), false, 'must not label reviewed heritage as fiction');
+  assert.equal(textPilotQa.includes('LIVE · DI SẢN ĐÃ DUYỆT'), false, 'demo transport must not show LIVE');
   viewPilotQa.unmount();
 
   const viewPilotCamera = mount('../src/screens/CameraScreen.tsx', {
-    nodes: [{ id: 'oldquarter-bach-ma', name: 'Đền Bạch Mã', available: true, visitMinutes: 15 }],
+    nodes: actualReviewedPilot.nodes,
     onConfirmNode() {},
     collectionKind: 'reviewed',
     collectionId: 'old-quarter-pilot',
@@ -2126,4 +2129,106 @@ test('QaScreen and CameraScreen branch semantic content labels on reviewed-pilot
   assert.ok(textPilotCamera.includes('dữ liệu di sản đã duyệt'), 'reviewed camera footer shows reviewed heritage notice');
   assert.equal(textPilotCamera.includes('nội dung mô phỏng'), false, 'reviewed camera footer must not say simulated');
   viewPilotCamera.unmount();
+
+  // 3. Simulated copy with SAME IDs (must stay simulated despite old-quarter-pilot ID or oldquarter-/pilot- prefixes)
+  const simulatedPilotDataset = {
+    ...actualReviewedPilot,
+    kind: 'simulated',
+  };
+  const simPilotQaProps = {
+    currentNode: simulatedPilotDataset.nodes[0],
+    nodeQa: simulatedPilotDataset.qa.filter((q) => q.nodeId === simulatedPilotDataset.nodes[0].id),
+    dataset: simulatedPilotDataset,
+    collectionId: simulatedPilotDataset.collectionId,
+    datasetRevision: 'rev-sim-pilot',
+    mode: 'demo',
+    isFocused: true,
+    navigation: { navigate() {}, goBack() {} },
+    onSelectNode() {},
+    onAskQuestion() {},
+    onModeChange() {},
+    locale: 'vi',
+    readNodeIds: new Set(),
+    onReadNode() {},
+  };
+  const viewSimPilotQa = mount('../src/screens/QaScreen.tsx', simPilotQaProps, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        collectionId: 'old-quarter-pilot',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+  let treeSimPilotQa = viewSimPilotQa.render();
+  elements(treeSimPilotQa, 'ExpandableInputDrawer')[0].props.onSelectSuggestion('Vì sao đền có tên Bạch Mã?');
+  treeSimPilotQa = viewSimPilotQa.render(simPilotQaProps);
+  const textSimPilotQa = JSON.stringify(treeSimPilotQa);
+  assert.ok(textSimPilotQa.includes('Truyện hư cấu'), 'simulated copy with old-quarter-pilot ID must show fictional disclaimer');
+  assert.ok(textSimPilotQa.includes('TRUYỆN HƯ CẤU · NGHE NGƯỜI KỂ'), 'simulated copy must show fiction waveform note');
+  assert.ok(textSimPilotQa.includes('LỜI KỂ TRONG TRUYỆN'), 'simulated copy must show story passage tag');
+  assert.equal(textSimPilotQa.includes('DEMO · DI SẢN ĐÃ DUYỆT'), false, 'simulated copy must not show reviewed heritage');
+  assert.equal(textSimPilotQa.includes('NỘI DUNG CÓ NGUỒN'), false, 'simulated copy must not show sourced content');
+  assert.equal(textSimPilotQa.includes('điểm đã duyệt · nguồn Demo'), false, 'simulated copy must not show reviewed demo disclaimer');
+  viewSimPilotQa.unmount();
+
+  const viewSimPilotCamera = mount('../src/screens/CameraScreen.tsx', {
+    nodes: simulatedPilotDataset.nodes,
+    onConfirmNode() {},
+    collectionKind: 'simulated',
+    collectionId: 'old-quarter-pilot',
+  }, {
+    '../hooks/MotionPreferences': { useMotionState: () => ({ active: false, reducedMotion: true, foreground: true }) },
+    'expo-camera': { CameraView: 'CameraView', useCameraPermissions: () => [{ granted: true }, async () => ({ granted: true })] },
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+  const textSimPilotCamera = JSON.stringify(viewSimPilotCamera.render());
+  assert.ok(textSimPilotCamera.includes('nội dung mô phỏng'), 'camera with collectionKind simulated must show simulated notice');
+  assert.equal(textSimPilotCamera.includes('dữ liệu di sản đã duyệt'), false, 'camera with collectionKind simulated must not say reviewed');
+  viewSimPilotCamera.unmount();
+
+  // 4. CameraScreen with absent collectionKind defaults to simulated
+  const viewAbsentKindCamera = mount('../src/screens/CameraScreen.tsx', {
+    nodes: actualReviewedPilot.nodes,
+    onConfirmNode() {},
+    collectionId: 'old-quarter-pilot',
+  }, {
+    '../hooks/MotionPreferences': { useMotionState: () => ({ active: false, reducedMotion: true, foreground: true }) },
+    'expo-camera': { CameraView: 'CameraView', useCameraPermissions: () => [{ granted: true }, async () => ({ granted: true })] },
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+  const textAbsentKindCamera = JSON.stringify(viewAbsentKindCamera.render());
+  assert.ok(textAbsentKindCamera.includes('nội dung mô phỏng'), 'camera with absent collectionKind defaults to simulated');
+  assert.equal(textAbsentKindCamera.includes('dữ liệu di sản đã duyệt'), false, 'camera with absent collectionKind must not say reviewed');
+  viewAbsentKindCamera.unmount();
+
+  // 5. User-facing transport DEMO vs LIVE stays separate
+  const livePilotQaProps = {
+    ...pilotQaProps,
+    mode: 'live',
+  };
+  const viewLivePilotQa = mount('../src/screens/QaScreen.tsx', livePilotQaProps, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        collectionId: 'old-quarter-pilot',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+  const textLivePilotQa = JSON.stringify(viewLivePilotQa.render());
+  assert.ok(textLivePilotQa.includes('LIVE · DI SẢN ĐÃ DUYỆT'), 'live reviewed shows LIVE transport');
+  assert.ok(textLivePilotQa.includes('điểm đã duyệt · nguồn Live'), 'live reviewed disclaimer shows Live transport');
+  assert.equal(textLivePilotQa.includes('DEMO · DI SẢN ĐÃ DUYỆT'), false, 'live transport must not show DEMO');
+  viewLivePilotQa.unmount();
 });

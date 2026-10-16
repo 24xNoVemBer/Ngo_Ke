@@ -245,7 +245,7 @@ export function QaScreen({
   const actualCollectionId = ('collectionId' in dataset && typeof dataset.collectionId === 'string' && dataset.collectionId)
     ? dataset.collectionId
     : (collectionId ?? 'fiction-letter');
-  const isReviewedContent = ('kind' in dataset && dataset.kind === 'reviewed') || actualCollectionId === 'old-quarter-pilot';
+  const isReviewedContent = 'kind' in dataset && dataset.kind === 'reviewed';
   const intro = dataset.intro;
   const entry = match?.status === 'matched' && match.entry.nodeId === currentNode?.id ? match.entry : null;
   const followUps = entry === null ? [] : followUpEntries(entry, nodeQa);
