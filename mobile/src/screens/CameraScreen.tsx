@@ -274,7 +274,9 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind }: Props): R
                 resizeMode="cover"
               />
               <View style={styles.disclaimerBadge}>
-                <Text style={styles.disclaimerText}>{t('common.photo_disclaimer')}</Text>
+                <Text style={styles.disclaimerText}>
+                  {t(isReviewed ? 'common.photo_disclaimer_reviewed' : 'common.photo_disclaimer')}
+                </Text>
               </View>
               <View style={styles.creditBadge}>
                 <Text style={styles.creditText}>{t('common.photo_author', { author: getNodePhotographer(active.id) })}</Text>

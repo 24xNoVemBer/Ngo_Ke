@@ -848,6 +848,10 @@ test('translator.ts - 100% dictionary parity between VI and EN', () => {
   assert.equal(translate('en', 'home.notebook_btn'), 'Notes');
   assert.equal(translate('vi', 'common.brand_subtitle'), 'Sổ tay di sản phố ngõ');
   assert.equal(translate('en', 'common.brand_subtitle'), 'Alley heritage notebook');
+  assert.equal(translate('vi', 'common.photo_disclaimer'), 'Ảnh minh họa · điểm mô phỏng');
+  assert.equal(translate('en', 'common.photo_disclaimer'), 'Illustration photo · simulated point');
+  assert.equal(translate('vi', 'common.photo_disclaimer_reviewed'), 'Ảnh minh họa · điểm đã duyệt');
+  assert.equal(translate('en', 'common.photo_disclaimer_reviewed'), 'Illustration photo · reviewed stops');
 });
 
 test('pick.ts - English alias parsing for topics and time budgets', () => {

@@ -2486,6 +2486,8 @@ test('AlleyTrailView and PostcardCard branch visit time on collectionKind', () =
   const textCardReviewed = JSON.stringify(treeCardReviewed);
   assert.ok(textCardReviewed.includes('Suggested visit: 10 min (unmeasured)'), 'reviewed PostcardCard displays suggested visit time');
   assert.equal(textCardReviewed.includes('min simulated'), false);
+  assert.ok(textCardReviewed.includes('Illustration photo · reviewed stops'), 'reviewed PostcardCard displays reviewed photo disclaimer');
+  assert.equal(textCardReviewed.includes('simulated point'), false);
   viewCardReviewed.unmount();
 
   // 5. PostcardCard simulated in EN
@@ -2496,7 +2498,33 @@ test('AlleyTrailView and PostcardCard branch visit time on collectionKind', () =
   const treeCardSim = viewCardSim.render();
   const textCardSim = JSON.stringify(treeCardSim);
   assert.ok(textCardSim.includes('10 min simulated'), 'simulated PostcardCard displays simulated minutes');
+  assert.ok(textCardSim.includes('Illustration photo · simulated point'), 'simulated PostcardCard displays simulated photo disclaimer');
+  assert.equal(textCardSim.includes('reviewed stops'), false);
   viewCardSim.unmount();
+
+  // 6. PostcardCard reviewed in VI
+  const viewCardReviewedVi = mount('../src/components/PostcardCard.tsx', {
+    node: actualReviewedPilotVi.nodes[0],
+    collectionKind: 'reviewed',
+  }, trailMocks('vi'));
+  const treeCardReviewedVi = viewCardReviewedVi.render();
+  const textCardReviewedVi = JSON.stringify(treeCardReviewedVi);
+  assert.ok(textCardReviewedVi.includes('Gợi ý tham quan: 10 phút (chưa đo)'));
+  assert.ok(textCardReviewedVi.includes('Ảnh minh họa · điểm đã duyệt'));
+  assert.equal(textCardReviewedVi.includes('điểm mô phỏng'), false);
+  viewCardReviewedVi.unmount();
+
+  // 7. PostcardCard simulated in VI
+  const viewCardSimVi = mount('../src/components/PostcardCard.tsx', {
+    node: actualReviewedPilotVi.nodes[0],
+    collectionKind: 'simulated',
+  }, trailMocks('vi'));
+  const treeCardSimVi = viewCardSimVi.render();
+  const textCardSimVi = JSON.stringify(treeCardSimVi);
+  assert.ok(textCardSimVi.includes('10 phút mô phỏng'));
+  assert.ok(textCardSimVi.includes('Ảnh minh họa · điểm mô phỏng'));
+  assert.equal(textCardSimVi.includes('điểm đã duyệt'), false);
+  viewCardSimVi.unmount();
 });
 
 test('HomeScreen passes source dataset.kind precedence to AlleyTrailView (ready simulated never upgraded by reviewed metadata)', () => {
@@ -2726,3 +2754,68 @@ test('LandingScreen header layout policy wraps and stacks cleanly at fontScale 2
 
   viewHigh.unmount();
 });
+
+test('PostcardCard header layout policy stacks cleanly at fontScale 2 (preventing title squeeze)', () => {
+  const actualReviewedPilotEn = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.en.json', import.meta.url), 'utf8'));
+
+  // 1. Normal scale (fontScale: 1.0)
+  const viewNormal = mount('../src/components/PostcardCard.tsx', {
+    node: actualReviewedPilotEn.nodes[0],
+    collectionKind: 'reviewed',
+    onSelect: () => {},
+  }, {
+    __windowDimensions: { width: 400, height: 850, fontScale: 1.0 },
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        t: (key, params) => translator.t('en', key, params),
+      }),
+    },
+  });
+  const treeNormal = viewNormal.render();
+  const headerRowNormal = elements(treeNormal, 'View').find((v) => v.props.style && [].concat(v.props.style).some((s) => s?.justifyContent === 'space-between'));
+  assert.ok(headerRowNormal, 'Header row rendered');
+  const headerStylesNormal = [].concat(headerRowNormal.props.style).filter(Boolean);
+  assert.equal(headerStylesNormal.some((s) => s.flexDirection === 'column'), false, 'Normal scale uses row');
+  assert.ok(headerStylesNormal.some((s) => s.flexDirection === 'row' && s.flexWrap === 'wrap'), 'Normal scale has flexWrap wrap');
+  viewNormal.unmount();
+
+  // 2. High scale (fontScale: 2.0 / 200%)
+  const viewHigh = mount('../src/components/PostcardCard.tsx', {
+    node: actualReviewedPilotEn.nodes[0],
+    collectionKind: 'reviewed',
+    onSelect: () => {},
+  }, {
+    __windowDimensions: { width: 400, height: 850, fontScale: 2.0 },
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        t: (key, params) => translator.t('en', key, params),
+      }),
+    },
+  });
+  const treeHigh = viewHigh.render();
+  const headerRowHigh = elements(treeHigh, 'View').find((v) => v.props.style && [].concat(v.props.style).some((s) => s?.justifyContent === 'space-between'));
+  assert.ok(headerRowHigh, 'Header row rendered at fontScale 2');
+  const headerStylesHigh = [].concat(headerRowHigh.props.style).filter(Boolean);
+  assert.ok(headerStylesHigh.some((s) => s.flexDirection === 'column' && s.alignItems === 'flex-start'), 'High fontScale stacks header into column');
+
+  // Verify node.name title is preserved without ellipsis
+  const titleText = elements(headerRowHigh, 'Text').find((t) => t.props.accessibilityRole === 'header');
+  assert.ok(titleText, 'Title text rendered');
+  assert.equal(titleText.props.children, actualReviewedPilotEn.nodes[0].name, 'Full node name rendered');
+  assert.equal(titleText.props.numberOfLines, undefined, 'Title has no numberOfLines cap');
+
+  // Verify duration text is complete
+  const durationText = elements(headerRowHigh, 'Text').find((t) => [].concat(t.props.children).join('').includes('Suggested visit'));
+  assert.ok(durationText, 'Duration badge rendered');
+  assert.ok([].concat(durationText.props.children).join('').includes('Suggested visit: 10 min (unmeasured)'));
+
+  // Verify action button is present and accessible
+  const actionButton = elements(treeHigh, 'Pressable')[0];
+  assert.ok(actionButton, 'Action button rendered');
+  assert.equal(actionButton.props.accessibilityRole, 'button');
+
+  viewHigh.unmount();
+});
+

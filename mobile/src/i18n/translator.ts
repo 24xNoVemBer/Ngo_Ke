@@ -113,6 +113,7 @@ export type TranslationKey =
   | 'common.switch_to_demo'
   | 'common.minutes'
   | 'common.photo_disclaimer'
+  | 'common.photo_disclaimer_reviewed'
   | 'common.photo_author'
   | 'common.visited_stamp'
   | 'common.simulated_minutes'
@@ -478,6 +479,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'common.switch_to_demo': 'Chuyển sang Demo',
     'common.minutes': '{minutes} phút',
     'common.photo_disclaimer': 'Ảnh minh họa · điểm mô phỏng',
+    'common.photo_disclaimer_reviewed': 'Ảnh minh họa · điểm đã duyệt',
     'common.photo_author': 'Tác giả: {author}',
     'common.visited_stamp': 'ĐÃ GHÉ THĂM',
     'common.simulated_minutes': '{minutes} phút mô phỏng',
@@ -842,6 +844,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'common.switch_to_demo': 'Switch to Demo',
     'common.minutes': '{minutes} min',
     'common.photo_disclaimer': 'Illustration photo · simulated point',
+    'common.photo_disclaimer_reviewed': 'Illustration photo · reviewed stops',
     'common.photo_author': 'Photo: {author}',
     'common.visited_stamp': 'VISITED',
     'common.simulated_minutes': '{minutes} min simulated',

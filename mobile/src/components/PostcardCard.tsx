@@ -4,6 +4,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import type { DemoNode } from '../data/sourceState';
@@ -29,6 +30,7 @@ export function PostcardCard({
   collectionKind = 'simulated',
 }: Props): ReactElement {
   const { t } = useLocale();
+  const { fontScale } = useWindowDimensions();
   const isReviewed = collectionKind === 'reviewed';
   const resolvedActionLabel = actionLabel ?? t('common.explore_this_point');
   const photo = getNodePhoto(node.id);
@@ -41,7 +43,9 @@ export function PostcardCard({
         <Image source={photo} style={styles.image} resizeMode="cover" />
         {/* Nhãn minh bạch */}
         <View style={styles.disclaimerBadge}>
-          <Text style={styles.disclaimerText}>{t('common.photo_disclaimer')}</Text>
+          <Text style={styles.disclaimerText}>
+            {t(isReviewed ? 'common.photo_disclaimer_reviewed' : 'common.photo_disclaimer')}
+          </Text>
         </View>
 
         {/* Dấu mộc son gạch nung */}
@@ -54,11 +58,11 @@ export function PostcardCard({
 
       {/* Thông tin thẻ sổ tay */}
       <View style={styles.content}>
-        <View style={styles.headerRow}>
-          <Text style={styles.title} accessibilityRole="header">
+        <View style={[styles.headerRow, fontScale > 1.3 && styles.headerRowStacked]}>
+          <Text style={[styles.title, fontScale > 1.3 && styles.titleStacked]} accessibilityRole="header">
             {node.name}
           </Text>
-          <View style={styles.durationBadge}>
+          <View style={[styles.durationBadge, fontScale > 1.3 && styles.durationBadgeStacked]}>
             <Text style={styles.durationText}>
               {t(isReviewed ? 'location.suggested_visit_minutes' : 'common.simulated_minutes', {
                 minutes: node.visitMinutes,
@@ -158,12 +162,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
     gap: spacing.sm,
+  },
+  headerRowStacked: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: spacing.xs,
   },
   title: {
     ...typography.titleSmall,
     color: colors.text,
-    flex: 1,
+    flexShrink: 1,
+  },
+  titleStacked: {
+    width: '100%',
   },
   durationBadge: {
     paddingHorizontal: spacing.sm,
@@ -172,6 +185,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceWarm,
     borderWidth: 1,
     borderColor: colors.border,
+    alignSelf: 'flex-start',
+  },
+  durationBadgeStacked: {
+    alignSelf: 'flex-start',
   },
   durationText: {
     ...typography.micro,
