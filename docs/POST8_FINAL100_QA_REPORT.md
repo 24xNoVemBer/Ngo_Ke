@@ -1,5 +1,44 @@
 # Post-8 Final-100 QA report (standalone, current)
 
+## 0. CURRENT verdict — final native follow-up on 66c5 (2026-10-17, task_5b02f937e121, Muse Spark 1.3 Free, branch `valentino/post8-qa`)
+
+Final source `66c5fc4278aa5585a02dfc2be60c3d472bb16e44`; stable APK
+`Temp/ngoke-post8-66c5-6c0623d6f226-final.apk`, SHA-256
+`6c0623d6f226b9c5f307444789fafe011e441346741f566e3bbf1b7e38c677be`,
+96,638,626 bytes, ARM64+x86_64 (local hash = installed `base.apk` hash after
+`install -r` on emulator-5554 only; never iPhone). Fresh ignored evidence:
+`tools/e2e/.runs/final-66c/` (13 PNGs + 3 raw element dumps + pre-task
+config backup). Prior d704 proof retained only for unchanged cases; §§1–9
+below are an explicitly superseded historical ledger (§8 WITHDRAWN, §9
+corrected, §§10–11 stand with their stated limits).
+
+PASS on 66c5: Plan EN Food45 — heading "Alley food · 45 min", reason "Matches
+Alley food · …", "Here is 1 stop selected…" grammar, reviewed photo badge +
+full title + Explore readable (topics 2/3 smoke: "Old stories & heritage ·
+45 min / Here are 2 stops…", "Free exploration · 45 min / Here are 3
+stops…"); Plan VI — "Ẩm thực ngõ · 45 phút", "Chợ Đồng Xuân", proper names
+preserved; pilot Home Notes → AlleyNotebook/JourneyTools modal with source
+tag "DEMO · reviewed heritage" (EN) / "DEMO · di sản đã duyệt" (VI) from
+actual dataset kind (fiction still simulated per contract); Qa dock notebook
+a11y "Open alley notebook" (EN) / "Mở sổ tay ngõ phố" (VI) via MCP elements
+(raw dumps persisted); Camera manual BM → active card "CONFIRMED STOP" with
+"Illustration photo · reviewed stops" + "Photo: Dự án Ngõ Kể" at 200;
+keyboard — expanded Gboard emoji panel preserved at keyboard height with
+approved "Where are we?" typed, usable Send/X, canonical submit → correct
+Answer 00:12 + source (alphabet/QWERTY keys NOT VERIFIED, no QWERTY user
+gate). No new FAIL; typed-Qa food-reason is NOT tested as ordinary question
+per root (voice-callback path is unit/source-covered). NOT VERIFIED (unchanged
+scope): full-QWERTY layer, spoken TalkBack/focus order, animation timing,
+human listening/naturalness, mic audibility, real GPS fix, QR scan, physical
+device/iPhone, bulk/66-new-audio human QC, 18/36 unknown ASR. Restore: runtime
+font 1.0, all 3 animation scales 1, network on, show_ime key deleted (was
+NULL), a11y services null/enabled 0; actual owned qemu 41588 stopped via
+`adb emu kill` (process gone, device gone); config.ini SHA equals pre-task
+`0CE6D3D5…0375`, backup preserved at `final-66c/config.ini.pre-task-backup`
+(never deleted). Preserved db02248 audit: old backup was deleted with hash
+never recorded, prior cold-boot attempt not proven, prior camera photo
+caption was NOT VERIFIED, TalkBack was service-exercise only.
+
 Task `task_5aee15b7bf27`. Model Muse Spark 1.3 Free. Branch `valentino/post8-qa`.
 This file is the current standalone report; older `POST8_CONTENT_TEST_REPORT.md`
 sections stay as history. No product edits; no native runs in this task.
