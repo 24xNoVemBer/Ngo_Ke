@@ -1,0 +1,302 @@
+{
+  "schemaVersion": 2,
+  "locale": "vi",
+  "collectionId": "old-quarter-pilot",
+  "kind": "reviewed",
+  "disclaimer": "Pilot biên tập từ nguồn công khai, kiểm ngày 16/10/2026. Truyền thuyết được ghi rõ. Món ăn dựa trên bài năm 2024; không xác nhận quầy đang mở, giá, giờ hay thành phần hiện tại. Thời gian xem là gợi ý chưa đo thực địa. Tọa độ có nguồn OSM là tham chiếu tòa nhà, không dùng dẫn đường; Bạch Mã chưa có tọa độ kiểm chứng. © OpenStreetMap contributors, ODbL 1.0 — https://www.openstreetmap.org/copyright",
+  "intro": {
+    "text": "Ba điểm trong Phố cổ Hà Nội gợi ba cách nhìn một khu phố: nơi gìn giữ tín ngưỡng, nếp nhà gắn với buôn bán, và một khu chợ. Mình bắt đầu ở đền Bạch Mã, rồi tìm hiểu nhà 87 Mã Mây và chợ Đồng Xuân. Ở mỗi điểm, hãy chọn một câu hỏi và nhìn thêm một chi tiết. Đây là các trang khám phá theo địa chỉ, không phải chỉ dẫn đường đi.",
+    "evidence": [
+      "Bạch Mã — nguồn kiểm ngày 16/10/2026: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+      "87 Mã Mây — nguồn kiểm ngày 16/10/2026: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+      "Đồng Xuân — nguồn kiểm ngày 16/10/2026: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/cho-dong-xuan.html"
+    ],
+    "reviewStatus": "approved",
+    "updatedAt": "2026-10-16T03:10:14Z"
+  },
+  "startNodeId": "oldquarter-bach-ma",
+  "nodes": [
+    {
+      "id": "oldquarter-bach-ma",
+      "name": "Đền Bạch Mã",
+      "summary": "Một ngôi đền ở 76 Hàng Buồm, nơi câu chuyện ngựa trắng cần được nghe như truyền thuyết.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 10,
+      "available": true,
+      "visited": false,
+      "story": "Giữa phố Hàng Buồm, mình dừng ở địa chỉ 76 để tìm một lớp ký ức khác của Phố cổ. Đền Bạch Mã thờ thần Long Đỗ và được biết đến như Trấn Đông trong Thăng Long tứ trấn. Cái tên Bạch Mã gắn với câu chuyện về ngựa trắng. Theo truyền thuyết được trang giới thiệu di tích kể lại, dấu chân ngựa đã giúp nhà vua tìm cách đắp thành. Đó là một cách người xưa kể về sự che chở của thần, không phải sự kiện đã được kiểm chứng bằng câu chuyện này. Khi nhìn ngôi đền, hãy để ý những phần mái nối tiếp và cấu kiện gỗ. Một công trình có thể giữ dấu của nhiều lần tu sửa, nên mình không cần gán tất cả những gì đang thấy cho một năm duy nhất. Chỉ cần dành một lúc để nhìn mối liên hệ giữa tên gọi, chuyện kể và kiến trúc. Nếu muốn hiểu thêm, mình có thể bắt đầu từ câu hỏi: vì sao ngựa trắng lại xuất hiện trong tên ngôi đền?",
+      "caption": "Bạch Mã: thờ Long Đỗ, Trấn Đông; chuyện ngựa trắng được ghi là truyền thuyết.",
+      "latitude": null,
+      "longitude": null,
+      "evidence": [
+        "Bạch Mã — nguồn kiểm ngày 16/10/2026: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+        "Bạch Mã — nguồn kiểm ngày 16/10/2026: https://hoankiem.hanoi.gov.vn/di-tich-lich-su-va-le-hoi-truyen-thong/phuong-hoan-kiem-khai-hoi-den-bach-ma-281226033114072102.htm"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "oldquarter-ma-may",
+      "name": "Nhà di sản 87 Mã Mây",
+      "summary": "Nhà ống với khoảng sân đem ánh sáng và không khí vào nơi vừa buôn bán vừa sinh hoạt.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 15,
+      "available": true,
+      "visited": false,
+      "story": "Ở 87 Mã Mây, mình thử nhìn ngôi nhà như một lời giải cho mặt phố hẹp và chiều sâu dài. Phía trước gắn với việc buôn bán; những phần phía trong dành cho đời sống gia đình. Khoảng sân giữa các lớp nhà đưa ánh sáng và không khí vào bên trong. Vì thế, điều đáng chú ý không chỉ là một món đồ cũ, mà còn là cách các khoảng đặc và khoảng trống nối với nhau. Các nguồn giới thiệu xếp ngôi nhà vào thế kỷ mười chín, nhưng không thống nhất về đầu hay cuối thế kỷ. Mình giữ mốc khái quát ấy, thay vì kể một năm cho chắc giọng. Công trình được trùng tu năm 1999 trong hợp tác Hà Nội và Toulouse. Khi tìm hiểu ngôi nhà, hãy lần theo nhịp từ phần giáp phố đến sân và các nếp nhà phía sau bằng mắt, trong phạm vi được phép tham quan. Từ một địa chỉ, mình có thể hình dung mối liên hệ giữa buôn bán, chỗ ở và nhu cầu lấy sáng của nhà phố.",
+      "caption": "Nhà 87 Mã Mây: mặt phố hẹp, chiều sâu dài, sân lấy sáng và không khí.",
+      "latitude": 21.0343659,
+      "longitude": 105.8535931,
+      "evidence": [
+        "87 Mã Mây — nguồn kiểm ngày 16/10/2026: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+        "87 Mã Mây — nguồn kiểm ngày 16/10/2026: https://thanglong.chinhphu.vn/noi-luu-giu-nep-nha-nguoi-viet-10332566.htm",
+        "© OpenStreetMap contributors, ODbL 1.0 — https://www.openstreetmap.org/way/323366879 — https://www.openstreetmap.org/copyright"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "oldquarter-dong-xuan",
+      "name": "Chợ Đồng Xuân",
+      "summary": "Đọc khu chợ qua việc buôn bán và những món ăn được ghi nhận ở ngõ phía đông.",
+      "tags": [
+        "an thuc",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 20,
+      "available": true,
+      "visited": false,
+      "story": "Với chợ Đồng Xuân, mình có thể bắt đầu bằng hai lớp không gian: khu chợ buôn bán và ngõ chợ ở phía đông. Nguồn giới thiệu di tích mô tả chợ có hoạt động bán buôn cùng bán lẻ. Điều đó gợi một câu hỏi nhỏ: cách người ta lấy hàng, bày hàng và mua một món lẻ khác nhau thế nào? Bên cạnh câu chuyện hàng hóa là chuyện ăn uống. Phóng sự năm 2024 về ngõ chợ ghi nhận những món như bún chả, bún ốc, bánh tôm, nộm và chè. Mình nhắc các món như một ghi chép có thời điểm, không phải lời hứa hôm nay quầy nào cũng đang bán. Nếu bạn gặp một món muốn thử, hãy hỏi người bán về nguyên liệu và giá trước khi gọi; bản giới thiệu này không có thông tin thành phần hiện tại. Chưa cần chọn một địa chỉ ăn cụ thể, mình vẫn có thể nhìn thấy khu chợ qua hai nhịp: nhịp trao đổi hàng hóa và nhịp dừng lại bên một món ăn.",
+      "caption": "Chợ bán buôn và bán lẻ; món ở ngõ chợ là ghi nhận năm 2024, chưa xác minh hiện tại.",
+      "latitude": 21.0382556,
+      "longitude": 105.849671,
+      "evidence": [
+        "Đồng Xuân — nguồn kiểm ngày 16/10/2026: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/cho-dong-xuan.html",
+        "Đồng Xuân — nguồn kiểm ngày 16/10/2026: https://vovgiaothong.vn/newsaudio/ngo-cho-am-thuc-dong-xuan-d41101.html",
+        "Đồng Xuân — nguồn kiểm ngày 16/10/2026: https://hanoionline.vn/thien-duong-am-thuc-ngo-cho-dong-xuan-272414.htm",
+        "© OpenStreetMap contributors, ODbL 1.0 — https://www.openstreetmap.org/way/1212230635 — https://www.openstreetmap.org/copyright"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    }
+  ],
+  "qa": [
+    {
+      "id": "bm-horse",
+      "nodeId": "oldquarter-bach-ma",
+      "question": "Vì sao đền có tên Bạch Mã?",
+      "answer": "Bạch Mã nghĩa là ngựa trắng. Trang giới thiệu di tích kể truyền thuyết dấu chân ngựa giúp nhà vua đắp thành. Mình có thể nghe câu chuyện như một cách thể hiện niềm tin vào sự che chở của thần; nguồn này không đủ để coi diễn biến truyền thuyết là sự kiện lịch sử đã chứng minh.",
+      "aliases": [
+        "chuyện ngựa trắng",
+        "tên đền Bạch Mã",
+        "ngựa trắng có thật không"
+      ],
+      "evidence": [
+        "Bạch Mã — nguồn kiểm ngày 16/10/2026: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+        "Bạch Mã — nguồn kiểm ngày 16/10/2026: https://hoankiem.hanoi.gov.vn/di-tich-lich-su-va-le-hoi-truyen-thong/phuong-hoan-kiem-khai-hoi-den-bach-ma-281226033114072102.htm"
+      ],
+      "followUps": [
+        "bm-guardian",
+        "bm-observe"
+      ],
+      "tags": [
+        "chuyen xua"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "bm-guardian",
+      "nodeId": "oldquarter-bach-ma",
+      "question": "Đền thờ ai và Trấn Đông nghĩa là gì?",
+      "answer": "Đền thờ thần Long Đỗ và được biết đến là Trấn Đông trong Thăng Long tứ trấn. Đây là vai trò bảo hộ phía đông trong hệ thống bốn đền trấn giữ của kinh thành, thuộc lớp ý nghĩa tín ngưỡng của di tích.",
+      "aliases": [
+        "thần Long Đỗ",
+        "Trấn Đông là gì",
+        "đền Bạch Mã thờ ai"
+      ],
+      "evidence": [
+        "Bạch Mã — nguồn kiểm ngày 16/10/2026: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+        "Bạch Mã — nguồn kiểm ngày 16/10/2026: https://hoankiem.hanoi.gov.vn/di-tich-lich-su-va-le-hoi-truyen-thong/phuong-hoan-kiem-khai-hoi-den-bach-ma-281226033114072102.htm"
+      ],
+      "followUps": [
+        "bm-observe"
+      ],
+      "tags": [
+        "chuyen xua"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "bm-observe",
+      "nodeId": "oldquarter-bach-ma",
+      "question": "Mình nên để ý chi tiết kiến trúc nào?",
+      "answer": "Hãy nhìn các phần mái nối tiếp và cấu kiện gỗ được nguồn giới thiệu di tích mô tả. Đền đã qua nhiều lần tu sửa; mình không gán toàn bộ kiến trúc đang thấy cho một năm xây dựng duy nhất. Quan sát trong phần được phép tiếp cận và theo hướng dẫn tại chỗ.",
+      "aliases": [
+        "nhìn gì ở đền",
+        "kiến trúc Bạch Mã",
+        "mái và khung gỗ"
+      ],
+      "evidence": [
+        "Bạch Mã — nguồn kiểm ngày 16/10/2026: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+        "Bạch Mã — nguồn kiểm ngày 16/10/2026: https://hoankiem.hanoi.gov.vn/di-tich-lich-su-va-le-hoi-truyen-thong/phuong-hoan-kiem-khai-hoi-den-bach-ma-281226033114072102.htm"
+      ],
+      "followUps": [
+        "bm-horse"
+      ],
+      "tags": [
+        "kham pha tu do"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "mm-tube",
+      "nodeId": "oldquarter-ma-may",
+      "question": "Vì sao gọi đây là nhà ống?",
+      "answer": "Ngôi nhà có mặt tiền hẹp và chiều sâu dài, với các phần nhà nối nhau. Nguồn giới thiệu mô tả nơi đây vừa phục vụ buôn bán ở phía trước vừa có không gian sinh hoạt ở phía trong. Đó là mối liên hệ mình có thể tìm hiểu qua bố cục ngôi nhà.",
+      "aliases": [
+        "nhà ống là gì",
+        "mặt tiền và chiều sâu",
+        "nhà 87 Mã Mây có dạng gì"
+      ],
+      "evidence": [
+        "87 Mã Mây — nguồn kiểm ngày 16/10/2026: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+        "87 Mã Mây — nguồn kiểm ngày 16/10/2026: https://thanglong.chinhphu.vn/noi-luu-giu-nep-nha-nguoi-viet-10332566.htm"
+      ],
+      "followUps": [
+        "mm-courtyard",
+        "mm-restore"
+      ],
+      "tags": [
+        "chuyen xua"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "mm-courtyard",
+      "nodeId": "oldquarter-ma-may",
+      "question": "Những khoảng sân có vai trò gì?",
+      "answer": "Khoảng sân giữa các phần nhà giúp lấy ánh sáng và thông thoáng cho chiều sâu ngôi nhà. Khi quan sát, hãy chú ý sự chuyển tiếp giữa phòng có mái và khoảng mở, thay vì chỉ tìm một hiện vật riêng lẻ.",
+      "aliases": [
+        "sân lấy sáng",
+        "vì sao có sân trong nhà",
+        "ánh sáng và không khí"
+      ],
+      "evidence": [
+        "87 Mã Mây — nguồn kiểm ngày 16/10/2026: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+        "87 Mã Mây — nguồn kiểm ngày 16/10/2026: https://thanglong.chinhphu.vn/noi-luu-giu-nep-nha-nguoi-viet-10332566.htm"
+      ],
+      "followUps": [
+        "mm-restore"
+      ],
+      "tags": [
+        "kham pha tu do"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "mm-restore",
+      "nodeId": "oldquarter-ma-may",
+      "question": "Ngôi nhà có từ khi nào và được trùng tu khi nào?",
+      "answer": "Các nguồn đặt ngôi nhà trong thế kỷ mười chín nhưng khác nhau về đầu hay cuối thế kỷ, nên bản giới thiệu này không chọn một phía. Mốc trùng tu năm 1999 trong hợp tác Hà Nội và Toulouse được các nguồn cùng nêu. Không lấy lịch hoạt động trong bài cũ làm lịch hiện tại.",
+      "aliases": [
+        "tuổi của nhà Mã Mây",
+        "năm trùng tu",
+        "ngôi nhà thế kỷ mười chín"
+      ],
+      "evidence": [
+        "87 Mã Mây — nguồn kiểm ngày 16/10/2026: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+        "87 Mã Mây — nguồn kiểm ngày 16/10/2026: https://thanglong.chinhphu.vn/noi-luu-giu-nep-nha-nguoi-viet-10332566.htm"
+      ],
+      "followUps": [
+        "mm-tube"
+      ],
+      "tags": [
+        "chuyen xua"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "dx-trade",
+      "nodeId": "oldquarter-dong-xuan",
+      "question": "Chợ Đồng Xuân có đặc điểm buôn bán gì?",
+      "answer": "Trang giới thiệu di tích mô tả Đồng Xuân là nơi có bán buôn cùng bán lẻ. Mình dùng mô tả đó để tìm hiểu vai trò trao đổi hàng hóa của chợ; không suy ra rằng từng quầy hiện tại đều bán cả hai hình thức.",
+      "aliases": [
+        "chợ bán buôn hay bán lẻ",
+        "hàng hóa ở Đồng Xuân",
+        "đặc điểm khu chợ"
+      ],
+      "evidence": [
+        "Đồng Xuân — nguồn kiểm ngày 16/10/2026: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/cho-dong-xuan.html"
+      ],
+      "followUps": [
+        "dx-food",
+        "dx-current"
+      ],
+      "tags": [
+        "kham pha tu do"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "dx-food",
+      "nodeId": "oldquarter-dong-xuan",
+      "question": "Ngõ chợ được nhắc đến với những món nào?",
+      "answer": "Phóng sự năm 2024 ghi nhận bún chả, bún ốc, bánh tôm, nộm và chè trong ngõ chợ. Bún ốc là món bún với ốc; thành phần cụ thể có thể khác theo quầy. Đây là thông tin từ bài cũ, chưa xác minh thực đơn, giá hay quầy đang mở hôm nay.",
+      "aliases": [
+        "món ăn ngõ chợ",
+        "có bún ốc không",
+        "ăn gì ở Đồng Xuân"
+      ],
+      "evidence": [
+        "Đồng Xuân — nguồn kiểm ngày 16/10/2026: https://vovgiaothong.vn/newsaudio/ngo-cho-am-thuc-dong-xuan-d41101.html",
+        "Đồng Xuân — nguồn kiểm ngày 16/10/2026: https://hanoionline.vn/thien-duong-am-thuc-ngo-cho-dong-xuan-272414.htm"
+      ],
+      "followUps": [
+        "dx-current"
+      ],
+      "tags": [
+        "an thuc"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "dx-current",
+      "nodeId": "oldquarter-dong-xuan",
+      "question": "App có biết quầy nào đang mở và giá hiện tại không?",
+      "answer": "Chưa có dữ liệu đã kiểm chứng về giá, giờ mở cửa hay thực đơn hiện tại của từng quầy. Hãy kiểm thông tin tại chỗ và hỏi người bán trước khi gọi món. App không xác nhận món phù hợp với dị ứng hoặc chế độ ăn của bạn.",
+      "aliases": [
+        "giá món ăn hôm nay",
+        "giờ mở cửa quầy",
+        "có chắc món còn bán không"
+      ],
+      "evidence": [
+        "Đồng Xuân — nguồn kiểm ngày 16/10/2026: https://vovgiaothong.vn/newsaudio/ngo-cho-am-thuc-dong-xuan-d41101.html",
+        "Đồng Xuân — nguồn kiểm ngày 16/10/2026: https://hanoionline.vn/thien-duong-am-thuc-ngo-cho-dong-xuan-272414.htm"
+      ],
+      "followUps": [
+        "dx-trade"
+      ],
+      "tags": [
+        "an thuc"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    }
+  ],
+  "reviewStatus": "approved",
+  "updatedAt": "2026-10-16T03:10:14Z"
+}

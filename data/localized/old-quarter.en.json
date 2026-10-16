@@ -1,0 +1,302 @@
+{
+  "schemaVersion": 2,
+  "locale": "en",
+  "collectionId": "old-quarter-pilot",
+  "kind": "reviewed",
+  "disclaimer": "An editorial pilot using public sources, checked on 16 October 2026. Legends are labelled. Food descriptions come from reporting in 2024; current stalls, prices, hours and ingredients are unverified. Visit times are editorial estimates. OSM building coordinates are approximate references, not navigation; verified coordinates for Bạch Mã are unavailable. © OpenStreetMap contributors, ODbL 1.0 — https://www.openstreetmap.org/copyright",
+  "intro": {
+    "text": "Three places in Hà Nội's Old Quarter offer three ways to look at a neighbourhood: a place of worship, a house shaped by trade, and a market. We begin with Bạch Mã Temple, then explore 87 Mã Mây and Đồng Xuân Market. At each stop, choose a question and take a closer look at one detail. These are pages of discovery, not walking directions.",
+    "evidence": [
+      "Bạch Mã — source checked 16 October 2026: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+      "87 Mã Mây — source checked 16 October 2026: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+      "Đồng Xuân — source checked 16 October 2026: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/cho-dong-xuan.html"
+    ],
+    "reviewStatus": "approved",
+    "updatedAt": "2026-10-16T03:10:14Z"
+  },
+  "startNodeId": "oldquarter-bach-ma",
+  "nodes": [
+    {
+      "id": "oldquarter-bach-ma",
+      "name": "Bạch Mã Temple",
+      "summary": "A temple at 76 Hàng Buồm, where the white horse story belongs to the realm of legend.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 10,
+      "available": true,
+      "visited": false,
+      "story": "On Hàng Buồm Street, number 76 offers another layer of the Old Quarter's memory. Bạch Mã Temple honours Long Đỗ and is known as the eastern guardian among the four guardian temples of Thăng Long. Its name means White Horse. In the legend retold by the heritage portal, the tracks of a white horse helped a king find a way to build his citadel. Listen to it as a story about divine protection, rather than proof that the event happened. Then turn back to the building. Notice its connected roof sections and timber structure. A place repaired over time need not belong to a single moment, so there is no need to attach every detail to one year. Take a moment to consider how the name, the story and the architecture speak to one another. To begin, you might ask why a white horse appears in the temple's name.",
+      "caption": "Bạch Mã honours Long Đỗ, the eastern guardian; the white horse story is a legend.",
+      "latitude": null,
+      "longitude": null,
+      "evidence": [
+        "Bạch Mã — source checked 16 October 2026: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+        "Bạch Mã — source checked 16 October 2026: https://hoankiem.hanoi.gov.vn/di-tich-lich-su-va-le-hoi-truyen-thong/phuong-hoan-kiem-khai-hoi-den-bach-ma-281226033114072102.htm"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "oldquarter-ma-may",
+      "name": "Heritage House at 87 Mã Mây",
+      "summary": "A tube house where courtyards bring light and air into a place for both trade and everyday life.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 15,
+      "available": true,
+      "visited": false,
+      "story": "At 87 Mã Mây, look at the house as a response to a narrow street frontage and a long plot. Trade belonged at the front, while family life occupied the spaces further inside. Courtyards between the built sections brought light and air into the house. The revealing detail is not only an old object, but the rhythm of enclosed rooms and open space. The sources place the house in the nineteenth century, though they disagree about its early or late part. We keep that broader date rather than making the story sound more certain than the evidence. The building was restored in 1999 through cooperation between Hà Nội and Toulouse. Within the areas visitors may access, follow the sequence from the street-facing space to the courtyards and the rooms beyond. One address can help us picture how trade, domestic life and the need for daylight shaped a town house.",
+      "caption": "At 87 Mã Mây, a narrow frontage leads to deep rooms and courtyards for light and air.",
+      "latitude": 21.0343659,
+      "longitude": 105.8535931,
+      "evidence": [
+        "87 Mã Mây — source checked 16 October 2026: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+        "87 Mã Mây — source checked 16 October 2026: https://thanglong.chinhphu.vn/noi-luu-giu-nep-nha-nguoi-viet-10332566.htm",
+        "© OpenStreetMap contributors, ODbL 1.0 — https://www.openstreetmap.org/way/323366879 — https://www.openstreetmap.org/copyright"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "oldquarter-dong-xuan",
+      "name": "Đồng Xuân Market",
+      "summary": "Explore a market through its trade and food reported in the alley to its east.",
+      "tags": [
+        "an thuc",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 20,
+      "available": true,
+      "visited": false,
+      "story": "At Đồng Xuân Market, begin with two spaces: the trading area and the market alley to its east. The heritage portal describes both wholesale and retail activity. That invites a small question: how might collecting stock, displaying goods and buying a single item differ? Alongside the trade is a story about food. A report from 2024 recorded dishes in the market alley, including bún chả, bún ốc, bánh tôm, nộm and chè. Think of these as a dated record, rather than a promise that every stall is serving them today. If you find something you would like to try, ask the seller about its ingredients and price before ordering. This guide has no current ingredient information. Even without choosing a particular food stall, you can consider two rhythms of the market: goods changing hands, and people pausing over a dish.",
+      "caption": "Wholesale and retail meet here; food in the market alley was reported in 2024 and is not currently verified.",
+      "latitude": 21.0382556,
+      "longitude": 105.849671,
+      "evidence": [
+        "Đồng Xuân — source checked 16 October 2026: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/cho-dong-xuan.html",
+        "Đồng Xuân — source checked 16 October 2026: https://vovgiaothong.vn/newsaudio/ngo-cho-am-thuc-dong-xuan-d41101.html",
+        "Đồng Xuân — source checked 16 October 2026: https://hanoionline.vn/thien-duong-am-thuc-ngo-cho-dong-xuan-272414.htm",
+        "© OpenStreetMap contributors, ODbL 1.0 — https://www.openstreetmap.org/way/1212230635 — https://www.openstreetmap.org/copyright"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    }
+  ],
+  "qa": [
+    {
+      "id": "bm-horse",
+      "nodeId": "oldquarter-bach-ma",
+      "question": "Why is the temple called Bạch Mã?",
+      "answer": "Bạch Mã means White Horse. The heritage portal retells a legend in which a horse's tracks helped a king build his citadel. It expresses a belief in divine protection. This source does not establish the events of the legend as proven history.",
+      "aliases": [
+        "the white horse story",
+        "what does Bạch Mã mean",
+        "was the white horse real"
+      ],
+      "evidence": [
+        "Bạch Mã — source checked 16 October 2026: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+        "Bạch Mã — source checked 16 October 2026: https://hoankiem.hanoi.gov.vn/di-tich-lich-su-va-le-hoi-truyen-thong/phuong-hoan-kiem-khai-hoi-den-bach-ma-281226033114072102.htm"
+      ],
+      "followUps": [
+        "bm-guardian",
+        "bm-observe"
+      ],
+      "tags": [
+        "chuyen xua"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "bm-guardian",
+      "nodeId": "oldquarter-bach-ma",
+      "question": "Who is honoured here, and what does eastern guardian mean?",
+      "answer": "The temple honours Long Đỗ and is known as the eastern guardian among the four guardian temples of Thăng Long. The name describes its protective role on the eastern side of the historic capital within that religious tradition.",
+      "aliases": [
+        "who is Long Đỗ",
+        "the eastern guardian",
+        "who is worshipped at Bạch Mã"
+      ],
+      "evidence": [
+        "Bạch Mã — source checked 16 October 2026: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+        "Bạch Mã — source checked 16 October 2026: https://hoankiem.hanoi.gov.vn/di-tich-lich-su-va-le-hoi-truyen-thong/phuong-hoan-kiem-khai-hoi-den-bach-ma-281226033114072102.htm"
+      ],
+      "followUps": [
+        "bm-observe"
+      ],
+      "tags": [
+        "chuyen xua"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "bm-observe",
+      "nodeId": "oldquarter-bach-ma",
+      "question": "Which architectural details should I look for?",
+      "answer": "Look for the connected roof sections and timber structure described by the heritage portal. The temple has been repaired over time, so we do not assign the whole building to a single construction year. Observe only from areas open to visitors and follow guidance at the site.",
+      "aliases": [
+        "what can I notice at the temple",
+        "Bạch Mã architecture",
+        "the roofs and timber structure"
+      ],
+      "evidence": [
+        "Bạch Mã — source checked 16 October 2026: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+        "Bạch Mã — source checked 16 October 2026: https://hoankiem.hanoi.gov.vn/di-tich-lich-su-va-le-hoi-truyen-thong/phuong-hoan-kiem-khai-hoi-den-bach-ma-281226033114072102.htm"
+      ],
+      "followUps": [
+        "bm-horse"
+      ],
+      "tags": [
+        "kham pha tu do"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "mm-tube",
+      "nodeId": "oldquarter-ma-may",
+      "question": "Why is this called a tube house?",
+      "answer": "The house has a narrow frontage and a long plot, with built sections arranged one behind another. The heritage accounts describe trade at the front and living spaces inside. Its layout helps explain how these two uses fitted together.",
+      "aliases": [
+        "what is a tube house",
+        "the narrow frontage and long plot",
+        "the layout of 87 Mã Mây"
+      ],
+      "evidence": [
+        "87 Mã Mây — source checked 16 October 2026: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+        "87 Mã Mây — source checked 16 October 2026: https://thanglong.chinhphu.vn/noi-luu-giu-nep-nha-nguoi-viet-10332566.htm"
+      ],
+      "followUps": [
+        "mm-courtyard",
+        "mm-restore"
+      ],
+      "tags": [
+        "chuyen xua"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "mm-courtyard",
+      "nodeId": "oldquarter-ma-may",
+      "question": "What are the courtyards for?",
+      "answer": "Courtyards between the built sections bring daylight and ventilation into the depth of the house. Notice the transitions between roofed rooms and open space, rather than looking only for individual old objects.",
+      "aliases": [
+        "the light wells",
+        "why are there courtyards inside",
+        "daylight and air"
+      ],
+      "evidence": [
+        "87 Mã Mây — source checked 16 October 2026: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+        "87 Mã Mây — source checked 16 October 2026: https://thanglong.chinhphu.vn/noi-luu-giu-nep-nha-nguoi-viet-10332566.htm"
+      ],
+      "followUps": [
+        "mm-restore"
+      ],
+      "tags": [
+        "kham pha tu do"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "mm-restore",
+      "nodeId": "oldquarter-ma-may",
+      "question": "How old is the house, and when was it restored?",
+      "answer": "The sources place it in the nineteenth century but disagree about its early or late part, so this account does not choose between them. They agree on restoration in 1999 through cooperation between Hà Nội and Toulouse. Activity schedules in older articles are not treated as current opening information.",
+      "aliases": [
+        "the age of the Mã Mây house",
+        "the restoration year",
+        "the nineteenth century house"
+      ],
+      "evidence": [
+        "87 Mã Mây — source checked 16 October 2026: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+        "87 Mã Mây — source checked 16 October 2026: https://thanglong.chinhphu.vn/noi-luu-giu-nep-nha-nguoi-viet-10332566.htm"
+      ],
+      "followUps": [
+        "mm-tube"
+      ],
+      "tags": [
+        "chuyen xua"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "dx-trade",
+      "nodeId": "oldquarter-dong-xuan",
+      "question": "What kind of trade is Đồng Xuân known for?",
+      "answer": "The heritage portal describes both wholesale and retail activity at Đồng Xuân. This helps explain the market's role in exchanging goods. It does not mean that every current stall offers both forms of sale.",
+      "aliases": [
+        "wholesale or retail",
+        "goods at Đồng Xuân",
+        "what kind of market is this"
+      ],
+      "evidence": [
+        "Đồng Xuân — source checked 16 October 2026: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/cho-dong-xuan.html"
+      ],
+      "followUps": [
+        "dx-food",
+        "dx-current"
+      ],
+      "tags": [
+        "kham pha tu do"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "dx-food",
+      "nodeId": "oldquarter-dong-xuan",
+      "question": "Which dishes were reported in the market alley?",
+      "answer": "Reporting in 2024 recorded bún chả, bún ốc, bánh tôm, nộm and chè in the alley. Bún ốc is a rice noodle dish with snails; exact ingredients can vary by seller. This is an older report, not a verified menu, price list or list of stalls open today.",
+      "aliases": [
+        "food in the market alley",
+        "is there bún ốc",
+        "what can I eat at Đồng Xuân"
+      ],
+      "evidence": [
+        "Đồng Xuân — source checked 16 October 2026: https://vovgiaothong.vn/newsaudio/ngo-cho-am-thuc-dong-xuan-d41101.html",
+        "Đồng Xuân — source checked 16 October 2026: https://hanoionline.vn/thien-duong-am-thuc-ngo-cho-dong-xuan-272414.htm"
+      ],
+      "followUps": [
+        "dx-current"
+      ],
+      "tags": [
+        "an thuc"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    },
+    {
+      "id": "dx-current",
+      "nodeId": "oldquarter-dong-xuan",
+      "question": "Does the app know which stalls are open and today's prices?",
+      "answer": "There is no verified current information about individual stalls' prices, hours or menus. Check at the site and ask the seller before ordering. The app does not confirm that a dish is suitable for your allergies or dietary needs.",
+      "aliases": [
+        "today's food prices",
+        "stall opening hours",
+        "are these dishes still available"
+      ],
+      "evidence": [
+        "Đồng Xuân — source checked 16 October 2026: https://vovgiaothong.vn/newsaudio/ngo-cho-am-thuc-dong-xuan-d41101.html",
+        "Đồng Xuân — source checked 16 October 2026: https://hanoionline.vn/thien-duong-am-thuc-ngo-cho-dong-xuan-272414.htm"
+      ],
+      "followUps": [
+        "dx-trade"
+      ],
+      "tags": [
+        "an thuc"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-16T03:10:14Z"
+    }
+  ],
+  "reviewStatus": "approved",
+  "updatedAt": "2026-10-16T03:10:14Z"
+}
