@@ -153,7 +153,7 @@ test('migration 001 to 002 is atomic, repeatable, and refuses future schema vers
   assert.equal(future.prepare("SELECT count(*) AS n FROM sqlite_schema WHERE type = 'table' AND name = 'publication_v2'").get().n, 0);
 });
 
-test('localized HTTP returns one requested language, revision metadata, and unchanged V1 responses', async (t) => {
+test('localized HTTP returns one requested language, ready metadata, and unchanged V1 responses', async (t) => {
   const { db } = database(t, { seedV1: true });
   const pair = prepareLocalizedPair(pilotVi, pilotEn);
   importLocalizedPair(db, pair);
@@ -167,9 +167,19 @@ test('localized HTTP returns one requested language, revision metadata, and unch
   assert.equal(vi.status, 200);
   assert.equal(vi.headers.get('content-language'), 'vi');
   assert.deepEqual(vi.body, pilotVi);
-  assert.deepEqual((await request('/api/v2/ready?locale=en')).body, {
+  const ready = await request('/api/v2/ready?locale=en');
+  assert.equal(ready.status, 200);
+  assert.equal(ready.headers.get('content-language'), 'en');
+  assert.deepEqual(ready.body, {
     status: 'ready', database: 'ok', dataset: 'reviewed', locale: 'en',
-    collectionId: pair.collectionId, revision: pair.enSha256,
+    collectionId: pair.collectionId, schemaVersion: 2,
+  });
+  const readyVi = await request('/api/v2/ready?locale=vi');
+  assert.equal(readyVi.status, 200);
+  assert.equal(readyVi.headers.get('content-language'), 'vi');
+  assert.deepEqual(readyVi.body, {
+    status: 'ready', database: 'ok', dataset: 'reviewed', locale: 'vi',
+    collectionId: pair.collectionId, schemaVersion: 2,
   });
   assert.deepEqual((await request('/api/dataset')).body, demo);
   assert.deepEqual((await request('/api/ready')).body, { status: 'ready', database: 'ok', dataset: 'simulated' });
@@ -191,7 +201,13 @@ test('simulated localized data follows the existing opt-in policy', async (t) =>
 
   const visible = await running(t, { db, simulated: true });
   assert.equal((await visible.request('/api/v2/dataset?locale=en')).body.kind, 'simulated');
-  assert.equal((await visible.request('/api/v2/ready?locale=en')).status, 200);
+  const ready = await visible.request('/api/v2/ready?locale=en');
+  assert.equal(ready.status, 200);
+  assert.equal(ready.headers.get('content-language'), 'en');
+  assert.deepEqual(ready.body, {
+    status: 'ready', database: 'ok', dataset: 'simulated', locale: 'en',
+    collectionId: 'old-quarter-pilot', schemaVersion: 2,
+  });
 });
 
 test('localized reads reject empty, partial, mismatched, corrupt, and hash-invalid publication states', async (t) => {

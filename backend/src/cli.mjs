@@ -66,7 +66,7 @@ try {
     migrate(db);
     console.log('Migration complete');
   }
-  if (command !== 'migrate') {
+  if (command !== 'migrate' && command !== 'import-localized') {
     const input = command === 'import' ? resolve(args[0]) : new URL('../../data/demo.json', import.meta.url);
     const value = JSON.parse(readFileSync(input, 'utf8'));
     if (!parseDataset(value, { mode: 'live' })) throw new Error('Invalid dataset: schema, evidence or references');

@@ -437,10 +437,6 @@ export function useVoiceSession({
     expectedNodeId: string,
     restart = false,
   ) => {
-    if (mode !== 'demo') {
-      setPlaybackError(translate(locale, 'voice.notice.live_no_audio'));
-      return;
-    }
     const track = lookupVoiceTrack({ collectionId, locale, contentId: id, datasetRevision });
     if (!track || track.kind !== expectedKind || track.nodeId !== expectedNodeId) {
       setPlaybackError(translate(locale, 'voice.notice.audio_unavailable'));
@@ -479,7 +475,7 @@ export function useVoiceSession({
         setPlaybackError(translate(locale, 'voice.notice.audio_unavailable'));
       }
     }
-  }, [activeTrackId, collectionId, datasetRevision, locale, mode, playback.playing, player, scope]);
+  }, [activeTrackId, collectionId, datasetRevision, locale, playback.playing, player, scope]);
 
   const replayTrack = useCallback(async (
     id: string,

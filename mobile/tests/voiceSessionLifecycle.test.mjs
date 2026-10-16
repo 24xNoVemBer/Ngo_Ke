@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 import { runInNewContext } from 'node:vm';
 import { setTimeout, clearTimeout } from 'node:timers';
@@ -23,7 +24,7 @@ function deferred() {
   return { promise, resolve, reject };
 }
 
-function mountVoiceSession({ prepare = async () => {}, stop = async () => {}, transcribe = async () => 'answer', hash = async () => 'hash' } = {}) {
+function mountVoiceSession({ prepare = async () => {}, stop = async () => {}, transcribe = async () => 'answer', hash = async () => 'hash', lookupTrack, options: optionOverrides = {} } = {}) {
   const slots = [];
   let cursor = 0;
   let dirty = true;
@@ -38,6 +39,7 @@ function mountVoiceSession({ prepare = async () => {}, stop = async () => {}, tr
   let fileDeletes = 0;
   let transcribeCalls = 0;
   const playerEvents = [];
+  const playerSources = [];
   const same = (a, b) => a && b && a.length === b.length && a.every((value, index) => Object.is(value, b[index]));
   const react = {
     useRef(initial) {
@@ -79,7 +81,7 @@ function mountVoiceSession({ prepare = async () => {}, stop = async () => {}, tr
     loop: false,
     pause() { playerEvents.push('pause'); },
     play() { playerEvents.push('play'); },
-    replace() { playerEvents.push('replace'); },
+    replace(source) { playerEvents.push('replace'); playerSources.push(source); },
   };
   class MockFile {
     exists = true;
@@ -104,7 +106,7 @@ function mountVoiceSession({ prepare = async () => {}, stop = async () => {}, tr
     '../i18n/translator': { translate: (locale, key) => `${locale}:${key}` },
     './localizedCatalog': {
       DEFAULT_VOICE_COLLECTION: 'fiction-letter',
-      lookupVoiceTrack: () => ({ kind: 'story', nodeId: 'node-1', textHash: 'hash', source: 'story-audio' }),
+      lookupVoiceTrack: lookupTrack ?? (() => ({ kind: 'story', nodeId: 'node-1', textHash: 'hash', source: 'story-audio' })),
     },
     './appState': { canCleanUpVoiceTurn, canContinueVoiceStart, canStartVoiceTurn, isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoiceOnScopeChange },
     './recorderPreparation': { prepareVoiceRecorderForTurn, startVoiceRecorder, stopVoiceRecorderWithTimeout },
@@ -128,6 +130,7 @@ function mountVoiceSession({ prepare = async () => {}, stop = async () => {}, tr
     apiBaseUrl: 'http://gateway', scope: 'demo:rev-1:node-1', collectionId: 'fiction-letter',
     locale: 'en', nodeId: 'node-1', mode: 'demo', datasetRevision: 'rev-1', isFocused: true,
     onTranscript() {},
+    ...optionOverrides,
   };
   props = options;
   const render = (next = props) => {
@@ -147,6 +150,7 @@ function mountVoiceSession({ prepare = async () => {}, stop = async () => {}, tr
     render,
     options,
     playerEvents,
+    playerSources,
     get counts() { return { recorderStops, recorderStarts, recorderPrepares, fileDeletes, transcribeCalls }; },
     set duration(value) { durationMillis = value; },
     unmount() { slots.forEach((slot) => slot?.cleanup?.()); },
@@ -218,6 +222,54 @@ test('ready cancellation discards its recording without submitting or autoplayin
   assert.equal(view.playerEvents.includes('play'), false);
   assert.equal(view.playerEvents.includes('replace'), false);
   view.unmount();
+});
+
+test('live playback uses only the matching English pilot track and rejects changed server text', async () => {
+  const previousRequire = globalThis.require;
+  globalThis.require = () => 'english-pilot-audio';
+  let catalog;
+  try {
+    catalog = await import('../src/voice/localizedCatalog.ts');
+  } finally {
+    if (previousRequire === undefined) delete globalThis.require;
+    else globalThis.require = previousRequire;
+  }
+
+  const dataset = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.en.json', import.meta.url), 'utf8'));
+  const manifest = JSON.parse(readFileSync(new URL('../assets/voice/post8/old-quarter-pilot/manifest.json', import.meta.url), 'utf8'));
+  const node = dataset.nodes.find((item) => item.id === 'oldquarter-bach-ma');
+  const id = `${node.id}-story`;
+  const revision = manifest.catalogues.en.datasetRevision;
+  const track = catalog.lookupVoiceTrack({
+    collectionId: manifest.collectionId, locale: 'en', contentId: id, datasetRevision: revision,
+  });
+  const textHash = (text) => createHash('sha256').update(text, 'utf8').digest('hex');
+  assert.equal(track?.kind, 'story');
+  assert.equal(track?.textHash, textHash(node.story));
+
+  const options = {
+    mode: 'live', collectionId: manifest.collectionId, locale: 'en', datasetRevision: revision,
+    scope: `live:${manifest.collectionId}:en:${revision}:${node.id}`, nodeId: node.id,
+  };
+  const view = mountVoiceSession({
+    lookupTrack: catalog.lookupVoiceTrack,
+    hash: async (_algorithm, text) => textHash(text),
+    options,
+  });
+  await view.render().playTrack(id, node.story, 'story', node.id);
+  assert.deepEqual(view.playerEvents, ['replace', 'play']);
+  assert.deepEqual(view.playerSources, [track.source]);
+
+  const stale = mountVoiceSession({
+    lookupTrack: catalog.lookupVoiceTrack,
+    hash: async (_algorithm, text) => textHash(text),
+    options,
+  });
+  await stale.render().playTrack(id, `${node.story} Changed.`, 'story', node.id);
+  assert.deepEqual(stale.playerEvents, []);
+  assert.equal(stale.render().playbackError, 'en:voice.notice.audio_unavailable');
+  view.unmount();
+  stale.unmount();
 });
 
 test('transcribing cancellation ignores the delayed response; a stale play hash cannot start audio', async () => {

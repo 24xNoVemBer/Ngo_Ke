@@ -123,6 +123,40 @@ test('reviewed import requires acknowledgement and validates metadata', (t) => {
   }
 });
 
+test('localized import validates before mutation and never seeds the independent V1 dataset', (t) => {
+  const { dir, path, run } = fixture(t);
+  assert.equal(run('migrate').status, 0);
+  const viPath = join(dir, 'invalid.vi.json');
+  const enPath = join(dir, 'invalid.en.json');
+  writeFileSync(viPath, '{}');
+  writeFileSync(enPath, '{}');
+  assert.equal(run('import-localized', '--vi', viPath, '--en', enPath).status, 1);
+
+  const counts = (db) => Object.fromEntries(['schema_migrations', 'dataset', 'nodes', 'qa', 'publication_v2']
+    .map((table) => [table, db.prepare(`SELECT count(*) AS n FROM ${table}`).get().n]));
+  let db = openDatabase(path);
+  try {
+    assert.deepEqual(counts(db), { schema_migrations: 2, dataset: 0, nodes: 0, qa: 0, publication_v2: 0 });
+  } finally {
+    db.close();
+  }
+
+  const vi = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.vi.json', import.meta.url), 'utf8'));
+  const en = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.en.json', import.meta.url), 'utf8'));
+  writeFileSync(viPath, JSON.stringify(vi));
+  writeFileSync(enPath, JSON.stringify(en));
+  const imported = run('import-localized', '--vi', viPath, '--en', enPath);
+  assert.equal(imported.status, 0, imported.stderr);
+  db = openDatabase(path);
+  try {
+    assert.deepEqual(counts(db), { schema_migrations: 2, dataset: 0, nodes: 0, qa: 0, publication_v2: 2 });
+    assert.equal(readDataset(db), undefined);
+    assert.equal(readLocalizedPair(db).collectionId, 'old-quarter-pilot');
+  } finally {
+    db.close();
+  }
+});
+
 test('import-localized backs up and restores both canonical locale rows before replacement', async (t) => {
   const { path, dir, run } = fixture(t);
   const vi = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.vi.json', import.meta.url), 'utf8'));

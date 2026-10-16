@@ -66,8 +66,8 @@ export function createApp({ db, serveSimulatedData = false }) {
       if (path === '/api/v2/ready') {
         json(response, 200, {
           status: 'ready', database: 'ok', dataset: publication.dataset.kind,
-          locale, collectionId: publication.collectionId, revision: publication.revision,
-        });
+          locale, collectionId: publication.collectionId, schemaVersion: 2,
+        }, { 'content-language': locale });
         return;
       }
       json(response, 200, publication.dataset, { 'content-language': locale });
