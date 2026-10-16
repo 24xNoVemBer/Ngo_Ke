@@ -198,8 +198,45 @@ export type LiveOptionsV2 = LiveOptions & {
   locale: Locale;
 };
 
+function isNoReviewedDataEnvelope(body: unknown): boolean {
+  if (typeof body !== 'object' || body === null || Array.isArray(body)) {
+    return false;
+  }
+  const record = body as Record<string, unknown>;
+  if (
+    record.error &&
+    typeof record.error === 'object' &&
+    record.error !== null &&
+    !Array.isArray(record.error)
+  ) {
+    const err = record.error as Record<string, unknown>;
+    return err.code === 'NO_REVIEWED_DATA';
+  }
+  return record.code === 'NO_REVIEWED_DATA';
+}
+
+async function readBodyTextSafe(
+  response: Response | { text?: () => Promise<string>; json?: () => Promise<unknown> },
+): Promise<string> {
+  if (typeof response.text === 'function') {
+    return response.text();
+  }
+  if (typeof response.json === 'function') {
+    const jsonVal = await response.json();
+    return JSON.stringify(jsonVal);
+  }
+  throw new Error('UNREADABLE_BODY');
+}
+
 export async function loadLiveSourceV2(options: LiveOptionsV2): Promise<SourceState<DemoDatasetV2>> {
   const locale = options.locale;
+
+  // 1. Pre-aborted signal check: zero requests if caller already aborted
+  if (options.signal?.aborted) {
+    return liveError<DemoDatasetV2>('network', locale);
+  }
+
+  // 2. Base URL validation
   const rawBase = options.baseUrl?.trim();
   if (rawBase === undefined || rawBase.length === 0) {
     return liveEmpty<DemoDatasetV2>('no-config', locale);
@@ -222,33 +259,101 @@ export async function loadLiveSourceV2(options: LiveOptionsV2): Promise<SourceSt
   }
 
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const startTime = Date.now();
   const doFetch: FetchImpl = options.fetchImpl ?? ((url, init) => fetch(url, init));
   const controller = new AbortController();
+
+  let timer: ReturnType<typeof setTimeout> | undefined;
   let timedOut = false;
-  const timer = setTimeout(() => {
-    timedOut = true;
-    controller.abort();
-  }, timeoutMs);
+  let externalAborted = false;
 
-  const onExternalAbort = () => {
-    controller.abort();
-  };
+  const deadlinePromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      timedOut = true;
+      try {
+        controller.abort();
+      } catch {
+        // ignore
+      }
+      const err = new Error('TIMEOUT');
+      err.name = 'TimeoutError';
+      reject(err);
+    }, timeoutMs);
+  });
 
-  if (options.signal) {
-    if (options.signal.aborted) {
-      clearTimeout(timer);
-      controller.abort();
-    } else {
-      options.signal.addEventListener('abort', onExternalAbort, { once: true });
+  let removeExternalAbort: (() => void) | undefined;
+  const externalAbortPromise = new Promise<never>((_, reject) => {
+    if (options.signal) {
+      const onAbort = () => {
+        externalAborted = true;
+        try {
+          controller.abort();
+        } catch {
+          // ignore
+        }
+        const err = new Error('EXTERNAL_ABORT');
+        err.name = 'AbortError';
+        reject(err);
+      };
+      if (options.signal.aborted) {
+        onAbort();
+      } else {
+        options.signal.addEventListener('abort', onAbort, { once: true });
+        removeExternalAbort = () => {
+          options.signal?.removeEventListener('abort', onAbort);
+        };
+      }
     }
-  }
+  });
 
   try {
     const url = `${cleanUrl}${DATASET_V2_PATH}?locale=${encodeURIComponent(locale)}`;
-    const response = await doFetch(url, { signal: controller.signal });
+
+    // Race fetch against deadline and external abort
+    const fetchPromise = doFetch(url, { signal: controller.signal });
+    const response = await Promise.race([fetchPromise, deadlinePromise, externalAbortPromise]);
+
+    // Handle 404
     if (response.status === 404) {
-      return liveEmpty<DemoDatasetV2>('no-data', locale);
+      const contentLengthHeader = response.headers?.get?.('content-length');
+      if (contentLengthHeader !== null && contentLengthHeader !== undefined) {
+        const parsedLength = parseInt(contentLengthHeader, 10);
+        if (Number.isFinite(parsedLength) && parsedLength > MAX_BODY_BYTES) {
+          return liveError<DemoDatasetV2>('shape', locale);
+        }
+      }
+
+      let text: string;
+      try {
+        text = await Promise.race([readBodyTextSafe(response), deadlinePromise, externalAbortPromise]);
+      } catch (err: unknown) {
+        if (options.signal?.aborted || externalAborted || (err instanceof Error && err.name === 'AbortError')) {
+          return liveError<DemoDatasetV2>('network', locale);
+        }
+        if (timedOut || (err instanceof Error && err.name === 'TimeoutError') || Date.now() - startTime >= timeoutMs) {
+          return liveError<DemoDatasetV2>('timeout', locale);
+        }
+        return liveError<DemoDatasetV2>('shape', locale);
+      }
+
+      if (getUtf8ByteLength(text) > MAX_BODY_BYTES) {
+        return liveError<DemoDatasetV2>('shape', locale);
+      }
+
+      let errorBody: unknown;
+      try {
+        errorBody = JSON.parse(text);
+      } catch {
+        return liveError<DemoDatasetV2>('shape', locale);
+      }
+
+      if (isNoReviewedDataEnvelope(errorBody)) {
+        return liveEmpty<DemoDatasetV2>('no-data', locale);
+      }
+
+      return liveError<DemoDatasetV2>('http', locale);
     }
+
     if (response.status === 503) {
       return liveError<DemoDatasetV2>('shape', locale);
     }
@@ -256,8 +361,9 @@ export async function loadLiveSourceV2(options: LiveOptionsV2): Promise<SourceSt
       return liveError<DemoDatasetV2>('http', locale);
     }
 
-    const contentLanguage = response.headers?.get?.('content-language');
-    if (contentLanguage !== null && contentLanguage !== undefined && contentLanguage.toLowerCase() !== locale) {
+    // Status 200: Content-Language is REQUIRED and must exact match requested locale
+    const contentLanguage = response.headers?.get?.('content-language')?.trim();
+    if (!contentLanguage || contentLanguage.toLowerCase() !== locale) {
       return liveError<DemoDatasetV2>('shape', locale);
     }
 
@@ -269,15 +375,7 @@ export async function loadLiveSourceV2(options: LiveOptionsV2): Promise<SourceSt
       }
     }
 
-    let text: string;
-    if (typeof response.text === 'function') {
-      text = await response.text();
-    } else if (typeof response.json === 'function') {
-      const jsonVal = await response.json();
-      text = JSON.stringify(jsonVal);
-    } else {
-      return liveError<DemoDatasetV2>('shape', locale);
-    }
+    const text = await Promise.race([readBodyTextSafe(response), deadlinePromise, externalAbortPromise]);
 
     const actualBytes = getUtf8ByteLength(text);
     if (actualBytes > MAX_BODY_BYTES) {
@@ -294,6 +392,14 @@ export async function loadLiveSourceV2(options: LiveOptionsV2): Promise<SourceSt
     const dataset = parseDatasetV2(body, { mode: 'live', expectedLocale: locale });
     if (dataset === undefined) {
       return liveError<DemoDatasetV2>('shape', locale);
+    }
+
+    // Final guard before returning ready: check external abort and elapsed deadline
+    if (options.signal?.aborted || externalAborted) {
+      return liveError<DemoDatasetV2>('network', locale);
+    }
+    if (timedOut || Date.now() - startTime >= timeoutMs) {
+      return liveError<DemoDatasetV2>('timeout', locale);
     }
 
     const title = locale === 'en'
@@ -315,18 +421,20 @@ export async function loadLiveSourceV2(options: LiveOptionsV2): Promise<SourceSt
       detail,
       dataset,
     };
-  } catch {
-    if (options.signal?.aborted) {
+  } catch (err: unknown) {
+    if (options.signal?.aborted || externalAborted || (err instanceof Error && err.name === 'AbortError')) {
       return liveError<DemoDatasetV2>('network', locale);
     }
-    if (timedOut) {
+    if (timedOut || (err instanceof Error && err.name === 'TimeoutError') || Date.now() - startTime >= timeoutMs) {
       return liveError<DemoDatasetV2>('timeout', locale);
     }
     return liveError<DemoDatasetV2>('network', locale);
   } finally {
-    clearTimeout(timer);
-    if (options.signal) {
-      options.signal.removeEventListener('abort', onExternalAbort);
+    if (timer !== undefined) {
+      clearTimeout(timer);
+    }
+    if (removeExternalAbort !== undefined) {
+      removeExternalAbort();
     }
   }
 }

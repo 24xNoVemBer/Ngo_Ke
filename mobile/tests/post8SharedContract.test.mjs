@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { setTimeout } from 'node:timers';
 
 import { LOCALES, DEFAULT_LOCALE, isLocale, parseLocale, assertLocale } from '../src/data/locale.ts';
 import { canonicalDatasetJson } from '../src/data/canonicalJson.ts';
@@ -345,26 +346,90 @@ test('live.ts - loadLiveSourceV2 URL, error, and timeout handling', async () => 
   assert.equal(queryConfig.status, 'error');
   assert.equal(queryConfig.reason, 'shape');
 
-  // 4. 404 response -> no-data
-  const mock404Fetch = async () => ({
-    status: 404,
-    ok: false,
-    headers: new Map(),
-  });
-  const res404 = await loadLiveSourceV2({
+  // 4. Pre-aborted signal -> 0 requests made, returns network error
+  const preAbortedAc = new AbortController();
+  preAbortedAc.abort();
+  let preAbortRequestCalled = false;
+  const resPreAbort = await loadLiveSourceV2({
     baseUrl: 'http://127.0.0.1:8788',
     locale: 'en',
-    fetchImpl: mock404Fetch,
+    signal: preAbortedAc.signal,
+    fetchImpl: async () => {
+      preAbortRequestCalled = true;
+      throw new Error('Should not be called');
+    },
   });
-  assert.equal(res404.status, 'empty');
-  assert.equal(res404.reason, 'no-data');
-  assert.equal(res404.title, 'Live mode has no data');
+  assert.equal(preAbortRequestCalled, false, 'Pre-aborted request must not invoke fetchImpl');
+  assert.equal(resPreAbort.status, 'error');
+  assert.equal(resPreAbort.reason, 'network');
 
-  // 5. 503 response -> shape error
+  // 5. 404 response with valid NO_REVIEWED_DATA envelope -> empty (no-data)
+  const mock404ValidFetch = async () => ({
+    status: 404,
+    ok: false,
+    headers: { get: () => null },
+    text: async () => JSON.stringify({ error: { code: 'NO_REVIEWED_DATA', message: 'No reviewed data' } }),
+  });
+  const res404Valid = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    fetchImpl: mock404ValidFetch,
+  });
+  assert.equal(res404Valid.status, 'empty');
+  assert.equal(res404Valid.reason, 'no-data');
+  assert.equal(res404Valid.title, 'Live mode has no data');
+
+  // 6. Repro 2: 404 response with wrong error code (e.g. NOT_FOUND) -> must be error, not empty!
+  const mock404NotFoundFetch = async () => ({
+    status: 404,
+    ok: false,
+    headers: { get: () => null },
+    text: async () => JSON.stringify({ error: { code: 'NOT_FOUND', message: 'Route not found' } }),
+  });
+  const res404NotFound = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    fetchImpl: mock404NotFoundFetch,
+  });
+  assert.equal(res404NotFound.status, 'error');
+  assert.equal(res404NotFound.reason, 'http');
+
+  // 7. 404 response with malformed non-JSON body -> shape error
+  const mock404MalformedFetch = async () => ({
+    status: 404,
+    ok: false,
+    headers: { get: () => null },
+    text: async () => '<html>404 Not Found</html>',
+  });
+  const res404Malformed = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    fetchImpl: mock404MalformedFetch,
+  });
+  assert.equal(res404Malformed.status, 'error');
+  assert.equal(res404Malformed.reason, 'shape');
+
+  // 8. 404 response exceeding MAX_BODY_BYTES -> shape error
+  const mock404OversizedFetch = async () => ({
+    status: 404,
+    ok: false,
+    headers: { get: (h) => (h.toLowerCase() === 'content-length' ? String(MAX_BODY_BYTES + 1) : null) },
+    text: async () => 'x'.repeat(MAX_BODY_BYTES + 1),
+  });
+  const res404Oversized = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    fetchImpl: mock404OversizedFetch,
+  });
+  assert.equal(res404Oversized.status, 'error');
+  assert.equal(res404Oversized.reason, 'shape');
+
+  // 9. 503 response -> shape error, never empty
   const mock503Fetch = async () => ({
     status: 503,
     ok: false,
-    headers: new Map(),
+    headers: { get: () => null },
+    text: async () => JSON.stringify({ error: { code: 'DATASET_INVALID' } }),
   });
   const res503 = await loadLiveSourceV2({
     baseUrl: 'http://127.0.0.1:8788',
@@ -374,7 +439,24 @@ test('live.ts - loadLiveSourceV2 URL, error, and timeout handling', async () => 
   assert.equal(res503.status, 'error');
   assert.equal(res503.reason, 'shape');
 
-  // 6. Content-Language mismatch -> shape error
+  // 10. Repro 1: 200 with valid body but MISSING Content-Language header -> must be error!
+  const mockMissingLangFetch = async () => ({
+    status: 200,
+    ok: true,
+    headers: {
+      get: () => null,
+    },
+    text: async () => JSON.stringify(fictionEnJson),
+  });
+  const resMissingLang = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    fetchImpl: mockMissingLangFetch,
+  });
+  assert.equal(resMissingLang.status, 'error');
+  assert.equal(resMissingLang.reason, 'shape');
+
+  // 11. 200 with WRONG Content-Language header -> shape error
   const mockMismatchLangFetch = async () => ({
     status: 200,
     ok: true,
@@ -391,7 +473,7 @@ test('live.ts - loadLiveSourceV2 URL, error, and timeout handling', async () => 
   assert.equal(resMismatch.status, 'error');
   assert.equal(resMismatch.reason, 'shape');
 
-  // 7. Successful 200 response -> ready
+  // 12. Successful 200 response with exact Content-Language -> ready
   const mock200Fetch = async (url) => {
     assert.match(url, /\/api\/v2\/dataset\?locale=en/);
     return {
@@ -409,16 +491,22 @@ test('live.ts - loadLiveSourceV2 URL, error, and timeout handling', async () => 
     fetchImpl: mock200Fetch,
   });
   assert.equal(res200.status, 'ready');
-  assert.equal(res200.title, 'Live · 6 simulated points (unverified)');
-  assert.equal(res200.dataset.schemaVersion, 2);
-  assert.equal(res200.dataset.locale, 'en');
+  if (res200.status === 'ready') {
+    assert.equal(res200.title, 'Live · 6 simulated points (unverified)');
+    assert.equal(res200.dataset.schemaVersion, 2);
+    assert.equal(res200.dataset.locale, 'en');
+  }
 
-  // 8. Payload exceeding MAX_BODY_BYTES -> shape
+  // 13. Payload exceeding MAX_BODY_BYTES -> shape error
   const mockBigFetch = async () => ({
     status: 200,
     ok: true,
     headers: {
-      get: (h) => (h.toLowerCase() === 'content-length' ? String(MAX_BODY_BYTES + 10) : null),
+      get: (h) => {
+        if (h.toLowerCase() === 'content-language') return 'en';
+        if (h.toLowerCase() === 'content-length') return String(MAX_BODY_BYTES + 10);
+        return null;
+      },
     },
     text: async () => 'x'.repeat(MAX_BODY_BYTES + 10),
   });
@@ -430,21 +518,69 @@ test('live.ts - loadLiveSourceV2 URL, error, and timeout handling', async () => 
   assert.equal(resBig.status, 'error');
   assert.equal(resBig.reason, 'shape');
 
-  // 9. Timeout handling
-  const mockHangFetch = async (_url, { signal }) => {
-    return new Promise((_, reject) => {
-      signal.addEventListener('abort', () => reject(new Error('aborted')));
-    });
-  };
-  const resTimeout = await loadLiveSourceV2({
+  // 14. Repro 3: Hard deadline timeout when body text returns late ignoring abort
+  const mockLateBodyFetch = async () => ({
+    status: 200,
+    ok: true,
+    headers: {
+      get: (h) => (h.toLowerCase() === 'content-language' ? 'en' : null),
+    },
+    text: async () => {
+      // Body promise resolves after 60ms ignoring abort
+      await new Promise((resolve) => setTimeout(resolve, 60));
+      return JSON.stringify(fictionEnJson);
+    },
+  });
+  const resLateBody = await loadLiveSourceV2({
     baseUrl: 'http://127.0.0.1:8788',
     locale: 'en',
-    timeoutMs: 50,
-    fetchImpl: mockHangFetch,
+    timeoutMs: 10,
+    fetchImpl: mockLateBodyFetch,
   });
-  assert.equal(resTimeout.status, 'error');
-  assert.equal(resTimeout.reason, 'timeout');
-  assert.equal(resTimeout.title, 'Live server timed out');
+  assert.equal(resLateBody.status, 'error');
+  assert.equal(resLateBody.reason, 'timeout');
+  assert.equal(resLateBody.title, 'Live server timed out');
+
+  // 15. Hard deadline timeout when fetch never resolves
+  const mockNeverResolvingFetch = async () => {
+    return new Promise(() => {
+      // Never resolves
+    });
+  };
+  const resNeverResolving = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    timeoutMs: 15,
+    fetchImpl: mockNeverResolvingFetch,
+  });
+  assert.equal(resNeverResolving.status, 'error');
+  assert.equal(resNeverResolving.reason, 'timeout');
+
+  // 16. External abort while fetch ignores abort signal -> network error
+  const inFlightAc = new AbortController();
+  const mockIgnoringFetch = async () => {
+    // Abort externally while fetch is in-flight
+    setTimeout(() => inFlightAc.abort(), 5);
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          status: 200,
+          ok: true,
+          headers: { get: (h) => (h.toLowerCase() === 'content-language' ? 'en' : null) },
+          text: async () => JSON.stringify(fictionEnJson),
+        });
+      }, 50);
+    });
+  };
+  const resExternalAbort = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    timeoutMs: 200,
+    signal: inFlightAc.signal,
+    fetchImpl: mockIgnoringFetch,
+  });
+  assert.equal(resExternalAbort.status, 'error');
+  assert.equal(resExternalAbort.reason, 'network');
 });
 
 test('nearest.ts - candidate filtering with nullable coordinates', () => {
