@@ -27,12 +27,12 @@ test('voice commands stay distinct from questions and mixed requests require a c
 test('English exact commands stay locale-specific and mixed or negative commands never act', () => {
   for (const [input, type] of [
     ['read the story', 'listen'], ['stop', 'stop'], ['next chapter', 'next'],
-    ['open QR', 'open-qr'], ['open GPS', 'open-gps'],
+    ['open QR', 'open-qr'], ['open the QR scanner', 'open-qr'], ['open GPS', 'open-gps'],
   ]) assert.deepEqual(parseVoiceIntent(input, false, {}, 'en'), { type });
   assert.deepEqual(parseVoiceIntent('choose experience', false, {}, 'en'), { type: 'plan', draft: {} });
   assert.deepEqual(parseVoiceIntent('Mở QR', false, {}, 'en'), { type: 'question' });
   assert.deepEqual(parseVoiceIntent('open QR', false, {}, 'vi'), { type: 'question' });
-  for (const input of ['do not open QR', 'open QR and open GPS', 'unknown command']) {
+  for (const input of ['do not open QR', 'open QR and open GPS', 'choose experience and open QR', 'unknown command']) {
     assert.deepEqual(parseVoiceIntent(input, false, {}, 'en'), { type: 'question' });
   }
 });
@@ -49,6 +49,18 @@ test('English mixed questions use the shared translator and negative plan text s
   if (negative.type === 'plan') {
     assert.equal(negative.draft.topic, undefined);
     assert.match(negative.ambiguous ?? '', /negation/i);
+  }
+  const contractedNegative = parseVoiceIntent("choose experience don't food", true, { budgetMinutes: 30 }, 'en');
+  assert.equal(contractedNegative.type, 'plan');
+  if (contractedNegative.type === 'plan') {
+    assert.equal(contractedNegative.draft.topic, undefined);
+    assert.equal(contractedNegative.draft.budgetMinutes, 30);
+    assert.match(contractedNegative.ambiguous ?? '', /negation/i);
+  }
+  for (const [duration, minutes] of [['half an hour', 30], ['1.5 hours', 90], ['1 hour 30 minutes', 90]]) {
+    assert.deepEqual(parseVoiceIntent(`choose experience for ${duration}`, false, {}, 'en'), {
+      type: 'plan', draft: { budgetMinutes: minutes },
+    });
   }
   assert.deepEqual(parseVoiceIntent('chọn trải nghiệm ẩm thực trong 30 phút'), {
     type: 'plan', draft: { topic: 'an thuc', budgetMinutes: 30 },

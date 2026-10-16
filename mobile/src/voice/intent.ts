@@ -21,13 +21,13 @@ const ENGLISH_COMMANDS: Record<string, VoiceIntent['type']> = {
   'read the chapter': 'listen', 'replay the story': 'replay', 'read it again': 'replay',
   'stop': 'stop', 'stop listening': 'stop', 'stop playback': 'stop',
   'next chapter': 'next', 'open next chapter': 'next', 'go to next chapter': 'next',
-  'open qr': 'open-qr', 'open qr scanner': 'open-qr', 'scan qr': 'open-qr', 'scan qr code': 'open-qr',
+  'open qr': 'open-qr', 'open qr scanner': 'open-qr', 'open the qr scanner': 'open-qr', 'scan qr': 'open-qr', 'scan qr code': 'open-qr',
   'open gps': 'open-gps', 'show gps': 'open-gps',
 };
 const ENGLISH_PLAN_COMMAND = /^(?:choose (?:an )?experience|open (?:the )?route planner)(?:\b|$)/;
-const ENGLISH_ACTION = /\b(?:read the story|play the story|listen to the story|read the chapter|replay the story|read it again|stop listening|stop playback|next chapter|open next chapter|go to next chapter|open qr(?: scanner)?|scan qr(?: code)?|open gps|show gps|choose (?:an )?experience|open (?:the )?route planner)\b/g;
+const ENGLISH_ACTION = /\b(?:read the story|play the story|listen to the story|read the chapter|replay the story|read it again|stop listening|stop playback|next chapter|open next chapter|go to next chapter|open (?:the )?qr(?: scanner)?|scan qr(?: code)?|open gps|show gps|choose (?:an )?experience|open (?:the )?route planner)\b/g;
 const ENGLISH_QUESTION_WORDS = /\b(?:what|where|when|why|who|which|how|is|are|do|does|can|could|would)\b/;
-const ENGLISH_NEGATION = /\b(?:no|not|never|dont|doesnt|didnt|cannot|cant|wont|shouldnt)\b/;
+const ENGLISH_NEGATION = /\b(?:no|not|never|dont|doesnt|didnt|cannot|cant|wont|shouldnt|don't|doesn't|didn't|can't|won't|shouldn't|couldn't|wouldn't)\b/;
 const VIETNAMESE_ACTION = /\b(?:nghe loi ke|bat dau nghe|phat loi ke|nghe lai|phat lai|doc lai|dung nghe|dung phat|mo chuong|sang chuong|diem ke tiep|mo qr|quet ma qr|mo camera|mo gps|xem vi tri|chon trai nghiem|goi y trai nghiem)\b/;
 const ENGLISH_TOPICS: Record<Topic, readonly string[]> = {
   'an thuc': ['food', 'street food'],
@@ -167,6 +167,7 @@ function parseEnglishVoiceIntent(input: string, collectingPlan: boolean, current
   if (negative && !planCommand) return { type: 'question' };
   const actions = [...text.matchAll(ENGLISH_ACTION)].map((match) => match[0]);
   const actionTypes = [...new Set(actions.map((action) => ENGLISH_COMMANDS[action] ?? 'plan'))];
+  if (actionTypes.length > 1) return { type: 'question' };
   if (question && actionTypes.length === 1 && ['next', 'plan', 'open-qr', 'open-gps'].includes(actionTypes[0])) {
     const action = actionTypes[0] as 'next' | 'plan' | 'open-qr' | 'open-gps';
     return {
@@ -178,8 +179,8 @@ function parseEnglishVoiceIntent(input: string, collectingPlan: boolean, current
   if (!planCommand && !collectingPlan) return { type: 'question' };
 
   const topics = TOPIC_ORDER.filter((topic) => ENGLISH_TOPICS[topic].some((name) => text.includes(name)));
-  const durationMatches = [...text.matchAll(/\b(\d{1,3})\s*(minutes?|mins?|hours?|hrs?)\b/g)];
-  const durations = durationMatches.map((match) => parseTimeBudget(`${match[1]} ${match[2]}`)).filter((value): value is number => value !== undefined);
+  const durationMatches = [...text.matchAll(/\b(?:half an hour|half hour|an hour|one hour|hour and a half|one and a half hours|\d+(?:\.\d+)?\s*hours?(?:\s+\d+\s*minutes?)?|\d+\s*(?:minutes?|mins?))\b/g)];
+  const durations = durationMatches.map((match) => parseTimeBudget(match[0], 'en')).filter((value): value is number => value !== undefined);
   const ambiguousTopic = negative || topics.length > 1;
   const ambiguousBudget = durationMatches.length !== durations.length || durations.length > 1
     || durations.some((duration) => duration < 1 || duration > 180);
