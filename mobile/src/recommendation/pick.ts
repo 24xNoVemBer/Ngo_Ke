@@ -56,10 +56,12 @@ export function parseTopic(text: string, _locale: 'vi' | 'en' = 'vi'): Topic | u
 }
 
 /** Read a duration in minutes; returns undefined when the text is not one. */
-export function parseTimeBudget(text: string, _locale: 'vi' | 'en' = 'vi'): number | undefined {
-  void _locale;
-  const normalized = normalizeQuestion(text).replace(/^(?:khoang|toi co|minh co|co|about|around|i have)\s+/, '');
-  if (normalized === 'nua tieng' || normalized === 'nua gio' || normalized === 'half an hour' || normalized === 'half hour') return 30;
+export function parseTimeBudget(text: string, locale: 'vi' | 'en' = 'vi'): number | undefined {
+  const normalized = normalizeQuestion(text).replace(locale === 'en'
+    ? /^(?:about|around|i have)\s+/
+    : /^(?:khoang|toi co|minh co|co)\s+/, '');
+  if (normalized === 'nua tieng' || normalized === 'nua gio') return 30;
+  if (normalized === 'half an hour' || normalized === 'half hour') return 30;
   if (normalized === 'an hour' || normalized === 'one hour' || normalized === '1 hour') return 60;
   if (normalized === 'hour and a half' || normalized === 'one and a half hours' || normalized === '1.5 hours' || normalized === '1.5 hour') return 90;
   const legacyHour = normalized.match(/^(?:(\d+)\s*)?(?:tieng|gio|hours?)(?:\s+(ruoi)|\s+(\d+)\s*(?:phut|minutes?|mins?))?$/);

@@ -6,6 +6,7 @@ import {
   View,
 } from 'react-native';
 import type { DemoNode } from '../data/sourceState';
+import { useLocale } from '../context/LocaleContext';
 import { colors, radius, spacing, typography } from '../theme';
 
 interface Props {
@@ -19,6 +20,7 @@ export function AlleyTrailView({
   currentNodeId,
   onSelectNode,
 }: Props): ReactElement {
+  const { locale } = useLocale();
   const visitedCount = nodes.filter((n) => n.visited).length;
 
   return (
@@ -26,9 +28,9 @@ export function AlleyTrailView({
       {/* Tiến trình khám phá */}
       <View style={styles.progressHeader}>
         <View style={styles.progressInfo}>
-          <Text style={styles.progressTitle}>Hành trình ngõ phố</Text>
+          <Text style={styles.progressTitle}>{locale === 'en' ? 'Alley Journey' : 'Hành trình ngõ phố'}</Text>
           <Text style={styles.progressSubtitle}>
-            Đã ghé {visitedCount}/{nodes.length} điểm khám phá
+            {locale === 'en' ? `Visited ${visitedCount}/${nodes.length} stops` : `Đã ghé ${visitedCount}/${nodes.length} điểm khám phá`}
           </Text>
         </View>
         <View style={styles.progressBarBg}>
@@ -54,7 +56,7 @@ export function AlleyTrailView({
               <View style={styles.timelineColumn}>
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={`Chọn trạm ${node.name}${isCurrent ? ' · đang đứng' : ''}`}
+                  accessibilityLabel={locale === 'en' ? `Select stop ${node.name}${isCurrent ? ' · current' : ''}` : `Chọn trạm ${node.name}${isCurrent ? ' · đang đứng' : ''}`}
                   onPress={() => onSelectNode(node.id)}
                   style={({ pressed }) => [
                     styles.nodePin,
@@ -78,7 +80,7 @@ export function AlleyTrailView({
               {/* Thẻ nội dung trạm */}
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={`${node.name}, ${node.visitMinutes} phút mô phỏng`}
+                accessibilityLabel={`${node.name}, ${node.visitMinutes} ${locale === 'en' ? 'simulated min' : 'phút mô phỏng'}`}
                 onPress={() => onSelectNode(node.id)}
                 style={({ pressed }) => [
                   styles.nodeCard,
@@ -92,11 +94,11 @@ export function AlleyTrailView({
                   </Text>
                   {isCurrent && (
                     <View style={styles.currentBadge}>
-                      <Text style={styles.currentBadgeText}>Đang xem</Text>
+                      <Text style={styles.currentBadgeText}>{locale === 'en' ? 'Viewing' : 'Đang xem'}</Text>
                     </View>
                   )}
                   {isVisited && !isCurrent && (
-                    <Text style={styles.visitedMark}>✓ Đã ghé</Text>
+                    <Text style={styles.visitedMark}>{locale === 'en' ? '✓ Visited' : '✓ Đã ghé'}</Text>
                   )}
                 </View>
 
@@ -105,14 +107,14 @@ export function AlleyTrailView({
                 </Text>
 
                 <View style={styles.metaRow}>
-                  <Text style={styles.metaText}>{node.visitMinutes} phút mô phỏng</Text>
+                  <Text style={styles.metaText}>{node.visitMinutes} {locale === 'en' ? 'simulated min' : 'phút mô phỏng'}</Text>
                   <Text style={styles.dotSeparator}>·</Text>
                   <Text style={styles.metaText}>
                     {node.tags.includes('an thuc')
-                      ? 'Ẩm thực'
+                      ? (locale === 'en' ? 'Food & Drink' : 'Ẩm thực')
                       : node.tags.includes('chuyen xua')
-                        ? 'Chuyện xưa'
-                        : 'Tự do'}
+                        ? (locale === 'en' ? 'Old Stories' : 'Chuyện xưa')
+                        : (locale === 'en' ? 'Free Exploration' : 'Tự do')}
                   </Text>
                 </View>
               </Pressable>

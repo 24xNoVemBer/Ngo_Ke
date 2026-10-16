@@ -255,9 +255,9 @@ export function HomeScreen({
           {/* Nút đổi sắc thái ánh sáng ngõ */}
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Đổi sắc thái ánh sáng ngõ phố"
+            accessibilityLabel={t('home.change_mood')}
             accessibilityValue={{
-              text: mood === 'morning' ? 'Buổi sáng' : mood === 'dusk' ? 'Hoàng hôn' : 'Buổi tối',
+              text: mood === 'morning' ? t('home.mood_morning') : mood === 'dusk' ? t('home.mood_dusk') : t('home.mood_night'),
             }}
             onPress={() =>
               setMood((prev) =>
@@ -376,7 +376,7 @@ export function HomeScreen({
                 {/* Nút trạm tròn phát sáng nằm chính xác trên dải đường */}
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={`Xem ${node.name}${node.available ? '' : ' · Chưa mở'}`}
+                  accessibilityLabel={`${t('home.open_story', { name: node.name })}${node.available ? '' : ` · ${t('home.locked')}`}`}
                   accessibilityState={{ selected: isSelected, disabled: !node.available }}
                   disabled={!node.available}
                   hitSlop={6}
@@ -412,10 +412,10 @@ export function HomeScreen({
                     ]}
                   >
                     <Text style={[styles.pinLabelTitle, isSelected && styles.pinLabelTitleActive]}>
-                      Điểm {String(index + 1).padStart(2, '0')}:
+                      {t('home.stop_prefix')} {String(index + 1).padStart(2, '0')}:
                     </Text>
                     <Text style={[styles.pinLabelName, isSelected && styles.pinLabelNameActive]}>
-                      {node.name}{node.available ? '' : ' · Chưa mở'}
+                      {node.name}{node.available ? '' : ` · ${t('home.locked')}`}
                     </Text>
                   </Pressable>
                 )}
@@ -434,10 +434,10 @@ export function HomeScreen({
                     ]}
                   >
                     <Text style={[styles.pinLabelTitle, isSelected && styles.pinLabelTitleActive]}>
-                      Điểm {String(index + 1).padStart(2, '0')}:
+                      {t('home.stop_prefix')} {String(index + 1).padStart(2, '0')}:
                     </Text>
                     <Text style={[styles.pinLabelName, isSelected && styles.pinLabelNameActive]}>
-                      {node.name}{node.available ? '' : ' · Chưa mở'}
+                      {node.name}{node.available ? '' : ` · ${t('home.locked')}`}
                     </Text>
                   </Pressable>
                 )}
@@ -484,29 +484,29 @@ export function HomeScreen({
                 <View style={styles.cardMetaRow}>
                   <View style={styles.durationPill}>
                     <Text style={styles.durationPillText}>
-                      ⏱ {currentNode.visitMinutes} phút
+                      ⏱ {currentNode.visitMinutes} {t('home.min')}
                     </Text>
                   </View>
 
-                  {readNodeIds.has(currentNode.id) && <View style={styles.terracottaStamp}><Text style={styles.stampHeader}>ĐÃ MỞ LỜI KỂ</Text></View>}
+                  {readNodeIds.has(currentNode.id) && <View style={styles.terracottaStamp}><Text style={styles.stampHeader}>{t('home.story_opened')}</Text></View>}
                 </View>
 
                 {/* Tên nhiếp ảnh gia minh họa */}
                 <Text style={styles.creditText} numberOfLines={1}>
-                  Ảnh minh họa: {currentPhotographer}
+                  {t('home.photo_credit')}: {currentPhotographer}
                 </Text>
 
                 {/* Nút hành động chính: KHÁM PHÁ ĐIỂM NÀY */}
                 <Animated.View style={{ transform: [{ scale: explorePressScale }] }}>
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={`Khám phá điểm ${currentNode.name}`}
+                    accessibilityLabel={`${t('home.explore_point_label')} ${currentNode.name}`}
                     onPressIn={handleExplorePressIn}
                     onPressOut={handleExplorePressOut}
                     onPress={handleExploreCurrent}
                     style={styles.exploreCtaButton}
                   >
-                    <Text style={styles.exploreCtaText}>Khám phá điểm này</Text>
+                    <Text style={styles.exploreCtaText}>{t('home.explore_this_point')}</Text>
                   </Pressable>
                 </Animated.View>
               </View>
@@ -522,7 +522,7 @@ export function HomeScreen({
             {/* Nút La bàn / GPS xác nhận tọa độ */}
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Xác nhận điểm GPS"
+              accessibilityLabel={t('home.gps_dock_label')}
               onPress={() => navigation.navigate('Location')}
               style={({ pressed }) => [styles.dockSideCircle, pressed && styles.pressed]}
             >
@@ -532,21 +532,21 @@ export function HomeScreen({
             {/* Nút Trạm khám phá trung tâm phát sáng */}
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Đọc lời kể điểm đang chọn"
+              accessibilityLabel={t('home.read_story_label')}
               onPress={handleExploreCurrent}
               style={({ pressed }) => [styles.dockCenterCircle, pressed && styles.pressed]}
             >
-              <AppIcon name="book" color="#2D5748" /><Text style={[styles.dockLabel, { color: '#2D5748' }]}>Đọc lời kể</Text>
+              <AppIcon name="book" color="#2D5748" /><Text style={[styles.dockLabel, { color: '#2D5748' }]}>{t('home.read_story_btn')}</Text>
             </Pressable>
 
             {/* Nút Sổ tay & Công cụ ngõ phố */}
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Mở sổ tay ngõ phố"
+              accessibilityLabel={t('home.notebook_label')}
               onPress={() => setDrawerVisible(true)}
               style={({ pressed }) => [styles.dockSideCircle, pressed && styles.pressed]}
             >
-              <AppIcon name="write" /><Text style={styles.dockLabel}>Sổ tay</Text>
+              <AppIcon name="write" /><Text style={styles.dockLabel}>{t('home.notebook_btn')}</Text>
             </Pressable>
           </View>
         </View>
@@ -563,7 +563,7 @@ export function HomeScreen({
           <Pressable
             style={styles.modalDismissArea}
             onPress={() => setDrawerVisible(false)}
-            accessibilityLabel="Đóng sổ tay"
+            accessibilityLabel={t('home.close_notebook')}
           />
 
           <View style={styles.journalDrawerSheet}>
@@ -571,15 +571,15 @@ export function HomeScreen({
 
             <View style={styles.drawerHeaderRow}>
               <View>
-                <Text style={styles.drawerPhase}>Sổ tay ngõ phố</Text>
+                <Text style={styles.drawerPhase}>{t('home.notebook_phase')}</Text>
                 <Text accessibilityRole="header" style={styles.drawerTitle}>
-                  Hành trình & Công cụ
+                  {t('home.notebook_title')}
                 </Text>
               </View>
               <Pressable
                 onPress={() => setDrawerVisible(false)}
                 accessibilityRole="button"
-                accessibilityLabel="Đóng sổ tay"
+                accessibilityLabel={t('home.close_notebook')}
                 style={styles.closeDrawerButton}
               >
                 <Text style={styles.closeDrawerText}>✕</Text>
@@ -591,7 +591,7 @@ export function HomeScreen({
               <View style={styles.toolsGrid}>
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel="Chọn trải nghiệm theo chủ đề và thời gian"
+                  accessibilityLabel={t('home.tool_plan_label')}
                   onPress={() => {
                     setDrawerVisible(false);
                     navigation.navigate('Plan');
@@ -599,13 +599,13 @@ export function HomeScreen({
                   style={({ pressed }) => [styles.toolGridCard, pressed && styles.pressed]}
                 >
                   <AppIcon name="compass" color="#2D5748" />
-                  <Text style={styles.toolGridTitle}>Chọn trải nghiệm</Text>
-                  <Text style={styles.toolGridDesc}>Lọc theo ẩm thực, chuyện xưa & quỹ thời gian</Text>
+                  <Text style={styles.toolGridTitle}>{t('home.tool_plan_title')}</Text>
+                  <Text style={styles.toolGridDesc}>{t('home.tool_plan_desc')}</Text>
                 </Pressable>
 
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel="Quét mã QR tại điểm"
+                  accessibilityLabel={t('home.tool_qr_label')}
                   onPress={() => {
                     setDrawerVisible(false);
                     navigation.navigate('Camera');
@@ -613,13 +613,13 @@ export function HomeScreen({
                   style={({ pressed }) => [styles.toolGridCard, pressed && styles.pressed]}
                 >
                   <AppIcon name="qr" color="#2D5748" />
-                  <Text style={styles.toolGridTitle}>Quét mã QR</Text>
-                  <Text style={styles.toolGridDesc}>Xác nhận điểm chạm và kích hoạt người kể</Text>
+                  <Text style={styles.toolGridTitle}>{t('home.tool_qr_title')}</Text>
+                  <Text style={styles.toolGridDesc}>{t('home.tool_qr_desc')}</Text>
                 </Pressable>
 
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel="Tìm điểm bằng GPS"
+                  accessibilityLabel={t('home.tool_gps_label')}
                   onPress={() => {
                     setDrawerVisible(false);
                     navigation.navigate('Location');
@@ -627,21 +627,21 @@ export function HomeScreen({
                   style={({ pressed }) => [styles.toolGridCard, pressed && styles.pressed]}
                 >
                   <AppIcon name="pin" color="#2D5748" />
-                  <Text style={styles.toolGridTitle}>Tìm bằng GPS</Text>
-                  <Text style={styles.toolGridDesc}>Gợi ý điểm ngõ gần nhất theo tọa độ thiết bị</Text>
+                  <Text style={styles.toolGridTitle}>{t('home.tool_gps_title')}</Text>
+                  <Text style={styles.toolGridDesc}>{t('home.tool_gps_desc')}</Text>
                 </Pressable>
               </View>
 
               {/* Quản lý nguồn dữ liệu Demo / Live */}
               <View style={styles.sourceBox} accessibilityLiveRegion="polite">
                 <View style={styles.sourceHeaderRow}>
-                  <Text style={styles.sourceSectionTitle}>Nguồn dữ liệu</Text>
+                  <Text style={styles.sourceSectionTitle}>{t('home.data_source')}</Text>
                   <View style={styles.modeToggleGroup}>
                     {(['demo', 'live'] as const).map((val) => (
                       <Pressable
                         key={val}
                         accessibilityRole="radio"
-                        accessibilityLabel={val === 'demo' ? 'Chế độ demo' : 'Chế độ live'}
+                        accessibilityLabel={val === 'demo' ? t('home.mode_demo') : t('home.mode_live')}
                         accessibilityState={{ checked: mode === val }}
                         onPress={() => onModeChange(val)}
                         style={({ pressed }) => [
@@ -666,30 +666,30 @@ export function HomeScreen({
                 <Text style={styles.sourceStateTag}>
                   {source.mode === 'live'
                     ? liveBusy
-                      ? 'LIVE · đang tải…'
+                      ? (locale === 'en' ? 'LIVE · loading…' : 'LIVE · đang tải…')
                       : source.status === 'ready'
                         ? source.dataset.kind === 'reviewed'
-                          ? 'LIVE · dữ liệu đã duyệt'
-                          : 'LIVE · dữ liệu mô phỏng (chưa xác minh)'
-                        : 'LIVE · chưa có dữ liệu'
-                    : 'DEMO · nội dung mô phỏng'}
+                          ? (locale === 'en' ? 'LIVE · reviewed data' : 'LIVE · dữ liệu đã duyệt')
+                          : (locale === 'en' ? 'LIVE · simulated data (unverified)' : 'LIVE · dữ liệu mô phỏng (chưa xác minh)')
+                        : (locale === 'en' ? 'LIVE · no data' : 'LIVE · chưa có dữ liệu')
+                    : (locale === 'en' ? 'DEMO · simulated content' : 'DEMO · nội dung mô phỏng')}
                 </Text>
                 <Text style={styles.sourceTitle}>
-                  {liveBusy ? 'Đang lấy dữ liệu live…' : source.title}
+                  {liveBusy ? (locale === 'en' ? 'Fetching live data…' : 'Đang lấy dữ liệu live…') : source.title}
                 </Text>
                 <Text style={styles.sourceBody}>
-                  {liveBusy ? 'Đang gọi máy chủ theo URL đã cấu hình.' : source.detail}
+                  {liveBusy ? (locale === 'en' ? 'Calling server at configured URL.' : 'Đang gọi máy chủ theo URL đã cấu hình.') : source.detail}
                 </Text>
 
                 {source.mode === 'live' && onRetryLive !== undefined && (
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel="Thử lại dữ liệu live"
+                    accessibilityLabel={t('home.retry_live_label')}
                     onPress={onRetryLive}
                     disabled={liveBusy}
                     style={({ pressed }) => [styles.retryBtn, pressed && styles.pressed]}
                   >
-                    <Text style={styles.retryBtnText}>Thử lại kết nối</Text>
+                    <Text style={styles.retryBtnText}>{t('home.retry_live')}</Text>
                   </Pressable>
                 )}
 

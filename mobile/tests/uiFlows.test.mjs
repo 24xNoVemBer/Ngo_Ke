@@ -106,8 +106,24 @@ function mount(file, props = {}, overrides = {}, exportName) {
     './src/voice/config': { readVoiceApiBaseUrl: () => '' },
     './src/voice/catalog': { voiceCatalogueRevision: 'fixture-revision', voiceTracks: {} },
     '../voice/catalog': { voiceCatalogueRevision: 'fixture-revision', voiceTracks: {} },
-    './src/voice/localizedCatalog': { voiceCatalogueRevision: 'fixture-revision', lookupVoiceTrack: () => undefined },
-    '../voice/localizedCatalog': { voiceCatalogueRevision: 'fixture-revision', lookupVoiceTrack: () => undefined },
+    './src/voice/localizedCatalog': {
+      voiceCatalogueRevision: 'fixture-revision',
+      lookupVoiceTrack: ({ collectionId = 'fiction-letter', locale = 'vi', contentId } = {}) => {
+        if (collectionId === 'fiction-letter' && (locale === 'vi' || !locale)) {
+          return { id: contentId, kind: 'answer', source: 1, textHash: 'dummy', durationSeconds: 10 };
+        }
+        return undefined;
+      },
+    },
+    '../voice/localizedCatalog': {
+      voiceCatalogueRevision: 'fixture-revision',
+      lookupVoiceTrack: ({ collectionId = 'fiction-letter', locale = 'vi', contentId } = {}) => {
+        if (collectionId === 'fiction-letter' && (locale === 'vi' || !locale)) {
+          return { id: contentId, kind: 'answer', source: 1, textHash: 'dummy', durationSeconds: 10 };
+        }
+        return undefined;
+      },
+    },
     '../voice/performance': { recordVoicePerformance() {}, voicePerformanceNow: () => 0 },
     './performance': { recordVoicePerformance() {}, voicePerformanceNow: () => 0 },
     '../voice/useVoiceSession': { useVoiceSession: () => ({
@@ -139,7 +155,7 @@ function mount(file, props = {}, overrides = {}, exportName) {
         isReady: true,
         t: (key, params) => translator.t('vi', key, params),
       }),
-      LocaleProvider: ({ children }) => children,
+      LocaleProvider: 'LocaleProvider',
     },
     './src/context/LocaleContext': {
       useLocale: () => ({
@@ -150,12 +166,13 @@ function mount(file, props = {}, overrides = {}, exportName) {
         isReady: true,
         t: (key, params) => translator.t('vi', key, params),
       }),
-      LocaleProvider: ({ children }) => children,
+      LocaleProvider: 'LocaleProvider',
     },
     './src/data/collections': {
       DEFAULT_COLLECTION_ID: 'fiction-letter',
       getBundledDataset: () => fixture,
       getCollectionRevision: () => 'fixture-revision',
+      isCollectionId: (v) => v === 'fiction-letter' || v === 'old-quarter-pilot',
       AVAILABLE_COLLECTIONS: [],
       getLocalizedCollections: () => [],
     },
@@ -163,6 +180,7 @@ function mount(file, props = {}, overrides = {}, exportName) {
       DEFAULT_COLLECTION_ID: 'fiction-letter',
       getBundledDataset: () => fixture,
       getCollectionRevision: () => 'fixture-revision',
+      isCollectionId: (v) => v === 'fiction-letter' || v === 'old-quarter-pilot',
       AVAILABLE_COLLECTIONS: [],
       getLocalizedCollections: () => [],
     },
@@ -1433,4 +1451,154 @@ test('Camera latches the first QR callback and closes when app backgrounds', asy
   foreground = false;
   tree = view.render();
   assert.equal(elements(tree, 'CameraView').length, 0);
+});
+
+test('late persisted locale read does not override manual user choice in App', async () => {
+  let resolvePersisted;
+  const storagePromise = new Promise((resolve) => {
+    resolvePersisted = resolve;
+  });
+  const app = mount('../App.tsx', {}, {
+    './src/data/localeStorage': {
+      readPersistedLocaleAsync: () => storagePromise,
+      writePersistedLocaleAsync: async () => {},
+      resolveEffectiveLocale: () => 'vi',
+    },
+  });
+  let tree = app.render();
+  const getLocaleContext = () => elements(tree, 'LocaleProvider')[0].props.value;
+  assert.equal(getLocaleContext().locale, 'vi');
+  assert.equal(getLocaleContext().isReady, false);
+
+  // User manually switches locale to 'en' before storage resolves
+  getLocaleContext().setLocale('en');
+  tree = app.render();
+  assert.equal(getLocaleContext().locale, 'en');
+
+  // Now storage resolves late with 'vi'
+  resolvePersisted('vi');
+  await setImmediate();
+  tree = app.render();
+
+  assert.equal(getLocaleContext().isReady, true);
+  assert.equal(getLocaleContext().locale, 'en', 'Manual choice is preserved; late storage read does not overwrite it');
+  app.unmount();
+});
+
+test('logical node preserved across locale change vs reset on collection change in App', () => {
+  const app = mount('../App.tsx');
+  let tree = app.render();
+  const getLocaleContext = () => elements(tree, 'LocaleProvider')[0].props.value;
+
+  // Select node demo-02 in Home
+  screen(tree, 'Home').onSelectNode('demo-02');
+  tree = app.render();
+  assert.equal(screen(tree, 'Qa').currentNodeId, 'demo-02');
+
+  // Change locale to 'en'
+  getLocaleContext().setLocale('en');
+  tree = app.render();
+  assert.equal(getLocaleContext().locale, 'en');
+  assert.equal(screen(tree, 'Qa').currentNodeId, 'demo-02', 'Node preserved on locale change');
+
+  // Change collection to 'old-quarter-pilot'
+  getLocaleContext().setCollectionId('old-quarter-pilot');
+  tree = app.render();
+  assert.equal(getLocaleContext().collectionId, 'old-quarter-pilot');
+  assert.equal(screen(tree, 'Home').currentNodeId, undefined, 'Node reset on collection change');
+  app.unmount();
+});
+
+test('AlleySelectScreen selects actual collection and calls setCollectionId before navigation', () => {
+  let selectedCollection;
+  const navigated = [];
+  const navigation = {
+    navigate: (route, params) => navigated.push({ route, params }),
+    goBack: () => {},
+  };
+  const view = mount('../src/screens/AlleySelectScreen.tsx', {
+    navigation,
+    mode: 'demo',
+    nodeCount: 6,
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        t: (key, params) => translator.t('vi', key, params),
+        setCollectionId: (id) => { selectedCollection = id; },
+      }),
+    },
+    '../data/collections': {
+      isCollectionId: (v) => v === 'fiction-letter' || v === 'old-quarter-pilot',
+      getLocalizedCollections: () => [
+        { id: 'fiction-letter', name: 'Lá thư Hà Nội', district: 'Hàng Buồm', theme: 'Chuyện xưa', tagline: '', nodeCount: 6, coverPhoto: 1, kind: 'simulated' },
+        { id: 'old-quarter-pilot', name: 'Ngõ Phất Lộc', district: 'Hàng Buồm', theme: 'Ẩm thực', tagline: '', nodeCount: 3, coverPhoto: 1, kind: 'reviewed' },
+      ],
+    },
+  });
+  const tree = view.render();
+  const cards = elements(tree, 'Pressable').filter((p) => p.props.accessibilityLabel?.startsWith('Mở'));
+  assert.equal(cards.length, 2);
+
+  // Tap second card: old-quarter-pilot
+  cards[1].props.onPress();
+  assert.equal(selectedCollection, 'old-quarter-pilot');
+  assert.deepEqual(JSON.parse(JSON.stringify(navigated)), [{ route: 'Home', params: { alleyId: 'old-quarter-pilot' } }]);
+  view.unmount();
+});
+
+test('QaScreen passes locale and collectionId to useVoiceSession and resolves localized catalog tracks', () => {
+  let sessionConfig;
+  const catalogLookups = [];
+  const view = mount('../src/screens/QaScreen.tsx', {
+    mode: 'demo',
+    dataset: {
+      ...fixture,
+      collectionId: 'old-quarter-pilot',
+      nodes: fixture.nodes,
+      intro: fixture.intro,
+    },
+    datasetRevision: 'pilot-rev-en',
+    currentNodeId: 'demo-01',
+    readNodeIds: new Set(),
+    onSelectNode() {},
+    onReadNode() {},
+    onOpenNotebook() {},
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        collectionId: 'old-quarter-pilot',
+        t: (key, params) => translator.t('en', key, params),
+      }),
+    },
+    '../voice/useVoiceSession': {
+      useVoiceSession: (config) => {
+        sessionConfig = config;
+        return {
+          stage: 'idle', error: null, recordingDurationMs: 0, metering: -60,
+          playback: { playing: false, currentTime: 0, duration: 0 }, activeTrackId: null, playbackError: null,
+          startRecording() {}, submitRecording() {}, cancel() {}, stopPlayback() {}, playTrack() {}, replayTrack() {},
+        };
+      },
+    },
+    '../voice/localizedCatalog': {
+      lookupVoiceTrack: (params) => {
+        catalogLookups.push(params);
+        return { durationSeconds: 42, url: 'file://pilot-en.mp3' };
+      },
+    },
+  });
+  view.render();
+  assert.ok(sessionConfig);
+  assert.equal(sessionConfig.locale, 'en');
+  assert.equal(sessionConfig.collectionId, 'old-quarter-pilot');
+
+  // Verify lookupVoiceTrack was called with locale and collectionId
+  assert.ok(catalogLookups.length > 0);
+  assert.equal(catalogLookups[0].locale, 'en');
+  assert.equal(catalogLookups[0].collectionId, 'old-quarter-pilot');
+  assert.equal(catalogLookups[0].contentId, 'demo-01-story');
+  assert.equal(catalogLookups[0].datasetRevision, 'pilot-rev-en');
+  view.unmount();
 });

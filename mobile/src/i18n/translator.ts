@@ -173,6 +173,10 @@ export type TranslationKey =
   // QA
   | 'qa.read_text'
   | 'qa.collapse_text'
+  | 'qa.collapse_answer'
+  | 'qa.read_answer_text'
+  | 'qa.collapse_answer_btn'
+  | 'qa.read_answer_btn'
   | 'qa.prev_stop'
   | 'qa.prev_stop_label'
   | 'qa.next_stop'
@@ -189,6 +193,95 @@ export type TranslationKey =
   | 'qa.open_plan'
   | 'qa.missing_audio'
   | 'qa.no_match'
+  | 'qa.ask_another'
+  | 'qa.asked_prefix'
+  | 'qa.unmatched_question_title'
+  | 'qa.unmatched_question_body'
+  | 'qa.no_match_title'
+  | 'qa.no_match_body'
+  | 'qa.view_recognized_question'
+  | 'qa.view_asked_question'
+  | 'qa.verified_story_title'
+  | 'qa.verified_source_title'
+  | 'qa.answer_evidence_label'
+  | 'qa.story_evidence_label'
+  | 'qa.voice_plan_title'
+  | 'qa.voice_plan_body'
+  | 'qa.voice_plan_empty'
+  | 'qa.voice_plan_open'
+  | 'qa.voice_qr_title'
+  | 'qa.voice_gps_title'
+  | 'qa.voice_qr_body'
+  | 'qa.voice_gps_body'
+  | 'qa.voice_qr_btn'
+  | 'qa.voice_gps_btn'
+  | 'qa.listen_answer'
+  | 'qa.execute_action'
+  | 'qa.choose_question'
+  | 'qa.no_questions_for_node'
+  | 'qa.can_read_or_choose'
+  | 'qa.this_point'
+  | 'qa.ask_placeholder'
+  | 'qa.disclaimer_fiction'
+  | 'qa.disclaimer_live_reviewed'
+  | 'qa.disclaimer_live_simulated'
+  | 'qa.narrator_header'
+  | 'qa.narrator_badge'
+  | 'qa.opening_stop'
+  | 'qa.waveform_demo'
+  | 'qa.waveform_live'
+  | 'qa.story_label'
+  | 'qa.answer_label'
+  | 'qa.minutes_simulated'
+  | 'qa.open_chapter'
+  | 'qa.follow_ups_title'
+  | 'qa.follow_up_prefix'
+  | 'qa.suggested_questions_title'
+  | 'qa.ask_prefix'
+  | 'qa.minutes'
+  | 'qa.explore_alley'
+  | 'qa.photo_credit'
+  // Landing additions
+  | 'landing.quote_text'
+  | 'landing.quote_author'
+  | 'landing.cta_label'
+  | 'landing.cta_button'
+  | 'landing.passport_close_label'
+  | 'landing.explore_alley_label'
+  // Home additions
+  | 'home.change_mood'
+  | 'home.mood_morning'
+  | 'home.mood_dusk'
+  | 'home.mood_night'
+  | 'home.stop_prefix'
+  | 'home.locked'
+  | 'home.min'
+  | 'home.story_opened'
+  | 'home.photo_credit'
+  | 'home.explore_point_label'
+  | 'home.explore_this_point'
+  | 'home.gps_dock_label'
+  | 'home.read_story_label'
+  | 'home.read_story_btn'
+  | 'home.notebook_label'
+  | 'home.notebook_btn'
+  | 'home.close_notebook'
+  | 'home.notebook_phase'
+  | 'home.notebook_title'
+  | 'home.tool_plan_label'
+  | 'home.tool_plan_title'
+  | 'home.tool_plan_desc'
+  | 'home.tool_qr_label'
+  | 'home.tool_qr_title'
+  | 'home.tool_qr_desc'
+  | 'home.tool_gps_label'
+  | 'home.tool_gps_title'
+  | 'home.tool_gps_desc'
+  | 'home.data_source'
+  | 'home.mode_demo'
+  | 'home.mode_live'
+  | 'home.retry_live'
+  | 'home.retry_live_label'
   // Plan
   | 'plan.title'
   | 'plan.subtitle'
@@ -424,6 +517,10 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
 
     'qa.read_text': 'Xem lời kể bằng chữ',
     'qa.collapse_text': 'Thu gọn lời kể',
+    'qa.collapse_answer': 'Thu gọn câu trả lời',
+    'qa.read_answer_text': 'Xem câu trả lời bằng chữ',
+    'qa.collapse_answer_btn': 'Thu gọn chữ',
+    'qa.read_answer_btn': 'Xem lời kể bằng chữ',
     'qa.prev_stop': '‹ Điểm trước',
     'qa.prev_stop_label': 'Điểm trước đó',
     'qa.next_stop': 'Điểm tiếp theo ›',
@@ -440,6 +537,95 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'qa.open_plan': 'Chọn trải nghiệm',
     'qa.missing_audio': 'Bản đọc chưa sẵn sàng cho nội dung này. Bạn vẫn có thể xem lời kể bằng chữ.',
     'qa.no_match': 'Chưa có dữ liệu cho câu hỏi này. Hãy thử chọn một câu gợi ý bên dưới.',
+    'qa.ask_another': 'Đặt câu hỏi khác',
+    'qa.asked_prefix': 'Bạn vừa hỏi:',
+    'qa.unmatched_question_title': 'Câu hỏi chưa khớp',
+    'qa.unmatched_question_body': 'Người kể nhận được lời nói nhưng chưa khớp câu hỏi mẫu ở điểm này. Xem câu đã nhận dạng để kiểm tra, thử lại bằng mic hoặc chọn câu gợi ý bên dưới.',
+    'qa.no_match_title': 'Chưa có lời kể cho câu này',
+    'qa.no_match_body': 'Chưa có dữ liệu cho câu hỏi này trong nguồn hiện tại. Bạn có thể chọn các câu hỏi mẫu bên dưới.',
+    'qa.view_recognized_question': 'Xem câu đã nhận dạng',
+    'qa.view_asked_question': 'Xem câu vừa hỏi',
+    'qa.verified_story_title': 'LỜI KỂ TRONG TRUYỆN',
+    'qa.verified_source_title': 'NỘI DUNG CÓ NGUỒN',
+    'qa.answer_evidence_label': 'Nguồn nội dung',
+    'qa.story_evidence_label': 'Nguồn lời kể',
+    'qa.voice_plan_title': 'Một lối đi vừa ý',
+    'qa.voice_plan_body': 'Gợi ý dựa trên quỹ thời gian và chủ đề anh vừa nói.',
+    'qa.voice_plan_empty': 'Chưa có điểm phù hợp trong dữ liệu mô phỏng. Anh có thể đổi chủ đề hoặc thời gian.',
+    'qa.voice_plan_open': 'Mở bảng chọn trải nghiệm',
+    'qa.voice_qr_title': 'Xác định điểm bằng mã QR',
+    'qa.voice_gps_title': 'Xác định điểm bằng GPS',
+    'qa.voice_qr_body': 'Máy ảnh chỉ mở sau khi anh chạm nút. Nếu chưa quét được, vẫn có thể chọn điểm bằng tay.',
+    'qa.voice_gps_body': 'Vị trí chỉ được đọc một lần sau khi anh chạm nút Dùng GPS. Điểm mô phỏng chưa xác nhận vị trí thật.',
+    'qa.voice_qr_btn': 'Mở thẻ quét QR',
+    'qa.voice_gps_btn': 'Mở thẻ GPS',
+    'qa.listen_answer': 'Nghe câu trả lời',
+    'qa.execute_action': 'Thực hiện',
+    'qa.choose_question': 'Chọn câu muốn hỏi',
+    'qa.no_questions_for_node': 'Chưa có câu hỏi cho điểm này',
+    'qa.can_read_or_choose': 'Bạn vẫn có thể đọc lời kể hoặc chọn điểm khác ở phía trên.',
+    'qa.this_point': 'điểm này',
+    'qa.ask_placeholder': 'Hỏi về {name}…',
+    'qa.disclaimer_fiction': 'Truyện hư cấu',
+    'qa.disclaimer_live_reviewed': 'điểm đã duyệt · nguồn Live',
+    'qa.disclaimer_live_simulated': 'điểm mô phỏng · nguồn Live',
+    'qa.narrator_header': 'LỜI NGƯỜI KỂ CHUYỆN NGÕ PHỐ',
+    'qa.narrator_badge': 'Kể',
+    'qa.opening_stop': 'Điểm mở đầu',
+    'qa.waveform_demo': 'TRUYỆN HƯ CẤU · NGHE NGƯỜI KỂ',
+    'qa.waveform_live': 'LIVE · LỜI KỂ BẰNG CHỮ',
+    'qa.story_label': 'Lời kể',
+    'qa.answer_label': 'Câu trả lời',
+    'qa.minutes_simulated': 'phút mô phỏng',
+    'qa.open_chapter': 'Mở chương',
+    'qa.follow_ups_title': 'Bạn có thể muốn biết thêm',
+    'qa.follow_up_prefix': 'Hỏi tiếp:',
+    'qa.suggested_questions_title': 'Câu hỏi gợi ý ngõ phố:',
+    'qa.ask_prefix': 'Hỏi:',
+    'qa.minutes': 'phút',
+    'qa.explore_alley': 'Khám phá ngõ',
+    'qa.photo_credit': 'Ảnh minh họa',
+
+    'landing.quote_text': 'Mở một trang sổ tay, chậm bước qua ngõ phố và khám phá những lời kể.',
+    'landing.quote_author': '— Dự án Ngõ Kể · Giữ gìn hồn phố cổ',
+    'landing.cta_label': 'Chọn con ngõ để bắt đầu chuyến đi',
+    'landing.cta_button': 'Khám phá các con ngõ Hà Nội',
+    'landing.passport_close_label': 'Đóng hộ chiếu',
+    'landing.explore_alley_label': 'Khám phá',
+
+    'home.change_mood': 'Đổi sắc thái ánh sáng ngõ phố',
+    'home.mood_morning': 'Buổi sáng',
+    'home.mood_dusk': 'Hoàng hôn',
+    'home.mood_night': 'Buổi tối',
+    'home.stop_prefix': 'Điểm',
+    'home.locked': 'Chưa mở',
+    'home.min': 'phút',
+    'home.story_opened': 'ĐÃ MỞ LỜI KỂ',
+    'home.photo_credit': 'Ảnh minh họa',
+    'home.explore_point_label': 'Khám phá điểm',
+    'home.explore_this_point': 'Khám phá điểm này',
+    'home.gps_dock_label': 'Xác nhận điểm GPS',
+    'home.read_story_label': 'Đọc lời kể điểm đang chọn',
+    'home.read_story_btn': 'Đọc lời kể',
+    'home.notebook_label': 'Mở sổ tay ngõ phố',
+    'home.notebook_btn': 'Sổ tay',
+    'home.close_notebook': 'Đóng sổ tay',
+    'home.notebook_phase': 'Sổ tay ngõ phố',
+    'home.notebook_title': 'Hành trình & Công cụ',
+    'home.tool_plan_label': 'Chọn trải nghiệm theo chủ đề và thời gian',
+    'home.tool_plan_title': 'Chọn trải nghiệm',
+    'home.tool_plan_desc': 'Lọc theo ẩm thực, chuyện xưa & quỹ thời gian',
+    'home.tool_qr_label': 'Quét mã QR tại điểm',
+    'home.tool_qr_title': 'Quét mã QR',
+    'home.tool_qr_desc': 'Xác nhận điểm chạm và kích hoạt người kể',
+    'home.tool_gps_label': 'Tìm điểm bằng GPS',
+    'home.tool_gps_title': 'Tìm bằng GPS',
+    'home.tool_gps_desc': 'Gợi ý điểm ngõ gần nhất theo tọa độ thiết bị',
+    'home.data_source': 'Nguồn dữ liệu',
+    'home.mode_demo': 'Chế độ demo',
+    'home.mode_live': 'Chế độ live',
+    'home.retry_live': 'Thử lại kết nối',
+    'home.retry_live_label': 'Thử lại dữ liệu live',
 
     'plan.title': 'Chọn trải nghiệm',
     'plan.subtitle': 'Chọn chủ đề và quỹ thời gian để gợi ý lộ trình',
@@ -674,6 +860,10 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
 
     'qa.read_text': 'Read text',
     'qa.collapse_text': 'Collapse text',
+    'qa.collapse_answer': 'Collapse answer',
+    'qa.read_answer_text': 'Read answer text',
+    'qa.collapse_answer_btn': 'Collapse',
+    'qa.read_answer_btn': 'Read story text',
     'qa.prev_stop': '‹ Previous stop',
     'qa.prev_stop_label': 'Previous stop',
     'qa.next_stop': 'Next stop ›',
@@ -690,6 +880,95 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'qa.open_plan': 'Plan experience',
     'qa.missing_audio': 'Audio recording is unavailable for this content. You can still read the text.',
     'qa.no_match': 'No data available for this question. Try selecting a suggested question below.',
+    'qa.ask_another': 'Ask another question',
+    'qa.asked_prefix': 'You asked:',
+    'qa.unmatched_question_title': 'Question did not match',
+    'qa.unmatched_question_body': 'The storyteller heard your question but it did not match known questions for this stop. Review the transcript, try again with the mic, or select a suggestion below.',
+    'qa.no_match_title': 'No story for this question',
+    'qa.no_match_body': 'No data available for this question in the current source. You can choose from the suggestions below.',
+    'qa.view_recognized_question': 'View recognized question',
+    'qa.view_asked_question': 'View asked question',
+    'qa.verified_story_title': 'STORY PASSAGE',
+    'qa.verified_source_title': 'SOURCED CONTENT',
+    'qa.answer_evidence_label': 'Content source',
+    'qa.story_evidence_label': 'Story source',
+    'qa.voice_plan_title': 'A tailored route',
+    'qa.voice_plan_body': 'Suggestions based on the duration and topic you mentioned.',
+    'qa.voice_plan_empty': 'No matching stops found in the demo dataset. You can change topic or duration.',
+    'qa.voice_plan_open': 'Open route planner',
+    'qa.voice_qr_title': 'Identify stop with QR code',
+    'qa.voice_gps_title': 'Identify stop with GPS',
+    'qa.voice_qr_body': 'Camera only opens after tapping the button. If QR scan fails, manual selection is always available.',
+    'qa.voice_gps_body': 'Location is read only once after tapping Use GPS. Simulated stops do not confirm physical location.',
+    'qa.voice_qr_btn': 'Open QR scanner',
+    'qa.voice_gps_btn': 'Open GPS card',
+    'qa.listen_answer': 'Listen to answer',
+    'qa.execute_action': 'Execute',
+    'qa.choose_question': 'Choose a question',
+    'qa.no_questions_for_node': 'No questions available for this stop',
+    'qa.can_read_or_choose': 'You can still read the story or choose another stop above.',
+    'qa.this_point': 'this stop',
+    'qa.ask_placeholder': 'Ask about {name}…',
+    'qa.disclaimer_fiction': 'Fictional story',
+    'qa.disclaimer_live_reviewed': 'reviewed stops · Live source',
+    'qa.disclaimer_live_simulated': 'simulated stops · Live source',
+    'qa.narrator_header': 'ALLEY STORYTELLER VOICE',
+    'qa.narrator_badge': 'Story',
+    'qa.opening_stop': 'Opening stop',
+    'qa.waveform_demo': 'FICTIONAL STORY · LISTEN TO NARRATOR',
+    'qa.waveform_live': 'LIVE · TEXT STORY',
+    'qa.story_label': 'Story',
+    'qa.answer_label': 'Answer',
+    'qa.minutes_simulated': 'simulated minutes',
+    'qa.open_chapter': 'Open chapter',
+    'qa.follow_ups_title': 'You might want to explore further',
+    'qa.follow_up_prefix': 'Follow up:',
+    'qa.suggested_questions_title': 'Suggested alley questions:',
+    'qa.ask_prefix': 'Ask:',
+    'qa.minutes': 'min',
+    'qa.explore_alley': 'Explore alley',
+    'qa.photo_credit': 'Illustration photo',
+
+    'landing.quote_text': 'Open a notebook page, slow your steps through city alleys, and discover their stories.',
+    'landing.quote_author': '— Ngõ Kể Project · Preserving Old Quarter Soul',
+    'landing.cta_label': 'Select an alley to begin your journey',
+    'landing.cta_button': 'Explore Hanoi Alleys',
+    'landing.passport_close_label': 'Close passport',
+    'landing.explore_alley_label': 'Explore',
+
+    'home.change_mood': 'Change alley lighting mood',
+    'home.mood_morning': 'Morning',
+    'home.mood_dusk': 'Dusk',
+    'home.mood_night': 'Night',
+    'home.stop_prefix': 'Stop',
+    'home.locked': 'Locked',
+    'home.min': 'min',
+    'home.story_opened': 'STORY OPENED',
+    'home.photo_credit': 'Photo',
+    'home.explore_point_label': 'Explore stop',
+    'home.explore_this_point': 'Explore this stop',
+    'home.gps_dock_label': 'Confirm GPS point',
+    'home.read_story_label': 'Read story of selected stop',
+    'home.read_story_btn': 'Read story',
+    'home.notebook_label': 'Open alley notebook',
+    'home.notebook_btn': 'Notebook',
+    'home.close_notebook': 'Close notebook',
+    'home.notebook_phase': 'Alley Notebook',
+    'home.notebook_title': 'Journey & Tools',
+    'home.tool_plan_label': 'Choose experience by topic and duration',
+    'home.tool_plan_title': 'Plan Experience',
+    'home.tool_plan_desc': 'Filter by food, history & time budget',
+    'home.tool_qr_label': 'Scan QR code at stop',
+    'home.tool_qr_title': 'Scan QR Code',
+    'home.tool_qr_desc': 'Confirm stop and activate storyteller',
+    'home.tool_gps_label': 'Find stop with GPS',
+    'home.tool_gps_title': 'Find with GPS',
+    'home.tool_gps_desc': 'Suggest nearest alley stop from device coordinates',
+    'home.data_source': 'Data Source',
+    'home.mode_demo': 'Demo mode',
+    'home.mode_live': 'Live mode',
+    'home.retry_live': 'Retry connection',
+    'home.retry_live_label': 'Retry live data',
 
     'plan.title': 'Choose experience',
     'plan.subtitle': 'Choose a topic and time budget for route recommendations',

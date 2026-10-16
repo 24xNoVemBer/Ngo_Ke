@@ -286,7 +286,7 @@ export default function App(): ReactElement {
                 mode={mode}
                 source={source}
                 onModeChange={changeMode}
-                currentNodeId={activeNodeId}
+                currentNodeId={currentNodeId}
                 onSelectNode={selectNode}
                 readNodeIds={readNodeIds}
                 liveBusy={liveBusy}

@@ -123,9 +123,9 @@ export function LandingScreen({ navigation, mode = 'demo' }: Props): ReactElemen
             <View style={styles.quoteDecorStrip} />
             <Text style={styles.quoteMark}>“</Text>
             <Text style={styles.quoteText}>
-              Mở một trang sổ tay, chậm bước qua ngõ phố và khám phá những lời kể.
+              {t('landing.quote_text')}
             </Text>
-            <Text style={styles.quoteAuthor}>— Dự án Ngõ Kể · Giữ gìn hồn phố cổ</Text>
+            <Text style={styles.quoteAuthor}>{t('landing.quote_author')}</Text>
 
           </Animated.View>
 
@@ -160,7 +160,7 @@ export function LandingScreen({ navigation, mode = 'demo' }: Props): ReactElemen
                 <Pressable
                   key={col.id}
                   accessibilityRole="button"
-                  accessibilityLabel={`${t('common.close')} ${col.name}`}
+                  accessibilityLabel={`${t('landing.explore_alley_label')} ${col.name}`}
                   onPress={() => {
                     setCollectionId(col.id);
                     navigation.navigate('Home', { alleyId: col.id });
@@ -214,7 +214,7 @@ export function LandingScreen({ navigation, mode = 'demo' }: Props): ReactElemen
           >
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Mở Hộ chiếu ngõ phố"
+              accessibilityLabel={t('landing.passport_open_label')}
               onPress={() => setPassportVisible(true)}
               style={({ pressed }) => [styles.passportTeaserCard, pressed && styles.pressed]}
             >
@@ -222,9 +222,9 @@ export function LandingScreen({ navigation, mode = 'demo' }: Props): ReactElemen
                 <AppIcon name="book" color={colors.terracotta} />
               </View>
               <View style={styles.passportTextGroup}>
-                <Text style={styles.passportTitle}>Hộ chiếu ngõ phố</Text>
+                <Text style={styles.passportTitle}>{t('landing.passport_title')}</Text>
                 <Text style={styles.passportDesc}>
-                  Xem mẫu sổ tay · chưa lưu lịch sử ghé thăm
+                  {t('landing.passport_desc')}
                 </Text>
               </View>
               <Text style={styles.passportChevron}>›</Text>
@@ -237,13 +237,13 @@ export function LandingScreen({ navigation, mode = 'demo' }: Props): ReactElemen
           <Animated.View style={{ transform: [{ scale: ctaPressScale }] }}>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Chọn con ngõ để bắt đầu chuyến đi"
+              accessibilityLabel={t('landing.cta_label')}
               onPressIn={handleCtaPressIn}
               onPressOut={handleCtaPressOut}
               onPress={() => navigation.navigate('AlleySelect')}
               style={styles.primaryCtaButton}
             >
-              <Text style={styles.primaryCtaText}>Khám phá các con ngõ Hà Nội</Text>
+              <Text style={styles.primaryCtaText}>{t('landing.cta_button')}</Text>
               <View style={styles.ctaArrowCircle}>
                 <Text style={styles.ctaArrowText}>→</Text>
               </View>
@@ -263,7 +263,7 @@ export function LandingScreen({ navigation, mode = 'demo' }: Props): ReactElemen
           <Pressable
             style={styles.modalDismissArea}
             onPress={() => setPassportVisible(false)}
-            accessibilityLabel="Đóng hộ chiếu"
+            accessibilityLabel={t('landing.passport_close_label')}
           />
 
           <View style={styles.passportSheet}>

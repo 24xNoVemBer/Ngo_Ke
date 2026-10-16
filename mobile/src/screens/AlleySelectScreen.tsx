@@ -14,12 +14,11 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { Mode } from '../data/sourceState';
 import type { RootStackParamList } from '../navigation';
-import { ALLEY_LIST, type AlleyMeta } from '../assets/photoMap';
+import { getLocalizedCollections, isCollectionId } from '../data/collections';
 import { normalizeQuestion } from '../qa/match';
 import { NgoKeLogo } from '../components/NgoKeLogo';
 import {
   useEntranceFadeSlide,
-  usePressSpring,
 } from '../hooks/useMotion';
 import { radius, spacing } from '../theme';
 
@@ -29,83 +28,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AlleySelect'> & { nodeC
 
 type LocationFilter = 'Tất cả' | 'Hàng Buồm' | 'Hàng Gai' | 'Đồng Xuân' | 'Ẩm thực';
 
-interface AlleyCardItemProps {
-  alley: AlleyMeta;
-  index: number;
-  nodeCount: number;
-  mode: Mode;
-  onSelect: () => void;
-}
 
-function AlleyCardItem({
-  alley,
-  index,
-  nodeCount,
-  mode,
-  onSelect,
-}: AlleyCardItemProps): ReactElement {
-  const { t } = useLocale();
-  const entrance = useEntranceFadeSlide({
-    delay: Math.min(650, 220 + index * 75),
-    duration: 380,
-    offsetY: 26,
-  });
-  const { scaleAnim, handlePressIn, handlePressOut } = usePressSpring(0.975);
-
-  return (
-    <Animated.View
-      style={{
-        opacity: entrance.opacity,
-        transform: [{ translateY: entrance.translateY }, { scale: scaleAnim }],
-      }}
-    >
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={t('alley_select.open_label', { name: alley.name })}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        onPress={onSelect}
-        style={styles.cinematicCard}
-      >
-        {/* Ảnh bìa chụp thật khổ lớn */}
-        <Image source={alley.coverPhoto} style={styles.cardCoverImage} resizeMode="cover" />
-
-        {/* Lớp gradient tối mộc mạc làm nổi bật chữ */}
-        <View style={styles.cardScrim} />
-
-        {/* Huy hiệu góc trên: Gần nhất hoặc cự ly GPS */}
-        <View style={styles.cardHeaderBadges}>
-          <View style={styles.themeBadge}>
-            <Text style={styles.themeBadgeText}>{alley.theme}</Text>
-          </View>
-
-          <View style={styles.distanceBadge}>
-            <Text style={styles.distanceBadgeText}>DEMO</Text>
-          </View>
-        </View>
-
-        {/* Thông tin cốt lõi ngắn gọn ở đáy thẻ */}
-        <View style={styles.cardBottomBar}>
-          <View style={styles.cardTextCol}>
-            <Text style={styles.cardDistrictText}>{alley.district}</Text>
-            <Text style={styles.cardNameText}>{alley.name}</Text>
-            <Text style={styles.cardBriefMeta}>
-              {t('alley_select.meta_info', { count: nodeCount, mode: mode === 'demo' ? t('common.demo') : t('common.live') })}
-            </Text>
-          </View>
-
-          {/* Nút mũi tên chuyển tiếp sang bản đồ ngõ */}
-          <View style={styles.cardForwardBtn}>
-            <Text style={styles.cardForwardIcon}>→</Text>
-          </View>
-        </View>
-      </Pressable>
-    </Animated.View>
-  );
-}
-
-export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Props): ReactElement {
-  const { t, setCollectionId } = useLocale();
+export function AlleySelectScreen({ navigation, mode = 'demo' }: Props): ReactElement {
+  const { locale, t, setCollectionId } = useLocale();
   const insets = useSafeAreaInsets();
   const { fontScale } = useWindowDimensions();
 
@@ -115,31 +40,31 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
   const topPadding = Math.max(insets.top, 28) + 8;
   const bottomPadding = Math.max(insets.bottom, 16) + 20;
 
+  const collections = getLocalizedCollections(locale);
+
   // Lọc danh sách con ngõ theo ô tìm kiếm địa chỉ và bộ lọc khu vực
-  const filteredAlleys = ALLEY_LIST.filter((alley) => {
+  const filteredCollections = collections.filter((col) => {
     const query = normalizeQuestion(searchQuery);
     const matchSearch =
       query.length === 0 ||
-      normalizeQuestion(alley.name).includes(query) ||
-      normalizeQuestion(alley.district).includes(query) ||
-      normalizeQuestion(alley.tagline).includes(query) ||
-      normalizeQuestion(alley.theme).includes(query);
+      normalizeQuestion(col.name).includes(query) ||
+      normalizeQuestion(col.district).includes(query) ||
+      normalizeQuestion(col.tagline).includes(query) ||
+      normalizeQuestion(col.theme).includes(query);
 
     const matchFilter =
       selectedFilter === 'Tất cả' ||
-      alley.district.includes(selectedFilter) ||
-      alley.theme === selectedFilter;
+      col.district.includes(selectedFilter) ||
+      col.theme === selectedFilter;
 
     return matchSearch && matchFilter;
   });
 
-  function handleSelectAlley(alleyId: string): void {
-    if (alleyId === 'phat-loc' || alleyId === 'old-quarter-pilot') {
-      setCollectionId('old-quarter-pilot');
-    } else {
-      setCollectionId('fiction-letter');
+  function handleSelectAlley(collectionId: string): void {
+    if (isCollectionId(collectionId)) {
+      setCollectionId(collectionId);
     }
-    navigation.navigate('Home', { alleyId });
+    navigation.navigate('Home', { alleyId: collectionId });
   }
 
   const topBarEntrance = useEntranceFadeSlide({ delay: 30, duration: 360, offsetY: 14 });
@@ -176,7 +101,7 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
         </View>
 
         <View style={[styles.gpsHeaderBtn, fontScale > 1.2 && styles.gpsHeaderBtnLarge]}>
-          <Text style={styles.gpsHeaderBtnIcon}>DEMO</Text>
+          <Text style={styles.gpsHeaderBtnIcon}>{mode === 'demo' ? 'DEMO' : 'LIVE'}</Text>
         </View>
       </Animated.View>
 
@@ -211,9 +136,11 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
               <View style={styles.gpsPulseDot} />
             </View>
             <View style={styles.gpsInfoTextGroup}>
-              <Text style={styles.gpsStatusLabel}>{t('alley_select.demo_area')}</Text>
+              <Text style={styles.gpsStatusLabel}>
+                {mode === 'demo' ? t('alley_select.demo_area') : (locale === 'en' ? 'LIVE AREA' : 'KHU VỰC LIVE')}
+              </Text>
               <Text style={styles.gpsLocationName} numberOfLines={1}>
-                {t('alley_select.demo_subtext')}
+                {mode === 'demo' ? t('alley_select.demo_subtext') : (locale === 'en' ? 'Hanoi Old Quarter · Live API source' : 'Phố cổ Hà Nội · nguồn máy chủ Live')}
               </Text>
             </View>
           </View>
@@ -247,7 +174,7 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t('alley_select.hint', { mode: mode === 'demo' ? t('common.demo') : t('common.live') })}
-            onPress={() => handleSelectAlley('phat-loc')}
+            onPress={() => handleSelectAlley('old-quarter-pilot')}
             style={({ pressed }) => [styles.nearestAlleyPill, pressed && styles.pressed]}
           >
             <Text style={styles.nearestSparkle}>✨</Text>
@@ -304,14 +231,16 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
           ]}
         >
           <Text style={styles.sectionTitle}>
-            {t('alley_select.explore_count', { count: filteredAlleys.length })}
+            {t('alley_select.explore_count', { count: filteredCollections.length })}
           </Text>
           <Text style={styles.sectionSubtitle}>
-            {t('alley_select.sample_list')}
+            {mode === 'live'
+              ? (locale === 'en' ? 'Backend collection catalog' : 'Danh mục bộ sưu tập máy chủ')
+              : t('alley_select.sample_list')}
           </Text>
         </Animated.View>
 
-        {filteredAlleys.length === 0 ? (
+        {filteredCollections.length === 0 ? (
           <View style={styles.emptyStateContainer}>
             <Text style={styles.emptyStateIcon}>🏮</Text>
             <Text style={styles.emptyStateTitle}>{t('alley_select.empty')}</Text>
@@ -325,15 +254,46 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
             </Pressable>
           </View>
         ) : (
-          filteredAlleys.map((alley, index) => (
-            <AlleyCardItem
-              mode={mode}
-              key={alley.id}
-              alley={alley}
-              index={index}
-              nodeCount={nodeCount}
-              onSelect={() => handleSelectAlley(alley.id)}
-            />
+          filteredCollections.map((col) => (
+            <Animated.View
+              key={col.id}
+              style={{
+                opacity: listHeaderEntrance.opacity,
+                transform: [{ translateY: listHeaderEntrance.translateY }],
+              }}
+            >
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('alley_select.open_label', { name: col.name })}
+                onPress={() => handleSelectAlley(col.id)}
+                style={({ pressed }) => [styles.cinematicCard, pressed && styles.cardPressed]}
+              >
+                <Image source={col.coverPhoto} style={styles.cardCoverImage} resizeMode="cover" />
+                <View style={styles.cardScrim} />
+                <View style={styles.cardHeaderBadges}>
+                  <View style={styles.themeBadge}>
+                    <Text style={styles.themeBadgeText}>{col.theme}</Text>
+                  </View>
+                  <View style={styles.distanceBadge}>
+                    <Text style={styles.distanceBadgeText}>{mode === 'demo' ? 'DEMO' : 'LIVE'}</Text>
+                  </View>
+                </View>
+                <View style={styles.cardBottomBar}>
+                  <View style={styles.cardTextCol}>
+                    <Text style={styles.cardDistrictText}>{col.district}</Text>
+                    <Text style={styles.cardNameText}>{col.name}</Text>
+                    <Text style={styles.cardBriefMeta}>
+                      {mode === 'live'
+                        ? (locale === 'en' ? 'Live backend source' : 'Nguồn máy chủ Live')
+                        : t('alley_select.meta_info', { count: col.nodeCount, mode: t('common.demo') })}
+                    </Text>
+                  </View>
+                  <View style={styles.cardForwardBtn}>
+                    <Text style={styles.cardForwardIcon}>→</Text>
+                  </View>
+                </View>
+              </Pressable>
+            </Animated.View>
           ))
         )}
       </ScrollView>

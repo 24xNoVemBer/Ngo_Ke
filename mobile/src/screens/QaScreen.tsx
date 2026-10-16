@@ -13,9 +13,9 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TOPICS, type AnyDemoDataset, type Mode } from '../data/sourceState';
+import { TOPICS, type AnyDemoDataset, type Mode, type Topic } from '../data/sourceState';
 import { findAnswer, type QaEntry, type QaMatch } from '../qa/match';
-import { pickPoints, TOPIC_LABELS, type PlanDraft } from '../recommendation/pick';
+import { pickPoints, type PlanDraft } from '../recommendation/pick';
 import { HERO_PHOTO, getNodePhoto, getNodePhotographer } from '../assets/photoMap';
 import { VoiceInteractionDock } from '../components/VoiceInteractionDock';
 import { VoicePlayerBar } from '../components/VoicePlayerBar';
@@ -27,6 +27,7 @@ import { recordVoicePerformance, voicePerformanceNow } from '../voice/performanc
 import { parseVoiceIntent, resolveFirstOptionReference, type VoiceOptionContext } from '../voice/intent';
 import { lookupVoiceTrack } from '../voice/localizedCatalog';
 import { useLocale } from '../context/LocaleContext';
+import type { TranslationKey } from '../i18n/translator';
 import { colors, radius, spacing, typography } from '../theme';
 
 const CHIP_COUNT = 4;
@@ -59,6 +60,14 @@ function followUpEntries(entry: QaEntry, all: readonly QaEntry[]): QaEntry[] {
   return entry.followUps
     .map((id) => all.find((item) => item.id === id))
     .filter((item): item is QaEntry => item !== undefined);
+}
+
+function getTopicLabel(topic: Topic, tFunc: (k: TranslationKey) => string): string {
+  switch (topic) {
+    case 'an thuc': return tFunc('plan.topic_food');
+    case 'chuyen xua': return tFunc('plan.topic_history');
+    case 'kham pha tu do': return tFunc('plan.topic_explore');
+  }
 }
 
 export function QaScreen({
@@ -202,28 +211,42 @@ export function QaScreen({
     pendingVoicePlayback.current = null;
     const currentPlaybackIntent = ++playbackIntent.current;
     const playbackStopped = Promise.resolve(voiceSession.stopPlayback());
-    const isViFiction = locale === 'vi' && (dataset as { collectionId?: string }).collectionId !== 'old-quarter-pilot';
-    if (source === 'voice' && nextMatch.status === 'matched' && currentNode && mode === 'demo' && isViFiction) {
+    const actualCollectionId = ('collectionId' in dataset && typeof dataset.collectionId === 'string' && dataset.collectionId)
+      ? dataset.collectionId
+      : (collectionId ?? 'fiction-letter');
+    if (source === 'voice' && nextMatch.status === 'matched' && currentNode) {
       const id = `${nextMatch.entry.id}-answer`;
-      if (context) pendingVoicePlayback.current = { turnId: context.turnId, trackId: id, startedAt: voicePerformanceNow() };
-      lastTrack.current = { id, text: nextMatch.entry.answer, kind: 'answer', nodeId: currentNode.id, revision: datasetRevision };
-      void playbackStopped.then((stopped) => {
-        if (currentPlaybackIntent !== playbackIntent.current) return;
-        if (stopped !== false) return voiceSession.playTrack(id, nextMatch.entry.answer, 'answer', currentNode.id);
-        if (context && pendingVoicePlayback.current?.turnId === context.turnId) pendingVoicePlayback.current = null;
-        setVoiceActionCard({ kind: 'notice', message: t('voice.notice.stop_pending') });
-      });
-    } else if (source === 'voice' && nextMatch.status === 'matched') {
-      pendingVoicePlayback.current = null;
-      lastTrack.current = null;
-      setVoiceActionCard({
-        kind: 'notice',
-        message: mode === 'demo' ? t('voice.notice.audio_unavailable') : t('voice.notice.answer_matched_read_text'),
-      });
+      const matchedTrack = mode === 'demo'
+        ? lookupVoiceTrack({
+            collectionId: actualCollectionId,
+            locale,
+            contentId: id,
+            datasetRevision,
+          })
+        : undefined;
+      if (matchedTrack) {
+        if (context) pendingVoicePlayback.current = { turnId: context.turnId, trackId: id, startedAt: voicePerformanceNow() };
+        lastTrack.current = { id, text: nextMatch.entry.answer, kind: 'answer', nodeId: currentNode.id, revision: datasetRevision };
+        void playbackStopped.then((stopped) => {
+          if (currentPlaybackIntent !== playbackIntent.current) return;
+          if (stopped !== false) return voiceSession.playTrack(id, nextMatch.entry.answer, 'answer', currentNode.id);
+          if (context && pendingVoicePlayback.current?.turnId === context.turnId) pendingVoicePlayback.current = null;
+          setVoiceActionCard({ kind: 'notice', message: t('voice.notice.stop_pending') });
+        });
+      } else {
+        pendingVoicePlayback.current = null;
+        lastTrack.current = null;
+        setVoiceActionCard({
+          kind: 'notice',
+          message: mode === 'demo' ? t('voice.notice.audio_unavailable') : t('voice.notice.answer_matched_read_text'),
+        });
+      }
     }
   }
 
-  const isViFiction = locale === 'vi' && (dataset as { collectionId?: string }).collectionId !== 'old-quarter-pilot';
+  const actualCollectionId = ('collectionId' in dataset && typeof dataset.collectionId === 'string' && dataset.collectionId)
+    ? dataset.collectionId
+    : (collectionId ?? 'fiction-letter');
   const intro = dataset.intro;
   const entry = match?.status === 'matched' && match.entry.nodeId === currentNode?.id ? match.entry : null;
   const followUps = entry === null ? [] : followUpEntries(entry, nodeQa);
@@ -237,6 +260,8 @@ export function QaScreen({
     datasetRevision,
     isFocused,
     onTranscript: handleVoiceTranscript,
+    locale,
+    collectionId: actualCollectionId,
   });
   const { activeTrackId, playback } = voiceSession;
   useEffect(() => {
@@ -251,18 +276,18 @@ export function QaScreen({
       : null
   );
   const storyTrackId = currentNode ? `${currentNode.id}-story` : 'intro';
-  const storyTrack = mode === 'demo' && isViFiction
+  const storyTrack = mode === 'demo'
     ? lookupVoiceTrack({
-        collectionId,
+        collectionId: actualCollectionId,
         locale,
         contentId: storyTrackId,
         datasetRevision,
       })
     : undefined;
   const answerTrackId = entry ? `${entry.id}-answer` : '';
-  const answerTrack = mode === 'demo' && isViFiction && entry
+  const answerTrack = mode === 'demo' && entry
     ? lookupVoiceTrack({
-        collectionId,
+        collectionId: actualCollectionId,
         locale,
         contentId: answerTrackId,
         datasetRevision,
@@ -286,7 +311,7 @@ export function QaScreen({
 
   function executeAction(action: 'next' | 'plan' | 'open-qr' | 'open-gps', actionText: string): void {
     if (action === 'next') {
-      if (nextIndex < 0) setVoiceActionCard({ kind: 'notice', message: 'Đây là chương cuối đang mở.' });
+      if (nextIndex < 0) setVoiceActionCard({ kind: 'notice', message: t('voice.notice.last_chapter') });
       else handleNext();
       return;
     }
@@ -306,13 +331,13 @@ export function QaScreen({
       scope: voiceScope, datasetRevision, nodeId: currentNode?.id ?? 'intro',
     });
     if (reference.type === 'missing') {
-      setVoiceActionCard({ kind: 'reference', message: 'Mình chưa có danh sách câu hỏi của lượt trước để biết “câu đầu tiên” là câu nào. Chọn một câu bên dưới nhé.' });
+      setVoiceActionCard({ kind: 'reference', message: t('voice.notice.reference_missing') });
       return;
     }
     if (reference.type === 'resolved') {
       const option = nodeQa.find((item) => item.id === reference.value);
       if (option) ask(option.question, 'voice', context);
-      else setVoiceActionCard({ kind: 'reference', message: 'Danh sách câu hỏi vừa thay đổi. Chọn lại một câu bên dưới nhé.' });
+      else setVoiceActionCard({ kind: 'reference', message: t('voice.notice.reference_changed') });
       return;
     }
 
@@ -327,11 +352,11 @@ export function QaScreen({
       setVoiceActionCard({ kind: 'mixed', message: intent.message, questionText: intent.questionText, actionText: intent.actionText, action: intent.action, context });
     } else if (intent.type === 'listen') {
       if (mode !== 'demo' || !currentNode) {
-        setVoiceActionCard({ kind: 'notice', message: 'Lời kể Live chưa có bản đọc. Bạn có thể mở chữ hoặc chọn một câu hỏi gợi ý.' });
+        setVoiceActionCard({ kind: 'notice', message: t('voice.notice.live_no_audio') });
       } else requestTrack(storyTrackId, currentNode.story, 'story', currentNode.id);
     } else if (intent.type === 'replay') {
       if (mode !== 'demo') {
-        setVoiceActionCard({ kind: 'notice', message: 'Chế độ Live chưa có bản đọc. Chạm “Xem lời kể bằng chữ” để đọc câu trả lời.' });
+        setVoiceActionCard({ kind: 'notice', message: t('voice.notice.live_answer_no_audio') });
         return;
       }
       const last = lastTrack.current;
@@ -344,7 +369,7 @@ export function QaScreen({
       }
     } else if (intent.type === 'stop') {
       void voiceSession.stopPlayback().then((stopped) => {
-        setVoiceActionCard({ kind: 'notice', message: stopped !== false ? 'Đã dừng lời kể.' : 'Lời kể chưa dừng hẳn. Hãy thử lại sau một chút.' });
+        setVoiceActionCard({ kind: 'notice', message: stopped !== false ? t('voice.notice.playback_stopped') : t('voice.notice.stop_pending') });
       });
     } else {
       executeAction(intent.type, transcript);
@@ -368,7 +393,7 @@ export function QaScreen({
         <View style={[styles.topBar, { paddingTop: topInset }]}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Quay lại"
+            accessibilityLabel={t('common.back')}
             onPress={onBack}
             style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
           >
@@ -382,7 +407,7 @@ export function QaScreen({
                 <Pressable
                   key={node.id}
                   accessibilityRole="button"
-                  accessibilityLabel={`Xem ${node.name}`}
+                  accessibilityLabel={t('home.open_story', { name: node.name })}
                   disabled={!node.available}
                   onPress={() => handleSelectNode(i)}
                   accessibilityState={{ selected: i === activeIndex, disabled: !node.available }}
@@ -398,10 +423,10 @@ export function QaScreen({
             </View>
 
             <Text style={styles.screenTitle}>
-              Điểm {String(activeIndex + 1).padStart(2, '0')}/{dataset.nodes.length}:{' '}
-              {currentNode ? currentNode.name : 'Khám phá ngõ'}
+              {t('home.stop_prefix')} {String(activeIndex + 1).padStart(2, '0')}/{dataset.nodes.length}:{' '}
+              {currentNode ? currentNode.name : t('qa.explore_alley')}
             </Text>
-            <Text style={styles.creditPillText}>Ảnh minh họa: {currentPhotographer}</Text>
+            <Text style={styles.creditPillText}>{t('qa.photo_credit')}: {currentPhotographer}</Text>
           </View>
         </View>
 
@@ -418,20 +443,20 @@ export function QaScreen({
             <View style={styles.floatingStoryCard}>
               <View style={styles.storyCardHeader}>
                 <View style={styles.narratorIconCircle}>
-                  <Text style={styles.narratorIconText}>Kể</Text>
+                  <Text style={styles.narratorIconText}>{t('qa.narrator_badge')}</Text>
                 </View>
                 <View style={styles.narratorHeaderText}>
-                  <Text style={styles.phaseTag}>LỜI NGƯỜI KỂ CHUYỆN NGÕ PHỐ</Text>
+                  <Text style={styles.phaseTag}>{t('qa.narrator_header')}</Text>
                   <Text accessibilityRole="header" style={styles.nodeMainName}>
-                    {currentNode ? currentNode.name : 'Điểm mở đầu'}
+                    {currentNode ? currentNode.name : t('qa.opening_stop')}
                   </Text>
                 </View>
               </View>
 
-              <Text style={styles.waveformDuration}>{mode === 'demo' ? 'TRUYỆN HƯ CẤU · NGHE NGƯỜI KỂ' : 'LIVE · LỜI KỂ BẰNG CHỮ'}</Text>
+              <Text style={styles.waveformDuration}>{mode === 'demo' ? t('qa.waveform_demo') : t('qa.waveform_live')}</Text>
               {storyTrack && currentNode && (
                 <VoicePlayerBar
-                  label={`Lời kể · ${currentNode.name}`}
+                  label={`${t('qa.story_label')} · ${currentNode.name}`}
                   active={voiceSession.activeTrackId === storyTrackId}
                   playing={voiceSession.playback.playing}
                   currentTime={voiceSession.playback.currentTime}
@@ -442,17 +467,17 @@ export function QaScreen({
                   onStop={voiceSession.stopPlayback}
                 />
               )}
-              {mode === 'live' && <Text style={styles.noDataBody}>Lời kể Live chưa có bản đọc. Bạn vẫn có thể xem nội dung bằng chữ.</Text>}
+              {mode === 'live' && <Text style={styles.noDataBody}>{t('voice.notice.live_no_audio')}</Text>}
               {playbackError && <Text accessibilityRole="alert" style={styles.playbackError}>{playbackError}</Text>}
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={isTextVisible ? 'Thu gọn lời kể' : 'Xem lời kể bằng chữ'}
+                accessibilityLabel={isTextVisible ? t('qa.collapse_text') : t('qa.read_text')}
                 accessibilityState={{ expanded: isTextVisible }}
                 onPress={() => setIsTextVisible((visible) => !visible)}
                 style={({ pressed }) => [styles.readerToggle, pressed && styles.pressed]}
               >
                 <AppIcon name="text" size={18} color="#F2C56B" />
-                <Text style={styles.readerToggleText}>{isTextVisible ? 'Thu gọn lời kể' : 'Xem lời kể bằng chữ'}</Text>
+                <Text style={styles.readerToggleText}>{isTextVisible ? t('qa.collapse_text') : t('qa.read_text')}</Text>
               </Pressable>
               {isTextVisible && (
                 <Text style={styles.storyText}>{currentNode ? currentNode.story : intro.text}</Text>
@@ -462,7 +487,7 @@ export function QaScreen({
               <View style={styles.stepNavigationRow}>
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel="Điểm trước đó"
+                  accessibilityLabel={t('qa.prev_stop_label')}
                   disabled={previousIndex < 0}
                   onPress={handlePrev}
                   style={({ pressed }) => [
@@ -477,7 +502,7 @@ export function QaScreen({
                       previousIndex < 0 && styles.stepNavTextDisabled,
                     ]}
                   >
-                    ‹ Điểm trước
+                    {t('qa.prev_stop')}
                   </Text>
                 </Pressable>
 
@@ -489,7 +514,7 @@ export function QaScreen({
 
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel="Điểm tiếp theo"
+                  accessibilityLabel={t('qa.next_stop_label')}
                   disabled={nextIndex < 0}
                   onPress={handleNext}
                   style={({ pressed }) => [
@@ -504,13 +529,13 @@ export function QaScreen({
                       nextIndex < 0 && styles.stepNavTextDisabled,
                     ]}
                   >
-                    Điểm kế tiếp ›
+                    {t('qa.next_stop')}
                   </Text>
                 </Pressable>
               </View>
 
               <View style={styles.evidenceRow}>
-                <Text style={styles.evidenceLabel}>Nguồn lời kể:</Text>
+                <Text style={styles.evidenceLabel}>{t('qa.story_evidence_label')}:</Text>
                 <Text style={styles.evidenceValue}>
                   {intro.evidence.join(' · ')}
                 </Text>
@@ -518,7 +543,7 @@ export function QaScreen({
 
               <View style={styles.disclaimerPill}>
                 <Text style={styles.disclaimerPillText}>
-                  Ảnh minh họa · {mode === 'demo' ? 'Truyện hư cấu' : (dataset?.kind === 'reviewed' ? 'điểm đã duyệt · nguồn Live' : 'điểm mô phỏng · nguồn Live')}
+                  {t('qa.photo_note')} · {mode === 'demo' ? t('qa.disclaimer_fiction') : (dataset?.kind === 'reviewed' ? t('qa.disclaimer_live_reviewed') : t('qa.disclaimer_live_simulated'))}
                 </Text>
               </View>
             </View>
@@ -527,42 +552,42 @@ export function QaScreen({
               <View style={styles.voiceActionCard} accessibilityLiveRegion="polite">
                 {voiceActionCard.kind === 'plan' ? (
                   <>
-                    <Text accessibilityRole="header" style={styles.voiceActionTitle}>Một lối đi vừa ý</Text>
+                    <Text accessibilityRole="header" style={styles.voiceActionTitle}>{t('qa.voice_plan_title')}</Text>
                     <Text style={styles.voiceActionBody}>
-                      {voiceActionCard.message ?? 'Gợi ý dựa trên quỹ thời gian và chủ đề anh vừa nói.'}
+                      {voiceActionCard.message ?? t('qa.voice_plan_body')}
                     </Text>
                     {voiceActionCard.draft.topic && (
                       <Text style={styles.voiceActionMeta}>
-                        {TOPIC_LABELS[voiceActionCard.draft.topic]}
-                        {voiceActionCard.draft.budgetMinutes ? ` · ${voiceActionCard.draft.budgetMinutes} phút mô phỏng` : ''}
+                        {getTopicLabel(voiceActionCard.draft.topic, t)}
+                        {voiceActionCard.draft.budgetMinutes ? ` · ${voiceActionCard.draft.budgetMinutes} ${t('qa.minutes_simulated')}` : ''}
                       </Text>
                     )}
-                    {(!voiceActionCard.draft.topic || voiceActionCard.message?.includes('chủ đề')) && (
+                    {(!voiceActionCard.draft.topic || voiceActionCard.message?.includes('chủ đề') || voiceActionCard.message?.includes('topic')) && (
                       <View style={styles.voiceActionChoices}>
                         {TOPICS.map((topic) => (
                           <Pressable
                             key={topic}
                             accessibilityRole="button"
-                            accessibilityLabel={`Chọn chủ đề ${TOPIC_LABELS[topic]}`}
+                            accessibilityLabel={`${t('plan.topic_header')}: ${getTopicLabel(topic, t)}`}
                             onPress={() => showPlanCard({ ...voiceActionCard.draft, topic })}
                             style={({ pressed }) => [styles.voiceActionChip, pressed && styles.pressed]}
                           >
-                            <Text style={styles.voiceActionChipText}>{TOPIC_LABELS[topic]}</Text>
+                            <Text style={styles.voiceActionChipText}>{getTopicLabel(topic, t)}</Text>
                           </Pressable>
                         ))}
                       </View>
                     )}
-                    {(!voiceActionCard.draft.budgetMinutes || voiceActionCard.message?.includes('thời lượng') || voiceActionCard.message?.includes('khoảng thời gian')) && (
+                    {(!voiceActionCard.draft.budgetMinutes || voiceActionCard.message?.includes('thời lượng') || voiceActionCard.message?.includes('duration') || voiceActionCard.message?.includes('khoảng thời gian')) && (
                       <View style={styles.voiceActionChoices}>
                         {[15, 30, 45, 60].map((minutes) => (
                           <Pressable
                             key={minutes}
                             accessibilityRole="button"
-                            accessibilityLabel={`Chọn ${minutes} phút`}
+                            accessibilityLabel={`${minutes} ${t('qa.minutes')}`}
                             onPress={() => showPlanCard({ ...voiceActionCard.draft, budgetMinutes: minutes })}
                             style={({ pressed }) => [styles.voiceActionChip, pressed && styles.pressed]}
                           >
-                            <Text style={styles.voiceActionChipText}>{minutes} phút</Text>
+                            <Text style={styles.voiceActionChipText}>{minutes} {t('qa.minutes')}</Text>
                           </Pressable>
                         ))}
                       </View>
@@ -571,7 +596,7 @@ export function QaScreen({
                       <Pressable
                         key={pick.node.id}
                         accessibilityRole="button"
-                        accessibilityLabel={`Mở chương ${pick.node.name}`}
+                        accessibilityLabel={`${t('qa.open_chapter')} ${pick.node.name}`}
                         onPress={() => handleSelectNode(dataset.nodes.findIndex((node) => node.id === pick.node.id))}
                         style={({ pressed }) => [styles.voicePickRow, pressed && styles.pressed]}
                       >
@@ -583,34 +608,34 @@ export function QaScreen({
                       </Pressable>
                     ))}
                     {actionPlanResult?.kind === 'empty' && (
-                      <Text style={styles.voiceActionBody}>Chưa có điểm phù hợp trong dữ liệu mô phỏng. Anh có thể đổi chủ đề hoặc thời gian.</Text>
+                      <Text style={styles.voiceActionBody}>{t('qa.voice_plan_empty')}</Text>
                     )}
                     <Pressable
                       accessibilityRole="button"
-                      accessibilityLabel="Mở bảng chọn trải nghiệm"
+                      accessibilityLabel={t('qa.voice_plan_open')}
                       onPress={() => onOpenNotebook(voiceActionCard.draft)}
                       style={({ pressed }) => [styles.voiceActionPrimary, pressed && styles.pressed]}
                     >
-                      <Text style={styles.voiceActionPrimaryText}>Mở bảng chọn trải nghiệm</Text>
+                      <Text style={styles.voiceActionPrimaryText}>{t('qa.voice_plan_open')}</Text>
                     </Pressable>
                   </>
                 ) : voiceActionCard.kind === 'qr' || voiceActionCard.kind === 'gps' ? (
                   <>
                     <Text accessibilityRole="header" style={styles.voiceActionTitle}>
-                      {voiceActionCard.kind === 'qr' ? 'Xác định điểm bằng mã QR' : 'Xác định điểm bằng GPS'}
+                      {voiceActionCard.kind === 'qr' ? t('qa.voice_qr_title') : t('qa.voice_gps_title')}
                     </Text>
                     <Text style={styles.voiceActionBody}>
                       {voiceActionCard.kind === 'qr'
-                        ? 'Máy ảnh chỉ mở sau khi anh chạm nút. Nếu chưa quét được, vẫn có thể chọn điểm bằng tay.'
-                        : 'Vị trí chỉ được đọc một lần sau khi anh chạm nút Dùng GPS. Điểm mô phỏng chưa xác nhận vị trí thật.'}
+                        ? t('qa.voice_qr_body')
+                        : t('qa.voice_gps_body')}
                     </Text>
                     <Pressable
                       accessibilityRole="button"
-                      accessibilityLabel={voiceActionCard.kind === 'qr' ? 'Mở thẻ quét QR' : 'Mở thẻ GPS'}
+                      accessibilityLabel={voiceActionCard.kind === 'qr' ? t('qa.voice_qr_btn') : t('qa.voice_gps_btn')}
                       onPress={voiceActionCard.kind === 'qr' ? onOpenCamera : onOpenLocation}
                       style={({ pressed }) => [styles.voiceActionPrimary, pressed && styles.pressed]}
                     >
-                      <Text style={styles.voiceActionPrimaryText}>{voiceActionCard.kind === 'qr' ? 'Mở thẻ quét QR' : 'Mở thẻ GPS'}</Text>
+                      <Text style={styles.voiceActionPrimaryText}>{voiceActionCard.kind === 'qr' ? t('qa.voice_qr_btn') : t('qa.voice_gps_btn')}</Text>
                     </Pressable>
                   </>
                 ) : voiceActionCard.kind === 'mixed' ? (
@@ -619,31 +644,31 @@ export function QaScreen({
                     <View style={styles.voiceActionChoices}>
                       <Pressable
                         accessibilityRole="button"
-                        accessibilityLabel="Nghe câu trả lời"
+                        accessibilityLabel={t('qa.listen_answer')}
                         onPress={() => ask(voiceActionCard.questionText, 'voice', voiceActionCard.context)}
                         style={({ pressed }) => [styles.voiceActionChip, pressed && styles.pressed]}
                       >
-                        <Text style={styles.voiceActionChipText}>Nghe câu trả lời</Text>
+                        <Text style={styles.voiceActionChipText}>{t('qa.listen_answer')}</Text>
                       </Pressable>
                       <Pressable
                         accessibilityRole="button"
-                        accessibilityLabel="Thực hiện thao tác"
+                        accessibilityLabel={t('qa.execute_action')}
                         onPress={() => executeAction(voiceActionCard.action, voiceActionCard.actionText)}
                         style={({ pressed }) => [styles.voiceActionPrimary, pressed && styles.pressed]}
                       >
-                        <Text style={styles.voiceActionPrimaryText}>Thực hiện</Text>
+                        <Text style={styles.voiceActionPrimaryText}>{t('qa.execute_action')}</Text>
                       </Pressable>
                     </View>
                   </>
                 ) : voiceActionCard.kind === 'reference' ? (
                   <>
-                    <Text accessibilityRole="header" style={styles.voiceActionTitle}>Chọn câu muốn hỏi</Text>
+                    <Text accessibilityRole="header" style={styles.voiceActionTitle}>{t('qa.choose_question')}</Text>
                     <Text style={styles.voiceActionBody}>{voiceActionCard.message}</Text>
                     {nodeQa.slice(0, CHIP_COUNT).map((item) => (
                       <Pressable
                         key={item.id}
                         accessibilityRole="button"
-                        accessibilityLabel={`Hỏi: ${item.question}`}
+                        accessibilityLabel={`${t('qa.ask_prefix')} ${item.question}`}
                         onPress={() => ask(item.question, 'chip')}
                         style={({ pressed }) => [styles.voiceReferenceRow, pressed && styles.pressed]}
                       >
@@ -657,7 +682,12 @@ export function QaScreen({
               </View>
             )}
 
-            {nodeQa.length === 0 && <View style={styles.emptyNotice}><Text style={styles.noDataTitle}>Chưa có câu hỏi cho điểm này</Text><Text style={styles.noDataBody}>Bạn vẫn có thể đọc lời kể hoặc chọn điểm khác ở phía trên.</Text></View>}
+            {nodeQa.length === 0 && (
+              <View style={styles.emptyNotice}>
+                <Text style={styles.noDataTitle}>{t('qa.no_questions_for_node')}</Text>
+                <Text style={styles.noDataBody}>{t('qa.can_read_or_choose')}</Text>
+              </View>
+            )}
 
             {/* THẺ KẾT QUẢ CÂU TRẢ LỜI ĐÃ KIỂM CHỨNG */}
             {match !== null && (
@@ -674,7 +704,7 @@ export function QaScreen({
               >
                 <View style={styles.askedRow}>
                     {isTextVisible && <>
-                  <Text style={styles.askedPrefix}>Bạn vừa hỏi:</Text>
+                  <Text style={styles.askedPrefix}>{t('qa.asked_prefix')}</Text>
                   <Text style={styles.askedQuestion}>“{asked}”</Text>
                     </>}
                 </View>
@@ -682,23 +712,23 @@ export function QaScreen({
                 {entry === null ? (
                   <View style={styles.noDataBox}>
                     <Text style={styles.noDataTitle}>
-                      {askedSource === 'voice' ? 'Câu hỏi chưa khớp' : 'Chưa có lời kể cho câu này'}
+                      {askedSource === 'voice' ? t('qa.unmatched_question_title') : t('qa.no_match_title')}
                     </Text>
                     <Text style={styles.noDataBody}>
                       {askedSource === 'voice'
-                        ? 'Người kể nhận được lời nói nhưng chưa khớp câu hỏi mẫu ở điểm này. Xem câu đã nhận dạng để kiểm tra, thử lại bằng mic hoặc chọn câu gợi ý bên dưới.'
-                        : 'Chưa có dữ liệu cho câu hỏi này trong nguồn hiện tại. Bạn có thể chọn các câu hỏi mẫu bên dưới.'}
+                        ? t('qa.unmatched_question_body')
+                        : t('qa.no_match_body')}
                     </Text>
                     {asked && !isTextVisible && (
                       <Pressable
                         accessibilityRole="button"
-                        accessibilityLabel={askedSource === 'voice' ? 'Xem câu đã nhận dạng' : 'Xem câu vừa hỏi'}
+                        accessibilityLabel={askedSource === 'voice' ? t('qa.view_recognized_question') : t('qa.view_asked_question')}
                         onPress={() => setIsTextVisible(true)}
                         style={({ pressed }) => [styles.readerToggle, pressed && styles.pressed]}
                       >
                         <AppIcon name="text" size={18} color="#F2C56B" />
                         <Text style={styles.readerToggleText}>
-                          {askedSource === 'voice' ? 'Xem câu đã nhận dạng' : 'Xem câu vừa hỏi'}
+                          {askedSource === 'voice' ? t('qa.view_recognized_question') : t('qa.view_asked_question')}
                         </Text>
                       </Pressable>
                     )}
@@ -706,12 +736,12 @@ export function QaScreen({
                 ) : (
                   <View style={styles.verifiedBox}>
                     <View style={styles.verifiedTag}>
-                      <Text style={styles.verifiedTagText}>{mode === 'demo' ? 'LỜI KỂ TRONG TRUYỆN' : 'NỘI DUNG CÓ NGUỒN'}</Text>
+                      <Text style={styles.verifiedTagText}>{mode === 'demo' ? t('qa.verified_story_title') : t('qa.verified_source_title')}</Text>
                     </View>
                     {isTextVisible && <Text style={styles.answerText}>{entry.answer}</Text>}
                     {answerTrack && currentNode && (
                       <VoicePlayerBar
-                        label="Câu trả lời"
+                        label={t('qa.answer_label')}
                         active={voiceSession.activeTrackId === answerTrackId}
                         playing={voiceSession.playback.playing}
                         currentTime={voiceSession.playback.currentTime}
@@ -725,16 +755,16 @@ export function QaScreen({
                     {playbackError && <Text accessibilityRole="alert" style={styles.playbackError}>{playbackError}</Text>}
                     <Pressable
                       accessibilityRole="button"
-                      accessibilityLabel={isTextVisible ? 'Thu gọn câu trả lời' : 'Xem câu trả lời bằng chữ'}
+                      accessibilityLabel={isTextVisible ? t('qa.collapse_answer') : t('qa.read_answer_text')}
                       accessibilityState={{ expanded: isTextVisible }}
                       onPress={() => setIsTextVisible((visible) => !visible)}
                       style={({ pressed }) => [styles.readerToggle, pressed && styles.pressed]}
                     >
                       <AppIcon name="text" size={18} color="#F2C56B" />
-                      <Text style={styles.readerToggleText}>{isTextVisible ? 'Thu gọn chữ' : 'Xem lời kể bằng chữ'}</Text>
+                      <Text style={styles.readerToggleText}>{isTextVisible ? t('qa.collapse_answer_btn') : t('qa.read_answer_btn')}</Text>
                     </Pressable>
                     <View style={styles.evidenceRow}>
-                      <Text style={styles.evidenceLabel}>Nguồn nội dung:</Text>
+                      <Text style={styles.evidenceLabel}>{t('qa.answer_evidence_label')}:</Text>
                       <Text style={styles.evidenceValue}>{entry.evidence.join(' · ')}</Text>
                     </View>
                   </View>
@@ -742,11 +772,11 @@ export function QaScreen({
 
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel="Đặt câu hỏi khác"
+                  accessibilityLabel={t('qa.ask_another')}
                   onPress={() => {
                     playbackIntent.current += 1;
                     void voiceSession.stopPlayback().then((stopped) => {
-                      if (stopped === false) setVoiceActionCard({ kind: 'notice', message: 'Lời kể chưa dừng hẳn. Hãy thử lại sau một chút.' });
+                      if (stopped === false) setVoiceActionCard({ kind: 'notice', message: t('voice.notice.stop_pending') });
                     });
                     setMatch(null);
                     setAsked(null);
@@ -754,7 +784,7 @@ export function QaScreen({
                   }}
                   style={({ pressed }) => [styles.resetButton, pressed && styles.pressed]}
                 >
-                  <Text style={styles.resetButtonText}>← Đặt câu hỏi khác</Text>
+                  <Text style={styles.resetButtonText}>← {t('qa.ask_another')}</Text>
                 </Pressable>
               </Animated.View>
             )}
@@ -762,13 +792,13 @@ export function QaScreen({
             {/* CÂU HỎI TIẾP THEO (FOLLOW-UPS) */}
             {entry !== null && followUps.length > 0 && (
               <View style={styles.chipsSection}>
-                <Text style={styles.chipsSectionTitle}>Bạn có thể muốn biết thêm</Text>
+                <Text style={styles.chipsSectionTitle}>{t('qa.follow_ups_title')}</Text>
                 <View style={styles.chipsContainer}>
                   {followUps.map((item) => (
                     <Pressable
                       key={item.id}
                       accessibilityRole="button"
-                      accessibilityLabel={`Hỏi tiếp: ${item.question}`}
+                      accessibilityLabel={`${t('qa.follow_up_prefix')} ${item.question}`}
                       onPress={() => ask(item.question, 'chip')}
                       style={({ pressed }) => [styles.chipPill, pressed && styles.pressed]}
                     >
@@ -782,13 +812,13 @@ export function QaScreen({
             {/* CÁC CÂU HỎI GỢI Ý CHẠM NHANH BAN ĐẦU */}
             {entry === null && nodeQa.length > 0 && (
               <View style={styles.chipsSection}>
-                <Text style={styles.chipsSectionTitle}>Câu hỏi gợi ý ngõ phố:</Text>
+                <Text style={styles.chipsSectionTitle}>{t('qa.suggested_questions_title')}</Text>
                 <View style={styles.chipsContainer}>
                   {nodeQa.slice(0, CHIP_COUNT).map((item) => (
                     <Pressable
                       key={item.id}
                       accessibilityRole="button"
-                      accessibilityLabel={`Hỏi: ${item.question}`}
+                      accessibilityLabel={`${t('qa.ask_prefix')} ${item.question}`}
                       onPress={() => ask(item.question)}
                       style={({ pressed }) => [styles.chipPill, pressed && styles.pressed]}
                     >
@@ -837,7 +867,7 @@ export function QaScreen({
         onChangeText={setDrawerText}
         onSubmit={() => ask(drawerText)}
         onClose={() => setIsInputDrawerVisible(false)}
-        placeholder={`Hỏi về ${currentNode ? currentNode.name : 'điểm này'}...`}
+        placeholder={t('qa.ask_placeholder', { name: currentNode ? currentNode.name : t('qa.this_point') })}
         suggestedQuestions={quickQuestions}
         onSelectSuggestion={(q) => ask(q)}
       />
