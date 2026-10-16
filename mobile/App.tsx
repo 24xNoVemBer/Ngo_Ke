@@ -345,11 +345,18 @@ export default function App(): ReactElement {
           <Stack.Screen name="Plan" options={{ title: t(locale, 'plan.title') }}>
             {(props) =>
               source.status === 'ready' ? (
-                <PlanScreen mode={mode} nodes={source.dataset.nodes} draft={planDraft} onDraftChange={setPlanDraft} onSelectNode={(nodeId) => {
-                  selectNode(nodeId);
-                  if (props.route.params?.fromQa) props.navigation.popTo('Qa');
-                  else props.navigation.replace('Qa');
-                }} />
+                <PlanScreen
+                  mode={mode}
+                  nodes={source.dataset.nodes}
+                  draft={planDraft}
+                  onDraftChange={setPlanDraft}
+                  collectionKind={'kind' in source.dataset && source.dataset.kind === 'reviewed' ? 'reviewed' : 'simulated'}
+                  onSelectNode={(nodeId) => {
+                    selectNode(nodeId);
+                    if (props.route.params?.fromQa) props.navigation.popTo('Qa');
+                    else props.navigation.replace('Qa');
+                  }}
+                />
               ) : (
                 <UnavailableScreen detail={source.detail} />
               )

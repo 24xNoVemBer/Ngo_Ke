@@ -332,7 +332,10 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind }: Props): R
                   <View style={styles.pointInfo}>
                     <Text style={styles.pointName}>{node.name}</Text>
                     <Text style={styles.pointMeta}>
-                      {t('common.simulated_minutes', { minutes: node.visitMinutes })} · {getNodePhotographer(node.id)}
+                      {t(isReviewed ? 'location.suggested_visit_minutes' : 'common.simulated_minutes', {
+                        minutes: node.visitMinutes,
+                      })}{' '}
+                      · {getNodePhotographer(node.id)}
                     </Text>
                   </View>
                   <Text style={styles.chevron}>{node.available ? '→' : (locale === 'en' ? 'Locked' : 'Chưa mở')}</Text>

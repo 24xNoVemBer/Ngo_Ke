@@ -115,6 +115,10 @@ export function HomeScreen({
             : DEFAULT_COLLECTION_ID));
   const activeCollection = collections.find((c) => c.id === activeCollectionId) ?? collections[0];
   const knownMeta = AVAILABLE_COLLECTIONS.find((c) => c.id === activeCollectionId);
+  const collectionKind: 'simulated' | 'reviewed' =
+    source.status === 'ready'
+      ? ('kind' in source.dataset && source.dataset.kind === 'reviewed' ? 'reviewed' : 'simulated')
+      : (activeCollection?.kind === 'reviewed' ? 'reviewed' : 'simulated');
   const alleyMeta = getAlleyMeta(route.params?.alleyId);
   const [mood, setMood] = useState<'morning' | 'dusk' | 'night'>('morning');
 
@@ -309,7 +313,12 @@ export function HomeScreen({
         {/* 3. KHÔNG GIAN BẢN ĐỒ NGÕ: DẢI ĐƯỜNG MÒN PHÁT SÁNG & THẺ BƯU ẢNH SỔ TAY */}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }}>
         {fontScale > 1.3 ? (
-          <AlleyTrailView nodes={nodes} currentNodeId={currentNode?.id} onSelectNode={handleSelectPin} />
+          <AlleyTrailView
+            nodes={nodes}
+            currentNodeId={currentNode?.id}
+            onSelectNode={handleSelectPin}
+            collectionKind={collectionKind}
+          />
         ) : (
           <>
         <View style={[styles.mapCanvas, { height: canvasHeight, width: canvasWidth }]}>

@@ -13,14 +13,17 @@ interface Props {
   nodes: DemoNode[];
   currentNodeId?: string;
   onSelectNode: (nodeId: string) => void;
+  collectionKind?: 'simulated' | 'reviewed';
 }
 
 export function AlleyTrailView({
   nodes,
   currentNodeId,
   onSelectNode,
+  collectionKind = 'simulated',
 }: Props): ReactElement {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
+  const isReviewed = collectionKind === 'reviewed';
   const visitedCount = nodes.filter((n) => n.visited).length;
 
   return (
@@ -49,6 +52,9 @@ export function AlleyTrailView({
           const isCurrent = node.id === currentNodeId;
           const isVisited = node.visited;
           const isLast = index === nodes.length - 1;
+          const visitMinutesLabel = isReviewed
+            ? t('location.suggested_visit_minutes', { minutes: node.visitMinutes })
+            : (locale === 'en' ? `${node.visitMinutes} simulated min` : `${node.visitMinutes} phút mô phỏng`);
 
           return (
             <View key={node.id} style={styles.stepRow}>
@@ -80,7 +86,7 @@ export function AlleyTrailView({
               {/* Thẻ nội dung trạm */}
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={`${node.name}, ${node.visitMinutes} ${locale === 'en' ? 'simulated min' : 'phút mô phỏng'}`}
+                accessibilityLabel={`${node.name}, ${visitMinutesLabel}`}
                 onPress={() => onSelectNode(node.id)}
                 style={({ pressed }) => [
                   styles.nodeCard,
@@ -107,7 +113,7 @@ export function AlleyTrailView({
                 </Text>
 
                 <View style={styles.metaRow}>
-                  <Text style={styles.metaText}>{node.visitMinutes} {locale === 'en' ? 'simulated min' : 'phút mô phỏng'}</Text>
+                  <Text style={styles.metaText}>{visitMinutesLabel}</Text>
                   <Text style={styles.dotSeparator}>·</Text>
                   <Text style={styles.metaText}>
                     {node.tags.includes('an thuc')

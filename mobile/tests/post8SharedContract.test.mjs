@@ -840,6 +840,12 @@ test('translator.ts - 100% dictionary parity between VI and EN', () => {
   assert.equal(translate('en', 'location.suggested_visit_minutes', { minutes: 10 }), 'Suggested visit: 10 min (unmeasured)');
   assert.equal(translate('vi', 'qa.narrator_badge'), 'Kể');
   assert.equal(translate('en', 'qa.narrator_badge'), 'S');
+  assert.equal(translate('vi', 'alley_select.filter_all'), 'Tất cả');
+  assert.equal(translate('en', 'alley_select.filter_all'), 'All');
+  assert.equal(translate('vi', 'alley_select.filter_food'), 'Ẩm thực');
+  assert.equal(translate('en', 'alley_select.filter_food'), 'Food');
+  assert.equal(translate('vi', 'home.notebook_btn'), 'Sổ tay');
+  assert.equal(translate('en', 'home.notebook_btn'), 'Notes');
 });
 
 test('pick.ts - English alias parsing for topics and time budgets', () => {

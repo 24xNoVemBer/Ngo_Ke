@@ -2339,3 +2339,256 @@ test('LocationScreen branches manual accessibility label and visit minutes on co
   assert.ok(textSimulatedEn.includes('10 min simulated'), 'simulated row in EN shows 10 min simulated');
   viewSimulatedEn.unmount();
 });
+
+test('AlleySelectScreen translates filter chips to All and Food in EN while preserving internal filter logic and removes one-line limit from gpsLocationName', () => {
+  const navigation = {
+    navigate: () => {},
+    goBack: () => {},
+  };
+  const mockCollections = [
+    { id: 'fiction-letter', name: 'Letter from Hanoi', district: 'Hàng Buồm', theme: 'Old Stories', tagline: '', nodeCount: 6, coverPhoto: 1, kind: 'simulated' },
+    { id: 'food-tour', name: 'Food Tour', district: 'Đồng Xuân', theme: 'Food', tagline: '', nodeCount: 4, coverPhoto: 1, kind: 'reviewed' },
+  ];
+
+  // 1. In English
+  const viewEn = mount('../src/screens/AlleySelectScreen.tsx', {
+    navigation,
+    mode: 'demo',
+    nodeCount: 6,
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        t: (key, params) => translator.t('en', key, params),
+        setCollectionId: () => {},
+      }),
+    },
+    '../data/collections': {
+      isCollectionId: (v) => v === 'fiction-letter' || v === 'food-tour',
+      getLocalizedCollections: () => mockCollections,
+    },
+  });
+  const treeEn = viewEn.render();
+  const pressablesEn = elements(treeEn, 'Pressable');
+
+  // Verify chips in EN
+  const filterChipsEn = pressablesEn.filter((p) => p.props.accessibilityState && 'selected' in p.props.accessibilityState);
+  const filterLabelsEn = filterChipsEn.map((p) => p.props.accessibilityLabel);
+  assert.deepEqual(filterLabelsEn, ['All', 'Hàng Buồm', 'Hàng Gai', 'Đồng Xuân', 'Food']);
+
+  // Verify gpsLocationName has no numberOfLines constraint (props.numberOfLines is undefined)
+  const allTextsEn = elements(treeEn, 'Text');
+  const gpsLocationNameNode = allTextsEn.find((t) => [].concat(t.props.children).join('').includes('simulated content'));
+  assert.ok(gpsLocationNameNode, 'gpsLocationName text element must exist');
+  assert.equal(gpsLocationNameNode.props.numberOfLines, undefined, 'gpsLocationName must not restrict numberOfLines to 1 so full qualifier can wrap at font200');
+
+  // Tap "Food" filter chip
+  const foodChip = filterChipsEn.find((p) => p.props.accessibilityLabel === 'Food');
+  assert.ok(foodChip, 'Food filter chip must exist in EN');
+  foodChip.props.onPress();
+
+  // Re-render to check filtered cards
+  const treeAfterFilter = viewEn.render();
+  const cardsAfterFilter = elements(treeAfterFilter, 'Pressable').filter((p) => p.props.accessibilityLabel?.startsWith('Open'));
+  assert.equal(cardsAfterFilter.length, 1, 'Only Food collection should remain after filtering by Food');
+  assert.ok(cardsAfterFilter[0].props.accessibilityLabel.includes('Food Tour'));
+  viewEn.unmount();
+
+  // 2. In Vietnamese
+  const viewVi = mount('../src/screens/AlleySelectScreen.tsx', {
+    navigation,
+    mode: 'demo',
+    nodeCount: 6,
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        t: (key, params) => translator.t('vi', key, params),
+        setCollectionId: () => {},
+      }),
+    },
+    '../data/collections': {
+      isCollectionId: (v) => v === 'fiction-letter' || v === 'food-tour',
+      getLocalizedCollections: () => [
+        { id: 'fiction-letter', name: 'Lá thư Hà Nội', district: 'Hàng Buồm', theme: 'Chuyện xưa', tagline: '', nodeCount: 6, coverPhoto: 1, kind: 'simulated' },
+        { id: 'food-tour', name: 'Tour Ẩm Thực', district: 'Đồng Xuân', theme: 'Ẩm thực', tagline: '', nodeCount: 4, coverPhoto: 1, kind: 'reviewed' },
+      ],
+    },
+  });
+  const treeVi = viewVi.render();
+  const pressablesVi = elements(treeVi, 'Pressable');
+  const filterChipsVi = pressablesVi.filter((p) => p.props.accessibilityState && 'selected' in p.props.accessibilityState);
+  const filterLabelsVi = filterChipsVi.map((p) => p.props.accessibilityLabel);
+  assert.deepEqual(filterLabelsVi, ['Tất cả', 'Hàng Buồm', 'Hàng Gai', 'Đồng Xuân', 'Ẩm thực']);
+  viewVi.unmount();
+});
+
+test('AlleyTrailView and PostcardCard branch visit time on collectionKind', () => {
+  const actualReviewedPilotVi = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.vi.json', import.meta.url), 'utf8'));
+  const actualReviewedPilotEn = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.en.json', import.meta.url), 'utf8'));
+
+  const trailMocks = (locale) => ({
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale,
+        t: (key, params) => translator.t(locale, key, params),
+      }),
+    },
+  });
+
+  // 1. AlleyTrailView reviewed in EN
+  const viewTrailReviewedEn = mount('../src/components/AlleyTrailView.tsx', {
+    nodes: actualReviewedPilotEn.nodes,
+    currentNodeId: actualReviewedPilotEn.nodes[0].id,
+    onSelectNode() {},
+    collectionKind: 'reviewed',
+  }, trailMocks('en'));
+  const treeTrailReviewedEn = viewTrailReviewedEn.render();
+  const textTrailReviewedEn = JSON.stringify(treeTrailReviewedEn);
+  assert.ok(textTrailReviewedEn.includes('Suggested visit: 10 min (unmeasured)'), 'reviewed trail in EN displays suggested unmeasured visit time');
+  assert.equal(textTrailReviewedEn.includes('10 simulated min'), false, 'reviewed trail in EN must not say simulated min');
+  const pressablesTrailEn = elements(treeTrailReviewedEn, 'Pressable');
+  const cardPressableEn = pressablesTrailEn.find((p) => p.props.accessibilityLabel?.startsWith(actualReviewedPilotEn.nodes[0].name));
+  assert.ok(cardPressableEn.props.accessibilityLabel.includes('Suggested visit: 10 min (unmeasured)'));
+  viewTrailReviewedEn.unmount();
+
+  // 2. AlleyTrailView reviewed in VI
+  const viewTrailReviewedVi = mount('../src/components/AlleyTrailView.tsx', {
+    nodes: actualReviewedPilotVi.nodes,
+    currentNodeId: actualReviewedPilotVi.nodes[0].id,
+    onSelectNode() {},
+    collectionKind: 'reviewed',
+  }, trailMocks('vi'));
+  const treeTrailReviewedVi = viewTrailReviewedVi.render();
+  const textTrailReviewedVi = JSON.stringify(treeTrailReviewedVi);
+  assert.ok(textTrailReviewedVi.includes('Gợi ý tham quan: 10 phút (chưa đo)'), 'reviewed trail in VI displays suggested unmeasured visit time');
+  assert.equal(textTrailReviewedVi.includes('phút mô phỏng'), false, 'reviewed trail in VI must not say phút mô phỏng');
+  viewTrailReviewedVi.unmount();
+
+  // 3. AlleyTrailView simulated / default absent in EN
+  const viewTrailSimEn = mount('../src/components/AlleyTrailView.tsx', {
+    nodes: actualReviewedPilotEn.nodes,
+    currentNodeId: actualReviewedPilotEn.nodes[0].id,
+    onSelectNode() {},
+  }, trailMocks('en'));
+  const treeTrailSimEn = viewTrailSimEn.render();
+  const textTrailSimEn = JSON.stringify(treeTrailSimEn);
+  assert.ok(textTrailSimEn.includes('10 simulated min'), 'simulated / default trail in EN displays simulated min');
+  viewTrailSimEn.unmount();
+
+  // 4. PostcardCard reviewed in EN
+  const viewCardReviewed = mount('../src/components/PostcardCard.tsx', {
+    node: actualReviewedPilotEn.nodes[0],
+    collectionKind: 'reviewed',
+  }, trailMocks('en'));
+  const treeCardReviewed = viewCardReviewed.render();
+  const textCardReviewed = JSON.stringify(treeCardReviewed);
+  assert.ok(textCardReviewed.includes('Suggested visit: 10 min (unmeasured)'), 'reviewed PostcardCard displays suggested visit time');
+  assert.equal(textCardReviewed.includes('min simulated'), false);
+  viewCardReviewed.unmount();
+
+  // 5. PostcardCard simulated in EN
+  const viewCardSim = mount('../src/components/PostcardCard.tsx', {
+    node: actualReviewedPilotEn.nodes[0],
+    collectionKind: 'simulated',
+  }, trailMocks('en'));
+  const treeCardSim = viewCardSim.render();
+  const textCardSim = JSON.stringify(treeCardSim);
+  assert.ok(textCardSim.includes('10 min simulated'), 'simulated PostcardCard displays simulated minutes');
+  viewCardSim.unmount();
+});
+
+test('HomeScreen passes source dataset.kind precedence to AlleyTrailView (ready simulated never upgraded by reviewed metadata)', () => {
+  const actualReviewedPilotVi = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.vi.json', import.meta.url), 'utf8'));
+
+  // 1. Ready simulated payload on known pilot collection ('old-quarter-pilot' whose metadata is reviewed)
+  const simulatedPilotDataset = {
+    ...actualReviewedPilotVi,
+    collectionId: 'old-quarter-pilot',
+    kind: 'simulated',
+  };
+  const homeViewSim = mount('../src/screens/HomeScreen.tsx', {
+    mode: 'demo',
+    source: { status: 'ready', dataset: simulatedPilotDataset },
+    onModeChange() {},
+    currentNodeId: simulatedPilotDataset.nodes[0].id,
+    onSelectNode: () => {},
+    readNodeIds: new Set(),
+    navigation: { goBack() {}, navigate() {} },
+    route: { params: { alleyId: 'old-quarter-pilot' } },
+  }, {
+    __windowDimensions: { width: 400, height: 850, fontScale: 2 },
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        setLocale: () => {},
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+  const treeSim = homeViewSim.render();
+  const trailSim = elements(treeSim, 'AlleyTrailView')[0];
+  assert.ok(trailSim, 'trail component rendered at fontScale 2');
+  assert.equal(trailSim.props.collectionKind, 'simulated', 'dataset.kind simulated must take precedence over activeCollection.kind reviewed');
+  homeViewSim.unmount();
+
+  // 2. Ready reviewed payload
+  const reviewedPilotDataset = {
+    ...actualReviewedPilotVi,
+    collectionId: 'old-quarter-pilot',
+    kind: 'reviewed',
+  };
+  const homeViewRev = mount('../src/screens/HomeScreen.tsx', {
+    mode: 'demo',
+    source: { status: 'ready', dataset: reviewedPilotDataset },
+    onModeChange() {},
+    currentNodeId: reviewedPilotDataset.nodes[0].id,
+    onSelectNode: () => {},
+    readNodeIds: new Set(),
+    navigation: { goBack() {}, navigate() {} },
+    route: { params: { alleyId: 'old-quarter-pilot' } },
+  }, {
+    __windowDimensions: { width: 400, height: 850, fontScale: 2 },
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        setLocale: () => {},
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+  const treeRev = homeViewRev.render();
+  const trailRev = elements(treeRev, 'AlleyTrailView')[0];
+  assert.equal(trailRev.props.collectionKind, 'reviewed', 'dataset.kind reviewed is passed directly');
+  homeViewRev.unmount();
+
+  // 3. Ready dataset with undefined kind defaults to simulated
+  const undefinedKindDataset = {
+    ...actualReviewedPilotVi,
+    collectionId: 'old-quarter-pilot',
+  };
+  delete undefinedKindDataset.kind;
+  const homeViewUndef = mount('../src/screens/HomeScreen.tsx', {
+    mode: 'demo',
+    source: { status: 'ready', dataset: undefinedKindDataset },
+    onModeChange() {},
+    currentNodeId: undefinedKindDataset.nodes[0].id,
+    onSelectNode: () => {},
+    readNodeIds: new Set(),
+    navigation: { goBack() {}, navigate() {} },
+    route: { params: { alleyId: 'old-quarter-pilot' } },
+  }, {
+    __windowDimensions: { width: 400, height: 850, fontScale: 2 },
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        setLocale: () => {},
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+  const treeUndef = homeViewUndef.render();
+  const trailUndef = elements(treeUndef, 'AlleyTrailView')[0];
+  assert.equal(trailUndef.props.collectionKind, 'simulated', 'undefined dataset.kind defaults to simulated even on pilot collection');
+  homeViewUndef.unmount();
+});

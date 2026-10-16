@@ -560,7 +560,7 @@ export function QaScreen({
                     {voiceActionCard.draft.topic && (
                       <Text style={styles.voiceActionMeta}>
                         {getTopicLabel(voiceActionCard.draft.topic, t)}
-                        {voiceActionCard.draft.budgetMinutes ? ` · ${voiceActionCard.draft.budgetMinutes} ${t('qa.minutes_simulated')}` : ''}
+                        {voiceActionCard.draft.budgetMinutes ? ` · ${voiceActionCard.draft.budgetMinutes} ${t('qa.minutes')}` : ''}
                       </Text>
                     )}
                     {(!voiceActionCard.draft.topic || voiceActionCard.message?.includes('chủ đề') || voiceActionCard.message?.includes('topic')) && (

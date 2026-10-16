@@ -33,9 +33,17 @@ type Props = {
   draft?: PlanDraft;
   onDraftChange?: (draft: PlanDraft) => void;
   onSelectNode: (nodeId: string) => void;
+  collectionKind?: 'simulated' | 'reviewed';
 };
 
-export function PlanScreen({ mode = 'demo', nodes, draft = {}, onDraftChange = () => {}, onSelectNode }: Props): ReactElement {
+export function PlanScreen({
+  mode = 'demo',
+  nodes,
+  draft = {},
+  onDraftChange = () => {},
+  onSelectNode,
+  collectionKind = 'simulated',
+}: Props): ReactElement {
   const { t, locale } = useLocale();
 
   const TOPIC_CHOICES: { topic: Topic; label: string; icon: 'food' | 'book' | 'compass' }[] = [
@@ -313,6 +321,7 @@ export function PlanScreen({ mode = 'demo', nodes, draft = {}, onDraftChange = (
                     subReason={pick.reason}
                     actionLabel={locale === 'en' ? `Explore (${pick.visitMinutes} min)` : `Khám phá (${pick.visitMinutes} phút)`}
                     onSelect={() => onSelectNode(pick.node.id)}
+                    collectionKind={collectionKind}
                   />
                 ))}
               </View>

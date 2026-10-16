@@ -90,6 +90,12 @@ export function AlleySelectScreen({
     ? (liveCollectionItem ? [liveCollectionItem] : [])
     : getLocalizedCollections(locale);
 
+  function getFilterLabel(filter: LocationFilter): string {
+    if (filter === 'Tất cả') return t('alley_select.filter_all');
+    if (filter === 'Ẩm thực') return t('alley_select.filter_food');
+    return filter;
+  }
+
   // Lọc danh sách con ngõ theo ô tìm kiếm địa chỉ và bộ lọc khu vực
   const filteredCollections = collections.filter((col) => {
     const query = normalizeQuestion(searchQuery);
@@ -103,7 +109,8 @@ export function AlleySelectScreen({
     const matchFilter =
       selectedFilter === 'Tất cả' ||
       col.district.includes(selectedFilter) ||
-      col.theme === selectedFilter;
+      col.theme === selectedFilter ||
+      (selectedFilter === 'Ẩm thực' && (col.theme === 'Ẩm thực' || col.theme === 'Food'));
 
     return matchSearch && matchFilter;
   });
@@ -187,7 +194,7 @@ export function AlleySelectScreen({
               <Text style={styles.gpsStatusLabel}>
                 {isLive ? t('alley_select.live_area') : t('alley_select.demo_area')}
               </Text>
-              <Text style={styles.gpsLocationName} numberOfLines={1}>
+              <Text style={styles.gpsLocationName}>
                 {isLive
                   ? (liveCollectionItem
                       ? `${liveCollectionItem.district} · ${t('alley_select.live_source_badge')}`
@@ -254,11 +261,12 @@ export function AlleySelectScreen({
             {(['Tất cả', 'Hàng Buồm', 'Hàng Gai', 'Đồng Xuân', 'Ẩm thực'] as const).map(
               (filter) => {
                 const isSelected = selectedFilter === filter;
+                const label = getFilterLabel(filter);
                 return (
                   <Pressable
                     key={filter}
                     accessibilityRole="button"
-                    accessibilityLabel={filter}
+                    accessibilityLabel={label}
                     accessibilityState={{ selected: isSelected }}
                     onPress={() => setSelectedFilter(filter)}
                     style={[
@@ -272,7 +280,7 @@ export function AlleySelectScreen({
                         isSelected && styles.filterChipTextSelected,
                       ]}
                     >
-                      {filter}
+                      {label}
                     </Text>
                   </Pressable>
                 );

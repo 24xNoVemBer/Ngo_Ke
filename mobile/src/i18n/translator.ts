@@ -163,6 +163,8 @@ export type TranslationKey =
   | 'alley_select.sample_list'
   | 'alley_select.empty'
   | 'alley_select.reset_filter'
+  | 'alley_select.filter_all'
+  | 'alley_select.filter_food'
   | 'alley_select.live_area'
   | 'alley_select.live_subtext'
   | 'alley_select.live_loading'
@@ -525,6 +527,8 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'alley_select.sample_list': 'Danh sách mẫu · không đo khoảng cách từ bạn',
     'alley_select.empty': 'Không tìm thấy địa chỉ hoặc con ngõ phù hợp',
     'alley_select.reset_filter': 'Xem tất cả các con ngõ ›',
+    'alley_select.filter_all': 'Tất cả',
+    'alley_select.filter_food': 'Ẩm thực',
     'alley_select.live_area': 'KHU VỰC LIVE',
     'alley_select.live_subtext': '{name} · Nguồn máy chủ Live',
     'alley_select.live_loading': 'Đang kết nối máy chủ Live...',
@@ -886,6 +890,8 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'alley_select.sample_list': 'Sample list · distance not measured from you',
     'alley_select.empty': 'No matching address or alley found',
     'alley_select.reset_filter': 'See all alleys ›',
+    'alley_select.filter_all': 'All',
+    'alley_select.filter_food': 'Food',
     'alley_select.live_area': 'LIVE AREA',
     'alley_select.live_subtext': '{name} · Live API source',
     'alley_select.live_loading': 'Connecting to live server...',
@@ -1000,7 +1006,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'home.read_story_label': 'Read story of selected stop',
     'home.read_story_btn': 'Read story',
     'home.notebook_label': 'Open alley notebook',
-    'home.notebook_btn': 'Notebook',
+    'home.notebook_btn': 'Notes',
     'home.close_notebook': 'Close notebook',
     'home.notebook_phase': 'Alley Notebook',
     'home.notebook_title': 'Journey & Tools',

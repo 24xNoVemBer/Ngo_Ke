@@ -17,6 +17,7 @@ interface Props {
   onSelect?: () => void;
   actionLabel?: string;
   subReason?: string;
+  collectionKind?: 'simulated' | 'reviewed';
 }
 
 export function PostcardCard({
@@ -25,8 +26,10 @@ export function PostcardCard({
   onSelect,
   actionLabel,
   subReason,
+  collectionKind = 'simulated',
 }: Props): ReactElement {
   const { t } = useLocale();
+  const isReviewed = collectionKind === 'reviewed';
   const resolvedActionLabel = actionLabel ?? t('common.explore_this_point');
   const photo = getNodePhoto(node.id);
   const credit = getNodePhotographer(node.id);
@@ -56,7 +59,11 @@ export function PostcardCard({
             {node.name}
           </Text>
           <View style={styles.durationBadge}>
-            <Text style={styles.durationText}>{t('common.simulated_minutes', { minutes: node.visitMinutes })}</Text>
+            <Text style={styles.durationText}>
+              {t(isReviewed ? 'location.suggested_visit_minutes' : 'common.simulated_minutes', {
+                minutes: node.visitMinutes,
+              })}
+            </Text>
           </View>
         </View>
 
