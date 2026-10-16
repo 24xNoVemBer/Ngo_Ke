@@ -4,7 +4,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import { File } from 'expo-file-system';
-import { voiceTracks, voiceCatalogueRevision } from './catalog';
+import { DEFAULT_LOCALE, type Locale } from '../data/locale';
+import { translate, type TranslationKey } from '../i18n/translator';
+import { DEFAULT_VOICE_COLLECTION, lookupVoiceTrack } from './localizedCatalog';
 import { canContinueVoiceStart, isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoiceOnScopeChange } from './appState';
 import { prepareVoiceRecorderForTurn, startVoiceRecorder } from './recorderPreparation';
 import { hasReachedVoiceRecordingLimit } from './recordingLimit';
@@ -18,6 +20,8 @@ export type VoiceMode = 'demo' | 'live';
 export type VoiceTurnContext = {
   turnId: string;
   scope: string;
+  collectionId: string;
+  locale: Locale;
   nodeId: string;
   mode: VoiceMode;
   datasetRevision: string;
@@ -27,6 +31,8 @@ const voiceRecordingOptions = { ...RecordingPresets.HIGH_QUALITY, isMeteringEnab
 
 type Options = {
   apiBaseUrl?: string;
+  collectionId?: string;
+  locale?: Locale;
   scope: string;
   nodeId: string;
   mode: VoiceMode;
@@ -39,21 +45,25 @@ function turnId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
 }
 
-function messageForError(code: string): string {
-  if (code === 'MIC_PERMISSION_DENIED') return 'Ngõ Kể chưa được cấp quyền dùng micro. Bạn có thể gõ câu hỏi thay thế.';
-  if (code === 'MIC_PERMISSION_BLOCKED') return 'Quyền micro đã bị chặn trong Cài đặt. Bật quyền micro hoặc gõ câu hỏi thay thế.';
-  if (code === 'AUDIO_TOO_SHORT') return 'Câu nói hơi ngắn. Hãy nói rõ câu hỏi rồi chạm Gửi.';
-  if (code === 'RECORDER_START_FAILED') return 'Micro chưa bắt đầu thu được. Hãy chạm để thử lại.';
-  if (code === 'AUDIO_PLAYER_STOP_TIMEOUT') return 'Lời kể chưa dừng hẳn. Hãy thử lại sau một chút.';
-  if (code === 'AUDIO_TOO_LONG') return 'Câu nói dài quá. Hãy chia thành một câu hỏi ngắn hơn.';
-  if (code === 'NO_SPEECH') return 'Mình chưa nghe thấy lời nói rõ. Hãy thử lại gần micro hơn.';
-  if (code === 'VOICE_NOT_CONFIGURED') return 'Bản thử chưa cấu hình máy nhận giọng nói. Hãy mở lại Expo Go theo hướng dẫn, hoặc gõ câu hỏi thay thế.';
-  if (code === 'ASR_TIMEOUT') return 'Nhận dạng mất quá lâu. Hãy thử lại khi kết nối ổn định.';
-  if (code === 'ASR_UNAVAILABLE') return 'Máy nhận dạng giọng nói chưa chạy. Hãy thử lại sau.';
-  if (code === 'ASR_BUSY') return 'Máy nhận dạng đang bận. Chờ một chút rồi thử lại nhé.';
-  if (code === 'RATE_LIMITED') return 'Bạn vừa gửi nhiều lượt liên tiếp. Chờ một chút rồi thử lại nhé.';
-  if (code === 'INVALID_AUDIO') return 'Bản ghi không đọc được. Hãy thu lại câu hỏi.';
-  return 'Chưa gửi được câu hỏi. Kiểm tra kết nối tới máy nhận giọng nói rồi thử lại.';
+const voiceErrorKeys: Record<string, TranslationKey> = {
+  MIC_PERMISSION_DENIED: 'voice.error.MIC_PERMISSION_DENIED',
+  MIC_PERMISSION_BLOCKED: 'voice.error.MIC_PERMISSION_BLOCKED',
+  AUDIO_TOO_SHORT: 'voice.error.AUDIO_TOO_SHORT',
+  RECORDER_START_FAILED: 'voice.error.RECORDER_START_FAILED',
+  AUDIO_PLAYER_STOP_TIMEOUT: 'voice.error.AUDIO_PLAYER_STOP_TIMEOUT',
+  AUDIO_TOO_LONG: 'voice.error.AUDIO_TOO_LONG',
+  NO_SPEECH: 'voice.error.NO_SPEECH',
+  VOICE_NOT_CONFIGURED: 'voice.error.VOICE_NOT_CONFIGURED',
+  ASR_TIMEOUT: 'voice.error.ASR_TIMEOUT',
+  ASR_UNAVAILABLE: 'voice.error.ASR_UNAVAILABLE',
+  ASR_BUSY: 'voice.error.ASR_BUSY',
+  RATE_LIMITED: 'voice.error.RATE_LIMITED',
+  INVALID_AUDIO: 'voice.error.INVALID_AUDIO',
+  UNSUPPORTED_LOCALE: 'voice.error.UNSUPPORTED_LOCALE',
+};
+
+function messageForError(code: string, locale: Locale): string {
+  return translate(locale, voiceErrorKeys[code] ?? 'voice.error.DEFAULT');
 }
 
 function removeRecording(uri: string | null | undefined): void {
@@ -66,7 +76,17 @@ function removeRecording(uri: string | null | undefined): void {
   }
 }
 
-export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevision, isFocused, onTranscript }: Options) {
+export function useVoiceSession({
+  apiBaseUrl,
+  collectionId = DEFAULT_VOICE_COLLECTION,
+  locale = DEFAULT_LOCALE,
+  scope,
+  nodeId,
+  mode,
+  datasetRevision,
+  isFocused,
+  onTranscript,
+}: Options) {
   // Keep iOS audio active across pause so Expo's delayed deactivation cannot silence the next recording.
   const player = useAudioPlayer(null, { updateInterval: 200, keepAudioSessionActive: true });
   const playback = useAudioPlayerStatus(player);
@@ -80,6 +100,8 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
   const [playbackError, setPlaybackError] = useState<string | null>(null);
   const turnRef = useRef<VoiceTurnContext | null>(null);
   const scopeRef = useRef(scope);
+  const collectionIdRef = useRef(collectionId);
+  const localeRef = useRef(locale);
   const onTranscriptRef = useRef(onTranscript);
   const abortRef = useRef<AbortController | null>(null);
   const permissionPendingRef = useRef(false);
@@ -87,8 +109,12 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
   const cancelStartedAtRef = useRef<number | null>(null);
   const requestRef = useRef(0);
   const previousScopeRef = useRef(scope);
+  const previousCollectionIdRef = useRef(collectionId);
+  const previousLocaleRef = useRef(locale);
 
   scopeRef.current = scope;
+  collectionIdRef.current = collectionId;
+  localeRef.current = locale;
   onTranscriptRef.current = onTranscript;
 
   const changeStage = useCallback((next: VoiceStage) => {
@@ -142,9 +168,11 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
   const startRecording = useCallback(async () => {
     if (!isFocused || !['idle', 'error'].includes(stageRef.current)) return;
     const context: VoiceTurnContext = {
-      turnId: turnId(), scope, nodeId, mode, datasetRevision,
+      turnId: turnId(), scope, collectionId, locale, nodeId, mode, datasetRevision,
     };
-    const isCurrentTurn = () => isCurrentVoiceTurn(turnRef.current, scopeRef.current, context);
+    const isCurrentTurn = () => context.locale === localeRef.current
+      && context.collectionId === collectionIdRef.current
+      && isCurrentVoiceTurn(turnRef.current, scopeRef.current, context);
     turnRef.current = context;
     setError(null);
     setPermissionBlocked(false);
@@ -189,7 +217,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
       if (!isCurrentTurn()) return;
       turnRef.current = null;
       const code = cause instanceof Error ? cause.message : 'VOICE_ERROR';
-      setError(messageForError(code));
+      setError(messageForError(code, context.locale));
       changeStage('error');
     } finally {
       permissionPendingRef.current = false;
@@ -199,12 +227,14 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
         finishCancelPerformance();
       }
     }
-  }, [changeStage, datasetRevision, finishCancelPerformance, isFocused, mode, nodeId, recorder, scope, stopPlayback]);
+  }, [changeStage, collectionId, datasetRevision, finishCancelPerformance, isFocused, locale, mode, nodeId, recorder, scope, stopPlayback]);
 
   const stopAtRecordingLimit = useCallback(async (durationMs: number) => {
     const context = turnRef.current;
     if (!context || stageRef.current !== 'recording') return;
-    const isCurrentTurn = () => isCurrentVoiceTurn(turnRef.current, scopeRef.current, context);
+    const isCurrentTurn = () => context.locale === localeRef.current
+      && context.collectionId === collectionIdRef.current
+      && isCurrentVoiceTurn(turnRef.current, scopeRef.current, context);
     changeStage('stopping');
     let uri: string | null = null;
     try {
@@ -225,7 +255,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
       try { await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }); } catch { /* Preserve the recorder error. */ }
       if (isCurrentTurn()) {
         turnRef.current = null;
-        setError(messageForError(cause instanceof Error ? cause.message : 'VOICE_ERROR'));
+        setError(messageForError(cause instanceof Error ? cause.message : 'VOICE_ERROR', context.locale));
         changeStage('error');
       } else {
         changeStage('idle');
@@ -241,7 +271,9 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
     const readyRecording = readyRecordingRef.current;
     if (isReady && (!readyRecording || readyRecording.turnId !== context.turnId)) return;
     const submitStartedAt = voicePerformanceNow();
-    const isCurrentTurn = () => isCurrentVoiceTurn(turnRef.current, scopeRef.current, context);
+    const isCurrentTurn = () => context.locale === localeRef.current
+      && context.collectionId === collectionIdRef.current
+      && isCurrentVoiceTurn(turnRef.current, scopeRef.current, context);
     changeStage('stopping');
     let recordingUri: string | null = null;
     let recorderStopped = isReady;
@@ -274,7 +306,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
       const fileName = recordingUri.split('/').pop() || 'voice-question.m4a';
       const transcriptContext = {
         turnId: context.turnId,
-        locale: 'vi' as const,
+        locale: context.locale,
         mode: context.mode,
         nodeId: context.nodeId,
         datasetRevision: context.datasetRevision,
@@ -313,7 +345,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
       removeRecording(recordingUri ?? recorder.uri);
       if (errorCode && isCurrentTurn()) {
         turnRef.current = null;
-        setError(messageForError(errorCode));
+        setError(messageForError(errorCode, context.locale));
         changeStage('error');
       } else if (!isCurrentTurn()) {
         if (turnRef.current?.turnId === context.turnId) turnRef.current = null;
@@ -333,30 +365,34 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
     expectedNodeId: string,
     restart = false,
   ) => {
-    if (mode !== 'demo' || datasetRevision !== voiceCatalogueRevision) {
-      setPlaybackError('Audio truyện này không khớp phiên bản dữ liệu hiện tại.');
+    if (mode !== 'demo') {
+      setPlaybackError(translate(locale, 'voice.notice.live_no_audio'));
       return;
     }
-    const track = voiceTracks[id];
+    const track = lookupVoiceTrack({ collectionId, locale, contentId: id, datasetRevision });
     if (!track || track.kind !== expectedKind || track.nodeId !== expectedNodeId) {
-      setPlaybackError('Chưa có bản đọc đúng cho nội dung này.');
+      setPlaybackError(translate(locale, 'voice.notice.audio_unavailable'));
       return;
     }
     const request = ++requestRef.current;
     const requestedScope = scope;
-    const isCurrentRequest = () => isPlaybackRequestCurrent(request, requestRef.current, requestedScope, scopeRef.current);
+    const requestedLocale = locale;
+    const requestedCollectionId = collectionId;
+    const isCurrentRequest = () => requestedLocale === localeRef.current
+      && requestedCollectionId === collectionIdRef.current
+      && isPlaybackRequestCurrent(request, requestRef.current, requestedScope, scopeRef.current);
     setPlaybackError(null);
     try {
       const textHash = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, text);
       if (!isCurrentRequest()) return;
       if (textHash !== track.textHash) {
-        setPlaybackError('Bản đọc không khớp lời kể hiện tại nên chưa phát.');
+        setPlaybackError(translate(locale, 'voice.notice.audio_unavailable'));
         return;
       }
       player.loop = true;
       if (activeTrackId === id) {
         if (restart) {
-          await restartAudioPlayer(player, () => request === requestRef.current && scopeRef.current === requestedScope);
+          await restartAudioPlayer(player, isCurrentRequest);
         } else if (playback.playing) player.pause();
         else player.play();
         return;
@@ -368,10 +404,10 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
       player.play();
     } catch {
       if (isCurrentRequest()) {
-        setPlaybackError('Không mở được bản đọc. Bạn vẫn có thể xem lời kể bằng chữ.');
+        setPlaybackError(translate(locale, 'voice.notice.audio_unavailable'));
       }
     }
-  }, [activeTrackId, datasetRevision, mode, playback.playing, player, scope]);
+  }, [activeTrackId, collectionId, datasetRevision, locale, mode, playback.playing, player, scope]);
 
   const replayTrack = useCallback(async (
     id: string,
@@ -383,8 +419,12 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
   }, [playTrack]);
 
   useEffect(() => {
-    const scopeChanged = shouldCancelVoiceOnScopeChange(previousScopeRef.current, scope);
+    const scopeChanged = shouldCancelVoiceOnScopeChange(previousScopeRef.current, scope)
+      || previousCollectionIdRef.current !== collectionId
+      || previousLocaleRef.current !== locale;
     previousScopeRef.current = scope;
+    previousCollectionIdRef.current = collectionId;
+    previousLocaleRef.current = locale;
     if (!isFocused || scopeChanged) {
       cancel();
       void stopPlayback();
@@ -395,7 +435,7 @@ export function useVoiceSession({ apiBaseUrl, scope, nodeId, mode, datasetRevisi
         if (stageRef.current !== 'preparing' && stageRef.current !== 'stopping') changeStage('idle');
       }
     }
-  }, [cancel, changeStage, isFocused, scope, stopPlayback]);
+  }, [cancel, changeStage, collectionId, isFocused, locale, scope, stopPlayback]);
 
   useEffect(() => {
     return () => {

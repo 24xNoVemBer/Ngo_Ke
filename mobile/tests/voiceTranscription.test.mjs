@@ -38,6 +38,21 @@ test('voice upload preserves Expo file bytes with an explicit multipart audio ty
   }
 });
 
+test('English transcription carries and validates the English locale', async () => {
+  const englishContext = { ...context, locale: 'en' };
+  const formData = createVoiceRequestBody(new Blob(['audio'], { type: 'audio/mp4' }), 'question.m4a', englishContext);
+  assert.equal(formData.get('locale'), 'en');
+  await withFetch(async () => new Response(JSON.stringify({ ...englishContext, text: '  What is the white horse legend?  ' }), { status: 200 }), async () => {
+    assert.equal(await transcribeVoiceRequest('http://gateway', formData, new AbortController(), englishContext), 'What is the white horse legend?');
+  });
+  await withFetch(async () => new Response(JSON.stringify({ ...englishContext, locale: 'vi', text: 'Sai locale' }), { status: 200 }), async () => {
+    await assert.rejects(
+      transcribeVoiceRequest('http://gateway', formData, new AbortController(), englishContext),
+      { message: 'INVALID_RESPONSE' },
+    );
+  });
+});
+
 async function withFetch(fetchImpl, run) {
   const previous = globalThis.fetch;
   globalThis.fetch = fetchImpl;

@@ -1,6 +1,8 @@
+import type { Locale } from '../data/locale';
+
 export type VoiceTranscriptContext = {
   turnId: string;
-  locale: 'vi';
+  locale: Locale;
   mode: 'demo' | 'live';
   nodeId: string;
   datasetRevision: string;
