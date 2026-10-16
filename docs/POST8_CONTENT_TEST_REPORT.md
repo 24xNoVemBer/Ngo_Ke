@@ -125,13 +125,57 @@ unchanged, 34 audio SHAs intact.
   Update 2026-10-16: those 3 fixes are closed (`7b7fc7a`, root 7 asserts green);
   the earlier candidate `78de2ab` 213-pass is superseded by scaffold `7b55d90`,
   where type passes but the UI VM harness fails a locale import (W2 fixing).
-  213-test green recorded as regression signal only.
+  213-test green recorded as regression signal only. Content suite below stays
+  47/47 green and untouched by these lines.
 - Cancel-claim qualification (2026-10-16): root's 672-hook replay proved a
   newer-turn clobber (VI ASR1 pending → render EN same scope/node/rev with
   cancel idle → EN start/submit ASR2 pending → OLD1 resolves → NEW stage idle
   instead of transcribing). The earlier “reviewed clean” note is WITHDRAWN as
   a broad guarantee; W3 voice fix + W2 regression assigned, evidence in root
   `POST8_COORDINATOR_REVIEW.md` (`5b23ddb`). No hook implementation here.
+
+## T3e pre-firstpoint review: W2 20bd562 + W3 voice/backend lines (read-only)
+
+Method: `git show` per commit (+ Temp-isolated hash/ffprobe/dictionary probes;
+never checked out, nothing mutated). Prior T3c findings disposition: F1/F2
+(EN intent unwired at 604dd2f) SUPERSEDED on the W3 line by `4e288ed`
+(locale-dispatched intent, EN commands, translator-wired clarify/ambiguous) —
+integration must merge both lines; F3 (VI-only session) addressed by 672eedb
+hook + 20bd562 QaScreen locale/collectionId threading (verified present);
+F4 live-`N` root-covered, W2 tasked.
+
+- 12 BM tracks (`75e19e2`, provisional/not-shipping flags honest): all audio
+  bytes, spokenText, source-text (vs approved `d3e1e15` copy) and textHash
+  values verify; ffprobe spot-checks decode (EN story 61.2s/24kHz,
+  VI horse 15.44s/48kHz, mp3/mono) matching manifest durations.
+- Original 34 VI identity: zero diff `91ddfbd`→`75e19e2` on manifest, clips
+  and demo fixture.
+- Dictionary parity at `20bd562`: VI 321 / EN 321 keys, zero missing either
+  side (so the VI-fallback path cannot leak today; parity test still advised).
+- Removed W2 pure-logic regression tests were replaced by stronger mounted-App
+  tests (late-locale persistence, node preservation, collection select,
+  session locale wiring) — upgrade, no coverage loss.
+- `7a32fcc` compact budgets (`1h30m`) range-checked downstream; no finding.
+- CARRIED D1 revised 2026-10-16: reproduced on the W2 `20bd562` line (bare
+  `recorder.stop()`, no `stopping` branch in `cancel()`), but the integrated
+  candidate `d3ca196` already carries the timeout + recovery-lock fix with a
+  dedicated stalled-stop lifecycle test (verified in-tree). Forward-carry
+  WITHDRAWN; history kept above.
+- CONFIRMED DUPLICATE closed: CLI `import-localized` V1-seeding verified fixed
+  at `d3ca196` (one-line exclusion from the shared block; root repro shows all
+  tables 0 + exit 1 on invalid import).
+- NEW F5 (concrete, reachable flow traced, no guessing): `QaScreen.tsx`
+  (`d3ca196`:739, :456, :546) branches verified-tag/waveform/disclaimer on
+  `mode === 'demo'` alone, so the reviewed pilot bundle opened in demo mode
+  gets “LỜI KỂ TRONG TRUYỆN”/“STORY PASSAGE” + fiction waveform/disclaimer
+  instead of the sourced labels. Reachable: `App.tsx` demo source is
+  `getBundledDataset(collectionId, locale)` and `old-quarter-pilot` is a
+  selectable bundled collection. Fix direction: branch on dataset
+  kind/collection (reviewed → sourced labels) in addition to mode. Owner: W2.
+- Backend V2 (`7a6b61b`): strict single-locale query, canonical-digest pinning,
+  atomic pair publish with pre-mutation validation, idempotent same-content,
+  replace-gated backup, 404/503 split, `content-language` — contract-clean on
+  read; runtime behavior awaits W3's backend tests + native vertical.
 
 ## T3d voice-hook behavior probe, candidate 8464054 (ignored probe, real hook)
 
