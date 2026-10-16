@@ -281,7 +281,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'voice.notice.quota_exceeded': 'Đã đạt giới hạn {seconds} giây. Nhấn Gửi để tiếp tục hoặc Huỷ để ghi âm lại.',
 
     'voice.intent.clarify_action': 'Bạn muốn nghe câu trả lời hay thực hiện thao tác vừa nói?',
-    'voice.intent.clarify_plan': 'Bạn muốn hỏi về trải nghiệm hay mở phần chọn hành trình?',
+    'voice.intent.clarify_plan': 'Mình chưa nghe thấy chủ đề hoặc thời lượng. Hãy chọn lại bên dưới.',
     'voice.intent.clarify_plan_question': 'Bạn muốn hỏi về trải nghiệm hay mở phần chọn hành trình?',
     'voice.intent.ambiguous_topic_multiple': 'Mình nghe thấy hơn một chủ đề. Hãy chọn một chủ đề bên dưới.',
     'voice.intent.ambiguous_topic_negation': 'Mình không muốn tự chọn chủ đề khi câu có lời phủ định. Hãy chạm một chủ đề bên dưới.',
@@ -531,7 +531,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'voice.notice.quota_exceeded': 'Maximum {seconds} seconds reached. Tap Send to continue or Cancel to record again.',
 
     'voice.intent.clarify_action': 'Do you want to hear the answer or perform the action you just said?',
-    'voice.intent.clarify_plan': 'Do you want to ask about an experience or open the route planner?',
+    'voice.intent.clarify_plan': 'I did not hear a topic or duration. Please choose below.',
     'voice.intent.clarify_plan_question': 'Do you want to ask about an experience or open the route planner?',
     'voice.intent.ambiguous_topic_multiple': 'I heard more than one topic. Please choose one topic below.',
     'voice.intent.ambiguous_topic_negation': 'Cannot choose a topic automatically when the request contains a negation. Please tap a topic below.',

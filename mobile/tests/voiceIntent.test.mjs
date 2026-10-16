@@ -24,6 +24,37 @@ test('voice commands stay distinct from questions and mixed requests require a c
   assert.equal(unpunctuated.questionText, 'Điểm kế tiếp là điểm nào');
 });
 
+test('English exact commands stay locale-specific and mixed or negative commands never act', () => {
+  for (const [input, type] of [
+    ['read the story', 'listen'], ['stop', 'stop'], ['next chapter', 'next'],
+    ['open QR', 'open-qr'], ['open GPS', 'open-gps'],
+  ]) assert.deepEqual(parseVoiceIntent(input, false, {}, 'en'), { type });
+  assert.deepEqual(parseVoiceIntent('choose experience', false, {}, 'en'), { type: 'plan', draft: {} });
+  assert.deepEqual(parseVoiceIntent('Mở QR', false, {}, 'en'), { type: 'question' });
+  assert.deepEqual(parseVoiceIntent('open QR', false, {}, 'vi'), { type: 'question' });
+  for (const input of ['do not open QR', 'open QR and open GPS', 'unknown command']) {
+    assert.deepEqual(parseVoiceIntent(input, false, {}, 'en'), { type: 'question' });
+  }
+});
+
+test('English mixed questions use the shared translator and negative plan text stays ambiguous', () => {
+  const mixed = parseVoiceIntent('What is this? Open QR', false, {}, 'en');
+  assert.equal(mixed.type, 'clarify');
+  if (mixed.type === 'clarify') {
+    assert.equal(mixed.action, 'open-qr');
+    assert.match(mixed.message, /Do you want to hear the answer/);
+  }
+  const negative = parseVoiceIntent('choose experience not food', false, {}, 'en');
+  assert.equal(negative.type, 'plan');
+  if (negative.type === 'plan') {
+    assert.equal(negative.draft.topic, undefined);
+    assert.match(negative.ambiguous ?? '', /negation/i);
+  }
+  assert.deepEqual(parseVoiceIntent('chọn trải nghiệm ẩm thực trong 30 phút'), {
+    type: 'plan', draft: { topic: 'an thuc', budgetMinutes: 30 },
+  });
+});
+
 test('plan slots accept Arabic and Vietnamese minutes, including split turns', () => {
   assert.deepEqual(parseVoiceIntent('Chọn trải nghiệm ẩm thực trong 30 phút'), {
     type: 'plan', draft: { topic: 'an thuc', budgetMinutes: 30 },
