@@ -22,28 +22,35 @@ tag "DEMO · reviewed heritage" (EN) / "DEMO · di sản đã duyệt" (VI) from
 actual dataset kind (fiction still simulated per contract); Qa dock notebook
 a11y "Open alley notebook" (EN) / "Mở sổ tay ngõ phố" (VI) via MCP elements
 (raw dumps persisted); Camera manual BM → active card "CONFIRMED STOP" with
-"Illustration photo · reviewed stops" + "Photo: Dự án Ngõ Kể" at 200;
-keyboard — expanded Gboard emoji panel preserved at keyboard height with
-approved "Where are we?" typed, enabled Send + X + chips in one shot
+"Illustration photo · reviewed stops" readable at 200;
+keyboard — expanded FLOATING Gboard emoji panel with
+approved "Where are we?" typed, enabled Send and chips in one shot
 (`qa-ime-panel-text-200.png`; earlier `qa-ime-panel-200.png` had empty
-input), canonical submit → correct Answer 00:12 + source (alphabet/QWERTY
+input). The panel's close X is visible; the application drawer header/cancel X
+is behind the floating panel and is NOT verified unobscured in this combined
+state. This does not exercise bottom-docked keyboard resizing. After dismissing
+the panel, canonical submit → correct Answer 00:12 + source (alphabet/QWERTY
 keys NOT VERIFIED, no QWERTY user gate). No new FAIL; typed-Qa food-reason is NOT tested as ordinary question
 per root (voice-callback path is unit/source-covered). NOT VERIFIED (unchanged
 scope): full-QWERTY layer, spoken TalkBack/focus order, animation timing,
 human listening/naturalness, mic audibility, real GPS fix, QR scan, physical
 device/iPhone, bulk/66-new-audio human QC, 18/36 unknown ASR. Restore: runtime
 font 1.0, all 3 animation scales 1, network on, show_ime key deleted (was
-NULL), a11y services null; accessibility_enabled reads 1 on fresh boot
-(device default — left untouched, no put issued this task); actual owned qemu
+NULL), a11y services null. W4 observed accessibility_enabled=1 after its
+additional boot; its cause/default was not established. Coordinator's subsequent
+headless cleanup boot independently read 0 before and after an idempotent
+restore to the recorded baseline 0, with enabled services null, then shut down
+the emulator again. Actual owned qemu
 39048 (this round; prior 41588) stopped via `adb emu kill` (process gone,
 device gone); config.ini SHA equals pre-task `0CE6D3D5…0375`, backup
 preserved at `final-66c/config.ini.pre-task-backup` (never deleted). Preserved db02248 audit: old backup was deleted with hash
 never recorded, prior cold-boot attempt not proven, prior camera photo
 caption was NOT VERIFIED, TalkBack was service-exercise only.
 
-Task `task_5aee15b7bf27`. Model Muse Spark 1.3 Free. Branch `valentino/post8-qa`.
-This file is the current standalone report; older `POST8_CONTENT_TEST_REPORT.md`
-sections stay as history. No product edits; no native runs in this task.
+Historical report-only baseline: task `task_5aee15b7bf27`, model Muse Spark
+1.3 Free, branch `valentino/post8-qa`; that earlier task made no product edits
+or native runs. It does not describe the current native follow-up above.
+Older `POST8_CONTENT_TEST_REPORT.md` sections remain history.
 
 ## 1. Bad build f2d0 (source `5eae095`, 96,634,526 bytes)
 
