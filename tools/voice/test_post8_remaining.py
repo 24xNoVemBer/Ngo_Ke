@@ -1,7 +1,16 @@
 import json
 import unittest
 
-from post8_remaining import FICTION, PILOT, fiction_rows, inventory, remaining_pilot_rows
+from post8_remaining import (
+    FICTION,
+    PILOT,
+    dataset_revisions,
+    fiction_rows,
+    inventory,
+    preflight_english_spoken_text,
+    question_inventory,
+    remaining_pilot_rows,
+)
 
 
 class RemainingInventoryTests(unittest.TestCase):
@@ -38,6 +47,22 @@ class RemainingInventoryTests(unittest.TestCase):
             self.assertEqual([row["kind"] for row in rows].count("story"), 2)
             self.assertEqual([row["kind"] for row in rows].count("caption"), 2)
             self.assertEqual([row["kind"] for row in rows].count("answer"), 6)
+
+    def test_each_node_has_one_source_question_and_an_in_node_followup_per_locale(self):
+        revisions = dataset_revisions()
+        for locale in ("en", "vi"):
+            rows = question_inventory(locale, revisions)
+            self.assertEqual(len(rows), 18)
+            self.assertEqual(len({(row["collectionId"], row["nodeId"]) for row in rows}), 9)
+            for collection, node_id in {(row["collectionId"], row["nodeId"]) for row in rows}:
+                pair = [row for row in rows if row["collectionId"] == collection and row["nodeId"] == node_id]
+                self.assertEqual({row["role"] for row in pair}, {"canonical", "followup"})
+                canonical = next(row for row in pair if row["role"] == "canonical")
+                followup = next(row for row in pair if row["role"] == "followup")
+                self.assertEqual(followup["followUpFromId"], canonical["expectedId"])
+
+    def test_english_source_spoken_inventory_has_no_unknown_marker_or_unmapped_unicode(self):
+        preflight_english_spoken_text(inventory()["en"], question_inventory("en", dataset_revisions()))
 
 
 if __name__ == "__main__":

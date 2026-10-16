@@ -30,6 +30,15 @@ PRONUNCIATION_MAP = (
     ("Thăng Long", "Tahng Long"),
     ("bún chả", "boon chah"),
     ("bún ốc", "boon awk"),
+    ("bún đậu", "boon doh"),
+    ("bánh đậu xanh", "bahn doh sahn"),
+    ("cô", "Koh"),
+    ("bà", "Bah"),
+    ("chè", "cheh"),
+    ("nộm", "nohm"),
+    ("bún", "boon"),
+    ("bánh", "bahn"),
+    ("đậu", "doh"),
     ("bánh tôm", "bahn tom"),
     ("An", "Ahn"),
     ("Lâm", "Lahm"),
@@ -92,7 +101,8 @@ def sha256_text(text: str) -> str:
 def to_spoken_text(text: str) -> str:
     for source, spoken in sorted(PRONUNCIATION_MAP, key=lambda pair: len(pair[0]), reverse=True):
         # Boundaries keep the capitalized name An out of ordinary English words.
-        pattern = re.compile(rf"(?<!\w){re.escape(source)}(?!\w)")
+        flags = 0 if source == "An" else re.IGNORECASE
+        pattern = re.compile(rf"(?<!\w){re.escape(source)}(?!\w)", flags)
         text = pattern.sub(spoken, text)
     return text
 

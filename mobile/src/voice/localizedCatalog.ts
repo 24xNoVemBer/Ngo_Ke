@@ -1,6 +1,7 @@
 import { DEFAULT_LOCALE, type Locale } from '../data/locale.ts';
 import { voiceCatalogueRevision, voiceTracks, type VoiceTrack } from './catalog.ts';
 import { POST8_VOICE_COLLECTION, post8VoiceCatalogues } from './post8Catalog.ts';
+import { post8RemainingCatalogues } from './post8RemainingCatalog.ts';
 
 export const DEFAULT_VOICE_COLLECTION = 'fiction-letter';
 
@@ -11,20 +12,30 @@ export type VoiceTrackQuery = {
   datasetRevision: string;
 };
 
-/** Resolve a clip only when its locale, collection, and text revision match. */
+/** Resolve whether the scoped catalogue has a clip for this content ID. */
 export function lookupVoiceTrack({
   collectionId = DEFAULT_VOICE_COLLECTION,
   locale = DEFAULT_LOCALE,
   contentId,
   datasetRevision,
 }: VoiceTrackQuery): VoiceTrack | undefined {
-  if (collectionId === POST8_VOICE_COLLECTION) {
-    const catalogue = post8VoiceCatalogues[locale];
-    return catalogue?.datasetRevision === datasetRevision ? catalogue.tracks[contentId] : undefined;
+  const catalogues: { datasetRevision: string; tracks: Record<string, VoiceTrack> }[] = [];
+  if (collectionId === DEFAULT_VOICE_COLLECTION && locale === 'vi' && datasetRevision === voiceCatalogueRevision) {
+    catalogues.push({ datasetRevision: voiceCatalogueRevision, tracks: voiceTracks });
   }
-  if (collectionId !== DEFAULT_VOICE_COLLECTION || locale !== 'vi'
-      || datasetRevision !== voiceCatalogueRevision) return undefined;
-  return voiceTracks[contentId];
+  if (collectionId === POST8_VOICE_COLLECTION) {
+    const firstpoint = post8VoiceCatalogues[locale];
+    if (firstpoint) catalogues.push(firstpoint);
+  }
+  const remaining = post8RemainingCatalogues[collectionId]?.[locale];
+  if (remaining) catalogues.push(remaining);
+
+  for (const catalogue of catalogues) {
+    if (catalogue.datasetRevision !== datasetRevision) continue;
+    const track = catalogue.tracks[contentId];
+    if (track) return track;
+  }
+  return undefined;
 }
 
 export { voiceCatalogueRevision };

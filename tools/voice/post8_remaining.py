@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -35,6 +36,7 @@ VI_CODEC = "OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX"
 VI_CODEC_REVISION = "ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae"
 VI_VOICE = "Đoan Trang"
 SAMPLE_RATE = 24_000
+FICTION_VI = ROOT / "data" / "demo.json"
 
 
 def sha256(data: bytes) -> str:
@@ -116,6 +118,58 @@ def inventory() -> dict[str, list[tuple[str, Path, bytes, dict[str, str]]]]:
         raise ValueError("Remaining inventory must be exactly 44 EN and 10 VI tracks")
     return result
 
+def preflight_english_spoken_text(rows: list[tuple[str, Path, bytes, dict[str, str]]],
+                                 questions: list[dict[str, Any]]) -> None:
+    from post8_probe import to_spoken_text
+
+    issues = []
+    for _, _, _, row in rows:
+        issues.extend(_english_spoken_text_issues(row["id"], row["text"], to_spoken_text(row["text"])))
+    for sample in questions:
+        label = f"{sample['nodeId']}/{sample['role']}"
+        issues.extend(_english_spoken_text_issues(label, sample["text"], to_spoken_text(sample["text"])))
+    if issues:
+        raise ValueError("English spoken-text preflight failed: " + "; ".join(issues))
+
+def _english_spoken_text_issues(label: str, source: str, spoken: str) -> list[str]:
+    if "\u2753" in source or "\u2753" in spoken:
+        return [f"{label} contains U+2753"]
+    residual = sorted({word for word in re.findall(r"[^\W\d_]+", spoken, re.UNICODE) if not word.isascii()})
+    return [f"{label} has unmapped token(s): {', '.join(residual)}"] if residual else []
+
+
+def question_inventory(locale: str, revisions: dict[str, dict[str, str]]) -> list[dict[str, Any]]:
+    if locale not in ("en", "vi"):
+        raise ValueError("Only English and Vietnamese synthetic questions are supported")
+    sources = [("fiction-letter", FICTION if locale == "en" else FICTION_VI), (COLLECTION, PILOT[locale])]
+    samples: list[dict[str, Any]] = []
+    for collection, source in sources:
+        source_bytes = source.read_bytes()
+        dataset = json.loads(source_bytes)
+        for node in dataset.get("nodes", []):
+            node_id = node.get("id")
+            node_qa = [row for row in dataset.get("qa", []) if row.get("nodeId") == node_id]
+            if not node_id or not node_qa:
+                raise ValueError(f"Missing Q&A source for {collection}/{locale}/{node_id}")
+            canonical = node_qa[0]
+            followup_id = next(iter(canonical.get("followUps", [])), None)
+            followup = next((row for row in node_qa if row.get("id") == followup_id), None)
+            if not followup or followup_id not in canonical.get("followUps", []):
+                raise ValueError(f"Missing in-node follow-up for {collection}/{locale}/{node_id}")
+            if collection == COLLECTION and any(row.get("reviewStatus") != "approved" for row in (canonical, followup)):
+                raise ValueError(f"Pilot Q&A pair is not approved: {locale}/{node_id}")
+            for role, row in (("canonical", canonical), ("followup", followup)):
+                samples.append({"collectionId": collection, "locale": locale, "nodeId": node_id,
+                                "role": role, "expectedId": row["id"],
+                                "followUpFromId": canonical["id"] if role == "followup" else None,
+                                "source": source.relative_to(ROOT).as_posix(),
+                                "sourceDataSha256": sha256(source_bytes),
+                                "sourceTextSha256": sha256(_checked_text(row.get("question"), f"{node_id}/{row.get('id')}/question").encode("utf-8")),
+                                "text": row["question"], "datasetRevision": revisions[collection][locale]})
+    if len(samples) != 18 or len({(row["collectionId"], row["nodeId"], row["role"]) for row in samples}) != 18:
+        raise ValueError("Expected a canonical question and graph follow-up for each of nine nodes")
+    return samples
+
 
 def dataset_revisions() -> dict[str, dict[str, str]]:
     specs = {"fiction-letter": {"en": str(FICTION)}, COLLECTION: {locale: str(path) for locale, path in PILOT.items()}}
@@ -145,7 +199,9 @@ def dataset_revisions() -> dict[str, dict[str, str]]:
       console.log(JSON.stringify(result));
     """
     result = subprocess.run(["node", "--input-type=module", "-e", script], cwd=ROOT, check=True, capture_output=True, text=True)
-    return json.loads(result.stdout)
+    revisions = json.loads(result.stdout)
+    revisions["fiction-letter"]["vi"] = sha256(FICTION_VI.read_bytes())
+    return revisions
 
 
 def probe_mp3(path: Path) -> dict[str, Any]:
@@ -193,6 +249,7 @@ def _entry(collection: str, locale: str, source: Path, source_bytes: bytes, row:
     relative = target.relative_to(ROOT).as_posix()
     return {"id": row["id"], "contentId": row["id"], "kind": row["kind"],
             **({"nodeId": row["nodeId"]} if row.get("nodeId") else {}),
+            **({"sourceWordCount": len(row["text"].split())} if row["kind"] == "story" else {}),
             "locale": locale, "collectionId": collection,
             "source": source.relative_to(ROOT).as_posix(), "sourceDataSha256": sha256(source_bytes),
             "sourceTextSha256": text_hash, "textHash": text_hash, "spokenText": spoken_text,
@@ -201,7 +258,27 @@ def _entry(collection: str, locale: str, source: Path, source_bytes: bytes, row:
             "tts": tts, "preset": preset, "voice": voice, "humanApproved": False}
 
 
-def _generate_english(stage: Path, rows: list[tuple[str, Path, bytes, dict[str, str]]]) -> list[dict[str, Any]]:
+def _question_entry(stage: Path, sample: dict[str, Any], path: Path, spoken_text: str,
+                    tts: dict[str, Any], preset: dict[str, Any], voice: str, sample_rate: int) -> dict[str, Any]:
+    with wave.open(str(path), "rb") as handle:
+        if handle.getnchannels() != 1 or handle.getsampwidth() != 2 or handle.getframerate() != sample_rate:
+            raise ValueError(f"Synthetic question WAV format is invalid: {path}")
+        duration = round(handle.getnframes() / handle.getframerate(), 3)
+    return {**sample, "spokenText": spoken_text, "spokenTextSha256": sha256(spoken_text.encode("utf-8")),
+            "audioPath": path.relative_to(stage).as_posix(), "audioSha256": file_hash(path),
+            "format": {"container": "wav", "codec": "pcm_s16le", "sampleRateHz": sample_rate, "channels": 1,
+                       "durationSeconds": duration}, "durationSeconds": duration,
+            "tts": tts, "preset": preset, "voice": voice, "humanApproved": False}
+
+
+def _generate_english(stage: Path, rows: list[tuple[str, Path, bytes, dict[str, str]]],
+                      questions: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    preflight_english_spoken_text(rows, questions)
+    cache_root = TOOLS / ".cache" / "post8-hf"
+    os.environ["HF_HOME"] = str(cache_root)
+    os.environ["HF_HUB_CACHE"] = str(cache_root / "hub")
+    os.environ["HF_HUB_OFFLINE"] = "1"
+    os.environ["TRANSFORMERS_OFFLINE"] = "1"
     from post8_probe import assert_no_unknown_phonemes, to_spoken_text
     import numpy as np
     import torch
@@ -210,23 +287,19 @@ def _generate_english(stage: Path, rows: list[tuple[str, Path, bytes, dict[str, 
 
     torch.set_num_threads(2)
     torch.set_num_interop_threads(1)
-    cache_root = TOOLS / ".cache" / "post8-hf"
     snapshot = cache_root / "hub" / "models--hexgrad--Kokoro-82M" / "snapshots" / EN_REVISION
     files = {"config": snapshot / "config.json", "model": snapshot / "kokoro-v1_0.pth",
              EN_PRESET: snapshot / "voices" / f"{EN_PRESET}.pt"}
     if any(not path.is_file() for path in files.values()):
         raise RuntimeError(f"Pinned local Kokoro snapshot is incomplete: {snapshot}")
-    os.environ["HF_HOME"] = str(cache_root)
-    os.environ["HF_HUB_CACHE"] = str(cache_root / "hub")
-    os.environ["HF_HUB_OFFLINE"] = "1"
-    os.environ["TRANSFORMERS_OFFLINE"] = "1"
     config = json.loads(files["config"].read_text(encoding="utf-8"))
     model = KModel(repo_id=EN_MODEL, config=config, model=str(files["model"])).to("cpu").eval()
     pipeline = KPipeline(lang_code="a", repo_id=EN_MODEL, model=model, device="cpu")
     entries: list[dict[str, Any]] = []
     for collection, source, source_bytes, row in rows:
         spoken = to_spoken_text(row["text"])
-        generated = list(pipeline(spoken, voice=str(files[EN_PRESET]), speed=1))
+        speed = 0.75 if collection == COLLECTION and row["kind"] == "story" else 1.0
+        generated = list(pipeline(spoken, voice=str(files[EN_PRESET]), speed=speed))
         chunks = [result.audio.detach().cpu().numpy().reshape(-1) for result in generated if result.audio is not None]
         phonemes = [str(result.phonemes or "") for result in generated if result.audio is not None]
         if not chunks:
@@ -243,13 +316,31 @@ def _generate_english(stage: Path, rows: list[tuple[str, Path, bytes, dict[str, 
         wav_path.unlink()
         entries.append(_entry(collection, "en", source, source_bytes, row, target, spoken,
                               {"library": EN_LIBRARY, "model": EN_MODEL, "modelRevision": EN_REVISION,
-                               "license": "Apache-2.0", "speed": 1.0},
+                               "license": "Apache-2.0", "speed": speed},
                               {"id": EN_PRESET, "locale": "en-US", "provisional": True}, EN_PRESET))
         print(f"en/{collection}/{row['id']} {entries[-1]['durationSeconds']:.3f}s {entries[-1]['audioSha256']}", flush=True)
-    return entries
+    question_entries: list[dict[str, Any]] = []
+    for sample in questions:
+        spoken = to_spoken_text(sample["text"])
+        generated = list(pipeline(spoken, voice=str(files[EN_PRESET]), speed=1))
+        chunks = [result.audio.detach().cpu().numpy().reshape(-1) for result in generated if result.audio is not None]
+        if not chunks:
+            raise RuntimeError(f"Kokoro returned no audio for {sample['expectedId']}")
+        assert_no_unknown_phonemes(EN_PRESET, sample["expectedId"],
+                                   [str(result.phonemes or "") for result in generated if result.audio is not None])
+        path = stage / "qa" / sample["collectionId"] / sample["nodeId"] / f"{sample['role']}-{sample['expectedId']}.wav"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        _write_wav(path, np.concatenate(chunks))
+        question_entries.append(_question_entry(stage, sample, path, spoken,
+                                 {"library": EN_LIBRARY, "model": EN_MODEL, "modelRevision": EN_REVISION,
+                                  "license": "Apache-2.0", "speed": 1.0},
+                                 {"id": EN_PRESET, "locale": "en-US", "provisional": True}, EN_PRESET, SAMPLE_RATE))
+        print(f"en/qa/{sample['collectionId']}/{sample['nodeId']}/{sample['role']} {question_entries[-1]['durationSeconds']:.3f}s", flush=True)
+    return entries, question_entries
 
 
-def _generate_vietnamese(stage: Path, rows: list[tuple[str, Path, bytes, dict[str, str]]]) -> list[dict[str, Any]]:
+def _generate_vietnamese(stage: Path, rows: list[tuple[str, Path, bytes, dict[str, str]]],
+                         questions: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     from post8_firstpoint import write_wav
     from tts_local import load_tts
 
@@ -262,17 +353,30 @@ def _generate_vietnamese(stage: Path, rows: list[tuple[str, Path, bytes, dict[st
         target.parent.mkdir(parents=True, exist_ok=True)
         wav_path = target.with_suffix(".wav")
         write_wav(wav_path, tts.infer(row["text"], voice=VI_VOICE))
-        subprocess.run([shutil.which("ffmpeg") or "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error", "-y",
-                        "-i", str(wav_path), "-vn", "-ac", "1", "-ar", "48000", "-codec:a", "libmp3lame",
-                        "-b:a", "96k", str(target)], check=True, capture_output=True)
+        speed = 1.0
+        command = [shutil.which("ffmpeg") or "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error", "-y",
+                   "-i", str(wav_path), "-vn", "-ac", "1", "-ar", "48000", "-codec:a", "libmp3lame", "-b:a", "96k", str(target)]
+        subprocess.run(command, check=True, capture_output=True)
         wav_path.unlink()
         entries.append(_entry(collection, "vi", source, source_bytes, row, target, row["text"],
                               {"library": VI_LIBRARY, "model": VI_MODEL, "modelRevision": VI_REVISION,
+                               "speed": speed, "speedMethod": "ffmpeg-atempo" if speed != 1.0 else "none",
                                "codec": VI_CODEC, "codecRevision": VI_CODEC_REVISION,
                                "license": "See mobile/assets/voice/LICENSES.md"},
                               {"id": VI_VOICE, "locale": "vi-VN", "provisional": True}, VI_VOICE))
         print(f"vi/{collection}/{row['id']} {entries[-1]['durationSeconds']:.3f}s {entries[-1]['audioSha256']}", flush=True)
-    return entries
+    question_entries: list[dict[str, Any]] = []
+    for sample in questions:
+        path = stage / "qa" / sample["collectionId"] / sample["nodeId"] / f"{sample['role']}-{sample['expectedId']}.wav"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        write_wav(path, tts.infer(sample["text"], voice=VI_VOICE))
+        question_entries.append(_question_entry(stage, sample, path, sample["text"],
+                                 {"library": VI_LIBRARY, "model": VI_MODEL, "modelRevision": VI_REVISION,
+                                  "codec": VI_CODEC, "codecRevision": VI_CODEC_REVISION,
+                                  "license": "See mobile/assets/voice/LICENSES.md"},
+                                 {"id": VI_VOICE, "locale": "vi-VN", "provisional": True}, VI_VOICE, 48_000))
+        print(f"vi/qa/{sample['collectionId']}/{sample['nodeId']}/{sample['role']} {question_entries[-1]['durationSeconds']:.3f}s", flush=True)
+    return entries, question_entries
 
 
 def importlib_version(package: str) -> str:
@@ -291,9 +395,11 @@ def generate(locale: str) -> None:
     CACHE.mkdir(parents=True, exist_ok=True)
     revisions = dataset_revisions()
     rows = inventory()[locale]
+    questions = question_inventory(locale, revisions)
     with tempfile.TemporaryDirectory(prefix=f"post8-remaining-{locale}-", dir=CACHE) as temporary:
         stage = Path(temporary)
-        entries = _generate_english(stage, rows) if locale == "en" else _generate_vietnamese(stage, rows)
+        entries, question_entries = (_generate_english(stage, rows, questions) if locale == "en"
+                                     else _generate_vietnamese(stage, rows, questions))
         for entry in entries:
             entry["datasetRevision"] = revisions[entry["collectionId"]][locale]
         by_collection: dict[str, dict[str, Any]] = {}
@@ -302,7 +408,7 @@ def generate(locale: str) -> None:
                 by_collection[collection] = {"datasetRevision": revisions[collection][locale], "entries": []}
         for entry in entries:
             by_collection[entry["collectionId"]]["entries"].append(entry)
-        result = {"locale": locale, "catalogues": by_collection}
+        result = {"locale": locale, "catalogues": by_collection, "qaSamples": question_entries}
         (stage / "results.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         stage.rename(cache_locale)
     print(f"Generated {len(entries)} {locale.upper()} missing tracks into {cache_locale}")
@@ -373,6 +479,32 @@ def install() -> None:
             total += 1
         if expected_by_key:
             raise ValueError(f"Missing cached inventory rows for {locale}: {sorted(expected_by_key)}")
+        expected_questions = question_inventory(locale, revisions)
+        qa_entries = data.get("qaSamples", [])
+        if len(qa_entries) != 18:
+            raise ValueError(f"Expected 18 cached synthetic question clips for {locale}")
+        expected_by_key = {(row["collectionId"], row["nodeId"], row["role"]): row for row in expected_questions}
+        for sample in qa_entries:
+            key = (sample["collectionId"], sample["nodeId"], sample["role"])
+            source = expected_by_key.pop(key)
+            spoken = to_spoken_text(source["text"]) if locale == "en" else source["text"]
+            if any(sample.get(name) != source.get(name) for name in (
+                    "locale", "expectedId", "followUpFromId", "source", "sourceDataSha256", "sourceTextSha256", "text", "datasetRevision")):
+                raise ValueError(f"Cached synthetic question identity changed: {locale}/{key}")
+            if sample.get("spokenText") != spoken or sample.get("spokenTextSha256") != sha256(spoken.encode("utf-8")):
+                raise ValueError(f"Cached synthetic spoken-text mapping changed: {locale}/{key}")
+            qa_path = CACHE / locale / sample["audioPath"]
+            if not qa_path.is_file() or file_hash(qa_path) != sample.get("audioSha256"):
+                raise ValueError(f"Cached synthetic question audio hash mismatch: {locale}/{key}")
+            with wave.open(str(qa_path), "rb") as handle:
+                actual_duration = round(handle.getnframes() / handle.getframerate(), 3)
+                actual_format = {"container": "wav", "codec": "pcm_s16le", "sampleRateHz": handle.getframerate(),
+                                 "channels": handle.getnchannels(), "durationSeconds": actual_duration}
+            if (actual_format != sample.get("format") or sample.get("durationSeconds") != actual_duration
+                    or sample.get("humanApproved") is not False):
+                raise ValueError(f"Cached synthetic question WAV metadata changed: {locale}/{key}")
+        if expected_by_key:
+            raise ValueError(f"Missing synthetic question clips for {locale}: {sorted(expected_by_key)}")
     if total != 54 or len(all_catalogues["fiction-letter"]["en"]["entries"]) != 34:
         raise ValueError(f"Expected 54 new tracks (34 fiction EN + 10 pilot per locale), got {total}")
     manifest = {"schemaVersion": 1, "scope": "post8-remaining", "status": "provisional", "humanApproved": False,

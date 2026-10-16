@@ -240,10 +240,10 @@ test('live playback uses only the matching English pilot track and rejects chang
   const node = dataset.nodes.find((item) => item.id === 'oldquarter-bach-ma');
   const id = `${node.id}-story`;
   const revision = manifest.catalogues.en.datasetRevision;
+  const textHash = (text) => createHash('sha256').update(text, 'utf8').digest('hex');
   const track = catalog.lookupVoiceTrack({
     collectionId: manifest.collectionId, locale: 'en', contentId: id, datasetRevision: revision,
   });
-  const textHash = (text) => createHash('sha256').update(text, 'utf8').digest('hex');
   assert.equal(track?.kind, 'story');
   assert.equal(track?.textHash, textHash(node.story));
 
@@ -270,6 +270,25 @@ test('live playback uses only the matching English pilot track and rejects chang
   assert.equal(stale.render().playbackError, 'en:voice.notice.audio_unavailable');
   view.unmount();
   stale.unmount();
+});
+
+test('playback keeps kind and node checks in the hook with the four-field catalogue query', async () => {
+  const queries = [];
+  const lookupTrack = (query) => {
+    queries.push(query);
+    return { kind: 'story', nodeId: 'node-1', textHash: 'hash', source: 'story-audio' };
+  };
+  const view = mountVoiceSession({ lookupTrack });
+
+  await view.render().playTrack('story', 'story text', 'answer', 'node-1');
+  await view.render().playTrack('story', 'story text', 'story', 'node-2');
+
+  assert.deepEqual(view.playerEvents, []);
+  assert.deepEqual(JSON.parse(JSON.stringify(queries)), [
+    { collectionId: 'fiction-letter', locale: 'en', contentId: 'story', datasetRevision: 'rev-1' },
+    { collectionId: 'fiction-letter', locale: 'en', contentId: 'story', datasetRevision: 'rev-1' },
+  ]);
+  view.unmount();
 });
 
 test('transcribing cancellation ignores the delayed response; a stale play hash cannot start audio', async () => {

@@ -64,6 +64,10 @@ class Post8ProbeTests(unittest.TestCase):
         expected = ", ".join(spoken for _, spoken in PRONUNCIATION_MAP)
         self.assertEqual(to_spoken_text(source), expected)
         self.assertEqual(
+            to_spoken_text("Cô, bà; bún đậu; bánh đậu xanh; chè; nộm; bún, bánh, đậu; Bún ốc."),
+            "Koh, Bah; boon doh; bahn doh sahn; cheh; nohm; boon, bahn, doh; boon awk.",
+        )
+        self.assertEqual(
             to_spoken_text("An, Lâm's story; an old plan, ancient streets, and a name."),
             "Ahn, Lahm's story; an old plan, ancient streets, and a name.",
         )
