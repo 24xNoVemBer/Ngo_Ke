@@ -212,7 +212,7 @@ function isNoReviewedDataEnvelope(body: unknown): boolean {
     const err = record.error as Record<string, unknown>;
     return err.code === 'NO_REVIEWED_DATA';
   }
-  return record.code === 'NO_REVIEWED_DATA';
+  return false;
 }
 
 async function readBodyTextSafe(
@@ -347,6 +347,13 @@ export async function loadLiveSourceV2(options: LiveOptionsV2): Promise<SourceSt
         return liveError<DemoDatasetV2>('shape', locale);
       }
 
+      if (options.signal?.aborted || externalAborted) {
+        return liveError<DemoDatasetV2>('network', locale);
+      }
+      if (timedOut || Date.now() - startTime >= timeoutMs) {
+        return liveError<DemoDatasetV2>('timeout', locale);
+      }
+
       if (isNoReviewedDataEnvelope(errorBody)) {
         return liveEmpty<DemoDatasetV2>('no-data', locale);
       }
@@ -354,10 +361,10 @@ export async function loadLiveSourceV2(options: LiveOptionsV2): Promise<SourceSt
       return liveError<DemoDatasetV2>('http', locale);
     }
 
-    if (response.status === 503) {
-      return liveError<DemoDatasetV2>('shape', locale);
-    }
-    if (!response.ok) {
+    if (response.status !== 200) {
+      if (response.status === 503) {
+        return liveError<DemoDatasetV2>('shape', locale);
+      }
       return liveError<DemoDatasetV2>('http', locale);
     }
 

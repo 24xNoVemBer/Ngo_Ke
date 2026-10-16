@@ -379,6 +379,21 @@ test('live.ts - loadLiveSourceV2 URL, error, and timeout handling', async () => 
   assert.equal(res404Valid.reason, 'no-data');
   assert.equal(res404Valid.title, 'Live mode has no data');
 
+  // 5b. 404 response with flat { code: 'NO_REVIEWED_DATA' } (missing outer error envelope) -> http error
+  const mock404FlatCodeFetch = async () => ({
+    status: 404,
+    ok: false,
+    headers: { get: () => null },
+    text: async () => JSON.stringify({ code: 'NO_REVIEWED_DATA', message: 'Flat code is invalid' }),
+  });
+  const res404Flat = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    fetchImpl: mock404FlatCodeFetch,
+  });
+  assert.equal(res404Flat.status, 'error');
+  assert.equal(res404Flat.reason, 'http');
+
   // 6. Repro 2: 404 response with wrong error code (e.g. NOT_FOUND) -> must be error, not empty!
   const mock404NotFoundFetch = async () => ({
     status: 404,
@@ -497,6 +512,23 @@ test('live.ts - loadLiveSourceV2 URL, error, and timeout handling', async () => 
     assert.equal(res200.dataset.locale, 'en');
   }
 
+  // 12b. HTTP 201 response with valid body and Content-Language -> http error (only 200 permitted)
+  const mock201Fetch = async () => ({
+    status: 201,
+    ok: true,
+    headers: {
+      get: (h) => (h.toLowerCase() === 'content-language' ? 'en' : null),
+    },
+    text: async () => JSON.stringify(fictionEnJson),
+  });
+  const res201 = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    fetchImpl: mock201Fetch,
+  });
+  assert.equal(res201.status, 'error');
+  assert.equal(res201.reason, 'http');
+
   // 13. Payload exceeding MAX_BODY_BYTES -> shape error
   const mockBigFetch = async () => ({
     status: 200,
@@ -540,6 +572,45 @@ test('live.ts - loadLiveSourceV2 URL, error, and timeout handling', async () => 
   assert.equal(resLateBody.status, 'error');
   assert.equal(resLateBody.reason, 'timeout');
   assert.equal(resLateBody.title, 'Live server timed out');
+
+  // 14b. 404 response where body returns late exceeding timeout -> timeout error, not no-data
+  const mock404LateFetch = async () => ({
+    status: 404,
+    ok: false,
+    headers: { get: () => null },
+    text: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 60));
+      return JSON.stringify({ error: { code: 'NO_REVIEWED_DATA', message: 'No reviewed data' } });
+    },
+  });
+  const res404Late = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    timeoutMs: 10,
+    fetchImpl: mock404LateFetch,
+  });
+  assert.equal(res404Late.status, 'error');
+  assert.equal(res404Late.reason, 'timeout');
+
+  // 14c. 404 response where signal aborts during body read -> network error, not no-data
+  const ac404 = new AbortController();
+  const mock404AbortFetch = async () => ({
+    status: 404,
+    ok: false,
+    headers: { get: () => null },
+    text: async () => {
+      ac404.abort();
+      return JSON.stringify({ error: { code: 'NO_REVIEWED_DATA', message: 'No reviewed data' } });
+    },
+  });
+  const res404Abort = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    signal: ac404.signal,
+    fetchImpl: mock404AbortFetch,
+  });
+  assert.equal(res404Abort.status, 'error');
+  assert.equal(res404Abort.reason, 'network');
 
   // 15. Hard deadline timeout when fetch never resolves
   const mockNeverResolvingFetch = async () => {
