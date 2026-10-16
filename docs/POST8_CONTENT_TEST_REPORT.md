@@ -133,6 +133,30 @@ unchanged, 34 audio SHAs intact.
   a broad guarantee; W3 voice fix + W2 regression assigned, evidence in root
   `POST8_COORDINATOR_REVIEW.md` (`5b23ddb`). No hook implementation here.
 
+## T3d voice-hook behavior probe, candidate 8464054 (ignored probe, real hook)
+
+Method: real candidate `useVoiceSession.ts` + `appState.ts` + `locale.ts` +
+translator via VM transpile; only runtime adapters mocked with controlled
+deferreds (probe lives in gitignored `tools/e2e/.runs/hook-probe/`, uncommitted
+by design — W2 owns hook tests). 16/16 observed behaviors pass.
+
+- Cancel sticks: late permission after cancel releases to idle with no
+  recording (canCleanUpVoiceTurn guard works); slow permission without cancel
+  completes to recording normally.
+- Locale switch mid-transcribe cancels + runs native cleanup, stale resolve
+  delivers nothing and never clobbers, new EN turn records afterwards.
+- Playing switch stops old playback with no autoplay.
+- D1 (concrete): `stopAtRecordingLimit` awaits native `recorder.stop()` with no
+  deadline — a never-settling stop leaves stage `stopping` forever, and
+  `cancel()` has no path out of `stopping`. Owner: W3.
+- D2 (concrete): cancel during `preparing` keeps the stage until the pending
+  permission/prepare settles; a hung native promise sticks `preparing` forever.
+  Owner: W3 (deadline or cancel-release needed).
+- D3/D4 (defensive, unreachable via UI today due to stage gating — no repro
+  possible, reported as hardening debt): stale `stopAtLimit` completion
+  force-idles without the candidate's own `canCleanUpVoiceTurn` check; `start`
+  finally clears `permissionPendingRef` even if a newer turn set it.
+
 ## Limits (not covered here)
 
 100-audio coverage is NOT claimed: only the 100-track text inventory plus the
