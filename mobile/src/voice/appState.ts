@@ -9,6 +9,10 @@ export function canContinueVoiceStart(state: string): boolean {
   return state === 'active';
 }
 
+export function canStartVoiceTurn(stage: string, nativeRecoveryPending: boolean): boolean {
+  return !nativeRecoveryPending && (stage === 'idle' || stage === 'error');
+}
+
 export function shouldCancelVoiceOnScopeChange(previousScope: string, nextScope: string): boolean {
   return previousScope !== nextScope;
 }

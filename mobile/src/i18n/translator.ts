@@ -16,6 +16,7 @@ export type TranslationKey =
   | 'voice.error.RATE_LIMITED'
   | 'voice.error.INVALID_AUDIO'
   | 'voice.error.UNSUPPORTED_LOCALE'
+  | 'voice.error.RECORDER_RECOVERY_PENDING'
   | 'voice.error.DEFAULT'
   // Voice notices
   | 'voice.notice.last_chapter'
@@ -360,6 +361,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'voice.error.RATE_LIMITED': 'Bạn vừa gửi nhiều lượt liên tiếp. Chờ một chút rồi thử lại nhé.',
     'voice.error.INVALID_AUDIO': 'Bản ghi không đọc được. Hãy thu lại câu hỏi.',
     'voice.error.UNSUPPORTED_LOCALE': 'Ngôn ngữ chưa được hỗ trợ nhận dạng giọng nói.',
+    'voice.error.RECORDER_RECOVERY_PENDING': 'Chưa xác nhận được trạng thái micro. Hãy đợi thao tác kết thúc trước khi ghi âm lại.',
     'voice.error.DEFAULT': 'Chưa gửi được câu hỏi. Kiểm tra kết nối tới máy nhận giọng nói rồi thử lại.',
 
     'voice.notice.last_chapter': 'Đây là chương cuối đang mở.',
@@ -703,6 +705,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'voice.error.RATE_LIMITED': 'Too many consecutive requests. Please wait a moment and try again.',
     'voice.error.INVALID_AUDIO': 'The audio recording could not be read. Please record your question again.',
     'voice.error.UNSUPPORTED_LOCALE': 'Language not supported for voice recognition.',
+    'voice.error.RECORDER_RECOVERY_PENDING': 'The microphone state is unconfirmed. Wait for the voice operation to finish before recording again.',
     'voice.error.DEFAULT': 'Could not send question. Check your connection to the voice server and try again.',
 
     'voice.notice.last_chapter': 'This is the last available chapter.',

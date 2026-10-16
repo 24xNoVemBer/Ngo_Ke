@@ -8,6 +8,31 @@ type RecorderPreparation<T> = {
   disableAudioMode: () => Promise<void>;
 };
 
+export type RecorderStopCompletion = { kind: 'stopped' } | { kind: 'failed'; error: unknown };
+export type RecorderStopOutcome = RecorderStopCompletion | { kind: 'timed-out'; completion: Promise<RecorderStopCompletion> };
+
+export async function stopVoiceRecorderWithTimeout(
+  stopRecorder: () => Promise<void>,
+  timeoutMs = 1000,
+): Promise<RecorderStopOutcome> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let stopped: Promise<RecorderStopCompletion>;
+  try {
+    stopped = stopRecorder().then(
+      () => ({ kind: 'stopped' as const }),
+      (error: unknown) => ({ kind: 'failed' as const, error }),
+    );
+  } catch (error) {
+    return { kind: 'failed', error };
+  }
+  const timeout = new Promise<null>((resolve) => {
+    timer = setTimeout(() => resolve(null), timeoutMs);
+  });
+  const outcome = await Promise.race([stopped, timeout]);
+  if (timer !== undefined) clearTimeout(timer);
+  return outcome ?? { kind: 'timed-out', completion: stopped };
+}
+
 export async function startVoiceRecorder(
   record: () => void,
   isRecording: () => boolean,

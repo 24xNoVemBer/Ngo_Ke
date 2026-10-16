@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { canCleanUpVoiceTurn, canContinueVoiceStart, isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoiceOnScopeChange } from '../src/voice/appState.ts';
+import { canCleanUpVoiceTurn, canContinueVoiceStart, canStartVoiceTurn, isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoiceOnScopeChange } from '../src/voice/appState.ts';
+import { stopVoiceRecorderWithTimeout } from '../src/voice/recorderPreparation.ts';
 
 test('native permission dialog does not cancel its pending result', () => {
   assert.equal(shouldCancelVoiceOnAppStateChange('background', true), false);
@@ -34,10 +35,28 @@ test('late voice results require the same turn and both saved/current scopes', (
   assert.equal(isCurrentVoiceTurn(expected, 'demo:r1:demo-02', expected), false);
 });
 
-test('stale cleanup may finish its own turn but never reset a newer turn', () => {
-  for (const stage of ['preparing', 'recording', 'stopping', 'ready', 'transcribing', 'playing']) {
-    assert.equal(canCleanUpVoiceTurn('new-turn', 'old-turn'), false, `${stage} protects the new turn`);
-    assert.equal(canCleanUpVoiceTurn(null, 'old-turn'), true, `${stage} can release an abandoned turn`);
-    assert.equal(canCleanUpVoiceTurn('old-turn', 'old-turn'), true, `${stage} can release its owner`);
-  }
+test('stale cleanup releases only its owner or an abandoned turn', () => {
+  assert.equal(canCleanUpVoiceTurn('new-turn', 'old-turn'), false);
+  assert.equal(canCleanUpVoiceTurn(null, 'old-turn'), true);
+  assert.equal(canCleanUpVoiceTurn('old-turn', 'old-turn'), true);
+});
+
+test('a timed out native stop stays locked until its original promise settles', async () => {
+  let finishStop;
+  const outcome = await stopVoiceRecorderWithTimeout(
+    () => new Promise((resolve) => { finishStop = resolve; }), 5,
+  );
+  assert.equal(outcome.kind, 'timed-out');
+  assert.equal(canStartVoiceTurn('error', true), false);
+  finishStop();
+  assert.equal((await outcome.completion).kind, 'stopped');
+  assert.equal(canStartVoiceTurn('error', false), true);
+});
+
+test('a rejected native stop remains locked because recorder state is unknown', async () => {
+  const outcome = await stopVoiceRecorderWithTimeout(
+    () => Promise.reject(new Error('native stop failed')), 100,
+  );
+  assert.equal(outcome.kind, 'failed');
+  assert.equal(canStartVoiceTurn('idle', true), false);
 });

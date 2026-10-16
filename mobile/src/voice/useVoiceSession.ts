@@ -7,8 +7,8 @@ import { File } from 'expo-file-system';
 import { DEFAULT_LOCALE, type Locale } from '../data/locale';
 import { translate, type TranslationKey } from '../i18n/translator';
 import { DEFAULT_VOICE_COLLECTION, lookupVoiceTrack } from './localizedCatalog';
-import { canCleanUpVoiceTurn, canContinueVoiceStart, isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoiceOnScopeChange } from './appState';
-import { prepareVoiceRecorderForTurn, startVoiceRecorder } from './recorderPreparation';
+import { canCleanUpVoiceTurn, canContinueVoiceStart, canStartVoiceTurn, isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoiceOnScopeChange } from './appState';
+import { prepareVoiceRecorderForTurn, startVoiceRecorder, stopVoiceRecorderWithTimeout, type RecorderStopCompletion } from './recorderPreparation';
 import { hasReachedVoiceRecordingLimit } from './recordingLimit';
 import { createVoiceRequestBody, transcribeVoiceRequest } from './transcribe';
 import { isPlaybackRequestCurrent, restartAudioPlayer, stopAudioPlayer } from './playback';
@@ -60,6 +60,7 @@ const voiceErrorKeys: Record<string, TranslationKey> = {
   RATE_LIMITED: 'voice.error.RATE_LIMITED',
   INVALID_AUDIO: 'voice.error.INVALID_AUDIO',
   UNSUPPORTED_LOCALE: 'voice.error.UNSUPPORTED_LOCALE',
+  RECORDER_RECOVERY_PENDING: 'voice.error.RECORDER_RECOVERY_PENDING',
 };
 
 function messageForError(code: string, locale: Locale): string {
@@ -104,7 +105,8 @@ export function useVoiceSession({
   const localeRef = useRef(locale);
   const onTranscriptRef = useRef(onTranscript);
   const abortRef = useRef<AbortController | null>(null);
-  const permissionPendingRef = useRef(false);
+  const permissionPendingRef = useRef<string | null>(null);
+  const nativeRecoveryPendingRef = useRef<string | null>(null);
   const readyRecordingRef = useRef<{ turnId: string; uri: string; durationMs: number } | null>(null);
   const cancelStartedAtRef = useRef<number | null>(null);
   const requestRef = useRef(0);
@@ -129,6 +131,27 @@ export function useVoiceSession({
     recordVoicePerformance('cancel-to-idle', voicePerformanceNow() - startedAt);
   }, []);
 
+  const holdForRecorderRecovery = useCallback((context: VoiceTurnContext, completion: Promise<RecorderStopCompletion>, uri?: string | null) => {
+    nativeRecoveryPendingRef.current = context.turnId;
+    turnRef.current = null;
+    if (readyRecordingRef.current?.turnId === context.turnId) readyRecordingRef.current = null;
+    setError(messageForError('RECORDER_RECOVERY_PENDING', context.locale));
+    changeStage('error');
+    void completion.then(async (outcome) => {
+      if (outcome.kind !== 'stopped' || nativeRecoveryPendingRef.current !== context.turnId
+          || !canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId)) return;
+      removeRecording(uri ?? recorder.uri);
+      try { await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }); } catch { return; }
+      if (nativeRecoveryPendingRef.current === context.turnId
+          && canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId)) {
+        nativeRecoveryPendingRef.current = null;
+        setError(null);
+        changeStage('idle');
+        finishCancelPerformance();
+      }
+    });
+  }, [changeStage, finishCancelPerformance, recorder]);
+
   const stopPlayback = useCallback(async () => {
     requestRef.current += 1;
     setActiveTrackId(null);
@@ -137,12 +160,13 @@ export function useVoiceSession({
 
   const cancel = useCallback(() => {
     const currentStage = stageRef.current;
-    if (turnRef.current === null) return;
+    const context = turnRef.current;
+    if (context === null) return;
     cancelStartedAtRef.current = voicePerformanceNow();
     turnRef.current = null;
     abortRef.current?.abort();
     abortRef.current = null;
-    permissionPendingRef.current = false;
+    if (permissionPendingRef.current === context.turnId) permissionPendingRef.current = null;
     setError(null);
     if (currentStage === 'ready') {
       removeRecording(readyRecordingRef.current?.uri);
@@ -151,22 +175,39 @@ export function useVoiceSession({
       finishCancelPerformance();
     } else if (currentStage === 'recording') {
       changeStage('stopping');
-      void recorder.stop().catch(() => undefined).finally(async () => {
+      void stopVoiceRecorderWithTimeout(() => recorder.stop()).then(async (outcome) => {
+        if (outcome.kind === 'timed-out') {
+          holdForRecorderRecovery(context, outcome.completion);
+          return;
+        }
+        if (outcome.kind === 'failed') {
+          holdForRecorderRecovery(context, Promise.resolve(outcome));
+          return;
+        }
         removeRecording(recorder.uri);
-        try { await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }); } catch { /* Cancellation still closes the UI. */ }
-        if (stageRef.current === 'stopping') changeStage('idle');
-        finishCancelPerformance();
+        try { await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }); } catch {
+          holdForRecorderRecovery(context, Promise.resolve({ kind: 'failed', error: new Error('AUDIO_MODE_RESET_FAILED') }));
+          return;
+        }
+        if (canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId)) {
+          changeStage('idle');
+          finishCancelPerformance();
+        }
       });
     } else if (currentStage === 'preparing') {
+      if (nativeRecoveryPendingRef.current === context.turnId) {
+        setError(messageForError('RECORDER_RECOVERY_PENDING', context.locale));
+        changeStage('error');
+      }
       void setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(() => undefined);
     } else if (currentStage !== 'stopping') {
       changeStage('idle');
       finishCancelPerformance();
     }
-  }, [changeStage, finishCancelPerformance, recorder]);
+  }, [changeStage, finishCancelPerformance, holdForRecorderRecovery, recorder]);
 
   const startRecording = useCallback(async () => {
-    if (!isFocused || !['idle', 'error'].includes(stageRef.current)) return;
+    if (!isFocused || !canStartVoiceTurn(stageRef.current, nativeRecoveryPendingRef.current !== null)) return;
     const context: VoiceTurnContext = {
       turnId: turnId(), scope, collectionId, locale, nodeId, mode, datasetRevision,
     };
@@ -174,6 +215,7 @@ export function useVoiceSession({
       && context.collectionId === collectionIdRef.current
       && isCurrentVoiceTurn(turnRef.current, scopeRef.current, context);
     turnRef.current = context;
+    nativeRecoveryPendingRef.current = context.turnId;
     setError(null);
     setPermissionBlocked(false);
     setPlaybackError(null);
@@ -182,9 +224,9 @@ export function useVoiceSession({
     try {
       if (!await stopPlayback()) throw new Error('AUDIO_PLAYER_STOP_TIMEOUT');
       if (!isCurrentTurn()) return;
-      permissionPendingRef.current = true;
+      permissionPendingRef.current = context.turnId;
       const permission = await requestRecordingPermissionsAsync();
-      permissionPendingRef.current = false;
+      if (permissionPendingRef.current === context.turnId) permissionPendingRef.current = null;
       if (!isCurrentTurn()) return;
       if (!permission.granted) {
         const blocked = !permission.canAskAgain;
@@ -211,19 +253,23 @@ export function useVoiceSession({
       if (!started || !isCurrentTurn()) return;
       changeStage('recording');
     } catch (cause) {
-      permissionPendingRef.current = false;
+      if (permissionPendingRef.current === context.turnId) permissionPendingRef.current = null;
       if (!isCurrentTurn()) return;
       try { await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }); } catch { /* Preserve the original recorder error. */ }
       if (!isCurrentTurn()) return;
       turnRef.current = null;
+      nativeRecoveryPendingRef.current = null;
       const code = cause instanceof Error ? cause.message : 'VOICE_ERROR';
       setError(messageForError(code, context.locale));
       changeStage('error');
     } finally {
-      permissionPendingRef.current = false;
+      if (permissionPendingRef.current === context.turnId) permissionPendingRef.current = null;
+      const recoverCancelledStart = !isCurrentTurn() && nativeRecoveryPendingRef.current === context.turnId;
+      if (nativeRecoveryPendingRef.current === context.turnId) nativeRecoveryPendingRef.current = null;
       if (!isCurrentTurn() && canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId)
-          && stageRef.current === 'preparing') {
+          && (stageRef.current === 'preparing' || (recoverCancelledStart && stageRef.current === 'error'))) {
         if (turnRef.current?.turnId === context.turnId) turnRef.current = null;
+        setError(null);
         changeStage('idle');
         finishCancelPerformance();
       }
@@ -239,31 +285,55 @@ export function useVoiceSession({
     changeStage('stopping');
     let uri: string | null = null;
     try {
-      await recorder.stop();
+      const stop = await stopVoiceRecorderWithTimeout(() => recorder.stop());
+      if (stop.kind === 'timed-out') {
+        holdForRecorderRecovery(context, stop.completion);
+        return;
+      }
+      if (stop.kind === 'failed') {
+        holdForRecorderRecovery(context, Promise.resolve(stop));
+        return;
+      }
       uri = recorder.uri;
+      if (!isCurrentTurn()) {
+        if (canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId)) {
+          removeRecording(uri);
+          try { await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }); } catch { /* A stale turn must not own a newer session's mode. */ }
+          if (canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId)) {
+            changeStage('idle');
+            finishCancelPerformance();
+          }
+        }
+        return;
+      }
       await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
       if (!isCurrentTurn()) {
-        removeRecording(uri);
-        changeStage('idle');
-        finishCancelPerformance();
+        if (canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId)) {
+          removeRecording(uri);
+          changeStage('idle');
+          finishCancelPerformance();
+        }
         return;
       }
       if (!uri) throw new Error('INVALID_AUDIO');
       readyRecordingRef.current = { turnId: context.turnId, uri, durationMs };
       changeStage('ready');
     } catch (cause) {
-      removeRecording(uri ?? recorder.uri);
-      try { await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }); } catch { /* Preserve the recorder error. */ }
+      const canCleanUp = canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId);
+      if (canCleanUp) removeRecording(uri ?? recorder.uri);
+      if (canCleanUp) {
+        try { await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }); } catch { /* Preserve the recorder error. */ }
+      }
       if (isCurrentTurn()) {
         turnRef.current = null;
         setError(messageForError(cause instanceof Error ? cause.message : 'VOICE_ERROR', context.locale));
         changeStage('error');
-      } else {
+      } else if (canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId)) {
         changeStage('idle');
         finishCancelPerformance();
       }
     }
-  }, [changeStage, finishCancelPerformance, recorder]);
+  }, [changeStage, finishCancelPerformance, holdForRecorderRecovery, recorder]);
 
   const submitRecording = useCallback(async () => {
     const context = turnRef.current;
@@ -289,7 +359,13 @@ export function useVoiceSession({
     let errorCode: string | null = null;
     try {
       if (!recorderStopped) {
-        await recorder.stop();
+        const stop = await stopVoiceRecorderWithTimeout(() => recorder.stop());
+        if (stop.kind === 'timed-out' || stop.kind === 'failed') {
+          recorderStopped = true;
+          audioModeReset = true;
+          holdForRecorderRecovery(context, stop.kind === 'timed-out' ? stop.completion : Promise.resolve(stop), recordingUri);
+          return;
+        }
         recorderStopped = true;
         recordingUri = recorder.uri;
         await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
@@ -333,17 +409,12 @@ export function useVoiceSession({
         console.warn('Voice submit failed', cause instanceof Error ? cause.name : 'UnknownError', diagnostic);
       }
     } finally {
-      if (!recorderStopped && canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId)) {
-        try {
-          await recorder.stop();
-          recordingUri ??= recorder.uri;
-        } catch { /* The recorder can already be reset after a native stop error. */ }
-      }
-      if (!audioModeReset && canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId)) {
+      const recoveryPending = nativeRecoveryPendingRef.current === context.turnId;
+      if (!recoveryPending && !audioModeReset && canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId)) {
         try { await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }); } catch { /* Keep cleanup best-effort after stop failure. */ }
       }
       if (requestController && abortRef.current === requestController) abortRef.current = null;
-      removeRecording(recordingUri ?? (canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId) ? recorder.uri : null));
+      if (!recoveryPending) removeRecording(recordingUri ?? (canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId) ? recorder.uri : null));
       if (errorCode && isCurrentTurn()) {
         turnRef.current = null;
         setError(messageForError(errorCode, context.locale));
@@ -357,7 +428,7 @@ export function useVoiceSession({
         }
       }
     }
-  }, [apiBaseUrl, changeStage, finishCancelPerformance, recorder, recording.durationMillis]);
+  }, [apiBaseUrl, changeStage, finishCancelPerformance, holdForRecorderRecovery, recorder, recording.durationMillis]);
 
   const playTrack = useCallback(async (
     id: string,
@@ -430,10 +501,11 @@ export function useVoiceSession({
       cancel();
       void stopPlayback();
       if (scopeChanged) {
-        setError(null);
+        if (nativeRecoveryPendingRef.current === null) setError(null);
+        else setError(messageForError('RECORDER_RECOVERY_PENDING', locale));
         setPermissionBlocked(false);
         setPlaybackError(null);
-        if (stageRef.current !== 'preparing' && stageRef.current !== 'stopping') changeStage('idle');
+        if (nativeRecoveryPendingRef.current === null && stageRef.current !== 'preparing' && stageRef.current !== 'stopping') changeStage('idle');
       }
     }
   }, [cancel, changeStage, collectionId, isFocused, locale, scope, stopPlayback]);
@@ -447,7 +519,7 @@ export function useVoiceSession({
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (state) => {
-      if (shouldCancelVoiceOnAppStateChange(state, permissionPendingRef.current)) {
+      if (shouldCancelVoiceOnAppStateChange(state, permissionPendingRef.current !== null)) {
         cancel();
         void stopPlayback();
       }
