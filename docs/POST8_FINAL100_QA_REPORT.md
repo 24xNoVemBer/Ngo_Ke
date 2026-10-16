@@ -151,3 +151,59 @@ a blocker). Plan EN summary echoes "ẩm thực · 45 min" (VI topic word in EN
 UI). Qa EN dock notebook a11y label reads "Sổ tay" (visual button icon-only).
 `mobile_type_keys` drops the first keystroke on fresh focus (typed "blabla…"
 landed as "labla…") — harness artifact, result still unknown-text.
+
+## 11. Bounded report/cleanup reconciliation (2026-10-17, task_3adfd725e9de, same session/model)
+
+No new native run, no product edits, no broad source/history reread, no
+waiting on a new APK. Root has not accepted blanket claims or
+`50eab32`/`16e1ab6`/`fb2368a`; §8 WITHDRAWN stands, §9 corrected, §10 is the
+evidence record below as corrected here.
+
+(1) Notes/drawer correction (root): the Notes dock button opens the app's own
+AlleyNotebook/JourneyTools Modal (`HomeScreen.tsx` Modal block at line 586,
+notebook button at 575), NOT a direct jump to Plan — the prior message
+claiming Notes→Plan was wrong. `reduced-motion-drawer.png` is therefore a
+legitimate native-modal exercise. Claim stays bounded: OS
+`transition_animation_scale=0` + drawer fully functional on cold-started app +
+Modal/pulse code path source-verified; full animation-timing delta is NOT
+claimed from stills.
+
+(2) Actual translation FAILs on d704 (routed W2; layout/title/caption PASS is
+separate): `reduced-motion-drawer.png` / `talkback-drawer.png` show reviewed
+Old Quarter Pilot while the drawer tag reads "DEMO · simulated content" —
+`HomeScreen.tsx:705` hardcodes the demo string instead of using the actual
+`collectionKind` (derived line 118). Plan EN echoes VI ("ẩm thực · 45 min"
+topic, "Hợp chủ đề ẩm thực · …" reason) and the Qa EN dock notebook a11y label
+reads "Sổ tay". Title/caption/layout verdicts in §10 (full titles, unmeasured
+badges, reviewed photo labels, no collisions) stand; these remaining
+translation strings are FAIL, not PASS.
+
+(3) Camera caption scope correction: `camera-manual-200.png` proves only the
+manual rows (unmeasured badge + project credit) with camera off. It does NOT
+exercise the active-card photo disclaimer branch (`CameraScreen.tsx:267–279`,
+`photo_disclaimer_reviewed` vs `photo_disclaimer`). Actual photo-caption
+native verdict is NOT VERIFIED until the next focused task (scan/activate a
+stop and capture the active card).
+
+(4) TalkBack/keyboard scope correction: enabling the TalkBack service with no
+crash is a service exercise only; `talkback-drawer.png` shows no focus ring,
+so spoken output and focus order are NOT claimed. Full-QWERTY keyboard stays
+NOT VERIFIED (Gboard toolbar-strip mode on this AVD); proven only: real IME
+(LatinIME default), focused field + cursor, typed text, usable Send/X, fully
+rendered emoji board.
+
+(5) Restore audit (exact, no invention): AVD config change was
+`hw.keyboard=yes→no` in `D:/Android/avd/Medium_Phone.avd/config.ini`, via
+`Copy-Item config.ini → config.ini.bak-w4` (backup), edit, cold boot, then
+`Copy-Item config.ini.bak-w4 → config.ini -Force` (restore) and `Remove-Item
+config.ini.bak-w4` (backup deleted by me — no neighboring backup exists, and
+the original hash was never recorded so it cannot be reconstructed). Restored
+bytes verified, not values: current
+SHA-256 `0CE6D3D57792FEACF6DC747EF6706423856844197660E4A8D7DE3C3339DC0375`
+matches root's finding, `hw.keyboard=yes` at line 28. Runtime baselines
+verified read-only on emulator-5554: font_scale 1.0, animator/transition/
+window scales 1, `show_ime_with_hard_keyboard` key deleted (get → null, not a
+null value), accessibility services null, accessibility_enabled 0, wifi_on 1.
+Own AVD kept running for imminent final QA (launcher child PID 41588, AVD up
+since 00:32; earlier parent PID 4100 exited); no personal device touched, no
+services started. Nothing deleted in this task.
