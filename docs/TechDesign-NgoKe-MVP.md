@@ -1,5 +1,26 @@
 # Technical Design Document: Ngõ Kể MVP
 
+> **Thiết kế hiện hành sauPhase8:** baseline91ddfbd đã kiểm; phạm vi VI/EN đang triển khai theo [POST8_EXECUTION_SPEC](POST8_EXECUTION_SPEC.md), [API additiveV2](HANDOFF_API.md#hợp-đồng-việtanh-bổ-sung). Parser/hash/locale/i18n thuần dùng chung, storage/native/UI nằm ngoài backend. Live V1 giữ tương thích; V2 nhận một locale của pair công bố atomic, giữ tổng deadline8s/no fallback. Voice chỉ đổi phần cần choVIEN: locale xuyên request/engine/response, hủy lượt cũ khi đổi ngôn ngữ, asset identity/hash rõ; không mở chatbot/LLM hoặc tiếp tục gate voice cũ.
+
+```mermaid
+flowchart TD
+  Locale[Locale máy hoặc lựa chọn đã lưu] --> Session[App: locale + collection + node + mode]
+  Session --> Bundle[Demo: hai collection trong bundle]
+  Session --> Live[Live adapter: một GET V2 và deadline 8s]
+  Live --> API[Node 24 JSON API]
+  API --> DB[SQLite: V1 giữ nguyên, pair V2 atomic]
+  Bundle --> View[Dataset đã validate và revision]
+  Live --> View
+  View --> QA[Q&A exact theo node và locale]
+  View --> Audio[Catalogue theo collection/locale/content/textHash]
+  Session --> STT[Turn/locale/node/mode/revision + epoch]
+  STT --> Decoder[Gateway: decoder language vi hoặc en]
+  Decoder --> Guard[Kiểm identity, bỏ phản hồi cũ]
+  Guard --> QA
+```
+
+Nội dung/evidence doW1 biên tập vàW4 review, không tạo lịch sử từ truyện hư cấu. GeometryV2 thiếu nguồn lànull/null, GPS bỏ qua và vẫn chọn tay; sơ đồ chương không thành dẫn đường. `reviewStatus=approved` là trạng thái review nội dung có evidence, khác nghiệm thu thiết bị/người dùng. UItext mặc định ẩn nhưng có thể mở mà không reset player; đổi locale dừng/hủy voice và không tự mở micro/phát track mới.
+
 > **16/10/2026:** thiết kế hiện hành cho đợt thực hiện là [Phase7.1/8 spec](PHASE_7_1_8_EXECUTION_SPEC.md). Quyền triển khai do người dùng yêu cầu chạy xuyên suốt, không còn trạng thái “Implementation approved: false” của bản nháp lịch sử dưới đây. Backend được tuyển nền từ 6e0c5bf, không nhận là backend có sẵn đã được duyệt; không chat/LLM/voice trong Phase8.
 
 ## Executive Summary

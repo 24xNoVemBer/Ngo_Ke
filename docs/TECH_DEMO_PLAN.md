@@ -1,5 +1,7 @@
 # Ngõ Kể — kế hoạch app mobile demo theo từng phase
 
+> **Sau Phase8,16/10/2026:** Phase8 đã đóng theo [bằng chứng QA](PHASE_8_QA_REPORT.md), baseline91ddfbd; GPS fix/QR thật/iPhone chưa kiểm. Đang thực hiện phạm vi Việt/Anh đã được người dùng yêu cầu, Codex điều phối thay Claude: [hợp đồng sau phản biện](POST8_EXECUTION_SPEC.md), [inventory100track](content/POST8_CONTENT_INVENTORY.md), [nguồn](content/POST8_SOURCE_LEDGER.md), [QA plan](POST8_QA_PLAN.md). Hai collection offline (truyện6chương và pilotPhố cổ3điểm), fullUI/content/audio/ASRvi/en; giữ34VI cũ, API V2 additive, không LLM/AR/dẫn đường. Kiểm một điểm hoàn chỉnh trước tạo hàng loạt. Không tự nhận mới đã nghiệm thu; không git merge/push/publish/store/mainwrites.
+
 > **Trạng thái hiện hành 16/10/2026:** người dùng yêu cầu chạy end-to-end không chờ duyệt lại; Phase7.1/8 theo [spec thực hiện](PHASE_7_1_8_EXECUTION_SPEC.md) được phép triển khai. Nội dung phase0/7 đang chờ duyệt và giả định source/backend cũ bên dưới là lịch sử. Nghiệm thu từng phần vẫn phải có bằng chứng; voice cũ tạm dừng, scope VI/EN chỉ mở sau Phase8 theo yêu cầu riêng. Không merge main/push/deploy.
 
 Ngày cập nhật: 02/10/2026  

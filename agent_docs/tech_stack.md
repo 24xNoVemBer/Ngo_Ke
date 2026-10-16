@@ -1,5 +1,7 @@
 # Tech Stack — Ngõ Kể
 
+**Post8 đang triển khai16/10:** [spec VI/EN](../docs/POST8_EXECUTION_SPEC.md) đã phản biện, không thêm framework i18n/app dependency. Locale từ Intl và persistence qua expo-file-system File/Paths.document có sẵn, tách biên native khỏi module Node. Node24+SQLite builtins giữ nguyên, schema2/API V2/migration002 additive. EnglishTTS đang kiểm pinned Kokoro82M/2preset và runtime isolated; metadata license không là bằng chứng audio/runtime đã đạt. Không globalpip/SDK/mainwrites; actual model/package/repro chỉ ghi là verified sau probeW3. QA hiện có củaPhase8 bên dưới không chứng minh VI/EN mới đã pass.
+
 > Nguồn: [Tech Design](../docs/TechDesign-NgoKe-MVP.md) mục Tech Stack Decision, Project Structure, Data/API Contracts, Testing Strategy & Commands. Phân biệt quyết định theo plan, đề xuất để review và phần chưa xác minh.
 
 **Cập nhật03/10 Phase1:** greenfield được xác nhận; fixture6 điểm mô phỏng đã được đồng ý và Home bundled/native emulator/offline sau nạp bundle đã thử. Không có source cũ phải cung cấp. Chi tiết: [phase_1_completion.md](phase_1_completion.md).

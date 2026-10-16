@@ -2,6 +2,7 @@
 
 ## Quyền hiện hành — 16/10/2026 (ưu tiên hơn trạng thái lịch sử bên dưới)
 
+- **Trạng thái mới nhất:** Phase8 đã được coordinator chốt theo bằng chứng trong môi trường hiện có ở baseline`91ddfbd`; đang thực hiện Việt/Anh theo `docs/POST8_EXECUTION_SPEC.md` (đã phản biện W2/W3), inventory`docs/content/POST8_CONTENT_INVENTORY.md`. Các mốc9a39318/Phase7.1/8 dưới đây là nguồn gốc đợt trước. Giữ34audioVI nguyênbytes. Trong post8 không git merge/push/publish/store; candidate`post8-integration` chỉ nhận cherry-pick từng commit đã review. Voice V0–V7 cũ vẫn tạm dừng, quyền mới chỉ cho phần cần cho VI/EN.
 - Người dùng yêu cầu: **“chạy end-to-end đi, hiện tại ch cần t duyệt”**; đã cho phép điều phối triển khai Phase 7.1 và Phase 8, không dừng xin duyệt lại từng task. G1/G2 của Run `run_a728dba15869` đã được resolve theo chỉ dẫn này; đây không phải tuyên bố nghiệm thu đã đạt.
 - Baseline: `9a3931848b13f283155056128bd3ce5aee71a90a`. Đọc `docs/PHASE_7_1_8_EXECUTION_SPEC.md` trước coding; các task DRAFT trong Orca dùng spec cuối tại tài liệu này và chỉ dẫn mới nhất của coordinator.
 - Coordinator/W1 là Codex trong worktree `plan-architecture`, sở hữu tài liệu/hợp đồng và nội dung theo prompt Việt/Anh, không sửa source UI/backend của worker. W2 Antigravity sở hữu app/test app; W3 Codex `gpt-6-luna`/`xhigh` sở hữu backend/test backend/voice cần cho Việt/Anh; W4 OpenCode `opencode/muse-spark-1.3-contributor-free` sở hữu E2E/review/QA. Không âm thầm đổi model. Đợt Việt/Anh chốt inventory/hợp đồng trước khi W2/W3 coding song song, không cần xin lại từng task nội bộ.
