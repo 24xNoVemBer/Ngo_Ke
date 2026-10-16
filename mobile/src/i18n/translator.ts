@@ -356,6 +356,7 @@ export type TranslationKey =
   | 'location.err_needs_position'
   | 'location.select_manual'
   | 'location.select_manual_simulated'
+  | 'location.suggested_visit_minutes'
   // Unavailable
   | 'unavailable.phase'
   | 'unavailable.title'
@@ -717,6 +718,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'location.err_needs_position': 'Chưa nhận được vị trí thiết bị. Vui lòng bấm thử lại hoặc chọn điểm bằng tay.',
     'location.select_manual': 'Chọn điểm {name} bằng tay',
     'location.select_manual_simulated': 'Chọn điểm {name} bằng tay, mô phỏng',
+    'location.suggested_visit_minutes': 'Gợi ý tham quan: {minutes} phút (chưa đo)',
 
     'unavailable.phase': 'Thông báo dữ liệu',
     'unavailable.title': 'Chưa có dữ liệu hỏi đáp',
@@ -1077,6 +1079,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'location.err_needs_position': 'Cannot determine device location. Please retry or select manually.',
     'location.select_manual': 'Select {name} manually',
     'location.select_manual_simulated': 'Select {name} manually, simulated',
+    'location.suggested_visit_minutes': 'Suggested visit: {minutes} min (unmeasured)',
 
     'unavailable.phase': 'Data notice',
     'unavailable.title': 'Q&A data not available',

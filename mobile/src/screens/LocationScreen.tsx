@@ -286,7 +286,7 @@ export function LocationScreen({
                   <View style={styles.pointInfo}>
                     <Text style={styles.pointName}>{node.name}</Text>
                     <Text style={styles.pointMeta}>
-                      {t(isReviewed ? 'common.minutes' : 'common.simulated_minutes', { minutes: node.visitMinutes })}
+                      {t(isReviewed ? 'location.suggested_visit_minutes' : 'common.simulated_minutes', { minutes: node.visitMinutes })}
                       {isCurrent ? (locale === 'en' ? ' · Currently selected' : ' · Đang là điểm hiện tại') : ''}
                     </Text>
                   </View>

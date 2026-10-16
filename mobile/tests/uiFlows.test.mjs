@@ -2269,7 +2269,7 @@ test('LocationScreen branches manual accessibility label and visit minutes on co
     .filter((l) => typeof l === 'string' && l.includes('Chọn điểm') && l.includes('mô phỏng'));
   assert.equal(simulatedLabelsVi.length, 0, 'reviewed rows must not claim simulated in accessibilityLabel');
   const textReviewedVi = JSON.stringify(treeReviewedVi);
-  assert.ok(textReviewedVi.includes('10 phút'), 'reviewed row shows 10 phút editorial visit time');
+  assert.ok(textReviewedVi.includes('Gợi ý tham quan: 10 phút (chưa đo)'), 'reviewed row shows suggested unmeasured visit time');
   assert.equal(textReviewedVi.includes('10 phút mô phỏng'), false, 'reviewed row must not say 10 phút mô phỏng');
   assert.ok(textReviewedVi.includes('Tọa độ trong bản demo là mô phỏng'), 'fixture disclaimer is preserved');
   viewReviewedVi.unmount();
@@ -2319,7 +2319,7 @@ test('LocationScreen branches manual accessibility label and visit minutes on co
     .filter((l) => typeof l === 'string' && l.includes('Select') && l.includes('simulated'));
   assert.equal(simulatedLabelsEn.length, 0, 'reviewed rows in EN must not claim simulated in accessibilityLabel');
   const textReviewedEn = JSON.stringify(treeReviewedEn);
-  assert.ok(textReviewedEn.includes('10 min'), 'reviewed row in EN shows 10 min editorial visit time');
+  assert.ok(textReviewedEn.includes('Suggested visit: 10 min (unmeasured)'), 'reviewed row in EN shows suggested unmeasured visit time');
   assert.equal(textReviewedEn.includes('10 min simulated'), false, 'reviewed row in EN must not say 10 min simulated');
   assert.ok(textReviewedEn.includes('Coordinates in demo are simulated'), 'EN fixture disclaimer is preserved');
   viewReviewedEn.unmount();

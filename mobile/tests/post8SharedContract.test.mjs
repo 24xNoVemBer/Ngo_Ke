@@ -836,6 +836,8 @@ test('translator.ts - 100% dictionary parity between VI and EN', () => {
   assert.equal(translate('en', 'location.select_manual', { name: 'Point 1' }), 'Select Point 1 manually');
   assert.equal(translate('vi', 'location.select_manual_simulated', { name: 'Điểm 1' }), 'Chọn điểm Điểm 1 bằng tay, mô phỏng');
   assert.equal(translate('en', 'location.select_manual_simulated', { name: 'Point 1' }), 'Select Point 1 manually, simulated');
+  assert.equal(translate('vi', 'location.suggested_visit_minutes', { minutes: 10 }), 'Gợi ý tham quan: 10 phút (chưa đo)');
+  assert.equal(translate('en', 'location.suggested_visit_minutes', { minutes: 10 }), 'Suggested visit: 10 min (unmeasured)');
 });
 
 test('pick.ts - English alias parsing for topics and time budgets', () => {
