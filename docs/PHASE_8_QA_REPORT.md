@@ -13,7 +13,7 @@ Task: `task_d82ac6443e6d` · Run `run_a728dba15869` · Worker W4 (OpenCode Muse)
 | W3 backend | `2963fb8` + `c1b65fc` | Node24 + node:http/node:sqlite read-only JSON API |
 | W3 boundary fix (cherry-picked, no hand edit) | `0399821` → local `7179193` | 512KiB aggregate budget on import/read |
 | Voice netsec plugin (cherry-picked, separate integration) | `0ad83c1` → local `94b4653` | private-HTTP API allowlist, API-only, no journey impact |
-| W4 harness + this report | uncommitted → commit below | `tools/e2e/*`, `agent_docs/testing.md`, this file |
+| W4 harness + this report | `34073d7` + W4c update below | `tools/e2e/*`, `agent_docs/testing.md`, this file |
 
 No app/backend source was hand-edited by W4. No merge to main, no push, no deploy.
 
@@ -21,16 +21,19 @@ No app/backend source was hand-edited by W4. No merge to main, no push, no deplo
 
 | Command (cwd repo root unless noted) | Result |
 | --- | --- |
-| `npm test` (mobile/) | 197/197 |
+| `npm test` (mobile/) | 201/201 (W4) — coordinator independently re-ran 201/201 on the merged line |
 | `npm run typecheck` + `npm run lint` (mobile/) | exit 0 / exit 0 |
 | `node --test backend/tests/*.test.mjs` | 19/19 (incl. W3 aggregate-budget cases) |
 | `node --test tools/e2e/guards.test.mjs` | 33/33 |
 | `node --test tools/e2e/phase8-http.test.mjs` | 15/15 (real loopback backend on temp DB + live-adapter transport faults; aggregate repro now asserts import rejection pre-mutate) |
-| `node tools/e2e/native-flow.mjs --runs 1` (env: `ANDROID_SERIAL=emulator-5554`, `NGOKE_DEV_HOST=10.0.2.2`, `NGOKE_EXPO_PORT=8085`) | **19/19** |
+| `node tools/e2e/native-flow.mjs --runs 1` (env: `ANDROID_SERIAL=emulator-5554`, `NGOKE_DEV_HOST=10.0.2.2`, `NGOKE_EXPO_PORT=8085`) | **19/19** (provenance run `20261016-084203`; re-ran 19/19 in W4c) |
 
-Evidence: `tools/e2e/.runs/<stamp>/` (gitignored): `native-flow.json`, `*.xml` dumps,
+Evidence: `tools/e2e/.runs/20261016-084203/` (W4c provenance re-run, gitignored):
+`native-flow.json` (runtime `sourceSha`/device/metro provenance), `*.xml` dumps,
 binary-safe `*.png` (PNG signature verified before write). Manual fault-injection shots:
-`tools/e2e/.runs/live-error-manual/`.
+`tools/e2e/.runs/live-error-manual/`. Denial evidence: `tools/e2e/.runs/deny-camera-location/`.
+Delivery route is `NGOKE_DEV_HOST` (`10.0.2.2` sanctioned; LAN `192.168.100.36` also
+proven working) — both configurable, actual URI recorded per run.
 
 ## Native coverage (19/19 scripted + manual fault injection)
 
@@ -58,10 +61,28 @@ Backend: temp DB (6 nodes / 21 QA simulated), `0.0.0.0:8086` + `SERVE_SIMULATED_
   origin + live map `Đã mở 0/6 câu chuyện · Live`); airplane-mode retry → error state
   with no fallback. Old `BA6D9F` APK is superseded and was never used as proof.
 
+## W4c denial + preflight closure (emulator, release APK `F4FF95`)
+
+Baseline recorded before: CAMERA appops `ignore`, COARSE/FINE `foreground`, animation
+scale `1`, airplane `disabled`; restored exactly after (verified via appops/settings).
+`pm clear` was used once for a first-run dialog (test device only).
+
+- Camera: real OS dialog denied → `Camera chưa bật`, manual list intact → manual choice
+  yields `ĐIỂM ĐÃ XÁC NHẬN` + node text. Evidence `deny-camera-location/osdialog.xml`,
+  `afterdeny.xml`, `manualdone.xml/png`.
+- Location: revoked grants showed the weak/unavailable hint without auto-switch; fresh
+  install showed the real OS dialog → `Don't allow` → `Chưa nhận được vị trí thiết bị…`,
+  current point unchanged, manual confirm sets the point (`Đang là điểm hiện tại`).
+  Evidence `freshdialog.xml`, `freshdenied.xml`, `freshmanual.xml/png`. No fake location
+  was ever injected; no real fix was claimed.
+- Failure-preflight: run against a dead Metro port exits 2 with no pass and leaves
+  `transition_animation_scale` untouched (before = after = `1`).
+- Coordinator re-ran 201 mobile + 67 backend/guard/HTTP green on the merged line.
+
 ## Pending / not covered (honest)
 
-- Permission-denial branches (camera/location): script pre-grants deterministically;
-  denial UI covered only by unit tests, needs a manual deny pass.
+- Permission-denial branches: real-UI deny now proven on the emulator release build
+  (see W4c section); repeated/“don't ask again” permanence and TalkBack ordering stay manual.
 - GPS candidate/confirm with a real fix: emulator has no GPS fix (known limit).
 - QR scan of a real code: manual-choice path proven; scan path needs a camera-visible code.
 - Physical device / iPhone: emulator-only in this task.
@@ -102,3 +123,5 @@ Backend: temp DB (6 nodes / 21 QA simulated), `0.0.0.0:8086` + `SERVE_SIMULATED_
 - `tools/e2e/demo-scenario.mjs` + `tools/e2e/phase7-checks.mjs` are marked HISTORICAL
   (pre-rebuild labels); guards inside them maintained, not for Phase 8 QA.
 - `agent_docs/testing.md` gained a Phase 8 entry pointing at the current commands.
+- Fail history kept: earlier `.runs/` folders (float-tap misses, 0/6-counter cascade,
+  Expo-download redbox, UTF-16 PNG) remain untouched as honest NOT-pass records.
