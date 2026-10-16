@@ -72,6 +72,11 @@ after evidence; settings/permissions restored exactly.
 
 ## 8. Native final-2d9b (2026-10-16, release 93c8 on emulator-5554 via mobile-mcp)
 
+**SUPERSEDED — blanket font-PASS sentence in the paragraph below is WITHDRAWN
+(see §9–§10 for file-by-file corrections and the d704 retest).** Only the
+exact historical progress evidence (timestamps/positions) is kept; no
+screen-identity claim from §8 survives unqualified.
+
 Build: candidate 2d9b210, APK SHA-256 93c8d639c23ca9090d8f92ab7d8eee1757ce71ba5d5d986e4e76300344fb8c36 (96,637,278 bytes, installed hash identical; supersedes withdrawn 7cf7 early-read). Guard passes on this file (100/100 + manifest entries). Evidence: tools/e2e/.runs/final-2d9b/ (MCP refs + binary PNG).
 
 PASS: cold EN OS fallback; MM EN story 00:24/01:09 + MM VI 00:31/00:48 + DX VI 00:38/00:46 + fiction EN 00:09/00:24 with pause/stop and progress, no autoplay; locale switch preserving point; VI BM Q&A sourced; font200 clean on Prologue/AlleySelect/Home/drawer/Qa/Location/Plan/keyboard(real IME) except the known Notebook wrap and Sto clipping (both routed, fixes pending); Plan pick card complete (name/time badge/Explore) at 200; settings/permissions restored exactly; emulator stopped after evidence.
@@ -81,7 +86,11 @@ PENDING (honest): in-place locale during active playback; human listening and mi
 
 Report-only recovery. No product edits, no devices booted, no services started, no native runs in this task. Branch `valentino/post8-qa`, status clean, WIP preserved. Old task task_b1eb765424e4 abandoned; this supersedes it. Evidence folder located: `tools/e2e/.runs/final-2d9b/` (24 PNGs, timestamps 10:51–11:16 on 2026-10-16) re-read in this task; findings below are what the pixels actually show.
 
-Mislabeled files — NOT Qa/Home proof: `font200-fiction-qa-en.png` is Landing/Prologue EN (START JOURNEY + language selector), not Fiction Qa. `f200-qa-vi.png` is Landing/Prologue VI, not Qa. `f200-home-vi.png` is AlleySelect VI (collection list), not Home. `font200-pilot-home-en.png` is AlleySelect/pilot-select, not Home. None of the four counts as actual Qa/Home proof. Actual Home proof at 200 exists only in `font200-home-en.png` (Home EN: Choose an alley / Featured Journeys / dock), subject to the known dock Notebook wrap + Story-circle "Sto" clipping already routed to W2.
+Mislabeled files — NOT Qa/Home proof (CORRECTED per root 2026-10-16T17:31Z:
+`font200-home-en.png` is LandingScreen — logo, VI/DEMO, quote, FEATURED
+JOURNEYS, "Choose an alley", "Explore Hanoi Alleys" — NOT Home; the §9 claim
+below that it was "actual Home proof" is WITHDRAWN. No actual Home proof
+exists in final-2d9b at all): `font200-fiction-qa-en.png` is Landing/Prologue EN (START JOURNEY + language selector), not Fiction Qa. `f200-qa-vi.png` is Landing/Prologue VI, not Qa. `f200-home-vi.png` is AlleySelect VI (collection list), not Home. `font200-pilot-home-en.png` is AlleySelect/pilot-select, not Home. `font200-home-en.png` is Landing, not Home. None of the five counts as actual Qa/Home proof. Actual HomeScreen is only the screen after collection selection (trail/pins/postcard/dock), captured fresh on d704 in §10.
 
 Actual FAIL (on build 2d9b210, before W2 candidate): Landing subtitle/header collision at 200 and Plan `f200-plan-pick5.png` blank Postcard title area with clipped header plus simulated photo caption ("Anh minh hoa · Nguon mo phong") on reviewed/pilot surface where the reviewed/editorial/unmeasured contract forbids simulated-minutes presentation. Both routed to W2. W2 patches `43209f4` + `68d3450` + `2b95a16` are now consolidated in candidate `d0ff054` (coordinator-reported: 255 app/type/lint pass); native build verification of the fixes was pending at report time.
 
@@ -90,3 +99,55 @@ Playback honesty: `mm-en-play` 01:04/01:09, `mm-vi-play` 00:34/00:48, `dx-vi-pla
 Cleanup (read-only): working tree clean, no emulator/service/native process started here, settings/permissions untouched by this task, no model change (Muse Spark 1.3 Free throughout; no invalid-parameters quota issue encountered).
 
 Stable artifact (coordinator-reported 2026-10-16T17:29Z, NOT re-verified in this report-only task): candidate `d0ff054` built exit 0, `C:/Users/LEGION/AppData/Local/Temp/ngoke-post8-d0ff-d704-final.apk`, SHA-256 `d7045a875c441fffaf544e07fb548888bc4cba676db62375aeb682875bac9a3c`, 96,637,958 bytes, ARM64+x86_64, guard 132 assets / 100 mapping / 100 MP3 PASS, embedded data :18886 / voice :18787, 46 protected bytes unchanged. Native QA of this artifact is a separate focused task reusing this terminal after this report.
+
+## 10. Focused native QA on d704 (2026-10-17, task_78292a9b4640, model Muse Spark 1.3 Free)
+
+Frozen source `d0ff054d5834ae570122c5186216469c48ed9c03` verified in
+`../post8-integration` (clean). APK hash re-verified locally
+(`D7045A87…BAC9A3C`, 96,637,958 bytes) and installed `base.apk` pulled back
+with identical hash, package `com.valentino241.ngokedemo`, installed with
+`mobile_install_app` on emulator ONLY (never iPhone). Emulator
+`Medium_Phone_API_37.0` (sdk_gphone64_x86_64, Android 17) launched by this
+task (owned PIDs 41708, then 4100 after config cold boot); left running for
+follow-up. Fresh evidence (ignored): `tools/e2e/.runs/final-d0ff/` (25 PNGs).
+Originals recorded and restored: font_scale 1.0, animator/transition scale 1,
+no accessibility services, network on, AVD `hw.keyboard=yes` restored.
+
+PASS: Prologue VI/EN at 200 (subtitle/logo/quote/START JOURNEY, locale buttons
+no overlap); actual changed Landing VI/EN at 200 — header "NGÕ KỂ" + localized
+subtitle ("Sổ tay di sản phố ngõ" / "Alley heritage notebook") with EN/VI +
+DEMO controls, no collision; AlleySelect EN at 200 — All/Hàng Buồm/Hàng Gai
+filters + full "HOAN KIEM, HANOI" area text; actual pilot Home VI/EN at 200
+(AlleyTrailView) — full titles, "Suggested visit … (unmeasured)" /
+"Gợi ý tham quan … (chưa đo)" badges; fiction Home EN — "5 simulated min"
+badge correctly stays simulated; fiction demo-01 EN typed "Where are we?"
+(canonical) → Answer 00:12 + source + follow-up, unknown text → "No story for
+this question"; pilot BM chip "Why is the temple called Bạch Mã?" → SOURCED
+CONTENT answer 00:15 + 2 checked URLs; offline (wifi+data disabled, wifi icon
+gone) fiction story 00:24 / BM story 01:01 / Mã Mây story 01:09 / BM answer
+00:15 all progress with pause/resume/stop, text toggle keeps position,
+stop→Ready 0%, navigation and EN↔VI locale switch stop audio with no autoplay;
+Plan reviewed pick Đồng Xuân at 200 — full title, "Suggested visit: 20 min
+(unmeasured)", "Illustration photo · reviewed stops", "Photo: Dự án Ngõ Kể",
+Explore button; Camera manual rows carry reviewed caption (unmeasured + project
+credit), camera stays off until tapped; reduced-motion OS setting honored
+(drawer fully functional, Modal/pulse code path source-verified); TalkBack
+service enabled without crash, all controls expose labels/roles (spoken output
+not verifiable — no audio path).
+
+NOT VERIFIED (honest): full-QWERTY soft keyboard — AVD keeps built-in qwerty2
+even after `hw.keyboard=no` cold boot, so Gboard stays in toolbar-strip mode;
+real IME proven instead (LatinIME default, focused field + cursor, typed text,
+Send/X usable, full emoji board rendered), see `qa-en-realkb*.png`. Human
+listening/naturalness, mic audibility, real GPS fix, QR scan, physical
+device/iPhone, bulk-54 human QC, and original 66-new-audio human QC stay
+pending. Unknown ASR 18/36 unchanged (not rerun).
+
+Corrections/observations for W2 (no product edits): `offline-mm-en-play.png`
+actually shows Bạch Mã 01:01 — renamed `offline-bachma-en-play.png`; true Mã
+Mây is `offline-mamay-en-play.png` (00:49/01:09 progressing; later read showed
+00:10/16% still playing — unexplained offset, possibly track-end behavior, not
+a blocker). Plan EN summary echoes "ẩm thực · 45 min" (VI topic word in EN
+UI). Qa EN dock notebook a11y label reads "Sổ tay" (visual button icon-only).
+`mobile_type_keys` drops the first keystroke on fresh focus (typed "blabla…"
+landed as "labla…") — harness artifact, result still unknown-text.
