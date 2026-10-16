@@ -287,7 +287,7 @@ This probe used exactly three approved Bạch Mã questions per locale (six gene
 
 ### Engines, revisions, and transport
 
-- English input audio: `hexgrad/Kokoro-82M@f3ff3571791e39611d31c381e3a41a3af07b4987`, `kokoro==0.9.4`, `af_heart` (`en-US`), Apache-2.0, CPU. WAV format is mono PCM signed 16-bit at 24 kHz. Kokoro reported its unknown-phoneme marker for all three exact canonical English question texts; no respelling or text change was used.
+- English input audio: `hexgrad/Kokoro-82M@f3ff3571791e39611d31c381e3a41a3af07b4987`, `kokoro==0.9.4`, `af_heart` (`en-US`), Apache-2.0, CPU. WAV format is mono PCM signed 16-bit at 24 kHz. The first pass used exact canonical English question text. Its temporary marker boolean was later found incorrect: it searched ASCII `?` (question punctuation), not the actual U+2753 G2P unknown marker; see the raw/mapped trace audit below.
 - Vietnamese input audio: `pnnbao-ump/VieNeu-TTS-v3-Turbo@61b85e3d937fbbacb387714180e8182823512523`, `vieneu==3.7.1`, codec `OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX@ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae`, preset `Đoan Trang` (`vi-VN`), CPU. WAV format is mono PCM signed 16-bit at 48 kHz.
 - ASR: `faster-whisper==1.2.1`, `Systran/faster-whisper-small@536b0662742c02347bc0e980a01041f333bce120`, CPU/int8, using the existing isolated cache and runtime.
 - Dataset pair was parsed and validated with `parseDatasetV2` / `validateDatasetV2Pair`; revision is SHA-256 of shared `canonicalDatasetJson` output. Collection: `old-quarter-pilot`; node: `oldquarter-bach-ma`. EN revision: `d75fcc183863f7ea2ec3b24bba1c4664b762c6332f0eb768a3493d9e74089b83`; VI revision: `358209bc5bf8f14e47a3598b93644d168219d919dcb66d9eb1f7cbb7dbd2c94a`.
@@ -329,3 +329,33 @@ node --experimental-strip-types tools/voice/.cache/firstpoint-synthetic-qa-20261
 ```
 
 Only the owned gateway and its worker were stopped. After shutdown, port `18787` had zero listeners and there were zero matching `stt_worker.py` processes; existing ports `8081` and `8788` were not touched. No phone, human speech, native app, playback, or device QA is represented by this synthetic-only result; pronunciation quality and these ASR misses remain open for human/device review.
+
+### Bounded English spoken-text mapper pass and G2P audit
+
+After the raw-text results, only the three English question WAVs were regenerated using the existing `tools/voice/post8_probe.py::to_spoken_text` map. Canonical source text, source hashes, revisions, aliases, and VI samples were unchanged. The mapper changed only speech text for `bm-horse` (`Bạch Mã` → `Bahk Mah`); its separate spoken hash is `faf696e7db8ba477f04dbb65601a6f40125bc800c68a688a57ada85c0d7ca865`. Guardian and observe speech text/hash are unchanged from source.
+
+The temporary first-pass marker flag used ASCII U+003F, so ordinary final question punctuation made it report a false positive. This audit checks the actual G2P sentinel U+2753 (`chr(0x2753)`) in saved raw and mapped phoneme traces. No raw or mapped trace for any of these three questions contains that sentinel. This corrects the earlier per-sample booleans; the original first-pass WAV hashes and ASR transcripts remain valid.
+
+| Question | Raw ASR transcript → match | Mapped ASR transcript → match | Raw / mapped latency | Mapped decoder / follow-up |
+| --- | --- | --- | ---: | --- |
+| `bm-guardian` | `Who is honored here, and what does Eastern Guardian mean?` → unknown | `Who is honored here, and what does Eastern Guardian mean?` → unknown | 4,159 / 4,068 ms | en / — |
+| `bm-observe` | `Which architectural details should I look for?` → `bm-observe` | `Which architectural details should I look for?` → `bm-observe` | 3,315 / 3,198 ms | en / — |
+| `bm-horse` | `Why is the temple called B-letter when E-1-C-H maw?` → unknown | `Why is the temple called Bhakma?` → unknown | 3,562 / 3,278 ms | en / `bm-observe` → `bm-horse` |
+
+Mapped-pass totals: 1/3 expected IDs, 2 `unknown`, 0 wrong IDs, 3/3 decoder values `en`, and one request followed the approved recognized `bm-observe` → `bm-horse` graph edge. The mapper improved the horse name from Unicode codeword speech to “Bhakma”, but the exact production matcher correctly returned `unknown` because that transcript still does not equal an approved question or alias. The raw/mapped “honored” spelling difference also remained unknown; aliases were not changed.
+
+| Question | Source text SHA-256 | Spoken text | Spoken text SHA-256 | Mapped WAV SHA-256 | Duration / format |
+| --- | --- | --- | --- | --- | --- |
+| `bm-guardian` | `49bcce270a12c2e07a408f5425be5079cbcdc2b083731957d1fff0202fc833e1` | `Who is honoured here, and what does eastern guardian mean?` | `49bcce270a12c2e07a408f5425be5079cbcdc2b083731957d1fff0202fc833e1` | `b8484c35fd11dee8aeb722a7c3d1fe602db818202cdeec009e890ecaaf3ff065` | 3.625 s; mono PCM s16le, 24 kHz |
+| `bm-observe` | `4f67902197d42ef816eb2b968f13497b80c53cc3dc24dc74f3044b751255067c` | `Which architectural details should I look for?` | `4f67902197d42ef816eb2b968f13497b80c53cc3dc24dc74f3044b751255067c` | `3c739f2aedd2d96663fbc05bc59dbf49d9b72e487c7c70f07cb251d98931bf58` | 2.825 s; mono PCM s16le, 24 kHz |
+| `bm-horse` | `fbbe63df9ad257a0ff7534fed387b70b6f5246dbb9d56344107203a745c4842a` | `Why is the temple called Bahk Mah?` | `faf696e7db8ba477f04dbb65601a6f40125bc800c68a688a57ada85c0d7ca865` | `18ed4c6f3bae7831a252d8c3552eb42d364b33355a6175d98c218786dd2ba059` | 2.475 s; mono PCM s16le, 24 kHz |
+
+Raw and mapped G2P traces (JSON `\u` escapes preserve the returned phoneme code points):
+
+| Question | Raw trace | Mapped trace | U+2753 present raw / mapped |
+| --- | --- | --- | --- |
+| `bm-guardian` | `h\u02ccu \u026az \u02c8\u0251n\u0259\u0279d h\u02c8\u026a\u0279, \u00e6nd w\u02cc\u028ct d\u02c8\u028cz \u02c8ist\u0259\u0279n \u0261\u02c8\u0251\u0279di\u0259n m\u02c8in?` | Same as raw | no / no |
+| `bm-observe` | `w\u02cc\u026a\u02a7 \u02cc\u0251\u0279k\u0259t\u02c8\u025bk\u02a7\u0259\u0279\u0259l d\u0259t\u02c8Alz \u0283\u02cc\u028ad \u02ccI l\u02c8\u028ak f\u0254\u0279?` | Same as raw | no / no |
+| `bm-horse` | `w\u02ccI \u026az \u00f0\u0259 t\u02c8\u025bmp\u1d4al k\u02c8\u0254ld b\u02ccil\u02cc\u025bT\u0259\u0279w\u02cc\u028cn\u02c8i\u02ccAw\u02cc\u028cns\u02cci\u02c8A\u02a7 m\u02c8\u0251?` | `w\u02ccI \u026az \u00f0\u0259 t\u02c8\u025bmp\u1d4al k\u02c8\u0254ld b\u02c8\u0251k m\u02c8\u0251?` | no / no |
+
+Mapped samples and the mapped request-results JSON are under `tools/voice/.cache/firstpoint-synthetic-qa-20261016/en-mapped/` and `http-results-en-mapped.json`. The same local Node helpers, validated reviewed VI/EN pair, dataset revisions, ASR model, node-local matcher, and port `18787` were used. The gateway and worker were stopped again; the listener and worker checks both returned zero. The mapped pass is another synthetic frontend/ASR observation, not evidence of human pronunciation quality or user acceptance.
