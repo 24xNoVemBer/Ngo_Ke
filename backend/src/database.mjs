@@ -1,7 +1,9 @@
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { dirname } from 'node:path';
-import { MAX_BODY_BYTES, parseDataset } from '../../mobile/src/data/sourceState.ts';
+import { createHash } from 'node:crypto';
+import { MAX_BODY_BYTES, parseDataset, parseDatasetV2, validateDatasetV2Pair } from '../../mobile/src/data/sourceState.ts';
+import { canonicalDatasetJson } from '../../mobile/src/data/canonicalJson.ts';
 
 export function openDatabase(path) {
   if (path !== ':memory:') mkdirSync(dirname(path), { recursive: true });
@@ -11,16 +13,38 @@ export function openDatabase(path) {
 }
 
 /** Versioned SQL is applied explicitly; server startup never migrates. */
+function migrationVersions(db) {
+  if (!db.prepare("SELECT 1 FROM sqlite_schema WHERE type = 'table' AND name = 'schema_migrations'").get()) return [];
+  return db.prepare('SELECT version FROM schema_migrations ORDER BY version').all().map(({ version }) => version);
+}
+
+export function needsMigration(db) {
+  const versions = migrationVersions(db);
+  if (versions.some((version) => version > 2)) throw new Error('Database schema is newer than this server');
+  if (versions.length === 2 && versions[0] === 1 && versions[1] === 2) return false;
+  if (versions.length === 0 || (versions.length === 1 && versions[0] === 1)) return true;
+  throw new Error('Database migration history is invalid');
+}
+
 export function migrate(db) {
-  db.exec('CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL) STRICT');
-  if (db.prepare('SELECT max(version) AS version FROM schema_migrations').get().version > 1) {
-    throw new Error('Database schema is newer than this server');
+  const versions = migrationVersions(db);
+  if (versions.some((version) => version > 2)) throw new Error('Database schema is newer than this server');
+  if (versions.length === 2 && versions[0] === 1 && versions[1] === 2) return;
+  if (versions.length !== 0 && !(versions.length === 1 && versions[0] === 1)) {
+    throw new Error('Database migration history is invalid');
   }
-  if (db.prepare('SELECT version FROM schema_migrations WHERE version = ?').get(1)) return;
+  if (versions.length === 1) {
+    for (const table of ['dataset', 'nodes', 'qa']) db.prepare('SELECT count(*) FROM ' + table).get();
+  }
   db.exec('BEGIN IMMEDIATE');
   try {
-    db.exec(readFileSync(new URL('../migrations/001_initial.sql', import.meta.url), 'utf8'));
-    db.prepare('INSERT INTO schema_migrations VALUES (?, ?)').run(1, new Date().toISOString());
+    db.exec('CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL) STRICT');
+    if (versions.length === 0) {
+      db.exec(readFileSync(new URL('../migrations/001_initial.sql', import.meta.url), 'utf8'));
+      db.prepare('INSERT INTO schema_migrations VALUES (?, ?)').run(1, new Date().toISOString());
+    }
+    db.exec(readFileSync(new URL('../migrations/002_publication_v2.sql', import.meta.url), 'utf8'));
+    db.prepare('INSERT INTO schema_migrations VALUES (?, ?)').run(2, new Date().toISOString());
     db.exec('COMMIT');
   } catch (error) {
     db.exec('ROLLBACK');
@@ -30,14 +54,141 @@ export function migrate(db) {
 
 export function assertMigrated(db) {
   const versions = db.prepare('SELECT version FROM schema_migrations ORDER BY version').all();
-  if (versions.length !== 1 || versions[0].version !== 1) {
+  if (versions.length !== 2 || versions[0].version !== 1 || versions[1].version !== 2) {
     throw new Error('Database needs migration; run npm run migrate');
   }
-  for (const table of ['dataset', 'nodes', 'qa']) db.prepare('SELECT count(*) FROM ' + table).get();
+  for (const table of ['dataset', 'nodes', 'qa', 'publication_v2']) db.prepare('SELECT count(*) FROM ' + table).get();
 }
 
 export function hasContent(db) {
   return Boolean(db.prepare('SELECT EXISTS(SELECT 1 FROM dataset) OR EXISTS(SELECT 1 FROM nodes) OR EXISTS(SELECT 1 FROM qa) AS populated').get().populated);
+}
+
+export function hasAnyContent(db) {
+  const tables = new Set(db.prepare("SELECT name FROM sqlite_schema WHERE type = 'table'").all().map(({ name }) => name));
+  return ['dataset', 'nodes', 'qa', 'publication_v2'].some((table) =>
+    tables.has(table) && Boolean(db.prepare('SELECT EXISTS(SELECT 1 FROM ' + table + ') AS populated').get().populated));
+}
+
+export class DatasetInvalidError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'DatasetInvalidError';
+  }
+}
+
+function digest(text) {
+  return createHash('sha256').update(text, 'utf8').digest('hex');
+}
+
+export function prepareLocalizedPair(viValue, enValue) {
+  const vi = parseDatasetV2(viValue, { mode: 'live', expectedLocale: 'vi' });
+  const en = parseDatasetV2(enValue, { mode: 'live', expectedLocale: 'en' });
+  if (!vi || !en) throw new Error('Invalid localized dataset: schema, locale, evidence or references');
+  const pair = validateDatasetV2Pair(vi, en);
+  if (!pair.ok) throw new Error('Invalid localized dataset pair: ' + pair.reason);
+  const viJson = canonicalDatasetJson(vi);
+  const enJson = canonicalDatasetJson(en);
+  if (Buffer.byteLength(viJson, 'utf8') > MAX_BODY_BYTES || Buffer.byteLength(enJson, 'utf8') > MAX_BODY_BYTES) {
+    throw new Error('Localized dataset exceeds the 512 KiB body limit');
+  }
+  return {
+    vi, en, viJson, enJson, collectionId: vi.collectionId,
+    viSha256: digest(viJson), enSha256: digest(enJson),
+  };
+}
+
+function invalidSchema(error) {
+  return /no such table|no such column|malformed|schema.*invalid|needs migration/i.test(error?.message ?? '');
+}
+
+function readLocalizedPairInTransaction(db) {
+  assertMigrated(db);
+  let rows;
+  try {
+    rows = db.prepare('SELECT locale, collection_id, payload_json, payload_sha256 FROM publication_v2 ORDER BY locale').all();
+  } catch (error) {
+    if (invalidSchema(error)) throw new DatasetInvalidError('Published dataset schema is invalid');
+    throw error;
+  }
+  if (rows.length === 0) return undefined;
+  if (rows.length !== 2 || rows[0].locale !== 'en' || rows[1].locale !== 'vi') {
+    throw new DatasetInvalidError('Published dataset pair is incomplete');
+  }
+  const data = {};
+  for (const row of rows) {
+    let value;
+    try {
+      value = JSON.parse(row.payload_json);
+    } catch {
+      throw new DatasetInvalidError('Published dataset JSON is invalid');
+    }
+    const dataset = parseDatasetV2(value, { mode: 'live', expectedLocale: row.locale });
+    if (!dataset) throw new DatasetInvalidError('Published dataset does not pass validation');
+    const canonical = canonicalDatasetJson(dataset);
+    if (Buffer.byteLength(canonical, 'utf8') > MAX_BODY_BYTES || canonical !== row.payload_json || digest(canonical) !== row.payload_sha256) {
+      throw new DatasetInvalidError('Published dataset digest or payload is invalid');
+    }
+    if (row.collection_id !== dataset.collectionId) throw new DatasetInvalidError('Published dataset collection is invalid');
+    data[row.locale] = { dataset, json: canonical, sha256: row.payload_sha256 };
+  }
+  const pair = validateDatasetV2Pair(data.vi.dataset, data.en.dataset);
+  if (!pair.ok) throw new DatasetInvalidError('Published dataset pair is invalid');
+  return { ...data, collectionId: data.vi.dataset.collectionId };
+}
+
+export function readLocalizedPair(db) {
+  try {
+    db.exec('BEGIN');
+  } catch (error) {
+    if (invalidSchema(error)) throw new DatasetInvalidError('Published dataset schema is invalid');
+    throw error;
+  }
+  try {
+    const pair = readLocalizedPairInTransaction(db);
+    db.exec('COMMIT');
+    return pair;
+  } catch (error) {
+    try { db.exec('ROLLBACK'); } catch { /* The connection may already be unavailable. */ }
+    if (error instanceof DatasetInvalidError) throw error;
+    if (invalidSchema(error)) throw new DatasetInvalidError('Published dataset schema is invalid');
+    throw error;
+  }
+}
+
+export function readLocalizedPublication(db, locale) {
+  const pair = readLocalizedPair(db);
+  if (!pair) return undefined;
+  const selected = pair[locale];
+  return { dataset: selected.dataset, revision: selected.sha256, collectionId: pair.collectionId };
+}
+
+/** Validate both locales before one transaction publishes or replaces either row. */
+export function importLocalizedPair(db, input, { replace = false } = {}) {
+  const pair = prepareLocalizedPair(input.vi, input.en);
+  assertMigrated(db);
+  db.exec('BEGIN IMMEDIATE');
+  try {
+    const current = readLocalizedPairInTransaction(db);
+    if (current && current.vi.sha256 === pair.viSha256 && current.en.sha256 === pair.enSha256) {
+      db.exec('COMMIT');
+      return false;
+    }
+    if (current && !replace) throw new Error('Localized dataset already exists; use --replace after backup');
+    if (!current && db.prepare('SELECT count(*) AS n FROM publication_v2').get().n) {
+      throw new DatasetInvalidError('Published dataset pair is incomplete');
+    }
+    db.exec('DELETE FROM publication_v2');
+    const insert = db.prepare('INSERT INTO publication_v2 (locale, collection_id, payload_json, payload_sha256, imported_at) VALUES (?, ?, ?, ?, ?)');
+    const importedAt = new Date().toISOString();
+    insert.run('vi', pair.collectionId, pair.viJson, pair.viSha256, importedAt);
+    insert.run('en', pair.collectionId, pair.enJson, pair.enSha256, importedAt);
+    db.exec('COMMIT');
+    return true;
+  } catch (error) {
+    try { db.exec('ROLLBACK'); } catch { /* Preserve the original write failure. */ }
+    throw error;
+  }
 }
 
 function withReview(record, reviewStatus, updatedAt) {

@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { readDataset } from './database.mjs';
+import { DatasetInvalidError, readDataset, readLocalizedPublication } from './database.mjs';
 
 function json(response, status, body, headers = {}) {
   response.writeHead(status, {
@@ -13,6 +13,10 @@ function json(response, status, body, headers = {}) {
 
 function fail(response, status, code, message, headers) {
   json(response, status, { error: { code, message } }, headers);
+}
+
+function failLocalized(response, status, code, message, locale) {
+  json(response, status, { error: { code, message }, locale });
 }
 
 export function createApp({ db, serveSimulatedData = false }) {
@@ -31,8 +35,42 @@ export function createApp({ db, serveSimulatedData = false }) {
       return;
     }
     const path = url.pathname;
-    if (!['/api/health', '/api/ready', '/api/dataset'].includes(path)) {
+    if (!['/api/health', '/api/ready', '/api/dataset', '/api/v2/ready', '/api/v2/dataset'].includes(path)) {
       fail(response, 404, 'NOT_FOUND', 'Route not found');
+      return;
+    }
+    const localizedPath = path === '/api/v2/dataset' || path === '/api/v2/ready';
+    let locale;
+    if (localizedPath) {
+      const locales = url.searchParams.getAll('locale');
+      if ([...url.searchParams.keys()].length !== 1 || locales.length !== 1 || !['vi', 'en'].includes(locales[0])) {
+        fail(response, 400, 'INVALID_INPUT', 'Exactly one supported locale is required');
+        return;
+      }
+      locale = locales[0];
+      let publication;
+      try {
+        publication = readLocalizedPublication(db, locale);
+      } catch (error) {
+        const invalid = error instanceof DatasetInvalidError;
+        failLocalized(response, 503, invalid ? 'DATASET_INVALID' : 'DATABASE_UNAVAILABLE',
+          invalid ? 'Published dataset is invalid' : 'Database is unavailable', locale);
+        return;
+      }
+      const visible = publication && (publication.dataset.kind === 'reviewed' || serveSimulatedData);
+      if (!visible) {
+        failLocalized(response, path === '/api/v2/dataset' ? 404 : 503, 'NO_REVIEWED_DATA',
+          'No dataset is available for this locale', locale);
+        return;
+      }
+      if (path === '/api/v2/ready') {
+        json(response, 200, {
+          status: 'ready', database: 'ok', dataset: publication.dataset.kind,
+          locale, collectionId: publication.collectionId, revision: publication.revision,
+        });
+        return;
+      }
+      json(response, 200, publication.dataset, { 'content-language': locale });
       return;
     }
     if ([...url.searchParams.keys()].length) {

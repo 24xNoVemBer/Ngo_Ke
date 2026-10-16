@@ -27,7 +27,7 @@ test('migration is repeatable and imported content survives reopening', (t) => {
   assert.equal(importDataset(db, sample), true);
   assert.equal(importDataset(db, sample), false);
   assert.deepEqual(readDataset(db), sample);
-  assert.equal(db.prepare('SELECT count(*) AS n FROM schema_migrations').get().n, 1);
+  assert.equal(db.prepare('SELECT count(*) AS n FROM schema_migrations').get().n, 2);
   const reopened = openDatabase(path);
   try {
     assert.deepEqual(readDataset(reopened), sample);

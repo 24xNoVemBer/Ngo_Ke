@@ -9,6 +9,7 @@
     "migrate": "node --env-file-if-exists=.env src/cli.mjs migrate",
     "seed": "node --env-file-if-exists=.env src/cli.mjs seed",
     "import": "node --env-file-if-exists=.env src/cli.mjs import",
+    "import-localized": "node --env-file-if-exists=.env src/cli.mjs import-localized",
     "start": "node --env-file-if-exists=.env src/server.mjs",
     "test": "node --test tests/*.test.mjs"
   }
