@@ -23,9 +23,11 @@ ASR evidence only — explicitly not human pronunciation QC.
 - Mechanism: every Vietnamese-diacritic token falls to UNK; Kokoro then
   verbalizes the unknown as Unicode codepoint names (“Letter 1ED9”…). Where
   folding accidentally succeeds it still mispronounces (`Ma Mei`, `Bon Tom`).
-- Separate hygiene note: W3's `syntheticCheck` input text in `results.json` is
-  already mojibake — fix probe-input encoding independently; it is not the
-  phoneme cause.
+- WITHDRAWN 2026-10-16: the “mojibake input” note below was false — W3's
+  `syntheticCheck` source and `results.json` are valid UTF-8 with identical
+  SHA (proper codepoints, root-verified); the garbling was PowerShell display
+  encoding on my side. The primary G2P/codeword defect above stands VERIFIED
+  (direct phoneme outputs, not display artifacts).
 
 ## Recommendation (W3 implements, Root decides mapping)
 

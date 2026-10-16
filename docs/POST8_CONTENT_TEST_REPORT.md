@@ -60,20 +60,23 @@ unchanged, 34 audio SHAs intact.
 - F1 (concrete): the 8 `voice.intent.*` keys added in 604dd2f exist ONLY in
   `translator.ts` (zero references repo-wide); `intent.ts` hardcodes VI
   clarify/ambiguous strings and `parseVoiceIntent` takes no locale — EN voice
-  cards speak Vietnamese. Owner: W2.
+  cards speak Vietnamese. Intent English logic: W3; locale passing + UI strings: W2.
 - F2 (concrete, repro): EN action verbs unparsed — `parseVoiceIntent("stop")`,
   `"read the story"`, `"next chapter"`, `"open the QR scanner"`, `"open GPS"`,
   `"choose an experience"` all → `{"type":"question"}` (VI `"dung nghe"`→stop,
   `"mo qr"`→open-qr work). Plan slot parsing itself is already EN-capable
   (`food`→an thuc, `not food`→negation, `about 45 minutes`→45 — verified live).
-  Owner: W2 (prompt §6 requires real EN commands incl. negation).
+  Intent logic: W3; wiring: W2 (prompt §6 requires real EN commands incl. negation).
+  Repro ran the exact 604dd2f `intent.ts` (`git diff 604dd2f -- intent.ts` empty).
 - F3 (concrete): at 604dd2f the voice session is VI-only end to end
   (`useVoiceSession.ts` hardcodes transcript `locale: 'vi'`, VI-only
   `messageForError`; no `localizedCatalog.ts` on this line). The locale-aware
   hook + `lookupVoiceTrack` exist only on the unmerged 672eedb line, whose own
   ref/cancel/error-locale handling reviewed clean. Integration must thread
   QaScreen locale+collectionId through — until then, no EN/pilot voice turn can
-  resolve correctly. Owner: W1/W2 integration.
+  resolve correctly. Owner: W1/W2 integration (hook line: W3).
+  (Root already covers node reset, V1 fallback, live-N hash, persistence late
+  read and old-locale source/full UI — not duplicated here.)
 - F4 (concrete): `App.tsx` live `datasetRevision` falls back to synthetic
   `` `live-${liveRevision}` `` — a counter, not a content digest. Acceptable
   interim only; must become canonical-digest-checked (cf. verified fiction-EN
