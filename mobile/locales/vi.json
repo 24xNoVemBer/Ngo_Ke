@@ -1,0 +1,5 @@
+{
+  "NSCameraUsageDescription": "Cho phép Ngõ Kể dùng camera để quét mã QR của điểm.",
+  "NSLocationWhenInUseUsageDescription": "Cho phép Ngõ Kể đọc vị trí một lần để gợi ý điểm gần nhất. App không theo dõi vị trí nền.",
+  "NSMicrophoneUsageDescription": "Cho phép Ngõ Kể thu giọng nói để nhận câu hỏi của bạn."
+}

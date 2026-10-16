@@ -216,14 +216,12 @@ export function QaScreen({
       : (collectionId ?? 'fiction-letter');
     if (source === 'voice' && nextMatch.status === 'matched' && currentNode) {
       const id = `${nextMatch.entry.id}-answer`;
-      const matchedTrack = mode === 'demo'
-        ? lookupVoiceTrack({
-            collectionId: actualCollectionId,
-            locale,
-            contentId: id,
-            datasetRevision,
-          })
-        : undefined;
+      const matchedTrack = lookupVoiceTrack({
+        collectionId: actualCollectionId,
+        locale,
+        contentId: id,
+        datasetRevision,
+      });
       if (matchedTrack) {
         if (context) pendingVoicePlayback.current = { turnId: context.turnId, trackId: id, startedAt: voicePerformanceNow() };
         lastTrack.current = { id, text: nextMatch.entry.answer, kind: 'answer', nodeId: currentNode.id, revision: datasetRevision };
@@ -247,6 +245,7 @@ export function QaScreen({
   const actualCollectionId = ('collectionId' in dataset && typeof dataset.collectionId === 'string' && dataset.collectionId)
     ? dataset.collectionId
     : (collectionId ?? 'fiction-letter');
+  const isReviewedContent = ('kind' in dataset && dataset.kind === 'reviewed') || actualCollectionId === 'old-quarter-pilot';
   const intro = dataset.intro;
   const entry = match?.status === 'matched' && match.entry.nodeId === currentNode?.id ? match.entry : null;
   const followUps = entry === null ? [] : followUpEntries(entry, nodeQa);
@@ -276,16 +275,14 @@ export function QaScreen({
       : null
   );
   const storyTrackId = currentNode ? `${currentNode.id}-story` : 'intro';
-  const storyTrack = mode === 'demo'
-    ? lookupVoiceTrack({
-        collectionId: actualCollectionId,
-        locale,
-        contentId: storyTrackId,
-        datasetRevision,
-      })
-    : undefined;
+  const storyTrack = lookupVoiceTrack({
+    collectionId: actualCollectionId,
+    locale,
+    contentId: storyTrackId,
+    datasetRevision,
+  });
   const answerTrackId = entry ? `${entry.id}-answer` : '';
-  const answerTrack = mode === 'demo' && entry
+  const answerTrack = entry
     ? lookupVoiceTrack({
         collectionId: actualCollectionId,
         locale,
@@ -351,21 +348,19 @@ export function QaScreen({
     } else if (intent.type === 'clarify') {
       setVoiceActionCard({ kind: 'mixed', message: intent.message, questionText: intent.questionText, actionText: intent.actionText, action: intent.action, context });
     } else if (intent.type === 'listen') {
-      if (mode !== 'demo' || !currentNode) {
-        setVoiceActionCard({ kind: 'notice', message: t('voice.notice.live_no_audio') });
+      if (!storyTrack || !currentNode) {
+        setVoiceActionCard({ kind: 'notice', message: mode === 'live' ? t('voice.notice.live_no_audio') : t('voice.notice.audio_unavailable') });
       } else requestTrack(storyTrackId, currentNode.story, 'story', currentNode.id);
     } else if (intent.type === 'replay') {
-      if (mode !== 'demo') {
-        setVoiceActionCard({ kind: 'notice', message: t('voice.notice.live_answer_no_audio') });
-        return;
-      }
       const last = lastTrack.current;
       if (last && last.nodeId === currentNode?.id && last.revision === datasetRevision) {
         requestTrack(last.id, last.text, last.kind, last.nodeId, true);
-      } else if (entry && currentNode) {
+      } else if (entry && currentNode && answerTrack) {
         requestTrack(answerTrackId, entry.answer, 'answer', currentNode.id, true);
-      } else if (currentNode) {
+      } else if (currentNode && storyTrack) {
         requestTrack(storyTrackId, currentNode.story, 'story', currentNode.id, true);
+      } else {
+        setVoiceActionCard({ kind: 'notice', message: mode === 'live' ? t('voice.notice.live_answer_no_audio') : t('voice.notice.audio_unavailable') });
       }
     } else if (intent.type === 'stop') {
       void voiceSession.stopPlayback().then((stopped) => {
@@ -453,7 +448,11 @@ export function QaScreen({
                 </View>
               </View>
 
-              <Text style={styles.waveformDuration}>{mode === 'demo' ? t('qa.waveform_demo') : t('qa.waveform_live')}</Text>
+              <Text style={styles.waveformDuration}>
+                {isReviewedContent
+                  ? (mode === 'demo' ? t('qa.waveform_demo_reviewed') : t('qa.waveform_live_reviewed'))
+                  : (mode === 'demo' ? t('qa.waveform_demo') : t('qa.waveform_live'))}
+              </Text>
               {storyTrack && currentNode && (
                 <VoicePlayerBar
                   label={`${t('qa.story_label')} · ${currentNode.name}`}
@@ -467,7 +466,7 @@ export function QaScreen({
                   onStop={voiceSession.stopPlayback}
                 />
               )}
-              {mode === 'live' && <Text style={styles.noDataBody}>{t('voice.notice.live_no_audio')}</Text>}
+              {mode === 'live' && !storyTrack && <Text style={styles.noDataBody}>{t('voice.notice.live_no_audio')}</Text>}
               {playbackError && <Text accessibilityRole="alert" style={styles.playbackError}>{playbackError}</Text>}
               <Pressable
                 accessibilityRole="button"
@@ -543,7 +542,9 @@ export function QaScreen({
 
               <View style={styles.disclaimerPill}>
                 <Text style={styles.disclaimerPillText}>
-                  {t('qa.photo_note')} · {mode === 'demo' ? t('qa.disclaimer_fiction') : (dataset?.kind === 'reviewed' ? t('qa.disclaimer_live_reviewed') : t('qa.disclaimer_live_simulated'))}
+                  {t('qa.photo_note')} · {isReviewedContent
+                    ? (mode === 'demo' ? t('qa.disclaimer_demo_reviewed') : t('qa.disclaimer_live_reviewed'))
+                    : (mode === 'demo' ? t('qa.disclaimer_fiction') : t('qa.disclaimer_live_simulated'))}
                 </Text>
               </View>
             </View>
@@ -736,7 +737,9 @@ export function QaScreen({
                 ) : (
                   <View style={styles.verifiedBox}>
                     <View style={styles.verifiedTag}>
-                      <Text style={styles.verifiedTagText}>{mode === 'demo' ? t('qa.verified_story_title') : t('qa.verified_source_title')}</Text>
+                      <Text style={styles.verifiedTagText}>
+                        {isReviewedContent ? t('qa.verified_source_title') : t('qa.verified_story_title')}
+                      </Text>
                     </View>
                     {isTextVisible && <Text style={styles.answerText}>{entry.answer}</Text>}
                     {answerTrack && currentNode && (

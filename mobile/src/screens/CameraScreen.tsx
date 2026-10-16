@@ -11,10 +11,18 @@ import { useLaserScanner, usePulseLoop } from '../hooks/useMotion';
 import { colors, radius, spacing, typography } from '../theme';
 import { useLocale } from '../context/LocaleContext';
 
-type Props = { nodes: DemoNode[]; onConfirmNode: (nodeId: string) => void };
+type Props = {
+  nodes: DemoNode[];
+  onConfirmNode: (nodeId: string) => void;
+  collectionKind?: 'simulated' | 'reviewed';
+  collectionId?: string;
+};
 
-export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
+export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionId }: Props): ReactElement {
   const { t, locale } = useLocale();
+  const isReviewed = collectionKind === 'reviewed'
+    || collectionId === 'old-quarter-pilot'
+    || nodes.some((n) => n.id.startsWith('pilot-') || n.id.startsWith('oldquarter-'));
   const { foreground } = useMotionState();
   const isFocused = useIsFocused() && foreground;
   const cameraRequest = useRef(0);
@@ -338,9 +346,7 @@ export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
 
         <View style={styles.disclaimerBox}>
           <Text style={styles.note}>
-            {locale === 'en'
-              ? 'Stories and captions in demo are simulated content. 2D narrator is a placeholder without voice; audio belongs to Voice phase.'
-              : 'Lời kể và caption trong bản demo là nội dung mô phỏng. Người kể 2D là hình tạm, chưa có giọng đọc; audio thuộc phase Voice riêng.'}
+            {isReviewed ? t('camera.disclaimer_reviewed') : t('camera.disclaimer_simulated')}
           </Text>
         </View>
       </ScrollView>

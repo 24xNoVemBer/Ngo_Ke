@@ -179,7 +179,7 @@ function parseEnglishVoiceIntent(input: string, collectingPlan: boolean, current
   if (!planCommand && !collectingPlan) return { type: 'question' };
 
   const topics = TOPIC_ORDER.filter((topic) => ENGLISH_TOPICS[topic].some((name) => text.includes(name)));
-  const durationMatches = [...text.matchAll(/\b(?:half an hour|half hour|an hour|one hour|hour and a half|one and a half hours|\d+(?:\.\d+)?\s*hours?(?:\s+\d+\s*minutes?)?|\d+\s*(?:minutes?|mins?))\b/g)];
+  const durationMatches = [...text.matchAll(/\b(?:half an hour|half hour|an hour|one hour|hour and a half|one and a half hours|\d{1,3}h\d{1,2}m|\d+(?:\.\d+)?\s*hours?(?:\s+\d+\s*minutes?)?|\d+\s*(?:minutes?|mins?))\b/g)];
   const durations = durationMatches.map((match) => parseTimeBudget(match[0], 'en')).filter((value): value is number => value !== undefined);
   const rangeDuration = durationMatches.some(({ index }) => {
     const prefix = text.slice(0, index);

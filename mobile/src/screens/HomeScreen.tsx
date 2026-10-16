@@ -16,6 +16,7 @@ import Svg, { Path } from 'react-native-svg';
 import type { DemoNode, Mode, SourceState } from '../data/sourceState';
 import type { RootStackParamList } from '../navigation';
 import { getNodePhoto, getNodePhotographer, getAlleyMeta } from '../assets/photoMap';
+import { AVAILABLE_COLLECTIONS, DEFAULT_COLLECTION_ID, getLocalizedCollections } from '../data/collections';
 import { UnavailableScreen } from './UnavailableScreen';
 import { useMotionState } from '../hooks/MotionPreferences';
 import { CrossfadePhoto } from '../components/CrossfadePhoto';
@@ -103,6 +104,17 @@ export function HomeScreen({
 
   const motion = useMotionState();
   const { locale, setLocale, t } = useLocale();
+  const collections = getLocalizedCollections(locale);
+  const activeCollectionId = mode === 'live'
+    ? (source.status === 'ready' && 'collectionId' in source.dataset && typeof source.dataset.collectionId === 'string'
+        ? source.dataset.collectionId
+        : DEFAULT_COLLECTION_ID)
+    : (route.params?.alleyId
+        || (source.status === 'ready' && 'collectionId' in source.dataset && typeof source.dataset.collectionId === 'string'
+            ? source.dataset.collectionId
+            : DEFAULT_COLLECTION_ID));
+  const activeCollection = collections.find((c) => c.id === activeCollectionId) ?? collections[0];
+  const knownMeta = AVAILABLE_COLLECTIONS.find((c) => c.id === activeCollectionId);
   const alleyMeta = getAlleyMeta(route.params?.alleyId);
   const [mood, setMood] = useState<'morning' | 'dusk' | 'night'>('morning');
 
@@ -121,8 +133,11 @@ export function HomeScreen({
       const layout = PIN_CONFIG[index];
       return layout ? [{ ...layout, id: node.id }] : [];
     });
-  const currentPhoto = currentNode ? getNodePhoto(currentNode.id) : alleyMeta.coverPhoto;
-  const currentPhotographer = currentNode ? getNodePhotographer(currentNode.id) : alleyMeta.photographer;
+  const collectionCover = activeCollection?.coverPhoto ?? alleyMeta.coverPhoto;
+  const currentPhoto = currentNode ? getNodePhoto(currentNode.id) : collectionCover;
+  const currentPhotographer = currentNode
+    ? getNodePhotographer(currentNode.id)
+    : (activeCollection?.kind === 'reviewed' ? 'Dự án Ngõ Kể' : alleyMeta.photographer);
 
   // Tính toán vùng canvas của dải đường mòn tránh thanh trạng thái và đáy
   const topHeaderPadding = Math.max(insets.top, 28) + 8;
@@ -209,7 +224,7 @@ export function HomeScreen({
     <View style={styles.rootContainer}>
       {/* 1. NỀN ẢNH CHỤP THẬT TRÀN TOÀN BỘ MÀN HÌNH */}
       <ImageBackground
-        source={alleyMeta.coverPhoto}
+        source={collectionCover}
         style={StyleSheet.absoluteFill}
         resizeMode="cover"
       >
@@ -234,7 +249,13 @@ export function HomeScreen({
           </Pressable>
 
           <View style={styles.progressHeaderGroup}>
-            <Text style={styles.alleyNameHeader}>{mode === 'demo' ? alleyMeta.name : (locale === 'en' ? 'Server journey' : 'Hành trình từ máy chủ')}</Text>
+            <Text style={styles.alleyNameHeader}>
+              {mode === 'demo'
+                ? (activeCollection?.name ?? alleyMeta.name)
+                : (source.status === 'ready' && 'collectionId' in source.dataset && typeof source.dataset.collectionId === 'string'
+                    ? (knownMeta ? t(knownMeta.nameKey) : source.dataset.collectionId)
+                    : (locale === 'en' ? 'Server journey' : 'Hành trình từ máy chủ'))}
+            </Text>
             <Text style={styles.progressTitle}>
               {t('home.stories_opened', {
                 opened: visitedCount,

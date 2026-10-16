@@ -3,6 +3,7 @@ import { useState, type ReactElement } from 'react';
 import {
   Animated,
   Image,
+  type ImageSourcePropType,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,9 +13,10 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import type { Mode } from '../data/sourceState';
+import type { Mode, SourceState } from '../data/sourceState';
 import type { RootStackParamList } from '../navigation';
-import { getLocalizedCollections, isCollectionId } from '../data/collections';
+import { AVAILABLE_COLLECTIONS, getLocalizedCollections, isCollectionId } from '../data/collections';
+import { HERO_PHOTO } from '../assets/photoMap';
 import { normalizeQuestion } from '../qa/match';
 import { NgoKeLogo } from '../components/NgoKeLogo';
 import {
@@ -24,12 +26,24 @@ import { radius, spacing } from '../theme';
 
 import { useLocale } from '../context/LocaleContext';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'AlleySelect'> & { nodeCount: number; mode?: Mode };
+type Props = NativeStackScreenProps<RootStackParamList, 'AlleySelect'> & {
+  nodeCount: number;
+  mode?: Mode;
+  liveSource?: SourceState;
+  liveBusy?: boolean;
+  onRetryLive?: () => void;
+};
 
 type LocationFilter = 'Tất cả' | 'Hàng Buồm' | 'Hàng Gai' | 'Đồng Xuân' | 'Ẩm thực';
 
 
-export function AlleySelectScreen({ navigation, mode = 'demo' }: Props): ReactElement {
+export function AlleySelectScreen({
+  navigation,
+  mode = 'demo',
+  liveSource,
+  liveBusy = false,
+  onRetryLive,
+}: Props): ReactElement {
   const { locale, t, setCollectionId } = useLocale();
   const insets = useSafeAreaInsets();
   const { fontScale } = useWindowDimensions();
@@ -40,7 +54,41 @@ export function AlleySelectScreen({ navigation, mode = 'demo' }: Props): ReactEl
   const topPadding = Math.max(insets.top, 28) + 8;
   const bottomPadding = Math.max(insets.bottom, 16) + 20;
 
-  const collections = getLocalizedCollections(locale);
+  const isLive = mode === 'live';
+  const liveReady = isLive && liveSource?.status === 'ready';
+
+  let liveCollectionItem: {
+    id: string;
+    name: string;
+    tagline: string;
+    theme: string;
+    district: string;
+    nodeCount: number;
+    coverPhoto: ImageSourcePropType;
+    kind: 'simulated' | 'reviewed';
+  } | undefined;
+
+  if (liveReady && liveSource && liveSource.status === 'ready') {
+    const dataset = liveSource.dataset;
+    const rawCollectionId = ('collectionId' in dataset && typeof dataset.collectionId === 'string' && dataset.collectionId)
+      ? dataset.collectionId
+      : 'old-quarter-pilot';
+    const known = AVAILABLE_COLLECTIONS.find((c) => c.id === rawCollectionId);
+    liveCollectionItem = {
+      id: rawCollectionId,
+      name: known ? t(known.nameKey) : rawCollectionId,
+      tagline: known ? t(known.taglineKey) : (locale === 'en' ? 'Verified live collection' : 'Bộ sưu tập máy chủ xác minh'),
+      theme: known ? t(known.themeKey) : (locale === 'en' ? 'Live explore' : 'Khám phá Live'),
+      district: known ? t(known.districtKey) : (locale === 'en' ? 'Live area' : 'Khu vực Live'),
+      nodeCount: dataset.nodes.length,
+      coverPhoto: known ? known.coverPhoto : HERO_PHOTO,
+      kind: dataset.kind ?? 'reviewed',
+    };
+  }
+
+  const collections = isLive
+    ? (liveCollectionItem ? [liveCollectionItem] : [])
+    : getLocalizedCollections(locale);
 
   // Lọc danh sách con ngõ theo ô tìm kiếm địa chỉ và bộ lọc khu vực
   const filteredCollections = collections.filter((col) => {
@@ -137,10 +185,16 @@ export function AlleySelectScreen({ navigation, mode = 'demo' }: Props): ReactEl
             </View>
             <View style={styles.gpsInfoTextGroup}>
               <Text style={styles.gpsStatusLabel}>
-                {mode === 'demo' ? t('alley_select.demo_area') : (locale === 'en' ? 'LIVE AREA' : 'KHU VỰC LIVE')}
+                {isLive ? t('alley_select.live_area') : t('alley_select.demo_area')}
               </Text>
               <Text style={styles.gpsLocationName} numberOfLines={1}>
-                {mode === 'demo' ? t('alley_select.demo_subtext') : (locale === 'en' ? 'Hanoi Old Quarter · Live API source' : 'Phố cổ Hà Nội · nguồn máy chủ Live')}
+                {isLive
+                  ? (liveCollectionItem
+                      ? `${liveCollectionItem.district} · ${t('alley_select.live_source_badge')}`
+                      : liveBusy
+                        ? t('alley_select.live_loading')
+                        : (liveSource?.title || t('alley_select.live_source_badge')))
+                  : t('alley_select.demo_subtext')}
               </Text>
             </View>
           </View>
@@ -173,13 +227,20 @@ export function AlleySelectScreen({ navigation, mode = 'demo' }: Props): ReactEl
           {/* Hàng 3: Gợi ý ngõ gần nhất theo GPS */}
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={t('alley_select.hint', { mode: mode === 'demo' ? t('common.demo') : t('common.live') })}
-            onPress={() => handleSelectAlley('old-quarter-pilot')}
+            accessibilityLabel={t('alley_select.hint', { mode: isLive ? t('common.live') : t('common.demo') })}
+            onPress={() => {
+              if (isLive) {
+                if (liveCollectionItem) handleSelectAlley(liveCollectionItem.id);
+                else if (onRetryLive) onRetryLive();
+              } else {
+                handleSelectAlley('old-quarter-pilot');
+              }
+            }}
             style={({ pressed }) => [styles.nearestAlleyPill, pressed && styles.pressed]}
           >
             <Text style={styles.nearestSparkle}>✨</Text>
             <Text style={styles.nearestAlleyLabel}>
-              {t('alley_select.hint', { mode: mode === 'demo' ? t('common.demo') : t('common.live') })}
+              {t('alley_select.hint', { mode: isLive ? t('common.live') : t('common.demo') })}
             </Text>
             <Text style={styles.nearestChevron}>›</Text>
           </Pressable>
@@ -234,13 +295,33 @@ export function AlleySelectScreen({ navigation, mode = 'demo' }: Props): ReactEl
             {t('alley_select.explore_count', { count: filteredCollections.length })}
           </Text>
           <Text style={styles.sectionSubtitle}>
-            {mode === 'live'
-              ? (locale === 'en' ? 'Backend collection catalog' : 'Danh mục bộ sưu tập máy chủ')
+            {isLive
+              ? t('alley_select.live_source_badge')
               : t('alley_select.sample_list')}
           </Text>
         </Animated.View>
 
-        {filteredCollections.length === 0 ? (
+        {isLive && liveBusy && !liveReady ? (
+          <View style={styles.emptyStateContainer}>
+            <Text style={styles.emptyStateIcon}>⏳</Text>
+            <Text style={styles.emptyStateTitle}>{t('alley_select.live_loading')}</Text>
+          </View>
+        ) : isLive && !liveReady ? (
+          <View style={styles.emptyStateContainer}>
+            <Text style={styles.emptyStateIcon}>{liveSource?.status === 'error' ? '⚠️' : '🏮'}</Text>
+            <Text style={styles.emptyStateTitle}>
+              {liveSource?.title || (liveSource?.status === 'error' ? t('alley_select.live_error') : t('alley_select.live_empty'))}
+            </Text>
+            {liveSource?.detail ? (
+              <Text style={styles.emptyStateDetail}>{liveSource.detail}</Text>
+            ) : null}
+            {onRetryLive ? (
+              <Pressable accessibilityRole="button" accessibilityLabel={t('alley_select.live_retry')} onPress={onRetryLive}>
+                <Text style={styles.emptyStateReset}>{t('alley_select.live_retry')} ›</Text>
+              </Pressable>
+            ) : null}
+          </View>
+        ) : filteredCollections.length === 0 ? (
           <View style={styles.emptyStateContainer}>
             <Text style={styles.emptyStateIcon}>🏮</Text>
             <Text style={styles.emptyStateTitle}>{t('alley_select.empty')}</Text>
@@ -275,7 +356,7 @@ export function AlleySelectScreen({ navigation, mode = 'demo' }: Props): ReactEl
                     <Text style={styles.themeBadgeText}>{col.theme}</Text>
                   </View>
                   <View style={styles.distanceBadge}>
-                    <Text style={styles.distanceBadgeText}>{mode === 'demo' ? 'DEMO' : 'LIVE'}</Text>
+                    <Text style={styles.distanceBadgeText}>{isLive ? 'LIVE' : 'DEMO'}</Text>
                   </View>
                 </View>
                 <View style={styles.cardBottomBar}>
@@ -283,8 +364,8 @@ export function AlleySelectScreen({ navigation, mode = 'demo' }: Props): ReactEl
                     <Text style={styles.cardDistrictText}>{col.district}</Text>
                     <Text style={styles.cardNameText}>{col.name}</Text>
                     <Text style={styles.cardBriefMeta}>
-                      {mode === 'live'
-                        ? (locale === 'en' ? 'Live backend source' : 'Nguồn máy chủ Live')
+                      {isLive
+                        ? t('alley_select.live_meta_info', { count: col.nodeCount })
                         : t('alley_select.meta_info', { count: col.nodeCount, mode: t('common.demo') })}
                     </Text>
                   </View>
@@ -565,6 +646,13 @@ const styles = StyleSheet.create({
     fontSize: 13.5,
     fontWeight: '700',
     color: '#5C483D',
+  },
+  emptyStateDetail: {
+    fontSize: 12,
+    color: '#7C6A5A',
+    textAlign: 'center',
+    paddingHorizontal: spacing.lg,
+    lineHeight: 18,
   },
   emptyStateReset: {
     fontSize: 12.5,

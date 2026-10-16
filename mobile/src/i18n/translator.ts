@@ -163,6 +163,15 @@ export type TranslationKey =
   | 'alley_select.sample_list'
   | 'alley_select.empty'
   | 'alley_select.reset_filter'
+  | 'alley_select.live_area'
+  | 'alley_select.live_subtext'
+  | 'alley_select.live_loading'
+  | 'alley_select.live_empty'
+  | 'alley_select.live_error'
+  | 'alley_select.live_retry'
+  | 'alley_select.live_source_badge'
+  | 'alley_select.live_meta_info'
+  | 'alley_select.server_catalog'
   // Home
   | 'home.open_story'
   | 'home.stories_opened'
@@ -224,13 +233,16 @@ export type TranslationKey =
   | 'qa.this_point'
   | 'qa.ask_placeholder'
   | 'qa.disclaimer_fiction'
+  | 'qa.disclaimer_demo_reviewed'
   | 'qa.disclaimer_live_reviewed'
   | 'qa.disclaimer_live_simulated'
   | 'qa.narrator_header'
   | 'qa.narrator_badge'
   | 'qa.opening_stop'
   | 'qa.waveform_demo'
+  | 'qa.waveform_demo_reviewed'
   | 'qa.waveform_live'
+  | 'qa.waveform_live_reviewed'
   | 'qa.story_label'
   | 'qa.answer_label'
   | 'qa.minutes_simulated'
@@ -327,6 +339,8 @@ export type TranslationKey =
   | 'camera.permission_blocked'
   | 'camera.unrecognized_qr'
   | 'camera.choose_another_stop'
+  | 'camera.disclaimer_simulated'
+  | 'camera.disclaimer_reviewed'
   // Location
   | 'location.title'
   | 'location.find_button'
@@ -508,6 +522,15 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'alley_select.sample_list': 'Danh sách mẫu · không đo khoảng cách từ bạn',
     'alley_select.empty': 'Không tìm thấy địa chỉ hoặc con ngõ phù hợp',
     'alley_select.reset_filter': 'Xem tất cả các con ngõ ›',
+    'alley_select.live_area': 'KHU VỰC LIVE',
+    'alley_select.live_subtext': '{name} · Nguồn máy chủ Live',
+    'alley_select.live_loading': 'Đang kết nối máy chủ Live...',
+    'alley_select.live_empty': 'Chưa có dữ liệu từ máy chủ Live',
+    'alley_select.live_error': 'Lỗi kết nối máy chủ Live',
+    'alley_select.live_retry': 'Thử lại',
+    'alley_select.live_source_badge': 'Nguồn máy chủ Live',
+    'alley_select.live_meta_info': 'Nguồn máy chủ Live · {count} điểm',
+    'alley_select.server_catalog': 'Bộ sưu tập máy chủ',
 
     'home.open_story': 'Xem {name}',
     'home.stories_opened': 'Đã mở {opened}/{total} câu chuyện · {mode}',
@@ -569,13 +592,16 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'qa.this_point': 'điểm này',
     'qa.ask_placeholder': 'Hỏi về {name}…',
     'qa.disclaimer_fiction': 'Truyện hư cấu',
+    'qa.disclaimer_demo_reviewed': 'điểm đã duyệt · nguồn Demo',
     'qa.disclaimer_live_reviewed': 'điểm đã duyệt · nguồn Live',
     'qa.disclaimer_live_simulated': 'điểm mô phỏng · nguồn Live',
     'qa.narrator_header': 'LỜI NGƯỜI KỂ CHUYỆN NGÕ PHỐ',
     'qa.narrator_badge': 'Kể',
     'qa.opening_stop': 'Điểm mở đầu',
     'qa.waveform_demo': 'TRUYỆN HƯ CẤU · NGHE NGƯỜI KỂ',
+    'qa.waveform_demo_reviewed': 'DEMO · DI SẢN ĐÃ DUYỆT',
     'qa.waveform_live': 'LIVE · LỜI KỂ BẰNG CHỮ',
+    'qa.waveform_live_reviewed': 'LIVE · DI SẢN ĐÃ DUYỆT',
     'qa.story_label': 'Lời kể',
     'qa.answer_label': 'Câu trả lời',
     'qa.minutes_simulated': 'phút mô phỏng',
@@ -672,6 +698,8 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'camera.permission_blocked': 'Quyền camera đã bị từ chối trong cài đặt hệ thống. Hãy chọn điểm bằng tay bên dưới.',
     'camera.unrecognized_qr': 'Không nhận mã này. Bạn có thể quét lại hoặc chọn điểm bằng tay.',
     'camera.choose_another_stop': '← Chọn điểm khác trên sổ tay',
+    'camera.disclaimer_simulated': 'Lời kể và caption trong bản demo là nội dung mô phỏng. Người kể 2D là hình tạm, chưa có giọng đọc; audio thuộc phase Voice riêng.',
+    'camera.disclaimer_reviewed': 'Nội dung điểm dừng và lời kể dựa trên dữ liệu di sản đã duyệt kèm nguồn kiểm chứng. Người kể 2D là hình minh hoạ không gian.',
 
     'location.title': 'Xác nhận điểm GPS',
     'location.find_button': 'Tìm điểm gần nhất qua GPS',
@@ -852,6 +880,15 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'alley_select.sample_list': 'Sample list · distance not measured from you',
     'alley_select.empty': 'No matching address or alley found',
     'alley_select.reset_filter': 'See all alleys ›',
+    'alley_select.live_area': 'LIVE AREA',
+    'alley_select.live_subtext': '{name} · Live API source',
+    'alley_select.live_loading': 'Connecting to live server...',
+    'alley_select.live_empty': 'No data from live server',
+    'alley_select.live_error': 'Live server connection error',
+    'alley_select.live_retry': 'Retry',
+    'alley_select.live_source_badge': 'Live backend source',
+    'alley_select.live_meta_info': 'Live backend source · {count} stops',
+    'alley_select.server_catalog': 'Server collection',
 
     'home.open_story': 'View {name}',
     'home.stories_opened': 'Opened {opened}/{total} stories · {mode}',
@@ -913,13 +950,16 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'qa.this_point': 'this stop',
     'qa.ask_placeholder': 'Ask about {name}…',
     'qa.disclaimer_fiction': 'Fictional story',
+    'qa.disclaimer_demo_reviewed': 'reviewed stops · Demo source',
     'qa.disclaimer_live_reviewed': 'reviewed stops · Live source',
     'qa.disclaimer_live_simulated': 'simulated stops · Live source',
     'qa.narrator_header': 'ALLEY STORYTELLER VOICE',
     'qa.narrator_badge': 'Story',
     'qa.opening_stop': 'Opening stop',
     'qa.waveform_demo': 'FICTIONAL STORY · LISTEN TO NARRATOR',
+    'qa.waveform_demo_reviewed': 'DEMO · REVIEWED HERITAGE',
     'qa.waveform_live': 'LIVE · TEXT STORY',
+    'qa.waveform_live_reviewed': 'LIVE · REVIEWED HERITAGE',
     'qa.story_label': 'Story',
     'qa.answer_label': 'Answer',
     'qa.minutes_simulated': 'simulated minutes',
@@ -1016,6 +1056,8 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'camera.permission_blocked': 'Camera permission is blocked in settings. Please select a stop manually below.',
     'camera.unrecognized_qr': 'Unrecognized code. You can scan again or select manually.',
     'camera.choose_another_stop': '← Choose another stop from passport',
+    'camera.disclaimer_simulated': 'Stories and captions in demo are simulated content. 2D narrator is a placeholder without voice; audio belongs to Voice phase.',
+    'camera.disclaimer_reviewed': 'Stop content and stories are based on reviewed heritage data with verified sources. 2D narrator is a spatial illustration placeholder.',
 
     'location.title': 'Confirm GPS stop',
     'location.find_button': 'Find nearest stop via GPS',

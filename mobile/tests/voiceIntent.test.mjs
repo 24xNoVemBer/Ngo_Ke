@@ -57,7 +57,7 @@ test('English mixed questions use the shared translator and negative plan text s
     assert.equal(contractedNegative.draft.budgetMinutes, 30);
     assert.match(contractedNegative.ambiguous ?? '', /negation/i);
   }
-  for (const [duration, minutes] of [['half an hour', 30], ['1.5 hours', 90], ['1 hour 30 minutes', 90]]) {
+  for (const [duration, minutes] of [['half an hour', 30], ['1.5 hours', 90], ['1 hour 30 minutes', 90], ['1h30m', 90]]) {
     assert.deepEqual(parseVoiceIntent(`choose experience for ${duration}`, false, {}, 'en'), {
       type: 'plan', draft: { budgetMinutes: minutes },
     });

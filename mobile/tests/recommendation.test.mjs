@@ -28,6 +28,12 @@ test('time budget is read from plain numbers, minutes and hours', () => {
   assert.equal(parseTimeBudget('  15 PHÚT '), 15);
   assert.equal(parseTimeBudget('1 tiếng'), 60);
   assert.equal(parseTimeBudget('tiếng rưỡi'), 90);
+  assert.equal(parseTimeBudget('1h30m', 'en'), 90);
+  assert.equal(parseTimeBudget('2h15m', 'en'), 135);
+  assert.equal(parseTimeBudget('1 hour 30 minutes', 'en'), 90);
+  assert.equal(parseTimeBudget('1.5 hours', 'en'), 90);
+  assert.equal(parseTimeBudget('half an hour', 'en'), 30);
+  assert.equal(parseTimeBudget('about 45 minutes', 'en'), 45);
 });
 
 test('text that is not a duration yields no budget', () => {

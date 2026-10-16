@@ -173,16 +173,28 @@ function mount(file, props = {}, overrides = {}, exportName) {
       getBundledDataset: () => fixture,
       getCollectionRevision: () => 'fixture-revision',
       isCollectionId: (v) => v === 'fiction-letter' || v === 'old-quarter-pilot',
-      AVAILABLE_COLLECTIONS: [],
-      getLocalizedCollections: () => [],
+      AVAILABLE_COLLECTIONS: [
+        { id: 'fiction-letter', nameKey: 'collection.fiction_letter.name', districtKey: 'collection.fiction_letter.district', themeKey: 'collection.fiction_letter.theme', taglineKey: 'collection.fiction_letter.tagline', nodeCount: 6, coverPhoto: 1, kind: 'simulated' },
+        { id: 'old-quarter-pilot', nameKey: 'collection.old_quarter_pilot.name', districtKey: 'collection.old_quarter_pilot.district', themeKey: 'collection.old_quarter_pilot.theme', taglineKey: 'collection.old_quarter_pilot.tagline', nodeCount: 3, coverPhoto: 1, kind: 'reviewed' },
+      ],
+      getLocalizedCollections: (loc = 'vi') => [
+        { id: 'fiction-letter', name: loc === 'en' ? 'Hanoi Letters — Story Alleys' : 'Thư Hà Nội — Ngõ Kể chuyện', coverPhoto: 1, kind: 'simulated', nodeCount: 6 },
+        { id: 'old-quarter-pilot', name: loc === 'en' ? 'Old Quarter Pilot' : 'Thử nghiệm Phố Cổ', coverPhoto: 1, kind: 'reviewed', nodeCount: 3 },
+      ],
     },
     '../data/collections': {
       DEFAULT_COLLECTION_ID: 'fiction-letter',
       getBundledDataset: () => fixture,
       getCollectionRevision: () => 'fixture-revision',
       isCollectionId: (v) => v === 'fiction-letter' || v === 'old-quarter-pilot',
-      AVAILABLE_COLLECTIONS: [],
-      getLocalizedCollections: () => [],
+      AVAILABLE_COLLECTIONS: [
+        { id: 'fiction-letter', nameKey: 'collection.fiction_letter.name', districtKey: 'collection.fiction_letter.district', themeKey: 'collection.fiction_letter.theme', taglineKey: 'collection.fiction_letter.tagline', nodeCount: 6, coverPhoto: 1, kind: 'simulated' },
+        { id: 'old-quarter-pilot', nameKey: 'collection.old_quarter_pilot.name', districtKey: 'collection.old_quarter_pilot.district', themeKey: 'collection.old_quarter_pilot.theme', taglineKey: 'collection.old_quarter_pilot.tagline', nodeCount: 3, coverPhoto: 1, kind: 'reviewed' },
+      ],
+      getLocalizedCollections: (loc = 'vi') => [
+        { id: 'fiction-letter', name: loc === 'en' ? 'Hanoi Letters — Story Alleys' : 'Thư Hà Nội — Ngõ Kể chuyện', coverPhoto: 1, kind: 'simulated', nodeCount: 6 },
+        { id: 'old-quarter-pilot', name: loc === 'en' ? 'Old Quarter Pilot' : 'Thử nghiệm Phố Cổ', coverPhoto: 1, kind: 'reviewed', nodeCount: 3 },
+      ],
     },
     './src/data/localeStorage': {
       readPersistedLocaleAsync: async () => 'vi',
@@ -394,8 +406,8 @@ test('Q&A uses only the selected point, clears the previous answer and offers re
   assert.ok(JSON.stringify(tree).includes('Chưa có câu hỏi cho điểm này'), 'missing Q&A still has an explicit fallback');
 });
 
-test('voice answers play catalogue audio only in Demo and explain the Live text fallback', async () => {
-  function run(mode) {
+test('voice answers play catalogue audio in Demo and known Live, and explain the Live text fallback when missing', async () => {
+  function run(mode, hasAudio = mode === 'demo') {
     let transcript;
     const played = [];
     const props = { dataset: fixture, mode, datasetRevision: 'rev-1', currentNodeId: 'demo-01', onSelectNode() {}, onReadNode() {}, readNodeIds: new Set(), onOpenNotebook() {} };
@@ -409,6 +421,16 @@ test('voice answers play catalogue audio only in Demo and explain the Live text 
           playTrack(...args) { played.push(args); }, replayTrack() {},
         };
       } },
+      '../voice/localizedCatalog': {
+        voiceCatalogueRevision: 'rev-1',
+        lookupVoiceTrack: ({ collectionId = 'fiction-letter', locale = 'vi', contentId } = {}) => {
+          if (!hasAudio) return undefined;
+          if (collectionId === 'fiction-letter' && (locale === 'vi' || !locale)) {
+            return { id: contentId, kind: 'answer', source: 1, textHash: 'dummy', durationSeconds: 10 };
+          }
+          return undefined;
+        },
+      },
     });
     view.render();
     const context = { turnId: 'turn-1', scope: `${mode}:rev-1:demo-01`, nodeId: 'demo-01', mode, datasetRevision: 'rev-1' };
@@ -428,7 +450,7 @@ test('voice answers play catalogue audio only in Demo and explain the Live text 
   assert.equal(demo.played[1][0], `${followUp.id}-answer`);
   assert.equal(demo.played[1][1], followUp.answer);
 
-  const live = run('live');
+  const live = run('live', false);
   assert.equal(live.played.length, 0);
   assert.ok(JSON.stringify(live.tree).includes('Bản đọc chưa có trong chế độ Live'));
   assert.equal(JSON.stringify(live.tree).includes(fixture.qa[0].answer), false, 'the Live answer remains collapsed until opened');
@@ -436,8 +458,15 @@ test('voice answers play catalogue audio only in Demo and explain the Live text 
   const replayTree = live.view.render();
   assert.equal(live.played.length, 0, 'replay never falls back to Demo audio in Live');
   assert.ok(JSON.stringify(replayTree).includes('Chế độ Live chưa có bản đọc'));
+
+  const liveWithTrack = run('live', true);
+  await Promise.resolve();
+  assert.equal(liveWithTrack.played.length, 1, 'known matching track plays in Live');
+  assert.equal(liveWithTrack.played[0][0], `${fixture.qa[0].id}-answer`);
+
   demo.view.unmount();
   live.view.unmount();
+  liveWithTrack.view.unmount();
 });
 
 test('native playback errors show an accessible text fallback without exposing native details', () => {
@@ -690,6 +719,14 @@ test('duplicate submit, cancel and scope change invalidate pending voice turns',
     './recorderPreparation': {
       prepareVoiceRecorderForTurn: async ({ isCurrent }) => isCurrent(),
       startVoiceRecorder: async (start, _isActive, isCurrent) => { await start(); return isCurrent(); },
+      stopVoiceRecorderWithTimeout: async (stopRecorder) => {
+        try {
+          await stopRecorder();
+          return { kind: 'stopped' };
+        } catch (error) {
+          return { kind: 'failed', error };
+        }
+      },
     },
     './recordingLimit': { hasReachedVoiceRecordingLimit: () => false },
     './transcribe': {
@@ -832,6 +869,14 @@ test('regression - stale voice submission resolution cannot reset a newer active
     './recorderPreparation': {
       prepareVoiceRecorderForTurn: async ({ isCurrent }) => isCurrent(),
       startVoiceRecorder: async (start, _isActive, isCurrent) => { await start(); return isCurrent(); },
+      stopVoiceRecorderWithTimeout: async (stopRecorder) => {
+        try {
+          await stopRecorder();
+          return { kind: 'stopped' };
+        } catch (error) {
+          return { kind: 'failed', error };
+        }
+      },
     },
     './recordingLimit': { hasReachedVoiceRecordingLimit: () => false },
     './transcribe': {
@@ -1601,4 +1646,484 @@ test('QaScreen passes locale and collectionId to useVoiceSession and resolves lo
   assert.equal(catalogLookups[0].contentId, 'demo-01-story');
   assert.equal(catalogLookups[0].datasetRevision, 'pilot-rev-en');
   view.unmount();
+});
+
+test('AlleySelectScreen in live mode shows only actual server collection with actual node count and explicit loading/error states without bundle picker', () => {
+  let selectedCollection = null;
+  let retried = false;
+  const navigation = {
+    navigate: (_route, params) => {
+      selectedCollection = params?.alleyId ?? null;
+    },
+    goBack: () => {},
+  };
+
+  // 1. Ready live source with known collection
+  const viewReady = mount('../src/screens/AlleySelectScreen.tsx', {
+    navigation,
+    mode: 'live',
+    nodeCount: 3,
+    liveSource: {
+      mode: 'live',
+      status: 'ready',
+      dataset: {
+        schemaVersion: 2,
+        locale: 'vi',
+        collectionId: 'old-quarter-pilot',
+        kind: 'reviewed',
+        nodes: fixture.nodes.slice(0, 3),
+        qa: [],
+      },
+    },
+    liveBusy: false,
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        t: (key, params) => translator.t('vi', key, params),
+        setCollectionId: (id) => { selectedCollection = id; },
+      }),
+    },
+    '../data/collections': {
+      isCollectionId: (v) => v === 'fiction-letter' || v === 'old-quarter-pilot',
+      AVAILABLE_COLLECTIONS: [
+        { id: 'fiction-letter', nameKey: 'collection.fiction_letter.name', districtKey: 'collection.fiction_letter.district', themeKey: 'collection.fiction_letter.theme', taglineKey: 'collection.fiction_letter.tagline', nodeCount: 6, coverPhoto: 1, kind: 'simulated' },
+        { id: 'old-quarter-pilot', nameKey: 'collection.old_quarter_pilot.name', districtKey: 'collection.old_quarter_pilot.district', themeKey: 'collection.old_quarter_pilot.theme', taglineKey: 'collection.old_quarter_pilot.tagline', nodeCount: 3, coverPhoto: 1, kind: 'reviewed' },
+      ],
+      getLocalizedCollections: () => [],
+    },
+  });
+  const treeReady = viewReady.render();
+  const readyCards = elements(treeReady, 'Pressable').filter((p) => p.props.accessibilityLabel?.startsWith('Mở'));
+  assert.equal(readyCards.length, 1, 'in live mode only one actual server collection is shown, never bundle picker');
+  readyCards[0].props.onPress();
+  assert.equal(selectedCollection, 'old-quarter-pilot');
+  assert.ok(JSON.stringify(treeReady).includes('Nguồn máy chủ Live · 3 điểm'));
+  assert.ok(JSON.stringify(treeReady).includes('Phố Cổ, Hoàn Kiếm · Nguồn máy chủ Live'));
+  assert.equal(JSON.stringify(treeReady).includes('Phố Hàng Bút'), false, 'bundled fiction collection is not shown in live');
+  assert.equal(JSON.stringify(treeReady).includes('Lá thư Hà Nội'), false);
+  viewReady.unmount();
+
+  // 2. Ready live source with arbitrary collection
+  const viewArbitrary = mount('../src/screens/AlleySelectScreen.tsx', {
+    navigation,
+    mode: 'live',
+    nodeCount: 4,
+    liveSource: {
+      mode: 'live',
+      status: 'ready',
+      dataset: {
+        schemaVersion: 2,
+        locale: 'en',
+        collectionId: 'custom-heritage-quarter',
+        kind: 'reviewed',
+        nodes: fixture.nodes.slice(0, 4),
+        qa: [],
+      },
+    },
+    liveBusy: false,
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        t: (key, params) => translator.t('en', key, params),
+        setCollectionId: (id) => { selectedCollection = id; },
+      }),
+    },
+  });
+  const treeArbitrary = viewArbitrary.render();
+  const arbitraryCards = elements(treeArbitrary, 'Pressable').filter((p) => p.props.accessibilityLabel?.startsWith('Open'));
+  assert.equal(arbitraryCards.length, 1);
+  assert.ok(JSON.stringify(treeArbitrary).includes('Live backend source · 4 stops'));
+  assert.ok(JSON.stringify(treeArbitrary).includes('custom-heritage-quarter'));
+  assert.equal(JSON.stringify(treeArbitrary).includes('Hanoi Old Quarter · simulated content'), false);
+  viewArbitrary.unmount();
+
+  // 3. Busy loading live state
+  const viewLoading = mount('../src/screens/AlleySelectScreen.tsx', {
+    navigation,
+    mode: 'live',
+    nodeCount: 0,
+    liveSource: { mode: 'live', status: 'empty' },
+    liveBusy: true,
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        t: (key, params) => translator.t('vi', key, params),
+        setCollectionId: () => {},
+      }),
+    },
+  });
+  const treeLoading = viewLoading.render();
+  assert.ok(JSON.stringify(treeLoading).includes('Đang kết nối máy chủ Live...'));
+  assert.equal(elements(treeLoading, 'Pressable').filter((p) => p.props.accessibilityLabel?.startsWith('Mở')).length, 0);
+  viewLoading.unmount();
+
+  // 4. Live error state with working retry
+  const viewError = mount('../src/screens/AlleySelectScreen.tsx', {
+    navigation,
+    mode: 'live',
+    nodeCount: 0,
+    liveSource: { mode: 'live', status: 'error', title: 'Máy chủ live trả lỗi', detail: 'HTTP 503 Service Unavailable' },
+    liveBusy: false,
+    onRetryLive: () => { retried = true; },
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        t: (key, params) => translator.t('vi', key, params),
+        setCollectionId: () => {},
+      }),
+    },
+  });
+  const treeError = viewError.render();
+  assert.ok(JSON.stringify(treeError).includes('Máy chủ live trả lỗi'));
+  assert.ok(JSON.stringify(treeError).includes('HTTP 503 Service Unavailable'));
+  const retryBtn = elements(treeError, 'Pressable').find((p) => p.props.accessibilityLabel === 'Thử lại');
+  assert.ok(retryBtn);
+  retryBtn.props.onPress();
+  assert.equal(retried, true);
+  viewError.unmount();
+});
+
+test('QaScreen in live mode mounts audio controls for known live tracks and shows explicit localized fallback for missing tracks', async () => {
+  let liveTranscript;
+  const played = [];
+  const propsKnown = {
+    dataset: {
+      ...fixture,
+      collectionId: 'old-quarter-pilot',
+      nodes: fixture.nodes,
+      intro: fixture.intro,
+      qa: fixture.qa,
+    },
+    mode: 'live',
+    datasetRevision: 'live-rev-pilot',
+    currentNodeId: 'demo-01',
+    onSelectNode() {},
+    onReadNode() {},
+    readNodeIds: new Set(),
+    onOpenNotebook() {},
+  };
+
+  // 1. Known live track: audio controls are mounted and playable
+  const viewKnown = mount('../src/screens/QaScreen.tsx', propsKnown, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        collectionId: 'old-quarter-pilot',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+    '../voice/useVoiceSession': {
+      useVoiceSession: (options) => {
+        liveTranscript = options.onTranscript;
+        return {
+          stage: 'idle', error: null, recordingDurationMs: 0, metering: -60,
+          playback: { playing: false, currentTime: 0, duration: 45 }, activeTrackId: null, playbackError: null,
+          startRecording() {}, submitRecording() {}, cancel() {}, stopPlayback() {},
+          playTrack(...args) { played.push(args); }, replayTrack() {},
+        };
+      },
+    },
+    '../voice/localizedCatalog': {
+      lookupVoiceTrack: ({ contentId }) => {
+        if (contentId === 'demo-01-story') {
+          return { id: 'demo-01-story', kind: 'story', durationSeconds: 45, url: 'file://pilot-story.mp3' };
+        }
+        if (contentId === 'qa-01-answer') {
+          return { id: 'qa-01-answer', kind: 'answer', durationSeconds: 22, url: 'file://pilot-answer.mp3' };
+        }
+        return undefined;
+      },
+    },
+  });
+
+  const treeKnown = viewKnown.render();
+  const playerBars = elements(treeKnown, 'VoicePlayerBar');
+  assert.equal(playerBars.length, 1, 'VoicePlayerBar is mounted for known live story track');
+  assert.equal(JSON.stringify(treeKnown).includes('Lời kể Live chưa có bản đọc'), false, 'live_no_audio notice is hidden when storyTrack exists');
+
+  // Play known story
+  playerBars[0].props.onPlay();
+  assert.equal(played.length, 1);
+  assert.equal(played[0][0], 'demo-01-story');
+
+  // Ask question via voice -> plays known answer track in Live
+  const context = { turnId: 'turn-1', scope: 'live:live-rev-pilot:demo-01', nodeId: 'demo-01', mode: 'live', datasetRevision: 'live-rev-pilot' };
+  liveTranscript(fixture.qa[0].question, context);
+  await Promise.resolve();
+  assert.equal(played.length, 2);
+  assert.equal(played[1][0], 'qa-01-answer');
+  const treeAfterAnswer = viewKnown.render();
+  assert.equal(elements(treeAfterAnswer, 'VoicePlayerBar').length, 2, 'VoicePlayerBar rendered for both live story and live answer');
+  viewKnown.unmount();
+
+  // 2. Missing live track: explicit localized fallbacks and no player
+  const playedMissing = [];
+  let missingTranscript;
+  const viewMissing = mount('../src/screens/QaScreen.tsx', {
+    ...propsKnown,
+    dataset: { ...fixture, collectionId: 'unknown-collection' },
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        collectionId: 'unknown-collection',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+    '../voice/useVoiceSession': {
+      useVoiceSession: (options) => {
+        missingTranscript = options.onTranscript;
+        return {
+          stage: 'idle', error: null, recordingDurationMs: 0, metering: -60,
+          playback: { playing: false, currentTime: 0, duration: 0 }, activeTrackId: null, playbackError: null,
+          startRecording() {}, submitRecording() {}, cancel() {}, stopPlayback() {},
+          playTrack(...args) { playedMissing.push(args); }, replayTrack() {},
+        };
+      },
+    },
+    '../voice/localizedCatalog': {
+      lookupVoiceTrack: () => undefined,
+    },
+  });
+
+  const treeMissing = viewMissing.render();
+  assert.equal(elements(treeMissing, 'AudioCard').length, 0, 'No AudioCard when live track is missing');
+  assert.ok(JSON.stringify(treeMissing).includes('Lời kể Live chưa có bản đọc'), 'explicit localized notice shown');
+
+  // Asking question in missing live track
+  missingTranscript(fixture.qa[0].question, { turnId: 'turn-2', scope: 'live:live-rev-pilot:demo-01', nodeId: 'demo-01', mode: 'live', datasetRevision: 'live-rev-pilot' });
+  const treeMissingAnswer = viewMissing.render();
+  assert.equal(playedMissing.length, 0, 'no audio played for missing live answer');
+  assert.ok(JSON.stringify(treeMissingAnswer).includes('Bản đọc chưa có trong chế độ Live'), 'explicit fallback notice for answer');
+  assert.equal(elements(treeMissingAnswer, 'VoicePlayerBar').length, 0, 'no VoicePlayerBar for missing live answer');
+
+  // Command listen on missing track
+  missingTranscript('Bắt đầu nghe lời kể.', { turnId: 'turn-3', scope: 'live:live-rev-pilot:demo-01', nodeId: 'demo-01', mode: 'live', datasetRevision: 'live-rev-pilot' });
+  const treeMissingListen = viewMissing.render();
+  assert.equal(playedMissing.length, 0);
+  assert.ok(JSON.stringify(treeMissingListen).includes('Lời kể Live chưa có bản đọc'));
+
+  viewMissing.unmount();
+});
+
+test('HomeScreen reflects selected collection localized title instead of legacy alley fallback', () => {
+  // 1. VI old-quarter-pilot
+  const viewPilotVi = mount('../src/screens/HomeScreen.tsx', {
+    mode: 'demo',
+    source: sources.getSourceState('demo', { ...fixture, collectionId: 'old-quarter-pilot' }),
+    onModeChange() {},
+    currentNodeId: 'demo-01',
+    onSelectNode() {},
+    readNodeIds: new Set(),
+    navigation: { goBack() {}, navigate() {} },
+    route: { params: { alleyId: 'old-quarter-pilot' } },
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        setLocale() {},
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+  const treePilotVi = viewPilotVi.render();
+  const textPilotVi = JSON.stringify(treePilotVi);
+  assert.ok(textPilotVi.includes('Thử nghiệm Phố Cổ'), 'pilot collection title is displayed');
+  assert.equal(textPilotVi.includes('Ngõ Tạm Thương'), false, 'does not fall back to legacy ALLEY_LIST[0]');
+  viewPilotVi.unmount();
+
+  // 2. EN old-quarter-pilot
+  const viewPilotEn = mount('../src/screens/HomeScreen.tsx', {
+    mode: 'demo',
+    source: sources.getSourceState('demo', { ...fixture, collectionId: 'old-quarter-pilot' }),
+    onModeChange() {},
+    currentNodeId: 'demo-01',
+    onSelectNode() {},
+    readNodeIds: new Set(),
+    navigation: { goBack() {}, navigate() {} },
+    route: { params: { alleyId: 'old-quarter-pilot' } },
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        setLocale() {},
+        t: (key, params) => translator.t('en', key, params),
+      }),
+    },
+  });
+  const treePilotEn = viewPilotEn.render();
+  const textPilotEn = JSON.stringify(treePilotEn);
+  assert.ok(textPilotEn.includes('Old Quarter Pilot'), 'EN pilot collection title is displayed');
+  assert.equal(textPilotEn.includes('Ngõ Tạm Thương'), false);
+  viewPilotEn.unmount();
+
+  // 3. VI fiction-letter
+  const viewFictionVi = mount('../src/screens/HomeScreen.tsx', {
+    mode: 'demo',
+    source: sources.getSourceState('demo', { ...fixture, collectionId: 'fiction-letter' }),
+    onModeChange() {},
+    currentNodeId: 'demo-01',
+    onSelectNode() {},
+    readNodeIds: new Set(),
+    navigation: { goBack() {}, navigate() {} },
+    route: { params: { alleyId: 'fiction-letter' } },
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        setLocale() {},
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+  const treeFictionVi = viewFictionVi.render();
+  const textFictionVi = JSON.stringify(treeFictionVi);
+  assert.ok(textFictionVi.includes('Thư Hà Nội — Ngõ Kể chuyện'), 'fiction-letter collection title is displayed');
+  assert.equal(textFictionVi.includes('Ngõ Tạm Thương'), false);
+  viewFictionVi.unmount();
+
+  // 4. Stale demo route param with Live source: active collection derives from source.dataset
+  const viewStaleRouteLive = mount('../src/screens/HomeScreen.tsx', {
+    mode: 'live',
+    source: {
+      mode: 'live',
+      status: 'ready',
+      dataset: { ...fixture, collectionId: 'old-quarter-pilot' },
+    },
+    onModeChange() {},
+    currentNodeId: 'demo-01',
+    onSelectNode() {},
+    readNodeIds: new Set(),
+    navigation: { goBack() {}, navigate() {} },
+    route: { params: { alleyId: 'fiction-letter' } }, // Stale demo route
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        setLocale() {},
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+  const textStaleLive = JSON.stringify(viewStaleRouteLive.render());
+  assert.ok(textStaleLive.includes('Thử nghiệm Phố Cổ'), 'Live header uses actual server collection name');
+  assert.equal(textStaleLive.includes('Thư Hà Nội'), false, 'Live does not use stale fiction route title');
+  viewStaleRouteLive.unmount();
+});
+
+test('QaScreen and CameraScreen branch semantic content labels on reviewed-pilot versus simulated fiction (W4 F5 regression)', () => {
+  // 1. Fiction simulated collection in Demo mode
+  const fictionQaProps = {
+    currentNode: fixture.nodes[0],
+    nodeQa: fixture.qa.slice(0, 2),
+    dataset: { ...fixture, collectionId: 'fiction-letter', kind: 'simulated' },
+    collectionId: 'fiction-letter',
+    datasetRevision: 'rev-fiction',
+    mode: 'demo',
+    isFocused: true,
+    navigation: { navigate() {}, goBack() {} },
+    onSelectNode() {},
+    onAskQuestion() {},
+    onModeChange() {},
+    match: { status: 'matched', entry: fixture.qa[0] },
+    locale: 'vi',
+    readNodeIds: new Set(),
+    onReadNode() {},
+  };
+  const viewFictionQa = mount('../src/screens/QaScreen.tsx', fictionQaProps, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        collectionId: 'fiction-letter',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+  let treeFictionQa = viewFictionQa.render();
+  elements(treeFictionQa, 'ExpandableInputDrawer')[0].props.onSelectSuggestion('Đây là điểm nào?');
+  treeFictionQa = viewFictionQa.render(fictionQaProps);
+  const textFictionQa = JSON.stringify(treeFictionQa);
+  assert.ok(textFictionQa.includes('Truyện hư cấu'), 'fiction collection shows fictional story disclaimer');
+  assert.ok(textFictionQa.includes('TRUYỆN HƯ CẤU · NGHE NGƯỜI KỂ'), 'waveform note shows fiction label');
+  assert.ok(textFictionQa.includes('LỜI KỂ TRONG TRUYỆN'), 'verified tag shows story passage');
+  viewFictionQa.unmount();
+
+  const viewFictionCamera = mount('../src/screens/CameraScreen.tsx', {
+    nodes: fixture.nodes,
+    onConfirmNode() {},
+    collectionKind: 'simulated',
+    collectionId: 'fiction-letter',
+  }, {
+    '../hooks/MotionPreferences': { useMotionState: () => ({ active: false, reducedMotion: true, foreground: true }) },
+    'expo-camera': { CameraView: 'CameraView', useCameraPermissions: () => [{ granted: true }, async () => ({ granted: true })] },
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+  const textFictionCamera = JSON.stringify(viewFictionCamera.render());
+  assert.ok(textFictionCamera.includes('nội dung mô phỏng'), 'camera footer shows simulated disclaimer');
+  viewFictionCamera.unmount();
+
+  // 2. Reviewed pilot collection in Demo mode (W4 F5 fix: must not label reviewed heritage as fiction)
+  const pilotQaProps = {
+    currentNode: fixture.nodes[0],
+    nodeQa: fixture.qa.slice(0, 2),
+    dataset: { ...fixture, collectionId: 'old-quarter-pilot', kind: 'reviewed' },
+    collectionId: 'old-quarter-pilot',
+    datasetRevision: 'rev-pilot',
+    mode: 'demo',
+    isFocused: true,
+    navigation: { navigate() {}, goBack() {} },
+    onSelectNode() {},
+    onAskQuestion() {},
+    onModeChange() {},
+    locale: 'vi',
+    readNodeIds: new Set(),
+    onReadNode() {},
+  };
+  const viewPilotQa = mount('../src/screens/QaScreen.tsx', pilotQaProps, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        collectionId: 'old-quarter-pilot',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+  let treePilotQa = viewPilotQa.render();
+  elements(treePilotQa, 'ExpandableInputDrawer')[0].props.onSelectSuggestion('Đây là điểm nào?');
+  treePilotQa = viewPilotQa.render(pilotQaProps);
+  const textPilotQa = JSON.stringify(treePilotQa);
+  assert.ok(textPilotQa.includes('điểm đã duyệt · nguồn Demo'), 'reviewed pilot shows reviewed demo disclaimer');
+  assert.ok(textPilotQa.includes('DEMO · DI SẢN ĐÃ DUYỆT'), 'waveform note shows reviewed heritage');
+  assert.ok(textPilotQa.includes('NỘI DUNG CÓ NGUỒN'), 'verified tag shows sourced content');
+  assert.equal(textPilotQa.includes('TRUYỆN HƯ CẤU · NGHE NGƯỜI KỂ'), false, 'must not label reviewed heritage as fictional story');
+  viewPilotQa.unmount();
+
+  const viewPilotCamera = mount('../src/screens/CameraScreen.tsx', {
+    nodes: [{ id: 'oldquarter-bach-ma', name: 'Đền Bạch Mã', available: true, visitMinutes: 15 }],
+    onConfirmNode() {},
+    collectionKind: 'reviewed',
+    collectionId: 'old-quarter-pilot',
+  }, {
+    '../hooks/MotionPreferences': { useMotionState: () => ({ active: false, reducedMotion: true, foreground: true }) },
+    'expo-camera': { CameraView: 'CameraView', useCameraPermissions: () => [{ granted: true }, async () => ({ granted: true })] },
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+  const textPilotCamera = JSON.stringify(viewPilotCamera.render());
+  assert.ok(textPilotCamera.includes('dữ liệu di sản đã duyệt'), 'reviewed camera footer shows reviewed heritage notice');
+  assert.equal(textPilotCamera.includes('nội dung mô phỏng'), false, 'reviewed camera footer must not say simulated');
+  viewPilotCamera.unmount();
 });

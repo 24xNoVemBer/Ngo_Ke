@@ -270,7 +270,16 @@ export default function App(): ReactElement {
             name="AlleySelect"
             options={{ headerShown: false, animation: motion.reducedMotion ? 'none' : 'slide_from_right' }}
           >
-            {(props) => <AlleySelectScreen {...props} mode={mode} nodeCount={source.status === 'ready' ? source.dataset.nodes.length : 0} />}
+            {(props) => (
+              <AlleySelectScreen
+                {...props}
+                mode={mode}
+                nodeCount={source.status === 'ready' ? source.dataset.nodes.length : 0}
+                liveSource={liveSource}
+                liveBusy={liveBusy}
+                onRetryLive={retryLive}
+              />
+            )}
           </Stack.Screen>
 
           {/* TẦNG 3: BẢN ĐỒ CON NGÕ ĐÃ CHỌN */}
@@ -349,7 +358,12 @@ export default function App(): ReactElement {
           <Stack.Screen name="Camera" options={{ title: t(locale, 'camera.title') }}>
             {() =>
               source.status === 'ready' ? (
-                <CameraScreen nodes={source.dataset.nodes} onConfirmNode={confirmNode} />
+                <CameraScreen
+                  nodes={source.dataset.nodes}
+                  onConfirmNode={confirmNode}
+                  collectionKind={'kind' in source.dataset && source.dataset.kind === 'reviewed' ? 'reviewed' : 'simulated'}
+                  collectionId={'collectionId' in source.dataset && typeof source.dataset.collectionId === 'string' ? source.dataset.collectionId : undefined}
+                />
               ) : (
                 <UnavailableScreen detail={source.detail} />
               )

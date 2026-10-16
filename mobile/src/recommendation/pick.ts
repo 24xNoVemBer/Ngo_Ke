@@ -64,6 +64,16 @@ export function parseTimeBudget(text: string, locale: 'vi' | 'en' = 'vi'): numbe
   if (normalized === 'half an hour' || normalized === 'half hour') return 30;
   if (normalized === 'an hour' || normalized === 'one hour' || normalized === '1 hour') return 60;
   if (normalized === 'hour and a half' || normalized === 'one and a half hours' || normalized === '1.5 hours' || normalized === '1.5 hour') return 90;
+  const compact = normalized.match(/^(\d{1,3})h(\d{1,2})m$/);
+  if (compact) {
+    const minutes = Number(compact[1]) * 60 + Number(compact[2]);
+    return Number.isSafeInteger(minutes) && minutes > 0 ? minutes : undefined;
+  }
+  const compound = normalized.match(/^(\d+(?:\.\d+)?)\s*hours?\s+(\d+)\s*(?:minutes?|mins?)$/);
+  if (compound) {
+    const minutes = Number(compound[1]) * 60 + Number(compound[2]);
+    return Number.isSafeInteger(minutes) && minutes > 0 ? minutes : undefined;
+  }
   const legacyHour = normalized.match(/^(?:(\d+)\s*)?(?:tieng|gio|hours?)(?:\s+(ruoi)|\s+(\d+)\s*(?:phut|minutes?|mins?))?$/);
   const legacyMinutes = normalized.match(/^(\d+)\s*(?:phut|minutes?|mins?|m)?$/);
   if (legacyHour || legacyMinutes) {
