@@ -7,7 +7,7 @@ import { File } from 'expo-file-system';
 import { DEFAULT_LOCALE, type Locale } from '../data/locale';
 import { translate, type TranslationKey } from '../i18n/translator';
 import { DEFAULT_VOICE_COLLECTION, lookupVoiceTrack } from './localizedCatalog';
-import { canContinueVoiceStart, isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoiceOnScopeChange } from './appState';
+import { canCleanUpVoiceTurn, canContinueVoiceStart, isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoiceOnScopeChange } from './appState';
 import { prepareVoiceRecorderForTurn, startVoiceRecorder } from './recorderPreparation';
 import { hasReachedVoiceRecordingLimit } from './recordingLimit';
 import { createVoiceRequestBody, transcribeVoiceRequest } from './transcribe';
@@ -221,7 +221,8 @@ export function useVoiceSession({
       changeStage('error');
     } finally {
       permissionPendingRef.current = false;
-      if (!isCurrentTurn() && stageRef.current === 'preparing') {
+      if (!isCurrentTurn() && canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId)
+          && stageRef.current === 'preparing') {
         if (turnRef.current?.turnId === context.turnId) turnRef.current = null;
         changeStage('idle');
         finishCancelPerformance();
@@ -332,22 +333,22 @@ export function useVoiceSession({
         console.warn('Voice submit failed', cause instanceof Error ? cause.name : 'UnknownError', diagnostic);
       }
     } finally {
-      if (!recorderStopped) {
+      if (!recorderStopped && canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId)) {
         try {
           await recorder.stop();
           recordingUri ??= recorder.uri;
         } catch { /* The recorder can already be reset after a native stop error. */ }
       }
-      if (!audioModeReset) {
+      if (!audioModeReset && canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId)) {
         try { await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }); } catch { /* Keep cleanup best-effort after stop failure. */ }
       }
       if (requestController && abortRef.current === requestController) abortRef.current = null;
-      removeRecording(recordingUri ?? recorder.uri);
+      removeRecording(recordingUri ?? (canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId) ? recorder.uri : null));
       if (errorCode && isCurrentTurn()) {
         turnRef.current = null;
         setError(messageForError(errorCode, context.locale));
         changeStage('error');
-      } else if (!isCurrentTurn()) {
+      } else if (!isCurrentTurn() && canCleanUpVoiceTurn(turnRef.current?.turnId ?? null, context.turnId)) {
         if (turnRef.current?.turnId === context.turnId) turnRef.current = null;
         const finalStage = stageRef.current as VoiceStage;
         if (finalStage === 'stopping' || finalStage === 'transcribing') {

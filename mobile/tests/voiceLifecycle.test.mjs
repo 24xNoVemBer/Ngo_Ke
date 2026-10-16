@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { canContinueVoiceStart, isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoiceOnScopeChange } from '../src/voice/appState.ts';
+import { canCleanUpVoiceTurn, canContinueVoiceStart, isCurrentVoiceTurn, shouldCancelVoiceOnAppStateChange, shouldCancelVoiceOnScopeChange } from '../src/voice/appState.ts';
 
 test('native permission dialog does not cancel its pending result', () => {
   assert.equal(shouldCancelVoiceOnAppStateChange('background', true), false);
@@ -32,4 +32,12 @@ test('late voice results require the same turn and both saved/current scopes', (
   assert.equal(isCurrentVoiceTurn(null, expected.scope, expected), false);
   assert.equal(isCurrentVoiceTurn({ ...expected, turnId: 'turn-2' }, expected.scope, expected), false);
   assert.equal(isCurrentVoiceTurn(expected, 'demo:r1:demo-02', expected), false);
+});
+
+test('stale cleanup may finish its own turn but never reset a newer turn', () => {
+  for (const stage of ['preparing', 'recording', 'stopping', 'ready', 'transcribing', 'playing']) {
+    assert.equal(canCleanUpVoiceTurn('new-turn', 'old-turn'), false, `${stage} protects the new turn`);
+    assert.equal(canCleanUpVoiceTurn(null, 'old-turn'), true, `${stage} can release an abandoned turn`);
+    assert.equal(canCleanUpVoiceTurn('old-turn', 'old-turn'), true, `${stage} can release its owner`);
+  }
 });

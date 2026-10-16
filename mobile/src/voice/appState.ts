@@ -20,3 +20,7 @@ export function isCurrentVoiceTurn(
 ): boolean {
   return active?.turnId === expected.turnId && active.scope === expected.scope && activeScope === expected.scope;
 }
+
+export function canCleanUpVoiceTurn(activeTurnId: string | null, expectedTurnId: string): boolean {
+  return activeTurnId === null || activeTurnId === expectedTurnId;
+}
