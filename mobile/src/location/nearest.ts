@@ -47,8 +47,10 @@ export function pickCandidate(
 
   const located = nodes
     .filter(
-      (node) =>
+      (node): node is DemoNode & { latitude: number; longitude: number } =>
         node.available
+        && node.latitude !== null
+        && node.longitude !== null
         && Number.isFinite(node.latitude)
         && Number.isFinite(node.longitude),
     )

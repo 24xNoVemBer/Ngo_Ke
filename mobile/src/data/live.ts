@@ -2,12 +2,16 @@ import {
   liveEmpty,
   liveError,
   parseDataset,
+  parseDatasetV2,
   MAX_BODY_BYTES,
   type SourceState,
+  type DemoDatasetV2,
 } from './sourceState.ts';
+import { type Locale } from './locale.ts';
 
 const DEFAULT_TIMEOUT_MS = 8000;
 const DATASET_PATH = '/api/dataset';
+const DATASET_V2_PATH = '/api/v2/dataset';
 
 type FetchImpl = (url: string, init: { signal: AbortSignal }) => Promise<Response>;
 
@@ -189,3 +193,142 @@ export async function loadLiveSource(options: LiveOptions): Promise<SourceState>
 }
 
 loadLiveSource.defaultTimeoutMs = DEFAULT_TIMEOUT_MS;
+
+export type LiveOptionsV2 = LiveOptions & {
+  locale: Locale;
+};
+
+export async function loadLiveSourceV2(options: LiveOptionsV2): Promise<SourceState<DemoDatasetV2>> {
+  const locale = options.locale;
+  const rawBase = options.baseUrl?.trim();
+  if (rawBase === undefined || rawBase.length === 0) {
+    return liveEmpty<DemoDatasetV2>('no-config', locale);
+  }
+
+  let cleanUrl: string;
+  let safeOrigin: string;
+  try {
+    const parsed = new URL(rawBase);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return liveError<DemoDatasetV2>('shape', locale);
+    }
+    if (parsed.username || parsed.password || parsed.search || parsed.hash) {
+      return liveError<DemoDatasetV2>('shape', locale);
+    }
+    cleanUrl = rawBase.replace(/\/+$/, '');
+    safeOrigin = parsed.origin;
+  } catch {
+    return liveError<DemoDatasetV2>('shape', locale);
+  }
+
+  const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const doFetch: FetchImpl = options.fetchImpl ?? ((url, init) => fetch(url, init));
+  const controller = new AbortController();
+  let timedOut = false;
+  const timer = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeoutMs);
+
+  const onExternalAbort = () => {
+    controller.abort();
+  };
+
+  if (options.signal) {
+    if (options.signal.aborted) {
+      clearTimeout(timer);
+      controller.abort();
+    } else {
+      options.signal.addEventListener('abort', onExternalAbort, { once: true });
+    }
+  }
+
+  try {
+    const url = `${cleanUrl}${DATASET_V2_PATH}?locale=${encodeURIComponent(locale)}`;
+    const response = await doFetch(url, { signal: controller.signal });
+    if (response.status === 404) {
+      return liveEmpty<DemoDatasetV2>('no-data', locale);
+    }
+    if (response.status === 503) {
+      return liveError<DemoDatasetV2>('shape', locale);
+    }
+    if (!response.ok) {
+      return liveError<DemoDatasetV2>('http', locale);
+    }
+
+    const contentLanguage = response.headers?.get?.('content-language');
+    if (contentLanguage !== null && contentLanguage !== undefined && contentLanguage.toLowerCase() !== locale) {
+      return liveError<DemoDatasetV2>('shape', locale);
+    }
+
+    const contentLengthHeader = response.headers?.get?.('content-length');
+    if (contentLengthHeader !== null && contentLengthHeader !== undefined) {
+      const parsedLength = parseInt(contentLengthHeader, 10);
+      if (Number.isFinite(parsedLength) && parsedLength > MAX_BODY_BYTES) {
+        return liveError<DemoDatasetV2>('shape', locale);
+      }
+    }
+
+    let text: string;
+    if (typeof response.text === 'function') {
+      text = await response.text();
+    } else if (typeof response.json === 'function') {
+      const jsonVal = await response.json();
+      text = JSON.stringify(jsonVal);
+    } else {
+      return liveError<DemoDatasetV2>('shape', locale);
+    }
+
+    const actualBytes = getUtf8ByteLength(text);
+    if (actualBytes > MAX_BODY_BYTES) {
+      return liveError<DemoDatasetV2>('shape', locale);
+    }
+
+    let body: unknown;
+    try {
+      body = JSON.parse(text);
+    } catch {
+      return liveError<DemoDatasetV2>('shape', locale);
+    }
+
+    const dataset = parseDatasetV2(body, { mode: 'live', expectedLocale: locale });
+    if (dataset === undefined) {
+      return liveError<DemoDatasetV2>('shape', locale);
+    }
+
+    const title = locale === 'en'
+      ? (dataset.kind === 'reviewed'
+          ? `Live · ${dataset.nodes.length} reviewed points`
+          : `Live · ${dataset.nodes.length} simulated points (unverified)`)
+      : (dataset.kind === 'reviewed'
+          ? `Live · ${dataset.nodes.length} điểm đã duyệt`
+          : `Live · ${dataset.nodes.length} điểm mô phỏng (chưa xác minh)`);
+
+    const detail = locale === 'en'
+      ? `Source: ${safeOrigin}. Live data is not stored on the device.`
+      : `Nguồn: ${safeOrigin}. Dữ liệu live không lưu trong app.`;
+
+    return {
+      mode: 'live',
+      status: 'ready',
+      title,
+      detail,
+      dataset,
+    };
+  } catch {
+    if (options.signal?.aborted) {
+      return liveError<DemoDatasetV2>('network', locale);
+    }
+    if (timedOut) {
+      return liveError<DemoDatasetV2>('timeout', locale);
+    }
+    return liveError<DemoDatasetV2>('network', locale);
+  } finally {
+    clearTimeout(timer);
+    if (options.signal) {
+      options.signal.removeEventListener('abort', onExternalAbort);
+    }
+  }
+}
+
+loadLiveSourceV2.defaultTimeoutMs = DEFAULT_TIMEOUT_MS;
