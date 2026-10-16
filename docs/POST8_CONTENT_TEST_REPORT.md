@@ -11,7 +11,7 @@ Original VI raw (`8b318b`) and 34-track manifest (`34925f`) verified untouched
 builtins only; real matcher `normalizeQuestion`/`findAnswer` imported from
 `mobile/src/qa/match.ts`; no installs/servers/emulator/voice).
 
-## Result: 46/46 pass, 0 fail, 0 skipped
+## Result: 47/47 pass, 0 fail, 0 skipped
 
 - Inventory: fiction VI 6/21 (V1 implicit locale), fiction EN 6/21
   (`fiction-letter`), pilot VI/EN 3/9 reviewed (`old-quarter-pilot`); 30 QAs
@@ -46,6 +46,43 @@ builtins only; real matcher `normalizeQuestion`/`findAnswer` imported from
   blob at `91ddfbd`. The 329-byte gap is Git EOL normalization, not a gap and
   not a source change — both anchors are now asserted (raw Buffer reads only),
   and no file/EOL/source rewrite was made. MP3 byte hashes are unaffected.
+
+## Spoken-v1 artifact verification (2026-10-16, read-only)
+
+Source: `backend-luna/tools/voice/.cache/post8-probe-spoken-v1/` — 14 MP3
+(6 product + 1 synthetic per voice, af_heart + bf_emma, Kokoro-82M
+`f3ff3571…`), all bytes re-hashed MATCHING `audioSha256`; all 12 product
+text hashes match approved EN source across both voices; spokenText hashes
+self-consistent; ffprobe spot-checks mp3/24kHz/mono with durations matching
+records (story 48.675s af / 46.15s bf); clipping 0. Failed 14-sample set
+retained; no bulk/native until integrated first point.
+
+ASR evidence is ENGINE probe only: `post8_asr_probe.py` calls direct
+Whisper `model.transcribe(language=locale)` — requested vs reported language
+are genuinely passed/compared (not echo-only), but forced-language
+probability 1.0 is supplied-language metadata, NOT language identification,
+and this path is NOT app→multipart→HTTP-gateway→worker→matcher evidence.
+No EN HTTP gateway smoke done yet. Latest af_heart transcript shows NO
+codewords (lexicon working) with remaining approximations (Bakma, Longdo,
+Mamei, Zongsuan, Hwang, Booncha/Boonok); bf_emma has no ASR file yet.
+Synthetic ASR ≠ mic/phone/human listening or naturalness QC.
+
+## QC readiness table
+
+| Check | State | Evidence |
+| --- | --- | --- |
+| Text inventory 100 tracks + matcher/pair/limits | PASS (47/47) | this suite |
+| 34 VI assets + manifest hashes | PASS | this suite |
+| Spoken-v1 14 MP3 hash/source/spoken | PASS (artifact) | above |
+| EN codeword regression | PASS (artifact) | af_heart transcript |
+| EN HTTP gateway smoke | MISSING | none yet |
+| Native first-point VI/EN | MISSING | candidate pending |
+| Human listening/naturalness | MISSING | — |
+| Physical device/iPhone | MISSING | — |
+
+Remaining concrete defects: EN intent verbs unparsed + VI-only voice session
+(T3c, W3 logic / W2 wiring); live-`N` revision placeholder (root-covered);
+34925f/CRLF provenance clarified in-suite; bf_emma ASR file absent.
 
 ## T3c independent review of W2 604dd2f + W3 672eedb (2026-10-16, read-only)
 
@@ -85,7 +122,16 @@ unchanged, 34 audio SHAs intact.
   `context.locale` while playback errors use render `locale` — suggest one rule.
 - No additional V2-loader boundary defects beyond the 3 known W2-owned bugs
   (header-required, canonical-404, late-body); V1 loader behavior unchanged.
+  Update 2026-10-16: those 3 fixes are closed (`7b7fc7a`, root 7 asserts green);
+  the earlier candidate `78de2ab` 213-pass is superseded by scaffold `7b55d90`,
+  where type passes but the UI VM harness fails a locale import (W2 fixing).
   213-test green recorded as regression signal only.
+- Cancel-claim qualification (2026-10-16): root's 672-hook replay proved a
+  newer-turn clobber (VI ASR1 pending → render EN same scope/node/rev with
+  cancel idle → EN start/submit ASR2 pending → OLD1 resolves → NEW stage idle
+  instead of transcribing). The earlier “reviewed clean” note is WITHDRAWN as
+  a broad guarantee; W3 voice fix + W2 regression assigned, evidence in root
+  `POST8_COORDINATOR_REVIEW.md` (`5b23ddb`). No hook implementation here.
 
 ## Limits (not covered here)
 
