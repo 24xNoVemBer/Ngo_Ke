@@ -291,7 +291,7 @@ export function QaScreen({
       return;
     }
     if (action === 'plan') {
-      const result = parseVoiceIntent(actionText, false, planDraft);
+      const result = parseVoiceIntent(actionText, false, planDraft, locale);
       showPlanCard(result.type === 'plan' ? result.draft : planDraft, result.type === 'plan' ? result.ambiguous : undefined);
       return;
     }
@@ -316,7 +316,7 @@ export function QaScreen({
       return;
     }
 
-    const intent = parseVoiceIntent(transcript, voiceActionCard?.kind === 'plan', planDraft);
+    const intent = parseVoiceIntent(transcript, voiceActionCard?.kind === 'plan', planDraft, locale);
     if (intent.type !== 'question') voiceOptionContext.current = null;
     if (intent.type === 'question') {
       setVoiceActionCard(null);
