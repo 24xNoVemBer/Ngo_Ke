@@ -216,10 +216,13 @@ MM missing-audio text fallback with no player; live reviewed drawer
 (source/count/origin) + 3-node live map; live error/retry/no-fallback (Expo
 build); QR denial (camera off + manual); GPS denial via real OS dialog +
 manual confirm setting the point; unknown-Q refusal both locales; mic
-permission dialog → 19s real-mic capture → ready → cancel → idle; font 150
-renders cleanly (restored 1.0); full session operable with reduce-motion on
+permission dialog → 19s native recorder capture on the no-audio AVD (state
+proof only, not human/physical mic proof) → ready → cancel → idle; font 150
+renders cleanly (restored 1.0), font 200 explicitly pending (150 proves
+nothing at 200); full session operable with reduce-motion on
 (restored 1); settings/permissions restored exactly (CAMERA ignore,
-locations foreground, airplane off).
+locations foreground, airplane off); emulator stopped after evidence to
+release RAM for TTS.
 PENDING (honest): in-place locale-during-active-playback (path was
 Back-navigation stop + switch; hook-level covered separately); human
 listening/naturalness and mic audibility (AVD has no audio); real-GPS fix;
