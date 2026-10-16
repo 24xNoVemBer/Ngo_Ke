@@ -88,7 +88,7 @@ class AsrWorker {
     this.pending.delete(requestId);
   }
 
-  async transcribe(audio, suffix, requestId = randomUUID()) {
+  async transcribe(audio, suffix, requestId = randomUUID(), locale = 'vi') {
     await this.readyPromise;
     if (this.pending.size >= 2) throw new HttpError(429, 'ASR_BUSY');
     return new Promise((resolve, reject) => {
@@ -98,7 +98,7 @@ class AsrWorker {
       }, 45_000);
       this.pending.set(requestId, { resolve, reject, timer });
       this.child.stdin.write(`${JSON.stringify({
-        requestId, suffix, audioBase64: audio.toString('base64'),
+        requestId, suffix, locale, audioBase64: audio.toString('base64'),
       })}\n`, (error) => {
         if (!error) return;
         clearTimeout(timer);
@@ -226,7 +226,7 @@ async function transcribeRequest(request, response) {
   const mode = takeString(form, 'mode', 16);
   const datasetRevision = takeString(form, 'datasetRevision', 128);
   if (!/^[A-Za-z0-9-]{8,80}$/.test(turnId) || !/^[A-Za-z0-9_-]{1,80}$/.test(nodeId)
-      || !['demo', 'live'].includes(mode) || locale !== 'vi') throw new HttpError(400, 'INVALID_REQUEST');
+      || !['demo', 'live'].includes(mode) || !['vi', 'en'].includes(locale)) throw new HttpError(400, 'INVALID_REQUEST');
 
   const declaredType = file.type.toLowerCase();
   const audio = Buffer.from(await file.arrayBuffer());
@@ -236,14 +236,14 @@ async function transcribeRequest(request, response) {
   const onClose = () => { if (!response.writableEnded) worker.cancel(workerRequestId); };
   response.on('close', onClose);
   try {
-    const result = await worker.transcribe(audio, suffix, workerRequestId);
+    const result = await worker.transcribe(audio, suffix, workerRequestId, locale);
     if (result.code) throw workerHttpError(result.code);
     if (typeof result.text !== 'string' || !result.text.trim() || result.requestId === undefined) {
       throw new HttpError(502, 'INVALID_ASR_RESPONSE');
     }
     sendJson(response, 200, {
       turnId,
-      locale: 'vi',
+      locale,
       mode,
       nodeId,
       datasetRevision,

@@ -16,6 +16,13 @@ sys.path.insert(0, str(ROOT / "tools" / "voice"))
 from asr_model import LARGE_V3_MODEL, LARGE_V3_REVISION, WHISPER_MODEL, WHISPER_REVISION, load_model
 
 CUDA_DLL_HANDLES = []
+SUPPORTED_LOCALES = frozenset({"vi", "en"})
+
+
+def language_for_locale(locale: object) -> str:
+    if not isinstance(locale, str) or locale not in SUPPORTED_LOCALES:
+        raise ValueError("Unsupported ASR locale")
+    return locale
 
 
 def load_selected_model():
@@ -68,6 +75,11 @@ def main() -> None:
             request_id = request.get("requestId")
             encoded = request.get("audioBase64")
             suffix = request.get("suffix")
+            try:
+                language = language_for_locale(request.get("locale", "vi"))
+            except ValueError:
+                send({"requestId": request_id, "code": "INVALID_REQUEST"})
+                continue
             if (not isinstance(request_id, str) or not isinstance(encoded, str)
                     or suffix not in {".m4a", ".wav"}):
                 send({"requestId": request_id, "code": "INVALID_REQUEST"})
@@ -82,7 +94,7 @@ def main() -> None:
                 with tempfile.NamedTemporaryFile(delete=False, suffix=suffix, dir=CACHE) as handle:
                     handle.write(audio)
                     temp_path = Path(handle.name)
-                segments, info = model.transcribe(str(temp_path), language="vi", beam_size=5, vad_filter=True)
+                segments, info = model.transcribe(str(temp_path), language=language, beam_size=5, vad_filter=True)
                 text = " ".join(segment.text.strip() for segment in segments).strip()
                 if not text:
                     send({"requestId": request_id, "code": "NO_SPEECH"})
