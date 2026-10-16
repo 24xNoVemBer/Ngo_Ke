@@ -40,10 +40,12 @@ builtins only; real matcher `normalizeQuestion`/`findAnswer` imported from
 - One test-side fix during development: the membership assertion first wrongly
   required 60 globally-unique QA IDs; locales share logical IDs by contract,
   so the test was corrected (data untouched).
-- Provenance open item: the historical `34925f…` manifest anchor quoted in
-  voice docs reproduces from no manifest revision in this tree (raw or
-  canonical, current/c55eb9a/b308605) — it is not asserted; the git-source pin
-  above replaces it. W1 owns clarifying that literal.
+- Provenance corrected 2026-10-16 (root-verified in all 4 worktrees): raw
+  working-tree manifest bytes (13112 B, CRLF checkout) hash to the historical
+  `34925f…` anchor; LF-normalized (12783 B) hashes to `92e277…`, exactly the git
+  blob at `91ddfbd`. The 329-byte gap is Git EOL normalization, not a gap and
+  not a source change — both anchors are now asserted (raw Buffer reads only),
+  and no file/EOL/source rewrite was made. MP3 byte hashes are unaffected.
 
 ## Limits (not covered here)
 

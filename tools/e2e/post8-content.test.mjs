@@ -295,16 +295,24 @@ describe('shared V2 parser + pair validator on the real pilot pair', () => {
 });
 
 describe('original 34-track VI audio bytes + manifest baseline', () => {
-  // NOTE (provenance): the historical anchor 34925f5d… quoted in voice docs
-  // does not reproduce from any manifest revision in this tree (raw or
-  // canonical JSON, current/c55eb9a/b308605 all differ), so it is NOT asserted
-  // here. The reproducible anchor below pins the manifest to git source
-  // 91ddfbd byte-for-byte instead; W1 owns clarifying the old literal.
-  it('manifest bytes match git source 91ddfbd', () => {
+  // Provenance (corrected 2026-10-16, root-verified in all 4 worktrees):
+  // raw working-tree bytes = 13112 B = SHA 34925f5d; LF-normalized = 12783 B
+  // = 92e277 = git blob at 91ddfbd. The 329-byte gap is exactly Git EOL
+  // normalization (CRLF checkout vs LF blob), not a provenance gap and not a
+  // source change, so both anchors are asserted and no file/EOL/source rewrite
+  // was made. Always read raw Buffer (never universal-newline text) for raw.
+  // MP3 bytes are unaffected either way.
+  it('raw manifest bytes match the 34925f baseline anchor', () => {
+    assert.equal(sha256hex(readRaw('mobile/assets/voice/manifest.json')),
+      '34925f5d005fa7fb684c4f8fac19992865b581c6eeaa6bde0e9183431c9be05a');
+  });
+  it('LF-normalized manifest matches git source 91ddfbd', () => {
     // Compare git blobs (LF) rather than the checkout (CRLF on this host):
     // pins tracked content to the baseline byte-for-byte.
     const show = (rev) => execSync(`git show ${rev}:mobile/assets/voice/manifest.json`, { cwd: ROOT, encoding: 'buffer', maxBuffer: 8 * 1024 * 1024 });
     assert.equal(sha256hex(show('HEAD')), sha256hex(show('91ddfbd')));
+    assert.equal(sha256hex(show('91ddfbd')),
+      '92e27735cb63ddf7c9a58f43e817b07521203f59e7cdd599ca3f369c26e1b5c0');
   });
   it('all 34 MP3 bytes hash to their manifest audioSha256', () => {
     assert.equal(manifest.entries.length, 34);
