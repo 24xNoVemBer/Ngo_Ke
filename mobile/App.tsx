@@ -376,6 +376,7 @@ export default function App(): ReactElement {
                   nodes={source.dataset.nodes}
                   currentNodeId={confirmedNodeId}
                   onConfirmNode={confirmNode}
+                  collectionKind={'kind' in source.dataset && source.dataset.kind === 'reviewed' ? 'reviewed' : 'simulated'}
                 />
               ) : (
                 <UnavailableScreen detail={source.detail} />

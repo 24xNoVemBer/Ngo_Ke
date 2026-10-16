@@ -2232,3 +2232,110 @@ test('QaScreen and CameraScreen branch semantic content labels on reviewed-pilot
   assert.equal(textLivePilotQa.includes('DEMO · DI SẢN ĐÃ DUYỆT'), false, 'live transport must not show DEMO');
   viewLivePilotQa.unmount();
 });
+
+test('LocationScreen branches manual accessibility label and visit minutes on collectionKind alone', () => {
+  const actualReviewedPilotVi = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.vi.json', import.meta.url), 'utf8'));
+  const actualReviewedPilotEn = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.en.json', import.meta.url), 'utf8'));
+
+  const locationMocks = (locale) => ({
+    '@react-navigation/native': { useIsFocused: () => true },
+    '../location/nearest': { pickCandidate: () => undefined },
+    'expo-location': {
+      requestForegroundPermissionsAsync: async () => ({ granted: true }),
+      getCurrentPositionAsync: async () => ({ coords: { latitude: 0, longitude: 0, accuracy: 10 } }),
+      Accuracy: { Balanced: 1 },
+    },
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale,
+        t: (key, params) => translator.t(locale, key, params),
+      }),
+    },
+  });
+
+  // 1. Reviewed pilot in VI
+  const viewReviewedVi = mount('../src/screens/LocationScreen.tsx', {
+    nodes: actualReviewedPilotVi.nodes,
+    currentNodeId: actualReviewedPilotVi.nodes[0].id,
+    onConfirmNode() {},
+    collectionKind: 'reviewed',
+  }, locationMocks('vi'));
+  const treeReviewedVi = viewReviewedVi.render();
+  const pressablesVi = elements(treeReviewedVi, 'Pressable');
+  const bachMaRowVi = pressablesVi.find((p) => p.props.accessibilityLabel === 'Chọn điểm Đền Bạch Mã bằng tay');
+  assert.ok(bachMaRowVi, 'reviewed row must have truthful non-simulated accessibilityLabel');
+  const simulatedLabelsVi = pressablesVi
+    .map((p) => p.props.accessibilityLabel)
+    .filter((l) => typeof l === 'string' && l.includes('Chọn điểm') && l.includes('mô phỏng'));
+  assert.equal(simulatedLabelsVi.length, 0, 'reviewed rows must not claim simulated in accessibilityLabel');
+  const textReviewedVi = JSON.stringify(treeReviewedVi);
+  assert.ok(textReviewedVi.includes('10 phút'), 'reviewed row shows 10 phút editorial visit time');
+  assert.equal(textReviewedVi.includes('10 phút mô phỏng'), false, 'reviewed row must not say 10 phút mô phỏng');
+  assert.ok(textReviewedVi.includes('Tọa độ trong bản demo là mô phỏng'), 'fixture disclaimer is preserved');
+  viewReviewedVi.unmount();
+
+  // 2. Simulated payload with SAME IDs in VI (kind alone controls labels)
+  const viewSimulatedVi = mount('../src/screens/LocationScreen.tsx', {
+    nodes: actualReviewedPilotVi.nodes,
+    currentNodeId: actualReviewedPilotVi.nodes[0].id,
+    onConfirmNode() {},
+    collectionKind: 'simulated',
+  }, locationMocks('vi'));
+  const treeSimulatedVi = viewSimulatedVi.render();
+  const pressablesSimVi = elements(treeSimulatedVi, 'Pressable');
+  const bachMaSimRowVi = pressablesSimVi.find((p) => p.props.accessibilityLabel === 'Chọn điểm Đền Bạch Mã bằng tay, mô phỏng');
+  assert.ok(bachMaSimRowVi, 'simulated row must include mô phỏng in accessibilityLabel');
+  const textSimulatedVi = JSON.stringify(treeSimulatedVi);
+  assert.ok(textSimulatedVi.includes('10 phút mô phỏng'), 'simulated row shows 10 phút mô phỏng');
+  viewSimulatedVi.unmount();
+
+  // 3. Absent collectionKind defaults to simulated for backwards compatibility
+  const viewAbsentVi = mount('../src/screens/LocationScreen.tsx', {
+    nodes: actualReviewedPilotVi.nodes,
+    currentNodeId: actualReviewedPilotVi.nodes[0].id,
+    onConfirmNode() {},
+  }, locationMocks('vi'));
+  const treeAbsentVi = viewAbsentVi.render();
+  const pressablesAbsentVi = elements(treeAbsentVi, 'Pressable');
+  const bachMaAbsentRowVi = pressablesAbsentVi.find((p) => p.props.accessibilityLabel === 'Chọn điểm Đền Bạch Mã bằng tay, mô phỏng');
+  assert.ok(bachMaAbsentRowVi, 'absent collectionKind defaults to simulated accessibilityLabel');
+  const textAbsentVi = JSON.stringify(treeAbsentVi);
+  assert.ok(textAbsentVi.includes('10 phút mô phỏng'), 'absent collectionKind defaults to 10 phút mô phỏng');
+  viewAbsentVi.unmount();
+
+  // 4. Reviewed pilot in EN
+  const viewReviewedEn = mount('../src/screens/LocationScreen.tsx', {
+    nodes: actualReviewedPilotEn.nodes,
+    currentNodeId: actualReviewedPilotEn.nodes[0].id,
+    onConfirmNode() {},
+    collectionKind: 'reviewed',
+  }, locationMocks('en'));
+  const treeReviewedEn = viewReviewedEn.render();
+  const pressablesEn = elements(treeReviewedEn, 'Pressable');
+  const bachMaRowEn = pressablesEn.find((p) => p.props.accessibilityLabel === `Select ${actualReviewedPilotEn.nodes[0].name} manually`);
+  assert.ok(bachMaRowEn, 'reviewed row in EN must have truthful non-simulated accessibilityLabel');
+  const simulatedLabelsEn = pressablesEn
+    .map((p) => p.props.accessibilityLabel)
+    .filter((l) => typeof l === 'string' && l.includes('Select') && l.includes('simulated'));
+  assert.equal(simulatedLabelsEn.length, 0, 'reviewed rows in EN must not claim simulated in accessibilityLabel');
+  const textReviewedEn = JSON.stringify(treeReviewedEn);
+  assert.ok(textReviewedEn.includes('10 min'), 'reviewed row in EN shows 10 min editorial visit time');
+  assert.equal(textReviewedEn.includes('10 min simulated'), false, 'reviewed row in EN must not say 10 min simulated');
+  assert.ok(textReviewedEn.includes('Coordinates in demo are simulated'), 'EN fixture disclaimer is preserved');
+  viewReviewedEn.unmount();
+
+  // 5. Simulated payload with SAME IDs in EN
+  const viewSimulatedEn = mount('../src/screens/LocationScreen.tsx', {
+    nodes: actualReviewedPilotEn.nodes,
+    currentNodeId: actualReviewedPilotEn.nodes[0].id,
+    onConfirmNode() {},
+    collectionKind: 'simulated',
+  }, locationMocks('en'));
+  const treeSimulatedEn = viewSimulatedEn.render();
+  const pressablesSimEn = elements(treeSimulatedEn, 'Pressable');
+  const bachMaSimRowEn = pressablesSimEn.find((p) => p.props.accessibilityLabel === `Select ${actualReviewedPilotEn.nodes[0].name} manually, simulated`);
+  assert.ok(bachMaSimRowEn, 'simulated row in EN must include simulated in accessibilityLabel');
+  const textSimulatedEn = JSON.stringify(treeSimulatedEn);
+  assert.ok(textSimulatedEn.includes('10 min simulated'), 'simulated row in EN shows 10 min simulated');
+  viewSimulatedEn.unmount();
+});

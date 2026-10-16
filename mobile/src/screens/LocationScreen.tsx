@@ -16,6 +16,7 @@ type Props = {
   nodes: DemoNode[];
   currentNodeId?: string;
   onConfirmNode: (nodeId: string) => void;
+  collectionKind?: 'simulated' | 'reviewed';
 };
 
 const meters = (value: number): string =>
@@ -36,7 +37,13 @@ function explain(result: Candidate, t: (key: TranslationKey, params?: Record<str
   }
 }
 
-export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): ReactElement {
+export function LocationScreen({
+  nodes,
+  currentNodeId,
+  onConfirmNode,
+  collectionKind = 'simulated',
+}: Props): ReactElement {
+  const isReviewed = collectionKind === 'reviewed';
   const { t, locale } = useLocale();
   const focused = useIsFocused();
   const request = useRef(0);
@@ -261,9 +268,7 @@ export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): 
                   key={node.id}
                   accessibilityRole="button"
                   accessibilityLabel={
-                    locale === 'en'
-                      ? `Select ${node.name} manually, simulated`
-                      : `Chọn điểm ${node.name} bằng tay, mô phỏng`
+                    t(isReviewed ? 'location.select_manual' : 'location.select_manual_simulated', { name: node.name })
                   }
                   disabled={!node.available}
                   onPress={() => confirm(node)}
@@ -281,7 +286,7 @@ export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): 
                   <View style={styles.pointInfo}>
                     <Text style={styles.pointName}>{node.name}</Text>
                     <Text style={styles.pointMeta}>
-                      {t('common.simulated_minutes', { minutes: node.visitMinutes })}
+                      {t(isReviewed ? 'common.minutes' : 'common.simulated_minutes', { minutes: node.visitMinutes })}
                       {isCurrent ? (locale === 'en' ? ' · Currently selected' : ' · Đang là điểm hiện tại') : ''}
                     </Text>
                   </View>

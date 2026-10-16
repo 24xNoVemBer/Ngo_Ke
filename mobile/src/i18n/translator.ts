@@ -354,6 +354,8 @@ export type TranslationKey =
   | 'location.err_outside'
   | 'location.err_no_coords'
   | 'location.err_needs_position'
+  | 'location.select_manual'
+  | 'location.select_manual_simulated'
   // Unavailable
   | 'unavailable.phase'
   | 'unavailable.title'
@@ -713,6 +715,8 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'location.err_outside': 'Bạn đang cách điểm gần nhất khoảng {meters}, vượt ngoài phạm vi ngõ demo. Hãy chọn điểm bằng tay.',
     'location.err_no_coords': 'Điểm này chưa có tọa độ GPS. Hãy chọn điểm trên danh sách bằng tay.',
     'location.err_needs_position': 'Chưa nhận được vị trí thiết bị. Vui lòng bấm thử lại hoặc chọn điểm bằng tay.',
+    'location.select_manual': 'Chọn điểm {name} bằng tay',
+    'location.select_manual_simulated': 'Chọn điểm {name} bằng tay, mô phỏng',
 
     'unavailable.phase': 'Thông báo dữ liệu',
     'unavailable.title': 'Chưa có dữ liệu hỏi đáp',
@@ -1071,6 +1075,8 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'location.err_outside': 'You are about {meters} from the nearest stop, outside the tour area. Please select manually.',
     'location.err_no_coords': 'This stop has no GPS coordinates yet. Please select manually from the list.',
     'location.err_needs_position': 'Cannot determine device location. Please retry or select manually.',
+    'location.select_manual': 'Select {name} manually',
+    'location.select_manual_simulated': 'Select {name} manually, simulated',
 
     'unavailable.phase': 'Data notice',
     'unavailable.title': 'Q&A data not available',

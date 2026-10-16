@@ -832,6 +832,10 @@ test('translator.ts - 100% dictionary parity between VI and EN', () => {
   );
   assert.equal(translate('vi', 'qa.read_answer_btn'), 'Xem câu trả lời bằng chữ');
   assert.equal(translate('en', 'qa.read_answer_btn'), 'Read answer text');
+  assert.equal(translate('vi', 'location.select_manual', { name: 'Điểm 1' }), 'Chọn điểm Điểm 1 bằng tay');
+  assert.equal(translate('en', 'location.select_manual', { name: 'Point 1' }), 'Select Point 1 manually');
+  assert.equal(translate('vi', 'location.select_manual_simulated', { name: 'Điểm 1' }), 'Chọn điểm Điểm 1 bằng tay, mô phỏng');
+  assert.equal(translate('en', 'location.select_manual_simulated', { name: 'Point 1' }), 'Select Point 1 manually, simulated');
 });
 
 test('pick.ts - English alias parsing for topics and time budgets', () => {
