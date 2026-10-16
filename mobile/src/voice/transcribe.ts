@@ -47,11 +47,13 @@ export async function transcribeVoiceRequest(
     }
     const result = payload as {
       code?: string; turnId?: string; locale?: string; mode?: string; nodeId?: string;
-      datasetRevision?: string; text?: string;
+      datasetRevision?: string; decoderLanguage?: string; text?: string;
     };
     if (!response.ok) throw new Error(result.code || 'ASR_UNAVAILABLE');
     if (result.turnId !== context.turnId || result.locale !== context.locale || result.mode !== context.mode
         || result.nodeId !== context.nodeId || result.datasetRevision !== context.datasetRevision
+        || (context.locale === 'en' && result.decoderLanguage !== 'en')
+        || (result.decoderLanguage !== undefined && result.decoderLanguage !== context.locale)
         || typeof result.text !== 'string' || !result.text.trim()) {
       throw new Error('INVALID_RESPONSE');
     }

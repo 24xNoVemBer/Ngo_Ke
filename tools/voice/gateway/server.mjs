@@ -241,6 +241,7 @@ async function transcribeRequest(request, response) {
     if (typeof result.text !== 'string' || !result.text.trim() || result.requestId === undefined) {
       throw new HttpError(502, 'INVALID_ASR_RESPONSE');
     }
+    if (result.language !== locale) throw new HttpError(502, 'ASR_LANGUAGE_MISMATCH');
     sendJson(response, 200, {
       turnId,
       locale,
@@ -248,6 +249,7 @@ async function transcribeRequest(request, response) {
       nodeId,
       datasetRevision,
       durationSeconds: inspected.durationSeconds,
+      decoderLanguage: result.language,
       text: result.text.trim(),
     });
   } finally {
