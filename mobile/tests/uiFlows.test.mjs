@@ -232,6 +232,7 @@ function mount(file, props = {}, overrides = {}, exportName) {
   }).outputText;
   runInNewContext('(function(require,module,exports){' + code + '\n})', { process: { env: {} }, setTimeout, clearTimeout, AbortController: globalThis.AbortController, ...overrides.__globals })((id) => {
     if (modules[id]) return modules[id];
+    if (/\.(png|jpe?g|gif|webp)$/i.test(id)) return 1;
     if (/\/screens\//.test(id) || /\/components\//.test(id) || id === './UnavailableScreen') {
       const name = id.split('/').at(-1);
       return { [name]: name };
@@ -2591,4 +2592,154 @@ test('HomeScreen passes source dataset.kind precedence to AlleyTrailView (ready 
   const trailUndef = elements(treeUndef, 'AlleyTrailView')[0];
   assert.equal(trailUndef.props.collectionKind, 'simulated', 'undefined dataset.kind defaults to simulated even on pilot collection');
   homeViewUndef.unmount();
+});
+
+test('NgoKeLogo renders NGÕ KỂ brand title and localized subtitle across locales', () => {
+  // 1. VI locale default subtitle
+  const viewVi = mount('../src/components/NgoKeLogo.tsx', {
+    variant: 'horizontal',
+    theme: 'light',
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+  const treeVi = viewVi.render();
+  const textsVi = elements(treeVi, 'Text').map((t) => [].concat(t.props.children).join(''));
+  assert.ok(textsVi.includes('NGÕ KỂ'), 'Brand title NGÕ KỂ rendered in VI');
+  assert.ok(textsVi.includes('Sổ tay di sản phố ngõ'), 'Default VI subtitle rendered');
+  viewVi.unmount();
+
+  // 2. EN locale default subtitle
+  const viewEn = mount('../src/components/NgoKeLogo.tsx', {
+    variant: 'horizontal',
+    theme: 'light',
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        t: (key, params) => translator.t('en', key, params),
+      }),
+    },
+  });
+  const treeEn = viewEn.render();
+  const textsEn = elements(treeEn, 'Text').map((t) => [].concat(t.props.children).join(''));
+  assert.ok(textsEn.includes('NGÕ KỂ'), 'Brand title NGÕ KỂ preserved unchanged in EN');
+  assert.ok(textsEn.includes('Alley heritage notebook'), 'Localized EN subtitle rendered');
+  viewEn.unmount();
+
+  // 3. Custom subtitle override
+  const viewCustom = mount('../src/components/NgoKeLogo.tsx', {
+    variant: 'horizontal',
+    subtitle: 'Custom Subtitle',
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        t: (key, params) => translator.t('en', key, params),
+      }),
+    },
+  });
+  const treeCustom = viewCustom.render();
+  const textsCustom = elements(treeCustom, 'Text').map((t) => [].concat(t.props.children).join(''));
+  assert.ok(textsCustom.includes('Custom Subtitle'), 'Custom subtitle takes precedence over i18n');
+  viewCustom.unmount();
+
+  // 4. showSubtitle={false} hides subtitle
+  const viewNoSub = mount('../src/components/NgoKeLogo.tsx', {
+    variant: 'horizontal',
+    showSubtitle: false,
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+  const treeNoSub = viewNoSub.render();
+  const textsNoSub = elements(treeNoSub, 'Text').map((t) => [].concat(t.props.children).join(''));
+  assert.ok(textsNoSub.includes('NGÕ KỂ'));
+  assert.equal(textsNoSub.includes('Sổ tay di sản phố ngõ'), false);
+  viewNoSub.unmount();
+
+  // 5. variant="iconOnly" does not render any text
+  const viewIconOnly = mount('../src/components/NgoKeLogo.tsx', {
+    variant: 'iconOnly',
+  });
+  const treeIconOnly = viewIconOnly.render();
+  const textsIconOnly = elements(treeIconOnly, 'Text');
+  assert.equal(textsIconOnly.length, 0, 'No text in iconOnly variant');
+  viewIconOnly.unmount();
+});
+
+test('LandingScreen header layout policy wraps and stacks cleanly at fontScale 2 (preventing collision at 200%)', () => {
+  // 1. Normal scale (fontScale: 1.0)
+  const viewNormal = mount('../src/screens/LandingScreen.tsx', {
+    navigation: { navigate() {}, goBack() {}, replace() {} },
+    route: { params: {} },
+    nodeCount: 6,
+    mode: 'demo',
+  }, {
+    __windowDimensions: { width: 400, height: 850, fontScale: 1.0 },
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        setLocale: () => {},
+        setCollectionId: () => {},
+        t: (key, params) => translator.t('en', key, params),
+      }),
+    },
+  });
+  const treeNormal = viewNormal.render();
+  const animViewsNormal = elements(treeNormal, 'Animated.View');
+  const headerBarNormal = animViewsNormal[0];
+  assert.ok(headerBarNormal, 'Header bar Animated.View rendered');
+  // headerBar style is an array: [styles.headerBar, fontScale > 1.3 && styles.headerBarStacked, { opacity, transform }]
+  const headerStylesNormal = [].concat(headerBarNormal.props.style).filter(Boolean);
+  assert.equal(headerStylesNormal.some((s) => s.flexDirection === 'column'), false, 'Normal fontScale does not stack into column');
+  assert.ok(headerStylesNormal.some((s) => s.flexDirection === 'row' && s.flexWrap === 'wrap'), 'Normal fontScale uses row with wrap');
+  viewNormal.unmount();
+
+  // 2. High scale (fontScale: 2.0 / 200%)
+  const viewHigh = mount('../src/screens/LandingScreen.tsx', {
+    navigation: { navigate() {}, goBack() {}, replace() {} },
+    route: { params: {} },
+    nodeCount: 6,
+    mode: 'demo',
+  }, {
+    __windowDimensions: { width: 400, height: 850, fontScale: 2.0 },
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        setLocale: () => {},
+        setCollectionId: () => {},
+        t: (key, params) => translator.t('en', key, params),
+      }),
+    },
+  });
+  const treeHigh = viewHigh.render();
+  const animViewsHigh = elements(treeHigh, 'Animated.View');
+  const headerBarHigh = animViewsHigh[0];
+  assert.ok(headerBarHigh, 'Header bar Animated.View rendered at fontScale 2');
+  const headerStylesHigh = [].concat(headerBarHigh.props.style).filter(Boolean);
+  // Stacks into column with left alignment at fontScale > 1.3
+  assert.ok(headerStylesHigh.some((s) => s.flexDirection === 'column' && s.alignItems === 'flex-start'), 'High fontScale stacks into column');
+  
+  // Verify NgoKeLogo is passed flexShrink style
+  const logoInHeader = elements(headerBarHigh, 'NgoKeLogo')[0];
+  assert.ok(logoInHeader, 'NgoKeLogo present in header');
+  assert.equal(logoInHeader.props.style.flexShrink, 1, 'Logo wrapper has flexShrink: 1');
+
+  // Verify controls container has flexWrap: 'wrap' and gap
+  const controls = headerBarHigh.props.children[1];
+  assert.ok(controls, 'Header controls present');
+  assert.equal(controls.props.style.flexWrap, 'wrap');
+  assert.equal(controls.props.style.flexDirection, 'row');
+  assert.equal(controls.props.style.gap, 8);
+
+  viewHigh.unmount();
 });

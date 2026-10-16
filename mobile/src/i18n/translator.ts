@@ -118,6 +118,7 @@ export type TranslationKey =
   | 'common.simulated_minutes'
   | 'common.explore_this_point'
   | 'common.narrator_label'
+  | 'common.brand_subtitle'
   // Prologue
   | 'prologue.eyebrow'
   | 'prologue.title'
@@ -482,6 +483,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'common.simulated_minutes': '{minutes} phút mô phỏng',
     'common.explore_this_point': 'Khám phá điểm này',
     'common.narrator_label': 'Người kể 2D tạm',
+    'common.brand_subtitle': 'Sổ tay di sản phố ngõ',
 
     'prologue.eyebrow': 'MỘT TRANG KÝ ỨC HÀ NỘI',
     'prologue.title': 'NGÕ KỂ',
@@ -845,6 +847,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'common.simulated_minutes': '{minutes} min simulated',
     'common.explore_this_point': 'Explore this stop',
     'common.narrator_label': '2D Storyteller placeholder',
+    'common.brand_subtitle': 'Alley heritage notebook',
 
     'prologue.eyebrow': 'A PAGE OF HANOI MEMORIES',
     'prologue.title': 'NGÕ KỂ',

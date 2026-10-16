@@ -846,6 +846,8 @@ test('translator.ts - 100% dictionary parity between VI and EN', () => {
   assert.equal(translate('en', 'alley_select.filter_food'), 'Food');
   assert.equal(translate('vi', 'home.notebook_btn'), 'Sổ tay');
   assert.equal(translate('en', 'home.notebook_btn'), 'Notes');
+  assert.equal(translate('vi', 'common.brand_subtitle'), 'Sổ tay di sản phố ngõ');
+  assert.equal(translate('en', 'common.brand_subtitle'), 'Alley heritage notebook');
 });
 
 test('pick.ts - English alias parsing for topics and time budgets', () => {

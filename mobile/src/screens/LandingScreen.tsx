@@ -79,15 +79,16 @@ export function LandingScreen({ navigation, mode = 'demo' }: Props): ReactElemen
           <Animated.View
             style={[
               styles.headerBar,
+              fontScale > 1.3 && styles.headerBarStacked,
               {
                 opacity: headerEntrance.opacity,
                 transform: [{ translateY: headerEntrance.translateY }],
               },
             ]}
           >
-            <NgoKeLogo size="md" variant="horizontal" theme="light" />
+            <NgoKeLogo size="md" variant="horizontal" theme="light" style={styles.logoWrapper} />
 
-            <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+            <View style={styles.headerControls}>
               <Pressable
                 testID="locale-switch"
                 accessibilityRole="button"
@@ -337,6 +338,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  headerBarStacked: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
+  logoWrapper: {
+    flexShrink: 1,
+  },
+  headerControls: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+    flexWrap: 'wrap',
   },
   soundscapePill: {
     flexDirection: 'row',

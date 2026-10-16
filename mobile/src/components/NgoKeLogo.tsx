@@ -8,6 +8,8 @@ import {
   type ViewStyle,
 } from 'react-native';
 
+import { useLocale } from '../context/LocaleContext';
+
 const LOGO_SOURCE = require('../../assets/logo_monogram.jpg');
 
 type LogoSize = 'sm' | 'md' | 'lg' | 'hero';
@@ -19,6 +21,7 @@ interface NgoKeLogoProps {
   variant?: LogoVariant;
   theme?: LogoTheme;
   showSubtitle?: boolean;
+  subtitle?: string;
   style?: ViewStyle;
 }
 
@@ -34,13 +37,16 @@ export function NgoKeLogo({
   variant = 'horizontal',
   theme = 'light',
   showSubtitle = true,
+  subtitle,
   style,
 }: NgoKeLogoProps): ReactElement {
+  const { t } = useLocale();
   const config = SIZE_MAP[size];
   const isLight = theme === 'light';
 
   const titleColor = isLight ? '#FFFDF7' : '#2C221E';
   const subtitleColor = isLight ? '#E8D5BC' : '#8C5A40';
+  const resolvedSubtitle = subtitle ?? t('common.brand_subtitle');
 
   if (variant === 'iconOnly') {
     return (
@@ -115,7 +121,7 @@ export function NgoKeLogo({
               },
             ]}
           >
-            Sổ tay di sản phố ngõ
+            {resolvedSubtitle}
           </Text>
         )}
       </View>
@@ -127,6 +133,7 @@ const styles = StyleSheet.create({
   horizontalContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexShrink: 1,
   },
   verticalContainer: {
     alignItems: 'center',
@@ -157,6 +164,7 @@ const styles = StyleSheet.create({
   textGroup: {
     justifyContent: 'center',
     gap: 1,
+    flexShrink: 1,
   },
   textGroupCentered: {
     alignItems: 'center',
