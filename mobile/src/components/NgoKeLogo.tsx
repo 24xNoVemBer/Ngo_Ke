@@ -21,7 +21,6 @@ interface NgoKeLogoProps {
   variant?: LogoVariant;
   theme?: LogoTheme;
   showSubtitle?: boolean;
-  subtitle?: string;
   style?: ViewStyle;
 }
 
@@ -37,7 +36,6 @@ export function NgoKeLogo({
   variant = 'horizontal',
   theme = 'light',
   showSubtitle = true,
-  subtitle,
   style,
 }: NgoKeLogoProps): ReactElement {
   const { t } = useLocale();
@@ -46,7 +44,6 @@ export function NgoKeLogo({
 
   const titleColor = isLight ? '#FFFDF7' : '#2C221E';
   const subtitleColor = isLight ? '#E8D5BC' : '#8C5A40';
-  const resolvedSubtitle = subtitle ?? t('common.brand_subtitle');
 
   if (variant === 'iconOnly') {
     return (
@@ -121,7 +118,7 @@ export function NgoKeLogo({
               },
             ]}
           >
-            {resolvedSubtitle}
+            {t('common.brand_subtitle')}
           </Text>
         )}
       </View>

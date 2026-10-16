@@ -2631,24 +2631,7 @@ test('NgoKeLogo renders NGÕ KỂ brand title and localized subtitle across loca
   assert.ok(textsEn.includes('Alley heritage notebook'), 'Localized EN subtitle rendered');
   viewEn.unmount();
 
-  // 3. Custom subtitle override
-  const viewCustom = mount('../src/components/NgoKeLogo.tsx', {
-    variant: 'horizontal',
-    subtitle: 'Custom Subtitle',
-  }, {
-    '../context/LocaleContext': {
-      useLocale: () => ({
-        locale: 'en',
-        t: (key, params) => translator.t('en', key, params),
-      }),
-    },
-  });
-  const treeCustom = viewCustom.render();
-  const textsCustom = elements(treeCustom, 'Text').map((t) => [].concat(t.props.children).join(''));
-  assert.ok(textsCustom.includes('Custom Subtitle'), 'Custom subtitle takes precedence over i18n');
-  viewCustom.unmount();
-
-  // 4. showSubtitle={false} hides subtitle
+  // 3. showSubtitle={false} hides subtitle
   const viewNoSub = mount('../src/components/NgoKeLogo.tsx', {
     variant: 'horizontal',
     showSubtitle: false,
@@ -2666,7 +2649,7 @@ test('NgoKeLogo renders NGÕ KỂ brand title and localized subtitle across loca
   assert.equal(textsNoSub.includes('Sổ tay di sản phố ngõ'), false);
   viewNoSub.unmount();
 
-  // 5. variant="iconOnly" does not render any text
+  // 4. variant="iconOnly" does not render any text
   const viewIconOnly = mount('../src/components/NgoKeLogo.tsx', {
     variant: 'iconOnly',
   });
