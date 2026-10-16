@@ -181,12 +181,17 @@ function parseEnglishVoiceIntent(input: string, collectingPlan: boolean, current
   const topics = TOPIC_ORDER.filter((topic) => ENGLISH_TOPICS[topic].some((name) => text.includes(name)));
   const durationMatches = [...text.matchAll(/\b(?:half an hour|half hour|an hour|one hour|hour and a half|one and a half hours|\d+(?:\.\d+)?\s*hours?(?:\s+\d+\s*minutes?)?|\d+\s*(?:minutes?|mins?))\b/g)];
   const durations = durationMatches.map((match) => parseTimeBudget(match[0], 'en')).filter((value): value is number => value !== undefined);
+  const rangeDuration = durationMatches.some(({ index }) => {
+    const prefix = text.slice(0, index);
+    return /\b\d+\s*-\s*$/.test(prefix) || /\bbetween\s+\d+\s+and\s*$/.test(prefix);
+  });
+  const negativeDuration = durationMatches.some(({ index }) => /(?:^|\s)-\s*$/.test(text.slice(0, index)));
   const ambiguousTopic = negative || topics.length > 1;
-  const ambiguousBudget = durationMatches.length !== durations.length || durations.length > 1
+  const ambiguousBudget = rangeDuration || negativeDuration || durationMatches.length !== durations.length || durations.length > 1
     || durations.some((duration) => duration < 1 || duration > 180);
   const ambiguous = negative ? translate('en', 'voice.intent.ambiguous_topic_negation')
     : topics.length > 1 ? translate('en', 'voice.intent.ambiguous_topic_multiple')
-      : ambiguousBudget ? translate('en', durations.length > 1 ? 'voice.intent.ambiguous_duration_multiple' : 'voice.intent.ambiguous_duration_unrecognized')
+      : ambiguousBudget ? translate('en', durations.length > 1 || rangeDuration ? 'voice.intent.ambiguous_duration_multiple' : 'voice.intent.ambiguous_duration_unrecognized')
         : collectingPlan && !planCommand && topics.length === 0 && durations.length === 0
           ? translate('en', 'voice.intent.clarify_plan') : undefined;
   const topic = ambiguousTopic ? undefined : topics.length === 1 ? topics[0] : currentDraft.topic;

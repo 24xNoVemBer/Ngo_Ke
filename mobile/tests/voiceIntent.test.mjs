@@ -67,6 +67,34 @@ test('English mixed questions use the shared translator and negative plan text s
   });
 });
 
+test('English duration signs and ranges never choose an endpoint silently', () => {
+  for (const input of [
+    'choose experience food for -30 minutes',
+    'choose experience food for 15-30 minutes',
+    'choose experience food for 15 - 30 minutes',
+    'choose experience food for between 15 and 30 minutes',
+  ]) {
+    const result = parseVoiceIntent(input, false, { budgetMinutes: 45 }, 'en');
+    assert.equal(result.type, 'plan', input);
+    if (result.type !== 'plan') continue;
+    assert.deepEqual(result.draft, { topic: 'an thuc' }, input);
+    assert.ok(result.ambiguous, input);
+  }
+
+  for (const [duration, minutes] of [['30 minutes', 30], ['1.5 hours', 90], ['1 hour 30 minutes', 90]]) {
+    assert.deepEqual(parseVoiceIntent(`choose experience food for ${duration}`, false, {}, 'en'), {
+      type: 'plan', draft: { topic: 'an thuc', budgetMinutes: minutes },
+    });
+  }
+
+  const multiple = parseVoiceIntent('choose experience food for 15 minutes and 30 minutes', false, {}, 'en');
+  assert.equal(multiple.type, 'plan');
+  if (multiple.type === 'plan') {
+    assert.deepEqual(multiple.draft, { topic: 'an thuc' });
+    assert.ok(multiple.ambiguous);
+  }
+});
+
 test('plan slots accept Arabic and Vietnamese minutes, including split turns', () => {
   assert.deepEqual(parseVoiceIntent('Chọn trải nghiệm ẩm thực trong 30 phút'), {
     type: 'plan', draft: { topic: 'an thuc', budgetMinutes: 30 },
