@@ -15,6 +15,7 @@
  */
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import { execSync } from 'node:child_process';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -22,6 +23,7 @@ import { fileURLToPath } from 'node:url';
 import demoVi from '../../data/demo.json' with { type: 'json' };
 import manifest from '../../mobile/assets/voice/manifest.json' with { type: 'json' };
 import { normalizeQuestion, findAnswer } from '../../mobile/src/qa/match.ts';
+import { parseDatasetV2, validateDatasetV2Pair } from '../../mobile/src/data/sourceState.ts';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const readRaw = (rel) => readFileSync(join(ROOT, rel));
@@ -251,7 +253,74 @@ describe('review semantics: legend, food-2024, geometry, attribution', () => {
   });
 });
 
-describe('original 34-track VI audio + manifest hash integrity', () => {
+describe('shared V2 parser + pair validator on the real pilot pair', () => {
+  it('accepts both locales with the matching expectation', () => {
+    const vi = parseDatasetV2(pilotVi, { mode: 'live', expectedLocale: 'vi' });
+    const en = parseDatasetV2(pilotEn, { mode: 'live', expectedLocale: 'en' });
+    assert.ok(vi && en);
+    assert.deepEqual(validateDatasetV2Pair(vi, en), { ok: true });
+  });
+  it('rejects wrong-locale expectation and wrong schema', () => {
+    assert.equal(parseDatasetV2(pilotEn, { mode: 'live', expectedLocale: 'vi' }), undefined);
+    assert.equal(parseDatasetV2({ ...pilotEn, schemaVersion: 1 }, { mode: 'live' }), undefined);
+    assert.equal(parseDatasetV2({ ...pilotEn, locale: 'en-US' }, { mode: 'live' }), undefined);
+  });
+  it('pair validator rejects tampered pairs with reasons', () => {
+    const vi = parseDatasetV2(pilotVi, { expectedLocale: 'vi' });
+    const en = parseDatasetV2(pilotEn, { expectedLocale: 'en' });
+    assert.ok(vi && en);
+    // Dangling followUp reference never parses (parser guards the graph).
+    const dropped = JSON.parse(JSON.stringify(pilotEn));
+    dropped.qa = dropped.qa.filter((q) => q.id !== 'dx-current');
+    assert.equal(parseDatasetV2(dropped, { expectedLocale: 'en' }), undefined);
+    // An extra valid node parses alone but fails the pair count gate.
+    const padded = JSON.parse(JSON.stringify(pilotEn));
+    padded.nodes.push({ ...padded.nodes[0], id: 'oldquarter-extra-check' });
+    const paddedParsed = parseDatasetV2(padded, { expectedLocale: 'en' });
+    assert.ok(paddedParsed);
+    const countRes = validateDatasetV2Pair(vi, paddedParsed);
+    assert.equal(countRes.ok, false);
+    assert.match(countRes.reason, /Node count mismatch/);
+    const relabeled = JSON.parse(JSON.stringify(pilotEn));
+    relabeled.locale = 'vi';
+    const relabeledParsed = parseDatasetV2(relabeled, {});
+    assert.ok(relabeledParsed, 'schema accepts vi locale on its own');
+    const localeRes = validateDatasetV2Pair(vi, relabeledParsed);
+    assert.equal(localeRes.ok, false);
+    assert.match(localeRes.reason, /invalid locale/);
+    const dangling = JSON.parse(JSON.stringify(pilotEn));
+    dangling.qa[0].followUps = ['ghost-qa'];
+    assert.equal(parseDatasetV2(dangling, { expectedLocale: 'en' }), undefined);
+  });
+});
+
+describe('original 34-track VI audio bytes + manifest baseline', () => {
+  // NOTE (provenance): the historical anchor 34925f5d… quoted in voice docs
+  // does not reproduce from any manifest revision in this tree (raw or
+  // canonical JSON, current/c55eb9a/b308605 all differ), so it is NOT asserted
+  // here. The reproducible anchor below pins the manifest to git source
+  // 91ddfbd byte-for-byte instead; W1 owns clarifying the old literal.
+  it('manifest bytes match git source 91ddfbd', () => {
+    // Compare git blobs (LF) rather than the checkout (CRLF on this host):
+    // pins tracked content to the baseline byte-for-byte.
+    const show = (rev) => execSync(`git show ${rev}:mobile/assets/voice/manifest.json`, { cwd: ROOT, encoding: 'buffer', maxBuffer: 8 * 1024 * 1024 });
+    assert.equal(sha256hex(show('HEAD')), sha256hex(show('91ddfbd')));
+  });
+  it('all 34 MP3 bytes hash to their manifest audioSha256', () => {
+    assert.equal(manifest.entries.length, 34);
+    let total = 0;
+    for (const entry of manifest.entries) {
+      assert.ok(!entry.path.includes('..'), `unsafe path ${entry.id}`);
+      const bytes = readFileSync(join(ROOT, entry.path));
+      assert.ok(bytes.length > 2048, `tiny clip ${entry.id}`);
+      total += bytes.length;
+      assert.equal(sha256hex(bytes), entry.audioSha256, `modified clip ${entry.id}`);
+    }
+    assert.ok(total > 1024 * 1024, `suspicious total ${total}`);
+  });
+});
+
+describe('original 34-track VI text catalogue integrity', () => {
   const clipRows = (dataset) => {
     const rows = [{ id: 'intro', kind: 'intro', text: dataset.intro.text }];
     for (const node of dataset.nodes) {
@@ -278,31 +347,5 @@ describe('original 34-track VI audio + manifest hash integrity', () => {
       assert.match(entry.audioSha256 ?? '', /^[0-9a-f]{64}$/);
       assert.ok(entry.durationSeconds > 0);
     });
-  });
-  it('no EN/pilot track reuses a VI asset identity', () => {
-    const viIds = new Set(manifest.entries.map((e) => e.id));
-    assert.ok(!viIds.has('bm-horse-answer') && !viIds.has('intro-en'));
-  });
-});
-
-describe('negative structural cases (test helper only)', () => {
-  const checkPair = (vi, en) => {
-    const problems = [];
-    if (vi.nodes.length !== en.nodes.length) problems.push('node count');
-    if (vi.qa.length !== en.qa.length) problems.push('qa count');
-    const vIds = new Set(vi.qa.map((q) => q.id));
-    for (const q of en.qa) if (!vIds.has(q.id)) problems.push(`extra EN id ${q.id}`);
-    for (const q of vi.qa) if (!en.qa.some((e) => e.id === q.id)) problems.push(`missing EN id ${q.id}`);
-    return problems;
-  };
-  it('complete pairs pass; tampered pairs fail loudly', () => {
-    assert.deepEqual(checkPair(demoVi, fictionEn), []);
-    assert.deepEqual(checkPair(pilotVi, pilotEn), []);
-    const tampered = JSON.parse(JSON.stringify(fictionEn));
-    tampered.qa = tampered.qa.filter((q) => q.id !== 'qa-home');
-    assert.ok(checkPair(demoVi, tampered).length > 0);
-    const extra = JSON.parse(JSON.stringify(pilotEn));
-    extra.qa.push({ ...extra.qa[0], id: 'ghost-qa' });
-    assert.ok(checkPair(pilotVi, extra).some((p) => p.includes('ghost-qa')));
   });
 });

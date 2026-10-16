@@ -11,7 +11,7 @@ Original VI raw (`8b318b`) and 34-track manifest (`34925f`) verified untouched
 builtins only; real matcher `normalizeQuestion`/`findAnswer` imported from
 `mobile/src/qa/match.ts`; no installs/servers/emulator/voice).
 
-## Result: 43/43 pass, 0 fail, 0 skipped
+## Result: 46/46 pass, 0 fail, 0 skipped
 
 - Inventory: fiction VI 6/21 (V1 implicit locale), fiction EN 6/21
   (`fiction-letter`), pilot VI/EN 3/9 reviewed (`old-quarter-pilot`); 30 QAs
@@ -30,11 +30,20 @@ builtins only; real matcher `normalizeQuestion`/`findAnswer` imported from
   locale-equal; OSM attribution in both disclaimers.
 - Manifest: `sourceDataSha256` matches `data/demo.json` bytes; 34 entries in
   canonical order with recomputed text hashes, 64-hex audio hashes, durations;
-  no EN/pilot identity reuses a VI asset.
-- Negative helper: complete pairs pass; dropped/ghost IDs fail loudly.
+  every MP3 file on disk re-hashed against its `audioSha256` (>2KB each);
+  manifest bytes pinned to git source `91ddfbd` byte-for-byte.
+- Shared V2 parser/pair: real `parseDatasetV2` + `validateDatasetV2Pair` accept
+  the pilot pair, reject wrong-locale/wrong-schema/dangling-ref inputs, and the
+  pair gate reports node-count and locale mismatches with reasons. The earlier
+  own-helper pair test and the name-absence asset test were removed as
+  non-proving; no second validator was built (W2 owns parser tests).
 - One test-side fix during development: the membership assertion first wrongly
   required 60 globally-unique QA IDs; locales share logical IDs by contract,
   so the test was corrected (data untouched).
+- Provenance open item: the historical `34925f…` manifest anchor quoted in
+  voice docs reproduces from no manifest revision in this tree (raw or
+  canonical, current/c55eb9a/b308605) — it is not asserted; the git-source pin
+  above replaces it. W1 owns clarifying that literal.
 
 ## Limits (not covered here)
 
@@ -43,3 +52,15 @@ builtins only; real matcher `normalizeQuestion`/`findAnswer` imported from
 native vertical, TTS/STT, devices and 2026 freshness belong to later passes
 per `docs/POST8_QA_PLAN.md`. W2 owns V2 parser tests (not duplicated);
 W3 TTS in progress.
+
+## Shared-parser readonly review (beyond the 3 known V2-loader bugs)
+
+Reviewed `canonicalJson.ts`, `isDatasetV2`/nullable-geometry pair rule,
+`validateDatasetV2Pair` and `loadLiveSourceV2` against
+`POST8_COORDINATOR_REVIEW.md` §Shared stage 1 (header-required, canonical-404,
+late-body — all W2-owned, fixes in progress). No additional concrete bad
+acceptance found: locale is strict-matched, single-null geometry rejected,
+503 maps to error (never ready), canonical serialization is deterministic
+(key sort, order-preserving arrays, no normalization), and the V1 loader keeps
+its Phase 8 behavior. Existing 213 mobile tests passing is recorded as
+regression signal only, not proof of no further bugs.
