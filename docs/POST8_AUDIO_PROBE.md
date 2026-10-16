@@ -206,3 +206,77 @@ The actual 14-file offline Kokoro generation and the actual cached faster-whispe
 ### Product gate
 
 These files are probe samples only. No preset was selected and no production manifest, new asset, or mobile voice catalog entry was added. The existing voice lookup still fails closed for the English collection. Native first-point playback, human review of all proposed approximations, and approval of a preset remain open. No app/device/server test was run.
+
+## Current W3 first-point follow-through (2026-10-16)
+
+This section supersedes the earlier code-checkpoint and product-gate statements above. It records the later, deliberately limited first-point candidate. The catalog still marks every clip `humanApproved: false`, and its top-level flags remain `humanApproved: false` and `selectedForShipping: false`; this is a provisional engineering candidate, not a voice selection or human/native approval.
+
+### Runtime and license verification
+
+Windows runtime used Node `v24.14.1` and Python `3.12.13`. The English TTS was generated with isolated `kokoro==0.9.4` CPU packages and the pinned `hexgrad/Kokoro-82M` snapshot at `f3ff3571791e39611d31c381e3a41a3af07b4987`; the model repository and Kokoro package identify Apache-2.0. Preset `af_heart` is the only preset in this candidate (`en-US`). `bf_emma` (`en-GB`) was the second and final T2a comparison preset; it was not selected for this candidate. The voice files have no separate license record, so their stated license follows the pinned model repository's Apache-2.0 terms.
+
+The Vietnamese candidate reused the isolated Windows ONNX path: `vieneu==3.7.1`, `pnnbao-ump/VieNeu-TTS-v3-Turbo@61b85e3d937fbbacb387714180e8182823512523`, codec `OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX@ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae`, preset `Đoan Trang` (`vi-VN`). Package/model/codec license notes are in [the existing voice license record](../mobile/assets/voice/LICENSES.md). Only isolated ignored environments and caches were used; no global package install or SDK/registry setup was performed, and the main `E:/Project/Ngo_Ke/ngoke` workspace was read-only.
+
+Primary license/version references: [Kokoro 0.9.4 on PyPI](https://pypi.org/project/kokoro/0.9.4/), [pinned Kokoro model revision](https://huggingface.co/hexgrad/Kokoro-82M/tree/f3ff3571791e39611d31c381e3a41a3af07b4987), [VieNeu 3.7.1 on PyPI](https://pypi.org/project/vieneu/3.7.1/), [pinned VieNeu model revision](https://huggingface.co/pnnbao-ump/VieNeu-TTS-v3-Turbo/tree/61b85e3d937fbbacb387714180e8182823512523), and [pinned ONNX codec revision](https://huggingface.co/OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX/tree/ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae). The model metadata and README, package metadata, and model-card license statements were checked through the required agent-reach route before download/use.
+
+### Provisional bilingual first-point assets
+
+The separate first-point generator writes only `mobile/assets/voice/post8/old-quarter-pilot/` and `mobile/src/voice/post8Catalog.ts`; it refuses to overwrite an existing candidate and never targets the original 34-clip generator/catalog. It emits six Bạch Mã tracks per locale: intro, story, caption, and three matching QA answers. Revisions are EN `d75fcc183863f7ea2ec3b24bba1c4664b762c6332f0eb768a3493d9e74089b83` and VI `358209bc5bf8f14e47a3598b93644d168219d919dcb66d9eb1f7cbb7dbd2c94a`; source-data SHA-256 values are EN `bec3ff515868acd0462f0b918dff6b4f1bb43d36f98ef063c6da4a44b13730e1` and VI `58791331dc736764f71f73f5e656f2cc7c20f300b3e21656f7ac7077943eea93`.
+
+English TTS-only respelling leaves display text, matching text, and source-text hashes unchanged. Misaki returned no unknown-phoneme markers. The story was generated separately at speed `0.8` to reach the requested 60–90 second narration range: `61.200 s`, mono MP3, 24 kHz, 96 kbps; PCM peak `-1.88 dBFS`, RMS `-25.77 dBFS`, clipped samples `0`, leading/trailing silence at -50 dBFS `396.2/607.6 ms`. Its source-text SHA remains `42afea2a073e26fabb13cae2a0f475cb13a4ee87c2391d2cf4dfb0663f4363be`, spoken-text SHA is `58546ca363bd83094bc21e7f2f9c749a053d07c3c0c6e1882e9c4e355299b1cb`, and audio SHA is `ee55b19e52f87e1259bf1c1723d8568508f9790eee05825e21c1a8ef9b6cbd93`. It is a measured synthetic output, not a listening or warmth result.
+
+All files are mono MP3 at 96 kbps. English samples are 24 kHz; Vietnamese samples are 48 kHz. The table records exact source/spoken/audio hashes and measured duration, peak/RMS, clipping, and untrimmed -50 dBFS cuts. The manifest also records the model, revision, library, locale, voice/preset, dataset revision, codec, and source path for every track. Sample path is `mobile/assets/voice/post8/old-quarter-pilot/{locale}/{track}.mp3`.
+
+| Locale / voice | Track | Seconds | Source text SHA-256 | Spoken text SHA-256 | Audio SHA-256 | Peak / RMS dBFS | Clipped | Leading / trailing ms |
+| --- | --- | ---: | --- | --- | --- | ---: | ---: | ---: |
+| en / af_heart | intro | 22.000 | `2eaef8c606b145adb829122ecac5d131daa6bc5f71e1f86024894bdec5fd2bc7` | `03d211e5ff60b73deb1165179a662539d5a25c8059d8b102691abf233dbcfc13` | `eb85b84669ec627e05589326d804fc997886c3903932576b8172442a2d35cd26` | -6.51 / -25.73 | 0 | 336.5 / 468.0 |
+| en / af_heart | oldquarter-bach-ma-story | 61.200 | `42afea2a073e26fabb13cae2a0f475cb13a4ee87c2391d2cf4dfb0663f4363be` | `58546ca363bd83094bc21e7f2f9c749a053d07c3c0c6e1882e9c4e355299b1cb` | `ee55b19e52f87e1259bf1c1723d8568508f9790eee05825e21c1a8ef9b6cbd93` | -1.88 / -25.77 | 0 | 396.2 / 607.6 |
+| en / af_heart | oldquarter-bach-ma-caption | 5.375 | `b04c2038b3ac65996be69e5a404a2e46020e63acf98634c5c5f733daeb904937` | `1181054835f36e113f63a31d6858ef6b800689c33bb97708c785e2b941c072c8` | `38cbd324b2ca33c6fd75b9ac49f60b0e89ae72a4cc85ed7c6144128e98a76a8f` | -8.27 / -26.48 | 0 | 342.7 / 456.9 |
+| en / af_heart | bm-guardian-answer | 14.275 | `8bcd776ac9b558e5c283ebca29c15901871058f207115cf5a66c9142ac2132c9` | `4e334d5464ada30eccde6866e22211d4630d32d495eef958c1cc9483650d0952` | `30e993909f3e636238dcdaad90e05b826f8effbf2b4d3fed78bf2ddf9dad03f4` | -8.54 / -25.71 | 0 | 296.4 / 538.0 |
+| en / af_heart | bm-horse-answer | 15.375 | `1102222215f752d53558613cd1d3d07b43ef7a5fe1ec9e15512228fbfa3ad1aa` | `ebe2bd6e3143de3e592607b48b5dde2611ba6f20cdf1a03a2f23b399120c5a61` | `325339d189a95b1af24c8e47a7093e006a5ff2986b5a4d4045a9de1d1e9c2439` | -8.15 / -25.82 | 0 | 335.0 / 534.6 |
+| en / af_heart | bm-observe-answer | 16.900 | `2b8ec05c6f58f8d15109aff9cc23cf33ab43b7d48851acd657088b38fc2ba70e` | `2b8ec05c6f58f8d15109aff9cc23cf33ab43b7d48851acd657088b38fc2ba70e` | `845d456a5d0567f0ce0f4f45606b8c77225b313f1f929875d9d738eec9ed8169` | -7.22 / -25.69 | 0 | 318.7 / 463.4 |
+| vi / Đoan Trang | intro | 19.870 | `d068452c872f13e4f125f7a326986928fddc3d42c9eaa88ae2a426c7f26b1e5b` | `d068452c872f13e4f125f7a326986928fddc3d42c9eaa88ae2a426c7f26b1e5b` | `e76028d6bc4f39a79e7148d9afb510c05050627a0df0a353238498d473a37d5f` | -4.64 / -19.22 | 0 | 117.85 / 149.46 |
+| vi / Đoan Trang | oldquarter-bach-ma-story | 46.680 | `d98216f5feaf1682261e9b3b01b7cbc13b2822fdf2f1eb0e220848c87fb7a5b0` | `d98216f5feaf1682261e9b3b01b7cbc13b2822fdf2f1eb0e220848c87fb7a5b0` | `90e8e13f983d9f49d6e3f7f5ec51e63079475c26e74a8928a5f06176c469dec8` | -3.99 / -19.70 | 0 | 112.94 / 153.15 |
+| vi / Đoan Trang | oldquarter-bach-ma-caption | 5.040 | `d8e61b8540069307dae429fc25bd795a10935dcf621a3cf5f5a9f868027840e4` | `d8e61b8540069307dae429fc25bd795a10935dcf621a3cf5f5a9f868027840e4` | `7e64c9ebdcafd487772f91cf45aaade3bb9697c449f3e60a592c8ed35e7e440a` | -5.84 / -19.99 | 0 | 102.48 / 170.02 |
+| vi / Đoan Trang | bm-guardian-answer | 11.280 | `358c57d387758d89d825410016cc8c1beb730fe259f43950f06d68b741c70d3e` | `358c57d387758d89d825410016cc8c1beb730fe259f43950f06d68b741c70d3e` | `187054715ff4cba74fe9c2aa64eb0f6f582b06cbe6cb6cc17c1b43787796781f` | -4.15 / -19.16 | 0 | 100.58 / 196.83 |
+| vi / Đoan Trang | bm-horse-answer | 15.440 | `b5db1888117c52887a8092d8006862ab815c247738927dea785ebf5a158870e7` | `b5db1888117c52887a8092d8006862ab815c247738927dea785ebf5a158870e7` | `a1dd5f8392ec5721dada8895a2b6ad3b7830a60455dd41e99c4ebf15bc118356` | -3.64 / -19.57 | 0 | 97.92 / 331.56 |
+| vi / Đoan Trang | bm-observe-answer | 14.160 | `513eecf4451de695cab022e1b122bd045143c9a1833e6f73670ffad6925c256d` | `513eecf4451de695cab022e1b122bd045143c9a1833e6f73670ffad6925c256d` | `6b8d1a383c7c26b8009b070cabd75fee64a11ebf5b8d9c4fd742919e0659e0ad` | -4.12 / -19.98 | 0 | 57.75 / 149.10 |
+
+### Actual English and Vietnamese decoder checks
+
+English TTS is not English STT evidence by itself. The actual gateway was run on controlled loopback `127.0.0.1:18787`, using Node `v24.14.1`, `faster-whisper==1.2.1`, and cached `Systran/faster-whisper-small@536b0662742c02347bc0e980a01041f333bce120` on CPU/int8. For each request, the worker received the requested language and returned `info.language`; the gateway now rejects a language mismatch and echoes only that observed value as `decoderLanguage`. The mobile response validator requires `decoderLanguage: "en"` for English and rejects any reported locale mismatch; legacy VI responses may omit this additive field.
+
+| Sample | Requested / returned language | Audio duration | Actual result |
+| --- | --- | ---: | --- |
+| `tools/voice/.cache/post8-http-probe/english-horse-answer.wav` (af_heart) | `en` / `en` | 15.375 s | HTTP 200; returned the spoken Bạch Mã meaning, horse-track legend, divine-protection belief, and source limitation. |
+| `tools/voice/.cache/post8-http-probe/firstpoint-vietnamese-horse.wav` (Đoan Trang) | `vi` / `vi` | 15.440 s | HTTP 200; actual transcript contained recognition errors and is only language-routing evidence, not accuracy/QC evidence. |
+
+Both requests were run through `tools/voice/gateway/post8_http_probe.mjs`, which sends a local WAV and asserts the full turn context and actual decoder language. The loopback gateway used Node PID `30292` and Python worker PID `42696`; it was sent SIGTERM, both processes exited, and the listener on port `18787` was gone. Ports `8788` and `8081` were not touched. The longer all-name/food English pronunciation sentence remains the explicit-language local ASR probe recorded above; it was not sent through the gateway because that gateway's intentional audio-duration cap is 20 seconds.
+
+### Voice intent, lifecycle, and verification
+
+`parseVoiceIntent(input, collectingPlan = false, currentDraft = {}, locale = 'vi')` preserves all old Vietnamese call signatures and defaults. English has a small exact command table; Vietnamese commands do not trigger in English. Negative, unknown, multi-action, or mixed English action requests do not execute automatically. Clarify, multiple-slot, and negation notices use the shared translator. `lookupVoiceTrack({ collectionId, locale, contentId, datasetRevision })` resolves the Post-8 candidate only on exact collection/locale/revision; missing content or mismatches return no audio and never fall back to VI.
+
+The hook now returns from a hung stop to a localized recovery-error state after one second, while retaining a native-recovery lock until the original native completion succeeds. Rejection or an unresolved operation keeps the microphone locked; a delayed prepare that resolves after cancel is stopped/discarded before the lock releases. Voice-owned controlled-hook tests cover hung prepare, stalled stop, ready cancellation, a delayed ASR response, a delayed stale playback hash, cleanup, and absence of automatic playback/new recording during recovery.
+
+Verification on this worktree: focused voice/catalogue suite `30/30`; Python probe unit tests `6/6`; first-point English hash preflight passed; `npm run typecheck` and `npm run lint` passed. The full current mobile suite reported `224/225`, with its sole failure in the W2-owned stale `mobile/tests/uiFlows.test.mjs` harness (`Unexpected import: ../data/locale`); that harness is not modified here. Coordinator reported W2's separately reviewed `dbb1fc7` / `ae2f4c3` integration candidate passes `227/227`, typecheck, and lint. The original 34 Vietnamese MP3s remain the only 34 files at the legacy catalogue path; they and `mobile/assets/voice/manifest.json` are unchanged. The manifest's SHA-256 remains `34925f5d005fa7fb684c4f8fac19992865b581c6eeaa6bde0e9183431c9be05a`, `git diff --exit-code` for its 34 tracked MP3s and manifest returned 0, and the original catalogue regression test passes.
+
+### Reproduction and remaining review
+
+Use the already documented isolated Python 3.12 environment and pinned-cache Kokoro command for the 14-track T2a two-preset comparison. The additional single-story speed pass is:
+
+```powershell
+$env:HF_HUB_OFFLINE = "1"
+$env:TRANSFORMERS_OFFLINE = "1"
+$env:PYTHONDONTWRITEBYTECODE = "1"
+.\tools\voice\.venv\Scripts\python.exe -B -X utf8 .\tools\voice\post8_story_speed_probe.py
+```
+
+The final first-point pair/candidate generator is `tools/voice/post8_firstpoint.py`; it validates the shared V2 parser, paired locale revisions, pinned English samples, exact VI preset version, MP3 properties, source/spoken/audio hashes, and refuses to overwrite the candidate. Its six-clip/locale output is already present in the paths above; do not run it against a populated target. The actual ASR command is:
+
+```powershell
+node tools/voice/gateway/post8_http_probe.mjs en tools/voice/.cache/post8-http-probe/english-horse-answer.wav
+node tools/voice/gateway/post8_http_probe.mjs vi tools/voice/.cache/post8-http-probe/firstpoint-vietnamese-horse.wav
+```
+
+Still pending are W4 technical review of the native first point, human listening/pronunciation/naturalness approval for both locales, W2 product wiring/integration of the candidate, and device playback checks. The other five nodes / full 66-asset catalog, any preset shipping selection, and Android/iOS microphone/playback QA remain deliberately ungenerated/unclaimed.
