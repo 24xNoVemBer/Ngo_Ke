@@ -47,6 +47,43 @@ builtins only; real matcher `normalizeQuestion`/`findAnswer` imported from
   not a source change — both anchors are now asserted (raw Buffer reads only),
   and no file/EOL/source rewrite was made. MP3 byte hashes are unaffected.
 
+## T3c independent review of W2 604dd2f + W3 672eedb (2026-10-16, read-only)
+
+Method: `git show` / isolated Temp extraction of the exact commits (never
+checked out); behavioral repros executed from Temp, not committed as tests
+(W2 owns incoming tests — no mirrors). Content-47 suite still green,
+unchanged, 34 audio SHAs intact.
+
+- Dictionary parity at 604dd2f: VI 160 keys / EN 160 keys, zero missing either
+  side. `translate()` falls back to VI on missing keys by design — recommend a
+  W2 parity unit test so future keys cannot silently leak VI into EN UI.
+- F1 (concrete): the 8 `voice.intent.*` keys added in 604dd2f exist ONLY in
+  `translator.ts` (zero references repo-wide); `intent.ts` hardcodes VI
+  clarify/ambiguous strings and `parseVoiceIntent` takes no locale — EN voice
+  cards speak Vietnamese. Owner: W2.
+- F2 (concrete, repro): EN action verbs unparsed — `parseVoiceIntent("stop")`,
+  `"read the story"`, `"next chapter"`, `"open the QR scanner"`, `"open GPS"`,
+  `"choose an experience"` all → `{"type":"question"}` (VI `"dung nghe"`→stop,
+  `"mo qr"`→open-qr work). Plan slot parsing itself is already EN-capable
+  (`food`→an thuc, `not food`→negation, `about 45 minutes`→45 — verified live).
+  Owner: W2 (prompt §6 requires real EN commands incl. negation).
+- F3 (concrete): at 604dd2f the voice session is VI-only end to end
+  (`useVoiceSession.ts` hardcodes transcript `locale: 'vi'`, VI-only
+  `messageForError`; no `localizedCatalog.ts` on this line). The locale-aware
+  hook + `lookupVoiceTrack` exist only on the unmerged 672eedb line, whose own
+  ref/cancel/error-locale handling reviewed clean. Integration must thread
+  QaScreen locale+collectionId through — until then, no EN/pilot voice turn can
+  resolve correctly. Owner: W1/W2 integration.
+- F4 (concrete): `App.tsx` live `datasetRevision` falls back to synthetic
+  `` `live-${liveRevision}` `` — a counter, not a content digest. Acceptable
+  interim only; must become canonical-digest-checked (cf. verified fiction-EN
+  `746e0d…`) before the native vertical. Owner: W2 with backend V2 revision.
+- Observation (not a defect): on the 672eedb line, turn errors use
+  `context.locale` while playback errors use render `locale` — suggest one rule.
+- No additional V2-loader boundary defects beyond the 3 known W2-owned bugs
+  (header-required, canonical-404, late-body); V1 loader behavior unchanged.
+  213-test green recorded as regression signal only.
+
 ## Limits (not covered here)
 
 100-audio coverage is NOT claimed: only the 100-track text inventory plus the
