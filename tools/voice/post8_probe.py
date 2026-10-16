@@ -231,6 +231,7 @@ def generate(output_dir: Path) -> dict[str, Any]:
             samples.append({
                 "voice": voice,
                 "trackId": track_id,
+                "speed": 1.0,
                 "textSha256": sha256_text(text),
                 "spokenText": spoken_text,
                 "spokenTextSha256": sha256_text(spoken_text),
