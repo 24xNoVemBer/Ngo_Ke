@@ -319,6 +319,7 @@ export type TranslationKey =
   | 'plan.topic_hint'
   | 'plan.custom_time_placeholder'
   | 'plan.time_hint'
+  | 'plan.pick_reason'
   // Camera
   | 'camera.title'
   | 'camera.phase'
@@ -685,6 +686,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'plan.topic_hint': 'Chưa nhận ra chủ đề này. Hãy thử “ẩm thực”, “chuyện xưa” hoặc “khám phá tự do”.',
     'plan.custom_time_placeholder': 'Ví dụ: khoảng 30 phút, 1 tiếng...',
     'plan.time_hint': 'Chưa nhận ra khoảng thời gian này. Hãy thử 30 phút hoặc 1 tiếng.',
+    'plan.pick_reason': 'Hợp chủ đề {topic} · {summary}',
 
     'camera.title': 'Camera và người kể',
     'camera.phase': 'Góc kính thực tế · Quét QR & Lời kể',
@@ -1050,6 +1052,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'plan.topic_hint': 'Topic not recognized. Try “food”, “old stories”, or “free exploration”.',
     'plan.custom_time_placeholder': 'e.g. 30 minutes, 1 hour...',
     'plan.time_hint': 'Duration not recognized. Try 30 minutes or 1 hour.',
+    'plan.pick_reason': 'Matches {topic} · {summary}',
 
     'camera.title': 'Camera & storyteller',
     'camera.phase': 'Augmented lens · QR Scan & Story',

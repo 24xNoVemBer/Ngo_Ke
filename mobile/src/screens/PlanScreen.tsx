@@ -16,14 +16,22 @@ import {
   hasTopicNegation,
   parseTimeBudget,
   parseTopic,
-  TOPIC_LABELS,
 } from '../recommendation/pick';
 import type { Topic } from '../data/sourceState';
 import type { PlanDraft } from '../recommendation/pick';
+import type { TranslationKey } from '../i18n/translator';
 import { AppIcon } from '../components/AppIcon';
 import { PostcardCard } from '../components/PostcardCard';
 import { colors, radius, spacing, typography } from '../theme';
 import { useLocale } from '../context/LocaleContext';
+
+function getTopicLabel(topic: Topic, tFunc: (k: TranslationKey) => string): string {
+  switch (topic) {
+    case 'an thuc': return tFunc('plan.topic_food');
+    case 'chuyen xua': return tFunc('plan.topic_history');
+    case 'kham pha tu do': return tFunc('plan.topic_explore');
+  }
+}
 
 const TIME_CHOICES = [15, 30, 45, 60];
 
@@ -303,11 +311,13 @@ export function PlanScreen({
               <View style={styles.resultHeader}>
                 <Text style={styles.phase}>{t('plan.recommendations_header')}</Text>
                 <Text accessibilityRole="header" style={styles.resultMainTitle}>
-                  {TOPIC_LABELS[result.topic] ?? result.topic} · {t('common.minutes', { minutes: result.budgetMinutes })}
+                  {getTopicLabel(result.topic, t)} · {t('common.minutes', { minutes: result.budgetMinutes })}
                 </Text>
                 <Text style={styles.resultSubtitle}>
                   {locale === 'en'
-                    ? `Here are ${result.picks.length} stops selected for your journey:`
+                    ? (result.picks.length === 1
+                        ? 'Here is 1 stop selected for your journey:'
+                        : `Here are ${result.picks.length} stops selected for your journey:`)
                     : `Dưới đây là ${result.picks.length} điểm ngõ giàu hình ảnh và câu chuyện được chọn lọc cho hành trình của bạn:`}
                 </Text>
               </View>
@@ -318,7 +328,14 @@ export function PlanScreen({
                   <PostcardCard
                     key={pick.node.id}
                     node={pick.node}
-                    subReason={pick.reason}
+                    subReason={
+                      locale === 'en'
+                        ? t('plan.pick_reason', {
+                            topic: getTopicLabel(result.topic, t),
+                            summary: pick.node.summary,
+                          })
+                        : pick.reason
+                    }
                     actionLabel={locale === 'en' ? `Explore (${pick.visitMinutes} min)` : `Khám phá (${pick.visitMinutes} phút)`}
                     onSelect={() => onSelectNode(pick.node.id)}
                     collectionKind={collectionKind}

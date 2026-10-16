@@ -702,7 +702,9 @@ export function HomeScreen({
                           ? (locale === 'en' ? 'LIVE · reviewed data' : 'LIVE · dữ liệu đã duyệt')
                           : (locale === 'en' ? 'LIVE · simulated data (unverified)' : 'LIVE · dữ liệu mô phỏng (chưa xác minh)')
                         : (locale === 'en' ? 'LIVE · no data' : 'LIVE · chưa có dữ liệu')
-                    : (locale === 'en' ? 'DEMO · simulated content' : 'DEMO · nội dung mô phỏng')}
+                    : collectionKind === 'reviewed'
+                      ? (locale === 'en' ? 'DEMO · reviewed heritage' : 'DEMO · di sản đã duyệt')
+                      : (locale === 'en' ? 'DEMO · simulated content' : 'DEMO · nội dung mô phỏng')}
                 </Text>
                 <Text style={styles.sourceTitle}>
                   {liveBusy ? (locale === 'en' ? 'Fetching live data…' : 'Đang lấy dữ liệu live…') : source.title}

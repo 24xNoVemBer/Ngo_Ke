@@ -603,7 +603,14 @@ export function QaScreen({
                       >
                         <View style={styles.voicePickCopy}>
                           <Text style={styles.voicePickTitle}>{pick.node.name}</Text>
-                          <Text style={styles.voicePickReason}>{pick.reason}</Text>
+                          <Text style={styles.voicePickReason}>
+                            {locale === 'en' && voiceActionCard.draft.topic
+                              ? t('plan.pick_reason', {
+                                  topic: getTopicLabel(voiceActionCard.draft.topic, t),
+                                  summary: pick.node.summary,
+                                })
+                              : pick.reason}
+                          </Text>
                         </View>
                         <Text style={styles.voicePickDuration}>{pick.visitMinutes}′</Text>
                       </Pressable>

@@ -2559,6 +2559,9 @@ test('HomeScreen passes source dataset.kind precedence to AlleyTrailView (ready 
   const trailSim = elements(treeSim, 'AlleyTrailView')[0];
   assert.ok(trailSim, 'trail component rendered at fontScale 2');
   assert.equal(trailSim.props.collectionKind, 'simulated', 'dataset.kind simulated must take precedence over activeCollection.kind reviewed');
+  const simTexts = elements(treeSim, 'Text').map((t) => [].concat(t.props.children).join(''));
+  assert.ok(simTexts.includes('DEMO · nội dung mô phỏng'), 'Home drawer shows simulated content tag in VI when dataset.kind is simulated');
+  assert.equal(simTexts.includes('DEMO · di sản đã duyệt'), false, 'Home drawer must not upgrade simulated dataset to reviewed in VI');
   homeViewSim.unmount();
 
   // 2. Ready reviewed payload
@@ -2589,6 +2592,9 @@ test('HomeScreen passes source dataset.kind precedence to AlleyTrailView (ready 
   const treeRev = homeViewRev.render();
   const trailRev = elements(treeRev, 'AlleyTrailView')[0];
   assert.equal(trailRev.props.collectionKind, 'reviewed', 'dataset.kind reviewed is passed directly');
+  const revTexts = elements(treeRev, 'Text').map((t) => [].concat(t.props.children).join(''));
+  assert.ok(revTexts.includes('DEMO · di sản đã duyệt'), 'Home drawer shows reviewed heritage tag in VI when dataset.kind is reviewed');
+  assert.equal(revTexts.includes('DEMO · nội dung mô phỏng'), false);
   homeViewRev.unmount();
 
   // 3. Ready dataset with undefined kind defaults to simulated
@@ -2619,7 +2625,72 @@ test('HomeScreen passes source dataset.kind precedence to AlleyTrailView (ready 
   const treeUndef = homeViewUndef.render();
   const trailUndef = elements(treeUndef, 'AlleyTrailView')[0];
   assert.equal(trailUndef.props.collectionKind, 'simulated', 'undefined dataset.kind defaults to simulated even on pilot collection');
+  const undefTexts = elements(treeUndef, 'Text').map((t) => [].concat(t.props.children).join(''));
+  assert.ok(undefTexts.includes('DEMO · nội dung mô phỏng'), 'Home drawer defaults to simulated content in VI when dataset.kind is undefined');
   homeViewUndef.unmount();
+
+  // 4. EN Demo reviewed payload
+  const actualReviewedPilotEn = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.en.json', import.meta.url), 'utf8'));
+  const reviewedPilotDatasetEn = {
+    ...actualReviewedPilotEn,
+    collectionId: 'old-quarter-pilot',
+    kind: 'reviewed',
+  };
+  const homeViewRevEn = mount('../src/screens/HomeScreen.tsx', {
+    mode: 'demo',
+    source: { status: 'ready', dataset: reviewedPilotDatasetEn },
+    onModeChange() {},
+    currentNodeId: reviewedPilotDatasetEn.nodes[0].id,
+    onSelectNode: () => {},
+    readNodeIds: new Set(),
+    navigation: { goBack() {}, navigate() {} },
+    route: { params: { alleyId: 'old-quarter-pilot' } },
+  }, {
+    __windowDimensions: { width: 400, height: 850, fontScale: 2 },
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        setLocale: () => {},
+        t: (key, params) => translator.t('en', key, params),
+      }),
+    },
+  });
+  const treeRevEn = homeViewRevEn.render();
+  const revTextsEn = elements(treeRevEn, 'Text').map((t) => [].concat(t.props.children).join(''));
+  assert.ok(revTextsEn.includes('DEMO · reviewed heritage'), 'Home drawer shows reviewed heritage tag in EN when dataset.kind is reviewed');
+  assert.equal(revTextsEn.includes('DEMO · simulated content'), false);
+  homeViewRevEn.unmount();
+
+  // 5. EN Demo simulated payload on pilot collection (strict precedence)
+  const simulatedPilotDatasetEn = {
+    ...actualReviewedPilotEn,
+    collectionId: 'old-quarter-pilot',
+    kind: 'simulated',
+  };
+  const homeViewSimEn = mount('../src/screens/HomeScreen.tsx', {
+    mode: 'demo',
+    source: { status: 'ready', dataset: simulatedPilotDatasetEn },
+    onModeChange() {},
+    currentNodeId: simulatedPilotDatasetEn.nodes[0].id,
+    onSelectNode: () => {},
+    readNodeIds: new Set(),
+    navigation: { goBack() {}, navigate() {} },
+    route: { params: { alleyId: 'old-quarter-pilot' } },
+  }, {
+    __windowDimensions: { width: 400, height: 850, fontScale: 2 },
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        setLocale: () => {},
+        t: (key, params) => translator.t('en', key, params),
+      }),
+    },
+  });
+  const treeSimEn = homeViewSimEn.render();
+  const simTextsEn = elements(treeSimEn, 'Text').map((t) => [].concat(t.props.children).join(''));
+  assert.ok(simTextsEn.includes('DEMO · simulated content'), 'Home drawer shows simulated content tag in EN when dataset.kind is simulated');
+  assert.equal(simTextsEn.includes('DEMO · reviewed heritage'), false, 'Home drawer must not upgrade simulated dataset to reviewed in EN');
+  homeViewSimEn.unmount();
 });
 
 test('NgoKeLogo renders NGÕ KỂ brand title and localized subtitle across locales', () => {
@@ -2818,4 +2889,158 @@ test('PostcardCard header layout policy stacks cleanly at fontScale 2 (preventin
 
   viewHigh.unmount();
 });
+
+test('PlanScreen localizes headlines and postcard reasons across all three topics in EN and VI', () => {
+  const fictionEn = JSON.parse(readFileSync(new URL('../../data/localized/fiction.en.json', import.meta.url), 'utf8'));
+  const fictionVi = fixture;
+
+  const topicExpectations = [
+    { topic: 'an thuc', enLabel: 'Alley food', viLabel: 'Ẩm thực ngõ', viLegacyLabel: 'ẩm thực' },
+    { topic: 'chuyen xua', enLabel: 'Old stories & heritage', viLabel: 'Chuyện xưa hoài niệm', viLegacyLabel: 'chuyện xưa' },
+    { topic: 'kham pha tu do', enLabel: 'Free exploration', viLabel: 'Khám phá tự do', viLegacyLabel: 'khám phá tự do' },
+  ];
+
+  for (const { topic, enLabel, viLabel, viLegacyLabel } of topicExpectations) {
+    // 1. EN mode
+    const viewEn = mount('../src/screens/PlanScreen.tsx', {
+      mode: 'demo',
+      nodes: fictionEn.nodes,
+      draft: { topic, budgetMinutes: 45 },
+      onDraftChange: () => {},
+      onSelectNode: () => {},
+      collectionKind: 'simulated',
+    }, {
+      '../context/LocaleContext': {
+        useLocale: () => ({
+          locale: 'en',
+          t: (key, params) => translator.t('en', key, params),
+        }),
+      },
+    }, 'PlanScreen');
+    const treeEn = viewEn.render();
+    const allTextsEn = elements(treeEn, 'Text').map((t) => [].concat(t.props?.children).join(''));
+    const fullTextEn = allTextsEn.join(' ');
+
+    // Headline check
+    assert.ok(allTextsEn.some((t) => t.includes(`${enLabel} · 45 min`)), `EN headline displays ${enLabel} for topic ${topic}`);
+    assert.equal(fullTextEn.includes(viLegacyLabel), false, `EN text must not leak raw Vietnamese topic ${viLegacyLabel}`);
+    assert.equal(fullTextEn.includes('Hợp chủ đề'), false, `EN text must not leak raw Vietnamese "Hợp chủ đề"`);
+
+    // PostcardCard subReason check
+    const postcardsEn = elements(treeEn, 'PostcardCard');
+    assert.ok(postcardsEn.length > 0, `Expected picks for topic ${topic}`);
+    for (const card of postcardsEn) {
+      assert.ok(card.props.subReason.startsWith(`Matches ${enLabel} · `), `subReason must match EN template: ${card.props.subReason}`);
+      assert.ok(fictionEn.nodes.some((n) => card.props.subReason.includes(n.summary)), 'subReason must include English node summary');
+    }
+
+    viewEn.unmount();
+
+    // 2. VI mode
+    const viewVi = mount('../src/screens/PlanScreen.tsx', {
+      mode: 'demo',
+      nodes: fictionVi.nodes,
+      draft: { topic, budgetMinutes: 45 },
+      onDraftChange: () => {},
+      onSelectNode: () => {},
+      collectionKind: 'simulated',
+    }, {
+      '../context/LocaleContext': {
+        useLocale: () => ({
+          locale: 'vi',
+          t: (key, params) => translator.t('vi', key, params),
+        }),
+      },
+    }, 'PlanScreen');
+    const treeVi = viewVi.render();
+    const allTextsVi = elements(treeVi, 'Text').map((t) => [].concat(t.props?.children).join(''));
+    assert.ok(allTextsVi.some((t) => t.includes(`${viLabel} · 45 phút`)), `VI headline displays ${viLabel} for topic ${topic}`);
+
+    const postcardsVi = elements(treeVi, 'PostcardCard');
+    assert.ok(postcardsVi.length > 0, `Expected picks for VI topic ${topic}`);
+    for (const card of postcardsVi) {
+      assert.ok(card.props.subReason.includes(`Hợp chủ đề`), 'VI subReason must contain "Hợp chủ đề"');
+      assert.ok(fictionVi.nodes.some((n) => card.props.subReason.includes(n.summary)), 'VI subReason must include Vietnamese node summary');
+    }
+
+    viewVi.unmount();
+  }
+
+  // 3. Grammar check: 1 stop vs multiple stops in EN
+  const viewSingleEn = mount('../src/screens/PlanScreen.tsx', {
+    mode: 'demo',
+    nodes: [fictionEn.nodes[0]],
+    draft: { topic: 'kham pha tu do', budgetMinutes: 15 },
+    onDraftChange: () => {},
+    onSelectNode: () => {},
+    collectionKind: 'simulated',
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        t: (key, params) => translator.t('en', key, params),
+      }),
+    },
+  }, 'PlanScreen');
+  const treeSingleEn = viewSingleEn.render();
+  const allTextsSingle = elements(treeSingleEn, 'Text').map((t) => [].concat(t.props?.children).join(''));
+  assert.ok(allTextsSingle.some((t) => t.includes('Here is 1 stop selected for your journey:')), 'Singular grammar used when 1 stop selected');
+  assert.equal(allTextsSingle.some((t) => t.includes('Here are 1 stops')), false, 'No plural "Here are 1 stops"');
+  viewSingleEn.unmount();
+});
+
+test('QaScreen localizes inline voice pick reasons in EN without leaking raw Vietnamese', () => {
+  const fictionEn = JSON.parse(readFileSync(new URL('../../data/localized/fiction.en.json', import.meta.url), 'utf8'));
+  let transcript;
+  let draft = {};
+  const nodeId = fictionEn.nodes[0].id;
+  const properties = () => ({
+    dataset: fictionEn,
+    mode: 'demo',
+    datasetRevision: 'rev-en',
+    currentNodeId: nodeId,
+    onSelectNode: () => {},
+    onReadNode() {},
+    readNodeIds: new Set(),
+    planDraft: draft,
+    onPlanDraftChange: (next) => { draft = next; },
+    onOpenNotebook: () => {},
+  });
+  const view = mount('../src/screens/QaScreen.tsx', properties(), {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        t: (key, params) => translator.t('en', key, params),
+      }),
+    },
+    '../voice/useVoiceSession': {
+      useVoiceSession: (options) => {
+        transcript = options.onTranscript;
+        return {
+          stage: 'idle',
+          error: null,
+          recordingDurationMs: 0,
+          metering: -60,
+          playback: { playing: false, currentTime: 0, duration: 0 },
+          activeTrackId: null,
+          playbackError: null,
+          startRecording() {},
+          submitRecording() {},
+          cancel() {},
+          stopPlayback() {},
+          playTrack() {},
+          replayTrack() {},
+        };
+      },
+    },
+  });
+  view.render();
+  transcript('choose experience food for 30 minutes', { turnId: 'plan-1', scope: `demo:rev-en:${nodeId}`, nodeId, mode: 'demo', datasetRevision: 'rev-en' });
+  const tree = view.render(properties());
+  const allTexts = elements(tree, 'Text').map((t) => [].concat(t.props?.children).join(''));
+  assert.ok(allTexts.some((t) => t.startsWith('Matches Alley food · ')), 'Voice pick reason is localized in EN');
+  assert.equal(allTexts.some((t) => t.includes('Hợp chủ đề')), false, 'No raw Vietnamese "Hợp chủ đề" in EN QaScreen');
+  view.unmount();
+});
+
 

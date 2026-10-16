@@ -852,6 +852,14 @@ test('translator.ts - 100% dictionary parity between VI and EN', () => {
   assert.equal(translate('en', 'common.photo_disclaimer'), 'Illustration photo · simulated point');
   assert.equal(translate('vi', 'common.photo_disclaimer_reviewed'), 'Ảnh minh họa · điểm đã duyệt');
   assert.equal(translate('en', 'common.photo_disclaimer_reviewed'), 'Illustration photo · reviewed stops');
+  assert.equal(
+    translate('vi', 'plan.pick_reason', { topic: 'Ẩm thực ngõ', summary: 'Bánh mì' }),
+    'Hợp chủ đề Ẩm thực ngõ · Bánh mì',
+  );
+  assert.equal(
+    translate('en', 'plan.pick_reason', { topic: 'Alley food', summary: 'Bread' }),
+    'Matches Alley food · Bread',
+  );
 });
 
 test('pick.ts - English alias parsing for topics and time budgets', () => {
