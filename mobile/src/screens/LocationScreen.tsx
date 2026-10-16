@@ -7,6 +7,8 @@ import type { DemoNode } from '../data/sourceState';
 import { pickCandidate, type Candidate } from '../location/nearest';
 import { getNodePhoto, getNodePhotographer } from '../assets/photoMap';
 import { colors, radius, spacing, typography } from '../theme';
+import { useLocale } from '../context/LocaleContext';
+import type { TranslationKey } from '../i18n/translator';
 
 const LIMITS = { maxAccuracyMeters: 50, maxDistanceMeters: 300 };
 
@@ -19,22 +21,23 @@ type Props = {
 const meters = (value: number): string =>
   value >= 1000 ? `${(value / 1000).toFixed(1)} km` : `${Math.round(value)} m`;
 
-function explain(result: Candidate): string {
+function explain(result: Candidate, t: (key: TranslationKey, params?: Record<string, string | number>) => string): string {
   switch (result.kind) {
     case 'poor-accuracy':
-      return `Tín hiệu GPS yếu (độ chính xác ~${meters(result.accuracy)}), nên app không đoán điểm nào. Hãy thử lại ở nơi thoáng trời hoặc chọn điểm bằng tay bên dưới.`;
+      return t('location.err_poor_accuracy', { meters: meters(result.accuracy) });
     case 'outside-cluster':
-      return `Bạn đang cách điểm gần nhất khoảng ${meters(result.distanceMeters)}, vượt ngoài phạm vi ngõ demo. Hãy chọn điểm bằng tay.`;
+      return t('location.err_outside', { meters: meters(result.distanceMeters) });
     case 'no-coordinates':
-      return 'Chưa có dữ liệu tọa độ khảo sát cho các điểm này. Hãy chọn điểm bằng tay.';
+      return t('location.err_no_coords');
     case 'needs-position':
-      return 'Chưa nhận được vị trí thiết bị. Vui lòng bấm thử lại hoặc chọn điểm bằng tay.';
+      return t('location.err_needs_position');
     case 'candidate':
       return '';
   }
 }
 
 export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): ReactElement {
+  const { t, locale } = useLocale();
   const focused = useIsFocused();
   const request = useRef(0);
   const waiting = useRef(false);
@@ -101,13 +104,16 @@ export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): 
     <SafeAreaView style={styles.screen} edges={['left', 'right', 'bottom']}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.headerBox}>
-          <Text style={styles.phase}>Định vị ngõ phố · Gợi ý GPS</Text>
+          <Text style={styles.phase}>
+            {locale === 'en' ? 'Alley Positioning · GPS Suggestion' : 'Định vị ngõ phố · Gợi ý GPS'}
+          </Text>
           <Text accessibilityRole="header" style={styles.mainTitle}>
-            Xác nhận điểm chạm
+            {locale === 'en' ? 'Confirm Touchpoint' : 'Xác nhận điểm chạm'}
           </Text>
           <Text style={styles.subtitle}>
-            App chỉ đọc GPS một lần khi bạn chạm nút để ước lượng con ngõ gần nhất, hoàn
-            toàn không theo dõi vị trí nền.
+            {locale === 'en'
+              ? 'App reads GPS once upon button tap to estimate nearest alley, with no background tracking.'
+              : 'App chỉ đọc GPS một lần khi bạn chạm nút để ước lượng con ngõ gần nhất, hoàn toàn không theo dõi vị trí nền.'}
           </Text>
         </View>
 
@@ -120,50 +126,63 @@ export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): 
               resizeMode="cover"
             />
             <View style={styles.currentInfo}>
-              <Text style={styles.currentLabel}>Điểm hiện tại trên sổ tay:</Text>
+              <Text style={styles.currentLabel}>
+                {locale === 'en' ? 'Current passport stop:' : 'Điểm hiện tại trên sổ tay:'}
+              </Text>
               <Text accessibilityRole="header" style={styles.currentName}>
-                {current?.name ?? 'Chưa xác nhận điểm'}
+                {current?.name ?? (locale === 'en' ? 'Unconfirmed stop' : 'Chưa xác nhận điểm')}
               </Text>
               <Text style={styles.currentPhotographer}>
-                Ảnh: {getNodePhotographer(currentNodeId ?? '')}
+                {t('common.photo_author', { author: getNodePhotographer(currentNodeId ?? '') })}
               </Text>
             </View>
           </View>
           <Text style={styles.currentNote}>
-            GPS chỉ gợi ý điểm kế cận, không bao giờ tự động chuyển điểm nếu không có sự
-            xác nhận của bạn.
+            {locale === 'en'
+              ? 'GPS only suggests adjacent stops, never changes stop automatically without confirmation.'
+              : 'GPS chỉ gợi ý điểm kế cận, không bao giờ tự động chuyển điểm nếu không có sự xác nhận của bạn.'}
           </Text>
         </View>
 
         {/* Hộp quét GPS */}
         <View style={styles.card} accessibilityLiveRegion="polite">
           <Text accessibilityRole="header" style={styles.sectionTitle}>
-            Tìm điểm ngõ gần nhất
+            {t('location.title')}
           </Text>
           <Text style={styles.body}>
-            Chạm nút dưới đây để app lấy tọa độ một lần và gợi ý điểm ngõ tương ứng:
+            {locale === 'en'
+              ? 'Tap button below to get coordinates once and suggest matching stop:'
+              : 'Chạm nút dưới đây để app lấy tọa độ một lần và gợi ý điểm ngõ tương ứng:'}
           </Text>
 
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Lấy vị trí của tôi"
+            accessibilityLabel={locale === 'en' ? 'Get my location' : 'Lấy vị trí của tôi'}
             onPress={() => void readPosition()}
             disabled={busy}
             style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
           >
             <Text style={styles.primaryText}>
-              {busy ? 'Đang định vị vệ tinh…' : '📍 Lấy vị trí của tôi'}
+              {busy ? t('location.waiting') : ('📍 ' + t('location.find_button'))}
             </Text>
           </Pressable>
 
-          {busy && <Pressable accessibilityRole="button" accessibilityLabel="Dừng chờ GPS" onPress={stopWaiting}
-            style={styles.secondaryButton}><Text style={styles.secondaryText}>Dừng chờ GPS</Text></Pressable>}
+          {busy && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={locale === 'en' ? 'Stop searching' : 'Dừng chờ GPS'}
+              onPress={stopWaiting}
+              style={styles.secondaryButton}
+            >
+              <Text style={styles.secondaryText}>{t('location.stop_waiting')}</Text>
+            </Pressable>
+          )}
 
           {/* Ứng viên tìm thấy */}
           {result?.kind === 'candidate' && (
             <View style={styles.candidateCard}>
               <View style={styles.candidateTag}>
-                <Text style={styles.candidateTagText}>GỢI Ý TỪ GPS</Text>
+                <Text style={styles.candidateTagText}>{t('location.nearest_candidate')}</Text>
               </View>
 
               <View style={styles.candidatePreviewRow}>
@@ -175,17 +194,18 @@ export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): 
                 <View style={styles.candidateDetails}>
                   <Text style={styles.candidateTitle}>{result.node.name}</Text>
                   <Text style={styles.candidateDistance}>
-                    Khoảng cách: ~{meters(result.distanceMeters)}
+                    {t('location.distance_hint', { meters: meters(result.distanceMeters) })}
                   </Text>
                   <Text style={styles.candidateAccuracy}>
-                    Độ chính xác GPS: ±{meters(result.accuracy)}
+                    {locale === 'en' ? `GPS accuracy: ±${meters(result.accuracy)}` : `Độ chính xác GPS: ±${meters(result.accuracy)}`}
                   </Text>
                 </View>
               </View>
 
               <Text style={styles.candidateNotice}>
-                Đây chỉ là đề xuất. Điểm hiện tại vẫn giữ nguyên cho tới khi bạn bấm xác
-                nhận.
+                {locale === 'en'
+                  ? 'This is only a suggestion. Current stop remains until you confirm.'
+                  : 'Đây chỉ là đề xuất. Điểm hiện tại vẫn giữ nguyên cho tới khi bạn bấm xác nhận.'}
               </Text>
 
               <View style={styles.buttonRow}>
@@ -198,7 +218,7 @@ export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): 
                     pressed && styles.pressed,
                   ]}
                 >
-                  <Text style={styles.primaryText}>Xác nhận điểm này</Text>
+                  <Text style={styles.primaryText}>{t('location.confirm_button')}</Text>
                 </Pressable>
                 <Pressable
                   accessibilityRole="button"
@@ -209,7 +229,7 @@ export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): 
                     pressed && styles.pressed,
                   ]}
                 >
-                  <Text style={styles.secondaryText}>Bỏ qua</Text>
+                  <Text style={styles.secondaryText}>{t('common.cancel')}</Text>
                 </Pressable>
               </View>
             </View>
@@ -217,7 +237,7 @@ export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): 
 
           {result !== undefined && result.kind !== 'candidate' && (
             <View style={styles.hintBox}>
-              <Text style={styles.hint}>{explain(result)}</Text>
+              <Text style={styles.hint}>{explain(result, t)}</Text>
             </View>
           )}
         </View>
@@ -225,10 +245,12 @@ export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): 
         {/* Chọn bằng tay */}
         <View style={styles.card}>
           <Text accessibilityRole="header" style={styles.sectionTitle}>
-            Hoặc chọn điểm bằng tay
+            {locale === 'en' ? 'Or select manually' : 'Hoặc chọn điểm bằng tay'}
           </Text>
           <Text style={styles.body}>
-            Luôn luôn hoạt động trơn tru bất kể thiết bị có mở GPS hay không:
+            {locale === 'en'
+              ? 'Always functions smoothly whether device GPS is enabled or not:'
+              : 'Luôn luôn hoạt động trơn tru bất kể thiết bị có mở GPS hay không:'}
           </Text>
 
           <View style={styles.manualList}>
@@ -238,7 +260,11 @@ export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): 
                 <Pressable
                   key={node.id}
                   accessibilityRole="button"
-                  accessibilityLabel={`Chọn điểm ${node.name} bằng tay, mô phỏng`}
+                  accessibilityLabel={
+                    locale === 'en'
+                      ? `Select ${node.name} manually, simulated`
+                      : `Chọn điểm ${node.name} bằng tay, mô phỏng`
+                  }
                   disabled={!node.available}
                   onPress={() => confirm(node)}
                   style={({ pressed }) => [
@@ -255,12 +281,16 @@ export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): 
                   <View style={styles.pointInfo}>
                     <Text style={styles.pointName}>{node.name}</Text>
                     <Text style={styles.pointMeta}>
-                      {node.visitMinutes} phút mô phỏng
-                      {isCurrent ? ' · Đang là điểm hiện tại' : ''}
+                      {t('common.simulated_minutes', { minutes: node.visitMinutes })}
+                      {isCurrent ? (locale === 'en' ? ' · Currently selected' : ' · Đang là điểm hiện tại') : ''}
                     </Text>
                   </View>
                   <Text style={[styles.selectAction, isCurrent && styles.selectActionActive]}>
-                    {!node.available ? 'Chưa mở' : isCurrent ? 'Hiện tại' : 'Chọn →'}
+                    {!node.available
+                      ? (locale === 'en' ? 'Locked' : 'Chưa mở')
+                      : isCurrent
+                        ? (locale === 'en' ? 'Current' : 'Hiện tại')
+                        : (locale === 'en' ? 'Select →' : 'Chọn →')}
                   </Text>
                 </Pressable>
               );
@@ -270,8 +300,9 @@ export function LocationScreen({ nodes, currentNodeId, onConfirmNode }: Props): 
 
         <View style={styles.disclaimerBox}>
           <Text style={styles.note}>
-            Tọa độ trong bản demo là mô phỏng, không dùng để đi bộ ngoài thực địa. App không
-            chỉ đường và không theo dõi vị trí nền.
+            {locale === 'en'
+              ? 'Coordinates in demo are simulated, not for outdoor navigation. App does not provide turn-by-turn routing or track background location.'
+              : 'Tọa độ trong bản demo là mô phỏng, không dùng để đi bộ ngoài thực địa. App không chỉ đường và không theo dõi vị trí nền.'}
           </Text>
         </View>
       </ScrollView>

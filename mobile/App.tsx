@@ -1,10 +1,11 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useState, type ReactElement } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { loadLiveSource, loadLiveSourceV2, readLiveConfig } from './src/data/live';
+import { loadLiveSourceV2, readLiveConfig } from './src/data/live';
 import { getSourceState, type Mode, type SourceState } from './src/data/sourceState';
+import * as Crypto from 'expo-crypto';
 import { areas, type RootStackParamList } from './src/navigation';
 import { AlleySelectScreen } from './src/screens/AlleySelectScreen';
 import { CameraScreen } from './src/screens/CameraScreen';
@@ -64,8 +65,19 @@ export default function App(): ReactElement {
   const motion = useMotionPreferences();
   const [routeName, setRouteName] = useState('Prologue');
   const [locale, setLocaleState] = useState<Locale>(() => resolveEffectiveLocale(undefined));
+  const [isLocaleReady, setIsLocaleReady] = useState(false);
+  const manualChoiceRef = useRef(false);
+  const localeRef = useRef(locale);
+  localeRef.current = locale;
+
   const [collectionId, setCollectionIdState] = useState<CollectionId>(DEFAULT_COLLECTION_ID);
+  const collectionIdRef = useRef(collectionId);
+  collectionIdRef.current = collectionId;
+
   const [mode, setMode] = useState<Mode>('demo');
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
+
   const [currentNodeId, setCurrentNodeId] = useState<string | undefined>();
   const [confirmedNodeId, setConfirmedNodeId] = useState<string | undefined>();
   const [readNodeIds, setReadNodeIds] = useState<ReadonlySet<string>>(new Set());
@@ -73,12 +85,17 @@ export default function App(): ReactElement {
   const [liveSource, setLiveSource] = useState<SourceState>(() => getSourceState('live', undefined, locale));
   const [liveBusy, setLiveBusy] = useState(false);
   const [liveRevision, setLiveRevision] = useState(0);
+  const liveRevisionRef = useRef(liveRevision);
+  liveRevisionRef.current = liveRevision;
 
   useEffect(() => {
     let cancelled = false;
     readPersistedLocaleAsync().then((saved) => {
-      if (!cancelled && saved) {
-        setLocaleState(saved);
+      if (!cancelled) {
+        if (!manualChoiceRef.current && saved) {
+          setLocaleState(saved);
+        }
+        setIsLocaleReady(true);
       }
     });
     return () => {
@@ -87,7 +104,10 @@ export default function App(): ReactElement {
   }, []);
 
   const setLocale = useCallback((next: Locale) => {
+    manualChoiceRef.current = true;
     setLocaleState(next);
+    // Synchronously hide old locale liveSource so EN never renders VI while request pending
+    setLiveSource(getSourceState('live', undefined, next));
     void writePersistedLocaleAsync(next);
   }, []);
 
@@ -95,14 +115,16 @@ export default function App(): ReactElement {
     setCollectionIdState(next);
   }, []);
 
+  // Logical node is preserved on locale change; reset only on incompatible collection change.
   useEffect(() => {
     setCurrentNodeId(undefined);
     setConfirmedNodeId(undefined);
     setReadNodeIds(new Set());
     setPlanDraft({});
-  }, [collectionId, locale]);
+  }, [collectionId]);
 
   // Live always comes from the backend; it never borrows the demo fixture.
+  // Direct V2 request only, enforcing cancellation and rejecting stale results.
   useEffect(() => {
     if (mode !== 'live') {
       setLiveBusy(false);
@@ -111,24 +133,37 @@ export default function App(): ReactElement {
     let cancelled = false;
     const controller = typeof AbortController !== 'undefined' ? new AbortController() : undefined;
     setLiveBusy(true);
-    const loader = typeof loadLiveSourceV2 === 'function'
-      ? () => loadLiveSourceV2({ baseUrl: liveBaseUrl, locale, signal: controller?.signal })
-      : () => loadLiveSource({ baseUrl: liveBaseUrl, signal: controller?.signal });
 
-    loader().then((next) => {
-      if (!cancelled && !controller?.signal.aborted) {
-        setLiveSource(next as unknown as SourceState);
-        setCurrentNodeId(undefined);
-        setConfirmedNodeId(undefined);
-        setReadNodeIds(new Set());
-        setLiveBusy(false);
-      }
-    });
+    const requestLocale = locale;
+    const requestMode = mode;
+    const requestCollectionId = collectionId;
+    const requestLiveRevision = liveRevision;
+
+    loadLiveSourceV2({
+      baseUrl: liveBaseUrl,
+      locale: requestLocale,
+      signal: controller?.signal,
+      digestImpl: async (text: string) => Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, text),
+    })
+      .then((next) => {
+        if (
+          !cancelled &&
+          !controller?.signal.aborted &&
+          localeRef.current === requestLocale &&
+          modeRef.current === requestMode &&
+          collectionIdRef.current === requestCollectionId &&
+          liveRevisionRef.current === requestLiveRevision
+        ) {
+          setLiveSource(next as unknown as SourceState);
+          setLiveBusy(false);
+        }
+      });
+
     return () => {
       cancelled = true;
       controller?.abort();
     };
-  }, [mode, liveRevision, locale]);
+  }, [mode, liveRevision, locale, collectionId]);
 
   const retryLive = useCallback(() => {
     if (!liveBusy) {
@@ -138,8 +173,10 @@ export default function App(): ReactElement {
   }, [liveBusy]);
 
   const source = mode === 'demo'
-    ? getSourceState(mode, getBundledDataset(collectionId, locale))
-    : liveSource;
+    ? getSourceState(mode, getBundledDataset(collectionId, locale), locale)
+    : (liveSource.status === 'ready' && 'locale' in liveSource.dataset && liveSource.dataset.locale && liveSource.dataset.locale !== locale)
+      ? getSourceState('live', undefined, locale)
+      : liveSource;
   // Viewing a story does not confirm the user's physical location.
   const activeNodeId = source.status === 'ready'
     ? (source.dataset.nodes.find((node) => node.id === currentNodeId && node.available)?.id
@@ -180,7 +217,7 @@ export default function App(): ReactElement {
     setLocale,
     collectionId,
     setCollectionId,
-    isReady: true,
+    isReady: isLocaleReady,
     t: (key, params) => t(locale, key, params),
   };
 
@@ -272,8 +309,8 @@ export default function App(): ReactElement {
                   datasetRevision={
                     mode === 'demo'
                       ? getCollectionRevision(collectionId, locale)
-                      : (liveSource.status === 'ready' && 'revision' in liveSource.dataset
-                          ? (liveSource.dataset as { revision: string }).revision
+                      : (source.status === 'ready' && 'revision' in source && typeof source.revision === 'string'
+                          ? source.revision
                           : `live-${liveRevision}`)
                   }
                   voiceApiBaseUrl={voiceApiBaseUrl}

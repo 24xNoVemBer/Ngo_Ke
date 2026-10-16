@@ -9,6 +9,7 @@ import {
 import type { DemoNode } from '../data/sourceState';
 import { getNodePhoto, getNodePhotographer } from '../assets/photoMap';
 import { colors, radius, spacing, typography } from '../theme';
+import { useLocale } from '../context/LocaleContext';
 
 interface Props {
   node: DemoNode;
@@ -22,9 +23,11 @@ export function PostcardCard({
   node,
   isActive = false,
   onSelect,
-  actionLabel = 'Khám phá điểm này',
+  actionLabel,
   subReason,
 }: Props): ReactElement {
+  const { t } = useLocale();
+  const resolvedActionLabel = actionLabel ?? t('common.explore_this_point');
   const photo = getNodePhoto(node.id);
   const credit = getNodePhotographer(node.id);
 
@@ -35,13 +38,13 @@ export function PostcardCard({
         <Image source={photo} style={styles.image} resizeMode="cover" />
         {/* Nhãn minh bạch */}
         <View style={styles.disclaimerBadge}>
-          <Text style={styles.disclaimerText}>Ảnh minh họa · điểm mô phỏng</Text>
+          <Text style={styles.disclaimerText}>{t('common.photo_disclaimer')}</Text>
         </View>
 
         {/* Dấu mộc son gạch nung */}
         {node.visited && (
           <View style={styles.visitedStamp}>
-            <Text style={styles.stampText}>ĐÃ GHÉ THĂM</Text>
+            <Text style={styles.stampText}>{t('common.visited_stamp')}</Text>
           </View>
         )}
       </View>
@@ -53,7 +56,7 @@ export function PostcardCard({
             {node.name}
           </Text>
           <View style={styles.durationBadge}>
-            <Text style={styles.durationText}>{node.visitMinutes} phút mô phỏng</Text>
+            <Text style={styles.durationText}>{t('common.simulated_minutes', { minutes: node.visitMinutes })}</Text>
           </View>
         </View>
 
@@ -61,12 +64,12 @@ export function PostcardCard({
           {subReason ?? node.summary}
         </Text>
 
-        <Text style={styles.creditText}>Tác giả: {credit}</Text>
+        <Text style={styles.creditText}>{t('common.photo_author', { author: credit })}</Text>
 
         {onSelect && (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`${actionLabel} tại ${node.name}`}
+            accessibilityLabel={`${resolvedActionLabel} · ${node.name}`}
             onPress={onSelect}
             style={({ pressed }) => [
               styles.actionButton,
@@ -74,7 +77,7 @@ export function PostcardCard({
               pressed && styles.pressed,
             ]}
           >
-            <Text style={styles.actionButtonText}>{actionLabel}</Text>
+            <Text style={styles.actionButtonText}>{resolvedActionLabel}</Text>
           </Pressable>
         )}
       </View>

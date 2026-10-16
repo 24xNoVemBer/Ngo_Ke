@@ -2,29 +2,28 @@ import type { ReactElement } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, radius, spacing, typography } from '../theme';
+import { useLocale } from '../context/LocaleContext';
 
 type Props = { detail: string; onBack?: () => void; onSwitchToDemo?: () => void; onRetry?: () => void; busy?: boolean };
 
 /** Shown when the active source has no dataset, so Q&A cannot be offered. */
 export function UnavailableScreen({ detail, onBack, onSwitchToDemo, onRetry, busy = false }: Props): ReactElement {
+  const { t } = useLocale();
   return (
     <SafeAreaView style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.card}>
-          <Text style={styles.phase}>Thông báo dữ liệu</Text>
+          <Text style={styles.phase}>{t('unavailable.phase')}</Text>
           <Text accessibilityRole="header" style={styles.title}>
-            Chưa có dữ liệu hỏi đáp
+            {t('unavailable.title')}
           </Text>
           <Text style={styles.body}>{detail}</Text>
           <View style={styles.disclaimerBox}>
-            <Text style={styles.note}>
-              Vui lòng chuyển về chế độ Demo để trải nghiệm toàn bộ các tính năng được mô
-              phỏng sẵn.
-            </Text>
+            <Text style={styles.note}>{t('unavailable.note')}</Text>
           </View>
-          {onBack && <Pressable accessibilityRole="button" onPress={onBack} style={styles.action}><Text style={styles.body}>Quay lại</Text></Pressable>}
-          {onRetry && <Pressable accessibilityRole="button" disabled={busy} onPress={onRetry} style={styles.action}><Text style={styles.body}>{busy ? 'Đang tải…' : 'Thử lại'}</Text></Pressable>}
-          {onSwitchToDemo && <Pressable accessibilityRole="button" onPress={onSwitchToDemo} style={styles.action}><Text style={styles.body}>Chuyển sang Demo</Text></Pressable>}
+          {onBack && <Pressable accessibilityRole="button" onPress={onBack} style={styles.action}><Text style={styles.body}>{t('common.back')}</Text></Pressable>}
+          {onRetry && <Pressable accessibilityRole="button" disabled={busy} onPress={onRetry} style={styles.action}><Text style={styles.body}>{busy ? t('common.loading') : t('common.retry')}</Text></Pressable>}
+          {onSwitchToDemo && <Pressable accessibilityRole="button" onPress={onSwitchToDemo} style={styles.action}><Text style={styles.body}>{t('common.switch_to_demo')}</Text></Pressable>}
         </View>
       </ScrollView>
     </SafeAreaView>

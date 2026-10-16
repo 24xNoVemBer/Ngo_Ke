@@ -25,7 +25,7 @@ import { useMotionState } from '../hooks/MotionPreferences';
 import { useVoiceSession, type VoiceTurnContext } from '../voice/useVoiceSession';
 import { recordVoicePerformance, voicePerformanceNow } from '../voice/performance';
 import { parseVoiceIntent, resolveFirstOptionReference, type VoiceOptionContext } from '../voice/intent';
-import { voiceTracks } from '../voice/catalog';
+import { lookupVoiceTrack } from '../voice/localizedCatalog';
 import { useLocale } from '../context/LocaleContext';
 import { colors, radius, spacing, typography } from '../theme';
 
@@ -79,7 +79,7 @@ export function QaScreen({
 }: Props): ReactElement {
   const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
-  const { locale, t } = useLocale();
+  const { locale, collectionId, t } = useLocale();
   const [asked, setAsked] = useState<string | null>(null);
   const [askedSource, setAskedSource] = useState<'voice' | 'text' | 'chip' | null>(null);
   const [match, setMatch] = useState<QaMatch | null>(null);
@@ -251,9 +251,23 @@ export function QaScreen({
       : null
   );
   const storyTrackId = currentNode ? `${currentNode.id}-story` : 'intro';
-  const storyTrack = mode === 'demo' && isViFiction ? voiceTracks[storyTrackId] : undefined;
+  const storyTrack = mode === 'demo' && isViFiction
+    ? lookupVoiceTrack({
+        collectionId,
+        locale,
+        contentId: storyTrackId,
+        datasetRevision,
+      })
+    : undefined;
   const answerTrackId = entry ? `${entry.id}-answer` : '';
-  const answerTrack = mode === 'demo' && isViFiction && entry ? voiceTracks[answerTrackId] : undefined;
+  const answerTrack = mode === 'demo' && isViFiction && entry
+    ? lookupVoiceTrack({
+        collectionId,
+        locale,
+        contentId: answerTrackId,
+        datasetRevision,
+      })
+    : undefined;
   const actionPlanResult = voiceActionCard?.kind === 'plan' && voiceActionCard.draft.topic && voiceActionCard.draft.budgetMinutes
     ? pickPoints(dataset.nodes, voiceActionCard.draft)
     : undefined;

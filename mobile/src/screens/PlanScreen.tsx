@@ -23,12 +23,7 @@ import type { PlanDraft } from '../recommendation/pick';
 import { AppIcon } from '../components/AppIcon';
 import { PostcardCard } from '../components/PostcardCard';
 import { colors, radius, spacing, typography } from '../theme';
-
-const TOPIC_CHOICES: { topic: Topic; label: string; icon: 'food' | 'book' | 'compass' }[] = [
-  { topic: 'an thuc', label: 'Ẩm thực ngõ', icon: 'food' },
-  { topic: 'chuyen xua', label: 'Chuyện xưa hoài niệm', icon: 'book' },
-  { topic: 'kham pha tu do', label: 'Khám phá tự do', icon: 'compass' },
-];
+import { useLocale } from '../context/LocaleContext';
 
 const TIME_CHOICES = [15, 30, 45, 60];
 
@@ -41,6 +36,14 @@ type Props = {
 };
 
 export function PlanScreen({ mode = 'demo', nodes, draft = {}, onDraftChange = () => {}, onSelectNode }: Props): ReactElement {
+  const { t, locale } = useLocale();
+
+  const TOPIC_CHOICES: { topic: Topic; label: string; icon: 'food' | 'book' | 'compass' }[] = [
+    { topic: 'an thuc', label: t('plan.topic_food'), icon: 'food' },
+    { topic: 'chuyen xua', label: t('plan.topic_history'), icon: 'book' },
+    { topic: 'kham pha tu do', label: t('plan.topic_explore'), icon: 'compass' },
+  ];
+
   const [topicInput, setTopicInput] = useState('');
   const [timeInput, setTimeInput] = useState('');
   const topic = draft.topic;
@@ -101,27 +104,28 @@ export function PlanScreen({ mode = 'demo', nodes, draft = {}, onDraftChange = (
         >
           {/* Header sổ tay hành trình */}
           <View style={styles.headerBox}>
-            <Text style={styles.phase}>Hành trình ngõ phố · Chọn trải nghiệm</Text>
+            <Text style={styles.phase}>
+              {locale === 'en' ? 'Alley Journey · Plan Experience' : 'Hành trình ngõ phố · Chọn trải nghiệm'}
+            </Text>
             <Text accessibilityRole="header" style={styles.mainTitle}>
-              Một hành trình vừa ý
+              {t('plan.title')}
             </Text>
             <Text style={styles.subtitle}>
-              Lựa chọn gu trải nghiệm và quỹ thời gian để nhận gợi ý những góc ngõ đậm chất
-              nhất.
+              {t('plan.subtitle')}
             </Text>
           </View>
 
           {/* Chọn chủ đề */}
           <View style={styles.card}>
             <Text accessibilityRole="header" style={styles.sectionTitle}>
-              1. Bạn muốn khám phá gì?
+              {locale === 'en' ? '1. What would you like to explore?' : '1. Bạn muốn khám phá gì?'}
             </Text>
             <View style={styles.chips}>
               {TOPIC_CHOICES.map((choice) => (
                 <Pressable
                   key={choice.topic}
                   accessibilityRole="radio"
-                  accessibilityLabel={`Chủ đề ${choice.label}`}
+                  accessibilityLabel={`${t('plan.topic_header')}: ${choice.label}`}
                   accessibilityState={{ checked: topic === choice.topic }}
                   onPress={() => chooseTopic(choice.topic)}
                   style={({ pressed }) => [
@@ -149,7 +153,7 @@ export function PlanScreen({ mode = 'demo', nodes, draft = {}, onDraftChange = (
                 onPress={() => setShowManualInput(true)}
                 style={styles.toggleInputButton}
               >
-                <Text style={styles.toggleInputText}>⌨ Nhập chủ đề hoặc thời gian khác...</Text>
+                <Text style={styles.toggleInputText}>{t('plan.toggle_manual')}</Text>
               </Pressable>
             ) : (
               <View style={styles.manualInputGroup}>
@@ -158,23 +162,23 @@ export function PlanScreen({ mode = 'demo', nodes, draft = {}, onDraftChange = (
                     value={topicInput}
                     onChangeText={setTopicInput}
                     onSubmitEditing={applyTopicText}
-                    placeholder="Tự gõ: ăn thực, chuyện xưa..."
+                    placeholder={t('plan.custom_topic_placeholder')}
                     placeholderTextColor={colors.muted}
-                    accessibilityLabel="Ô gõ chủ đề"
+                    accessibilityLabel={locale === 'en' ? 'Topic input' : 'Ô gõ chủ đề'}
                     style={styles.input}
                   />
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel="Dùng chủ đề đã gõ"
+                    accessibilityLabel={locale === 'en' ? 'Apply topic' : 'Dùng chủ đề đã gõ'}
                     onPress={applyTopicText}
                     style={({ pressed }) => [styles.smallButton, pressed && styles.pressed]}
                   >
-                    <Text style={styles.smallButtonText}>Dùng</Text>
+                    <Text style={styles.smallButtonText}>{t('plan.apply_button')}</Text>
                   </Pressable>
                 </View>
                 {typedTopicUnknown && (
                   <Text style={styles.hint}>
-                    Chưa nhận ra chủ đề này. Hãy thử “ẩm thực”, “chuyện xưa” hoặc “khám phá tự do”.
+                    {t('plan.topic_hint')}
                   </Text>
                 )}
               </View>
@@ -184,14 +188,14 @@ export function PlanScreen({ mode = 'demo', nodes, draft = {}, onDraftChange = (
           {/* Chọn thời lượng */}
           <View style={styles.card}>
             <Text accessibilityRole="header" style={styles.sectionTitle}>
-              2. Bạn có bao nhiêu thời gian?
+              {locale === 'en' ? '2. How much time do you have?' : '2. Bạn có bao nhiêu thời gian?'}
             </Text>
             <View style={styles.timeChips}>
               {TIME_CHOICES.map((minutes) => (
                 <Pressable
                   key={minutes}
                   accessibilityRole="radio"
-                  accessibilityLabel={`${minutes} phút`}
+                  accessibilityLabel={t('common.minutes', { minutes })}
                   accessibilityState={{ checked: budgetMinutes === minutes }}
                   onPress={() => chooseTime(minutes)}
                   style={({ pressed }) => [
@@ -206,7 +210,7 @@ export function PlanScreen({ mode = 'demo', nodes, draft = {}, onDraftChange = (
                       budgetMinutes === minutes && styles.timeChipTextSelected,
                     ]}
                   >
-                    {minutes} phút
+                    {t('common.minutes', { minutes })}
                   </Text>
                 </Pressable>
               ))}
@@ -219,23 +223,23 @@ export function PlanScreen({ mode = 'demo', nodes, draft = {}, onDraftChange = (
                     value={timeInput}
                     onChangeText={setTimeInput}
                     onSubmitEditing={applyTimeText}
-                    placeholder="Ví dụ: khoảng 30 phút, 1 tiếng..."
+                    placeholder={t('plan.custom_time_placeholder')}
                     placeholderTextColor={colors.muted}
-                    accessibilityLabel="Ô gõ thời gian"
+                    accessibilityLabel={locale === 'en' ? 'Duration input' : 'Ô gõ thời gian'}
                     style={styles.input}
                   />
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel="Dùng thời gian đã gõ"
+                    accessibilityLabel={locale === 'en' ? 'Apply duration' : 'Dùng thời gian đã gõ'}
                     onPress={applyTimeText}
                     style={({ pressed }) => [styles.smallButton, pressed && styles.pressed]}
                   >
-                    <Text style={styles.smallButtonText}>Dùng</Text>
+                    <Text style={styles.smallButtonText}>{t('plan.apply_button')}</Text>
                   </Pressable>
                 </View>
                 {typedTimeUnknown && (
                   <Text style={styles.hint}>
-                    Chưa nhận ra khoảng thời gian này. Hãy thử 30 phút hoặc 1 tiếng.
+                    {t('plan.time_hint')}
                   </Text>
                 )}
               </View>
@@ -245,29 +249,33 @@ export function PlanScreen({ mode = 'demo', nodes, draft = {}, onDraftChange = (
           {/* Kết quả gợi ý: Danh thiếp / Bưu thiếp ngõ trực quan */}
           {showResult && result.kind === 'needs-topic' && (
             <View style={styles.resultNotice} accessibilityLiveRegion="polite">
-              <Text style={styles.resultNoticeTitle}>Vui lòng chọn chủ đề</Text>
+              <Text style={styles.resultNoticeTitle}>{locale === 'en' ? 'Please choose a topic' : 'Vui lòng chọn chủ đề'}</Text>
               <Text style={styles.body}>
-                Hãy chọn ăn thực, chuyện xưa hoặc khám phá tự do ở bước 1 để app tìm điểm
-                phù hợp.
+                {locale === 'en'
+                  ? 'Choose food, old stories, or free exploration in step 1 to find matching stops.'
+                  : 'Hãy chọn ăn thực, chuyện xưa hoặc khám phá tự do ở bước 1 để app tìm điểm phù hợp.'}
               </Text>
             </View>
           )}
 
           {showResult && result.kind === 'needs-budget' && (
             <View style={styles.resultNotice} accessibilityLiveRegion="polite">
-              <Text style={styles.resultNoticeTitle}>Vui lòng chọn thời gian</Text>
+              <Text style={styles.resultNoticeTitle}>{locale === 'en' ? 'Please choose a duration' : 'Vui lòng chọn thời gian'}</Text>
               <Text style={styles.body}>
-                Hãy chọn khoảng thời gian bạn có ở bước 2 để app sắp xếp điểm ngõ vừa vặn.
+                {locale === 'en'
+                  ? 'Choose your available duration in step 2 to arrange matching stops.'
+                  : 'Hãy chọn khoảng thời gian bạn có ở bước 2 để app sắp xếp điểm ngõ vừa vặn.'}
               </Text>
             </View>
           )}
 
           {showResult && result.kind === 'empty' && (
             <View style={styles.resultNotice} accessibilityLiveRegion="polite">
-              <Text style={styles.resultNoticeTitle}>Chưa có điểm ngõ phù hợp</Text>
+              <Text style={styles.resultNoticeTitle}>{t('plan.recommendations_empty')}</Text>
               <Text style={styles.body}>
-                Trong nguồn hiện tại chưa có điểm mở phù hợp với lựa chọn này. Bạn có thể đổi
-                chủ đề hoặc chọn khoảng thời gian khác.
+                {locale === 'en'
+                  ? 'No available stops match your selection in the current dataset. Try choosing another topic or duration.'
+                  : 'Trong nguồn hiện tại chưa có điểm mở phù hợp với lựa chọn này. Bạn có thể đổi chủ đề hoặc chọn khoảng thời gian khác.'}
               </Text>
               <Pressable
                 accessibilityRole="button"
@@ -277,7 +285,7 @@ export function PlanScreen({ mode = 'demo', nodes, draft = {}, onDraftChange = (
                 }}
                 style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
               >
-                <Text style={styles.secondaryText}>Đổi lựa chọn</Text>
+                <Text style={styles.secondaryText}>{locale === 'en' ? 'Change selection' : 'Đổi lựa chọn'}</Text>
               </Pressable>
             </View>
           )}
@@ -285,13 +293,14 @@ export function PlanScreen({ mode = 'demo', nodes, draft = {}, onDraftChange = (
           {showResult && result.kind === 'ok' && (
             <View style={styles.resultSection} accessibilityLiveRegion="polite">
               <View style={styles.resultHeader}>
-                <Text style={styles.phase}>Hành trình gợi ý dành cho bạn</Text>
+                <Text style={styles.phase}>{t('plan.recommendations_header')}</Text>
                 <Text accessibilityRole="header" style={styles.resultMainTitle}>
-                  Chủ đề {TOPIC_LABELS[result.topic]} · {result.budgetMinutes} phút
+                  {TOPIC_LABELS[result.topic] ?? result.topic} · {t('common.minutes', { minutes: result.budgetMinutes })}
                 </Text>
                 <Text style={styles.resultSubtitle}>
-                  Dưới đây là {result.picks.length} điểm ngõ giàu hình ảnh và câu chuyện được
-                  chọn lọc cho hành trình của bạn:
+                  {locale === 'en'
+                    ? `Here are ${result.picks.length} stops selected for your journey:`
+                    : `Dưới đây là ${result.picks.length} điểm ngõ giàu hình ảnh và câu chuyện được chọn lọc cho hành trình của bạn:`}
                 </Text>
               </View>
 
@@ -302,7 +311,7 @@ export function PlanScreen({ mode = 'demo', nodes, draft = {}, onDraftChange = (
                     key={pick.node.id}
                     node={pick.node}
                     subReason={pick.reason}
-                    actionLabel={`Khám phá (${pick.visitMinutes} phút)`}
+                    actionLabel={locale === 'en' ? `Explore (${pick.visitMinutes} min)` : `Khám phá (${pick.visitMinutes} phút)`}
                     onSelect={() => onSelectNode(pick.node.id)}
                   />
                 ))}
@@ -316,16 +325,24 @@ export function PlanScreen({ mode = 'demo', nodes, draft = {}, onDraftChange = (
                 }}
                 style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
               >
-                <Text style={styles.secondaryText}>↻ Thiết kế lại hành trình khác</Text>
+                <Text style={styles.secondaryText}>{locale === 'en' ? '↻ Design another journey' : '↻ Thiết kế lại hành trình khác'}</Text>
               </Pressable>
             </View>
           )}
 
           <View style={styles.disclaimerBox}>
             <Text style={styles.note}>
-              {mode === 'demo' ? 'Điểm gợi ý và thời lượng trong bản demo là dữ liệu mô phỏng để review luồng.' : 'Nguồn Live từ máy chủ hiện dùng dữ liệu mô phỏng; không dùng thời lượng này để đi thực tế.'}
-              {' '}Tổng thời gian dừng không vượt quỹ đã chọn; chưa tính thời gian đi bộ.
-              App chưa chỉ đường từng bước.
+              {mode === 'demo'
+                ? (locale === 'en'
+                    ? 'Recommended stops and durations in demo are simulated data for flow review.'
+                    : 'Điểm gợi ý và thời lượng trong bản demo là dữ liệu mô phỏng để review luồng.')
+                : (locale === 'en'
+                    ? 'Live source from server uses simulated data; do not use for actual navigation.'
+                    : 'Nguồn Live từ máy chủ hiện dùng dữ liệu mô phỏng; không dùng thời lượng này để đi thực tế.')}
+              {' '}
+              {locale === 'en'
+                ? 'Total duration does not exceed selected budget; walking time not included.'
+                : 'Tổng thời gian dừng không vượt quỹ đã chọn; chưa tính thời gian đi bộ. App chưa chỉ đường từng bước.'}
             </Text>
           </View>
         </ScrollView>

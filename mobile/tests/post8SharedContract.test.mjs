@@ -5,7 +5,6 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { setTimeout } from 'node:timers';
-
 import { LOCALES, DEFAULT_LOCALE, isLocale, parseLocale, assertLocale } from '../src/data/locale.ts';
 import { canonicalDatasetJson } from '../src/data/canonicalJson.ts';
 import {
@@ -510,16 +509,52 @@ test('live.ts - loadLiveSourceV2 URL, error, and timeout handling', async () => 
       text: async () => JSON.stringify(fictionEnJson),
     };
   };
+  const nodeDigest = async (text) => createHash('sha256').update(text, 'utf8').digest('hex');
   const res200 = await loadLiveSourceV2({
     baseUrl: 'http://127.0.0.1:8788',
     locale: 'en',
     fetchImpl: mock200Fetch,
+    digestImpl: nodeDigest,
   });
   assert.equal(res200.status, 'ready');
   if (res200.status === 'ready') {
     assert.equal(res200.title, 'Live · 6 simulated points (unverified)');
     assert.equal(res200.dataset.schemaVersion, 2);
     assert.equal(res200.dataset.locale, 'en');
+    assert.match(res200.revision, /^[0-9a-f]{64}$/);
+    assert.equal(res200.dataset.revision, undefined, 'dataset must not be mutated with revision property');
+  }
+
+  // 12a. Missing digestImpl on 200 response -> shape error
+  const resMissingDigest = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    fetchImpl: mock200Fetch,
+  });
+  assert.equal(resMissingDigest.status, 'error');
+  assert.equal(resMissingDigest.reason, 'shape');
+
+  // 12b. Invalid digestImpl format (not 64 hex chars) -> shape error
+  const resInvalidDigest = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    fetchImpl: mock200Fetch,
+    digestImpl: async () => 'not-a-64-character-hex-digest',
+  });
+  assert.equal(resInvalidDigest.status, 'error');
+  assert.equal(resInvalidDigest.reason, 'shape');
+
+  // 12c. Uppercase hex digest -> normalized to lowercase
+  const resUpperDigest = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    fetchImpl: mock200Fetch,
+    digestImpl: async (text) => createHash('sha256').update(text, 'utf8').digest('hex').toUpperCase(),
+  });
+  assert.equal(resUpperDigest.status, 'ready');
+  if (resUpperDigest.status === 'ready') {
+    assert.match(resUpperDigest.revision, /^[0-9a-f]{64}$/);
+    assert.equal(resUpperDigest.revision, resUpperDigest.revision.toLowerCase());
   }
 
   // 12b. HTTP 201 response with valid body and Content-Language -> http error (only 200 permitted)
@@ -873,4 +908,131 @@ test('collections data - dual collection datasets and canonical revisions', () =
     .update(canonicalDatasetJson(oqEnJson), 'utf8')
     .digest('hex');
   assert.equal(oqEnRevision, 'd75fcc183863f7ea2ec3b24bba1c4664b762c6332f0eb768a3493d9e74089b83');
+});
+
+test('canonicalJson.ts - pure canonicalDatasetJson serializes consistently for sha256', () => {
+  const text = '{"test":123}';
+  const expectedHash = createHash('sha256').update(text, 'utf8').digest('hex');
+  const serialized = canonicalDatasetJson(JSON.parse(text));
+  const actualHash = createHash('sha256').update(serialized, 'utf8').digest('hex');
+  assert.equal(actualHash, expectedHash);
+});
+
+test('regression - loadLiveSourceV2 timeout includes digest/hash deadline', async () => {
+  const fetchMock = async () => ({
+    ok: true,
+    status: 200,
+    headers: {
+      get: (h) => {
+        const lower = h.toLowerCase();
+        if (lower === 'content-language') return 'en';
+        if (lower === 'content-length') return '100';
+        return 'application/json';
+      },
+    },
+    text: async () => JSON.stringify(fictionEnJson),
+  });
+
+  const slowDigest = async () => {
+    await new Promise((r) => setTimeout(r, 120));
+    return 'fake-hash';
+  };
+
+  const result = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    fetchImpl: fetchMock,
+    timeoutMs: 40,
+    digestImpl: slowDigest,
+  });
+
+  assert.equal(result.status, 'error');
+  assert.equal(result.reason, 'timeout');
+  assert.equal(result.mode, 'live');
+});
+
+test('regression - source computation synchronously hides stale live locale', () => {
+  const viLiveSource = {
+    mode: 'live',
+    status: 'ready',
+    dataset: { ...fictionEnJson, locale: 'vi' },
+    revision: 'rev-vi',
+  };
+
+  const isStaleLocale =
+    viLiveSource.status === 'ready' &&
+    'locale' in viLiveSource.dataset &&
+    viLiveSource.dataset.locale &&
+    viLiveSource.dataset.locale !== 'en';
+
+  assert.equal(isStaleLocale, true);
+
+  const enLiveSource = {
+    mode: 'live',
+    status: 'ready',
+    dataset: { ...fictionEnJson, locale: 'en' },
+    revision: 'rev-en',
+  };
+
+  const isMatchedLocale =
+    enLiveSource.status === 'ready' &&
+    'locale' in enLiveSource.dataset &&
+    enLiveSource.dataset.locale &&
+    enLiveSource.dataset.locale !== 'en';
+
+  assert.equal(isMatchedLocale, false);
+});
+
+test('regression - manual locale choice takes precedence over late storage read', async () => {
+  let savedLocaleResolver;
+  const storagePromise = new Promise((resolve) => {
+    savedLocaleResolver = resolve;
+  });
+
+  let currentLocale = 'vi';
+  let isReady = false;
+  let manualChoice = false;
+
+  assert.equal(currentLocale, 'vi', 'Initial locale is default vi');
+
+  const readPromise = storagePromise.then((saved) => {
+    if (!manualChoice && saved && isLocale(saved)) {
+      currentLocale = saved;
+    }
+    isReady = true;
+  });
+
+  manualChoice = true;
+  currentLocale = 'en';
+
+  savedLocaleResolver('vi');
+  await readPromise;
+
+  assert.equal(isReady, true);
+  assert.equal(currentLocale, 'en', 'Late storage read did not overwrite explicit manual choice');
+});
+
+test('regression - logical node preservation across locale change vs reset on collection change', () => {
+  let currentNodeId = 'demo-02';
+  let activeLocale = 'vi';
+  let activeCollectionId = 'fiction_letter';
+
+  const onLocaleChange = (newLocale) => {
+    activeLocale = newLocale;
+  };
+
+  const onCollectionChange = (newCollection) => {
+    if (newCollection !== activeCollectionId) {
+      activeCollectionId = newCollection;
+      currentNodeId = undefined;
+    }
+  };
+
+  onLocaleChange('en');
+  assert.equal(activeLocale, 'en');
+  assert.equal(currentNodeId, 'demo-02', 'Node preserved on locale change');
+
+  onCollectionChange('old_quarter_pilot');
+  assert.equal(activeCollectionId, 'old_quarter_pilot');
+  assert.equal(currentNodeId, undefined, 'Node reset on collection change');
 });

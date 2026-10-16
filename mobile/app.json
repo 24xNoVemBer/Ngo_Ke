@@ -14,8 +14,9 @@
       "supportsTablet": true,
       "runtimeVersion": "exposdk:57.0.0",
       "infoPlist": {
-        "NSCameraUsageDescription": "Cho phép Ngõ Kể dùng camera để quét mã QR của điểm.",
-        "NSLocationWhenInUseUsageDescription": "Cho phép Ngõ Kể đọc vị trí một lần để gợi ý điểm gần nhất. App không theo dõi vị trí nền."
+        "NSCameraUsageDescription": "Cho phép Ngõ Kể dùng camera để quét mã QR của điểm. / Allow Ngõ Kể to use the camera to scan point QR codes.",
+        "NSLocationWhenInUseUsageDescription": "Cho phép Ngõ Kể đọc vị trí một lần để gợi ý điểm gần nhất. App không theo dõi vị trí nền. / Allow Ngõ Kể to access your location once to suggest the nearest point. The app does not track background location.",
+        "NSMicrophoneUsageDescription": "Cho phép Ngõ Kể thu giọng nói để nhận câu hỏi của bạn. / Allow Ngõ Kể to record audio to listen to your questions."
       }
     },
     "android": {
@@ -48,19 +49,19 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Cho phép Ngõ Kể dùng camera để quét mã QR của điểm."
+          "cameraPermission": "Cho phép Ngõ Kể dùng camera để quét mã QR của điểm. / Allow Ngõ Kể to use the camera to scan point QR codes."
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Cho phép Ngõ Kể đọc vị trí một lần để gợi ý điểm gần nhất. App không theo dõi vị trí nền."
+          "locationWhenInUsePermission": "Cho phép Ngõ Kể đọc vị trí một lần để gợi ý điểm gần nhất. App không theo dõi vị trí nền. / Allow Ngõ Kể to access your location once to suggest the nearest point. The app does not track background location."
         }
       ],
       [
         "expo-audio",
         {
-          "microphonePermission": "Cho phép Ngõ Kể thu giọng nói để nhận câu hỏi của bạn.",
+          "microphonePermission": "Cho phép Ngõ Kể thu giọng nói để nhận câu hỏi của bạn. / Allow Ngõ Kể to record audio to listen to your questions.",
           "enableBackgroundRecording": false,
           "enableBackgroundPlayback": false
         }

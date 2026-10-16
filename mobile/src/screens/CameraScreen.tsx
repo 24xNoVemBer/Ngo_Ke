@@ -9,15 +9,17 @@ import { getNodePhoto, getNodePhotographer } from '../assets/photoMap';
 import { useMotionState } from '../hooks/MotionPreferences';
 import { useLaserScanner, usePulseLoop } from '../hooks/useMotion';
 import { colors, radius, spacing, typography } from '../theme';
+import { useLocale } from '../context/LocaleContext';
 
 type Props = { nodes: DemoNode[]; onConfirmNode: (nodeId: string) => void };
 
 export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
+  const { t, locale } = useLocale();
   const { foreground } = useMotionState();
   const isFocused = useIsFocused() && foreground;
   const cameraRequest = useRef(0);
   const scanAccepted = useRef(false);
-  const [permission, requestPermission] = useCameraPermissions();
+  const [, requestPermission] = useCameraPermissions();
   const [cameraOn, setCameraOn] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [scanNote, setScanNote] = useState<string | undefined>();
@@ -49,8 +51,8 @@ export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
     setCameraOn(false);
     setScanNote(
       result.canAskAgain
-        ? 'Chưa được cấp quyền camera. Bạn vẫn có thể chọn điểm bằng tay bên dưới.'
-        : 'Quyền camera đã bị từ chối trong cài đặt hệ thống. Hãy chọn điểm bằng tay bên dưới.',
+        ? t('camera.permission_denied')
+        : t('camera.permission_blocked'),
     );
   }
 
@@ -73,7 +75,7 @@ export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
       return;
     }
     setPending(undefined);
-    setScanNote('Không nhận mã này. Bạn có thể quét lại hoặc chọn điểm bằng tay.');
+    setScanNote(t('camera.unrecognized_qr'));
   }
 
   function scanAgain(): void {
@@ -129,24 +131,24 @@ export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
     <SafeAreaView style={styles.screen} edges={['left', 'right', 'bottom']}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.headerBox}>
-          <Text style={styles.phase}>Góc kính thực tế · Quét QR & Lời kể</Text>
+          <Text style={styles.phase}>{t('camera.phase')}</Text>
           <Text accessibilityRole="header" style={styles.mainTitle}>
-            Điểm chạm không gian
+            {t('camera.main_title')}
           </Text>
           <Text style={styles.subtitle}>
-            Quét mã QR gắn tại con ngõ hoặc chọn điểm trên sổ tay để đọc lời kể tại chỗ.
+            {t('camera.subtitle')}
           </Text>
         </View>
 
         {/* Trạng thái Camera */}
         <View style={styles.card} accessibilityLiveRegion="polite">
           <Text accessibilityRole="header" style={styles.sectionTitle}>
-            {cameraOn ? 'Ống kính đang mở' : 'Camera chưa bật'}
+            {cameraOn ? t('camera.camera_on') : t('camera.camera_off')}
           </Text>
           <Text style={styles.body}>
             {cameraOn
-              ? 'Hướng camera vào mã QR của điểm ngõ để kích hoạt lời người kể.'
-              : 'Ứng dụng tôn trọng quyền riêng tư: chỉ bật camera khi bạn chạm nút dưới đây.'}
+              ? t('camera.camera_on_hint')
+              : t('camera.camera_off_hint')}
           </Text>
           {cameraOn ? (
             <Pressable
@@ -154,17 +156,17 @@ export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
               onPress={turnCameraOff}
               style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
             >
-              <Text style={styles.secondaryText}>Tắt ống kính camera</Text>
+              <Text style={styles.secondaryText}>{t('camera.turn_off_button')}</Text>
             </Pressable>
           ) : (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Bật camera và quét QR"
+              accessibilityLabel={t('camera.enable_button')}
               onPress={() => void enableCamera()}
               style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
             >
               <Text style={styles.primaryText}>
-                {permission?.granted ? 'Bật camera quét QR ngõ' : 'Xin quyền & Bật camera'}
+                {t('camera.enable_button')}
               </Text>
             </Pressable>
           )}
@@ -208,14 +210,14 @@ export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
                   />
                 </Animated.View>
                 <Text style={styles.viewfinderInstruction}>
-                  Di chuyển mã QR vào giữa khung ngắm
+                  {t('camera.viewfinder_instruction')}
                 </Text>
               </View>
             )}
 
             {active !== undefined && (
               <View style={styles.overlay} pointerEvents="none">
-                <View style={styles.narrator} accessibilityLabel="Người kể 2D tạm">
+                <View style={styles.narrator} accessibilityLabel={t('common.narrator_label')}>
                   <Text style={styles.narratorInitial}>Kể</Text>
                 </View>
                 <Text style={styles.caption}>{active.caption}</Text>
@@ -228,13 +230,13 @@ export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
         {pending !== undefined && (
           <View style={styles.card} accessibilityLiveRegion="polite">
             <View style={styles.pendingTag}>
-              <Text style={styles.pendingTagText}>NHẬN DIỆN MÃ QR</Text>
+              <Text style={styles.pendingTagText}>{t('camera.identified_qr')}</Text>
             </View>
             <Text accessibilityRole="header" style={styles.pointName}>
               {pending.name}
             </Text>
             <Text style={styles.body}>
-              Mã QR xác thực vị trí con ngõ. Bạn bấm xác nhận để bắt đầu nghe lời kể.
+              {t('camera.pending_body')}
             </Text>
             <View style={styles.buttonRow}>
               <Pressable
@@ -242,14 +244,14 @@ export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
                 onPress={confirmPending}
                 style={({ pressed }) => [styles.primaryButton, styles.flex1, pressed && styles.pressed]}
               >
-                <Text style={styles.primaryText}>Xác nhận điểm này</Text>
+                <Text style={styles.primaryText}>{t('camera.confirm_point')}</Text>
               </Pressable>
               <Pressable
                 accessibilityRole="button"
                 onPress={scanAgain}
                 style={({ pressed }) => [styles.secondaryButton, styles.flex1, pressed && styles.pressed]}
               >
-                <Text style={styles.secondaryText}>Quét lại</Text>
+                <Text style={styles.secondaryText}>{t('camera.scan_again')}</Text>
               </Pressable>
             </View>
           </View>
@@ -266,16 +268,16 @@ export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
                 resizeMode="cover"
               />
               <View style={styles.disclaimerBadge}>
-                <Text style={styles.disclaimerText}>Ảnh minh họa · điểm mô phỏng</Text>
+                <Text style={styles.disclaimerText}>{t('common.photo_disclaimer')}</Text>
               </View>
               <View style={styles.creditBadge}>
-                <Text style={styles.creditText}>Ảnh: {getNodePhotographer(active.id)}</Text>
+                <Text style={styles.creditText}>{t('common.photo_author', { author: getNodePhotographer(active.id) })}</Text>
               </View>
             </View>
 
             <View style={styles.activeContent}>
               <View style={styles.activeTagRow}>
-                <Text style={styles.phase}>{active.id} · ĐIỂM ĐÃ XÁC NHẬN</Text>
+                <Text style={styles.phase}>{active.id} · {locale === 'en' ? 'CONFIRMED STOP' : 'ĐIỂM ĐÃ XÁC NHẬN'}</Text>
               </View>
               <Text accessibilityRole="header" style={styles.activeTitle}>
                 {active.name}
@@ -283,8 +285,9 @@ export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
               <Text style={styles.story}>{active.story}</Text>
               {!cameraOn && (
                 <Text style={styles.bodyMuted}>
-                  Bạn đang xem chế độ sổ tay đọc chữ. Bật camera ở trên nếu muốn trải
-                  nghiệm người kể trên nền không gian thực.
+                  {locale === 'en'
+                    ? 'Viewing in passport reading mode. Enable camera above to experience the storyteller in physical space.'
+                    : 'Bạn đang xem chế độ sổ tay đọc chữ. Bật camera ở trên nếu muốn trải nghiệm người kể trên nền không gian thực.'}
                 </Text>
               )}
               <Pressable
@@ -292,17 +295,17 @@ export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
                 onPress={reset}
                 style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
               >
-                <Text style={styles.secondaryText}>← Chọn điểm khác trên sổ tay</Text>
+                <Text style={styles.secondaryText}>{t('camera.choose_another_stop')}</Text>
               </Pressable>
             </View>
           </View>
         ) : (
           <View style={styles.card}>
             <Text accessibilityRole="header" style={styles.sectionTitle}>
-              Hoặc chọn điểm bằng tay
+              {t('camera.manual_selection')}
             </Text>
             <Text style={styles.body}>
-              Luôn sẵn sàng sử dụng kể cả khi camera bận hoặc trong điều kiện ánh sáng yếu:
+              {t('camera.manual_hint')}
             </Text>
 
             <View style={styles.manualList}>
@@ -310,7 +313,7 @@ export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
                 <Pressable
                   key={node.id}
                   accessibilityRole="button"
-                  accessibilityLabel={`Chọn điểm ${node.name} bằng tay`}
+                  accessibilityLabel={t('camera.choose_manual', { name: node.name })}
                   disabled={!node.available}
                   onPress={() => chooseManually(node.id)}
                   style={({ pressed }) => [styles.pointRow, pressed && styles.pressed]}
@@ -323,10 +326,10 @@ export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
                   <View style={styles.pointInfo}>
                     <Text style={styles.pointName}>{node.name}</Text>
                     <Text style={styles.pointMeta}>
-                      {node.visitMinutes} phút · {getNodePhotographer(node.id)}
+                      {t('common.simulated_minutes', { minutes: node.visitMinutes })} · {getNodePhotographer(node.id)}
                     </Text>
                   </View>
-                  <Text style={styles.chevron}>{node.available ? '→' : 'Chưa mở'}</Text>
+                  <Text style={styles.chevron}>{node.available ? '→' : (locale === 'en' ? 'Locked' : 'Chưa mở')}</Text>
                 </Pressable>
               ))}
             </View>
@@ -335,8 +338,9 @@ export function CameraScreen({ nodes, onConfirmNode }: Props): ReactElement {
 
         <View style={styles.disclaimerBox}>
           <Text style={styles.note}>
-            Lời kể và caption trong bản demo là nội dung mô phỏng. Người kể 2D là hình tạm,
-            chưa có giọng đọc; audio thuộc phase Voice riêng.
+            {locale === 'en'
+              ? 'Stories and captions in demo are simulated content. 2D narrator is a placeholder without voice; audio belongs to Voice phase.'
+              : 'Lời kể và caption trong bản demo là nội dung mô phỏng. Người kể 2D là hình tạm, chưa có giọng đọc; audio thuộc phase Voice riêng.'}
           </Text>
         </View>
       </ScrollView>

@@ -9,6 +9,8 @@ import {
 } from './sourceState.ts';
 import { type Locale } from './locale.ts';
 
+import { canonicalDatasetJson } from './canonicalJson.ts';
+
 const DEFAULT_TIMEOUT_MS = 8000;
 const DATASET_PATH = '/api/dataset';
 const DATASET_V2_PATH = '/api/v2/dataset';
@@ -20,6 +22,7 @@ export type LiveOptions = {
   timeoutMs?: number;
   fetchImpl?: FetchImpl;
   signal?: AbortSignal;
+  digestImpl?: (canonicalJson: string) => Promise<string>;
 };
 
 export function getUtf8ByteLength(text: string): number {
@@ -401,12 +404,43 @@ export async function loadLiveSourceV2(options: LiveOptionsV2): Promise<SourceSt
       return liveError<DemoDatasetV2>('shape', locale);
     }
 
+    // Compute dataset revision via canonical JSON hashing within the same overall deadline
+    if (typeof options.digestImpl !== 'function') {
+      return liveError<DemoDatasetV2>('shape', locale);
+    }
+
+    const canonicalJson = canonicalDatasetJson(dataset);
+    let rawRevision: unknown;
+    try {
+      rawRevision = await Promise.race([
+        options.digestImpl(canonicalJson),
+        deadlinePromise,
+        externalAbortPromise,
+      ]);
+    } catch (err: unknown) {
+      if (options.signal?.aborted || externalAborted || (err instanceof Error && err.name === 'AbortError')) {
+        return liveError<DemoDatasetV2>('network', locale);
+      }
+      if (timedOut || (err instanceof Error && err.name === 'TimeoutError') || Date.now() - startTime >= timeoutMs) {
+        return liveError<DemoDatasetV2>('timeout', locale);
+      }
+      return liveError<DemoDatasetV2>('shape', locale);
+    }
+
     // Final guard before returning ready: check external abort and elapsed deadline
     if (options.signal?.aborted || externalAborted) {
       return liveError<DemoDatasetV2>('network', locale);
     }
     if (timedOut || Date.now() - startTime >= timeoutMs) {
       return liveError<DemoDatasetV2>('timeout', locale);
+    }
+
+    if (typeof rawRevision !== 'string') {
+      return liveError<DemoDatasetV2>('shape', locale);
+    }
+    const revision = rawRevision.trim().toLowerCase();
+    if (!/^[0-9a-f]{64}$/.test(revision)) {
+      return liveError<DemoDatasetV2>('shape', locale);
     }
 
     const title = locale === 'en'
@@ -427,6 +461,7 @@ export async function loadLiveSourceV2(options: LiveOptionsV2): Promise<SourceSt
       title,
       detail,
       dataset,
+      revision,
     };
   } catch (err: unknown) {
     if (options.signal?.aborted || externalAborted || (err instanceof Error && err.name === 'AbortError')) {

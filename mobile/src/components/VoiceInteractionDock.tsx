@@ -3,6 +3,7 @@ import { AccessibilityInfo, ActivityIndicator, Pressable, StyleSheet, Text, View
 import { AppIcon } from './AppIcon';
 import type { VoiceStage } from '../voice/useVoiceSession';
 import { meteringToLevel } from '../voice/metering';
+import { useLocale } from '../context/LocaleContext';
 
 interface Props {
   stage: VoiceStage;
@@ -27,20 +28,21 @@ export function VoiceInteractionDock({
   stage, error, recordingDurationMs, metering, onStartRecording, onSubmitRecording,
   onCancel, onOpenInput, onOpenSettings, onQuickAction, quickActionLabel = 'Sổ tay',
 }: Props): ReactElement {
+  const { t, locale } = useLocale();
   const level = meteringToLevel(metering);
   const busy = stage === 'preparing' || stage === 'stopping' || stage === 'transcribing';
 
   useEffect(() => {
-    const announcement = stage === 'preparing' ? 'Đang bật micro.'
-      : stage === 'recording' ? 'Đang thu câu hỏi. Chạm Gửi để kết thúc hoặc Hủy bản ghi.'
-        : stage === 'ready' ? 'Đã thu xong. Chạm Gửi để hỏi tiếp hoặc Hủy bản ghi.'
-          : stage === 'stopping' ? 'Đang lưu câu nói.'
-            : stage === 'transcribing' ? 'Đang xử lý câu hỏi.' : null;
+    const announcement = stage === 'preparing' ? t('voice.stage.preparing')
+      : stage === 'recording' ? t('voice.stage.recording')
+        : stage === 'ready' ? t('voice.stage.ready')
+          : stage === 'stopping' ? t('voice.stage.stopping')
+            : stage === 'transcribing' ? t('voice.stage.transcribing') : null;
     if (announcement) AccessibilityInfo.announceForAccessibility(announcement);
   }, [stage]);
 
   return (
-    <View style={styles.dock} accessibilityRole="toolbar" accessibilityLabel="Hỏi người kể">
+    <View style={styles.dock} accessibilityRole="toolbar" accessibilityLabel={t('voice.dock.toolbar')}>
       <View style={styles.mainRow}>
         {stage === 'recording' || stage === 'ready' ? (
           <View style={styles.stateIcon}>
@@ -51,7 +53,7 @@ export function VoiceInteractionDock({
         ) : (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={stage === 'error' ? 'Thu lại câu hỏi bằng giọng nói' : 'Bắt đầu hỏi bằng giọng nói'}
+            accessibilityLabel={stage === 'error' ? t('voice.dock.retry_recording') : t('voice.dock.start_recording')}
             onPress={onStartRecording}
             style={({ pressed }) => [styles.micButton, pressed && styles.pressed]}
           >
@@ -62,12 +64,12 @@ export function VoiceInteractionDock({
         <View style={styles.statusBlock}>
           {stage === 'recording' ? (
             <>
-              <Text style={styles.title}>Đang thu · {formatDuration(recordingDurationMs)}</Text>
+              <Text style={styles.title}>{t('voice.dock.recording', { duration: formatDuration(recordingDurationMs) })}</Text>
               <View
                 style={styles.meterTrack}
                 accessible
                 accessibilityRole="progressbar"
-                accessibilityLabel="Mức âm thanh đang thu"
+                accessibilityLabel={t('voice.dock.meter_label')}
                 accessibilityValue={{ min: 0, max: 100, now: Math.round(level * 100) }}
               >
                 <View style={[styles.meterFill, { width: `${Math.round(level * 100)}%` }]} />
@@ -75,19 +77,19 @@ export function VoiceInteractionDock({
             </>
           ) : stage === 'ready' ? (
             <>
-              <Text style={styles.title}>Đã thu xong · {formatDuration(recordingDurationMs)}</Text>
-              <Text style={styles.subtitle}>Chạm Gửi để hỏi tiếp</Text>
+              <Text style={styles.title}>{t('voice.dock.ready', { duration: formatDuration(recordingDurationMs) })}</Text>
+              <Text style={styles.subtitle}>{t('voice.dock.ready_subtitle')}</Text>
             </>
           ) : (
             <>
               <Text style={styles.title}>
-                {stage === 'preparing' ? 'Đang bật micro…'
-                  : stage === 'stopping' ? 'Đang lưu câu nói…'
-                    : stage === 'transcribing' ? 'Đang nghe câu hỏi…'
-                      : stage === 'error' ? 'Thử lại bằng giọng nói' : 'Nhấn để hỏi'}
+                {stage === 'preparing' ? t('voice.dock.preparing')
+                  : stage === 'stopping' ? t('voice.dock.stopping')
+                    : stage === 'transcribing' ? t('voice.dock.transcribing')
+                      : stage === 'error' ? t('voice.dock.error_title') : t('voice.dock.idle_title')}
               </Text>
               <Text style={styles.subtitle}>
-                {busy ? 'Bạn có thể hủy bất cứ lúc nào' : 'Nói “Phát lời kể” rồi hỏi tiếp'}
+                {busy ? t('voice.dock.busy_subtitle') : t('voice.dock.idle_subtitle')}
               </Text>
             </>
           )}
@@ -96,21 +98,21 @@ export function VoiceInteractionDock({
         {busy || stage === 'recording' || stage === 'ready' ? (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={stage === 'recording' || stage === 'ready' ? 'Gửi câu hỏi' : 'Hủy lượt hỏi'}
+            accessibilityLabel={stage === 'recording' || stage === 'ready' ? t('voice.dock.submit') : t('voice.dock.cancel')}
             onPress={stage === 'recording' || stage === 'ready' ? onSubmitRecording : onCancel}
             style={({ pressed }) => [styles.actionButton, pressed && styles.pressed]}
           >
-            <Text style={styles.actionText}>{stage === 'recording' || stage === 'ready' ? 'Gửi' : 'Hủy'}</Text>
+            <Text style={styles.actionText}>{stage === 'recording' || stage === 'ready' ? t('voice.dock.btn_submit') : t('voice.dock.btn_cancel')}</Text>
           </Pressable>
         ) : (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Mở ô gõ câu hỏi"
+            accessibilityLabel={t('voice.dock.type_question')}
             onPress={onOpenInput}
             style={({ pressed }) => [styles.textButton, pressed && styles.pressed]}
           >
             <AppIcon name="text" size={19} />
-            <Text style={styles.textButtonLabel}>Gõ</Text>
+            <Text style={styles.textButtonLabel}>{locale === 'en' ? 'Type' : 'Gõ'}</Text>
           </Pressable>
         )}
 
@@ -126,14 +128,19 @@ export function VoiceInteractionDock({
         )}
       </View>
       {(stage === 'recording' || stage === 'ready') && (
-        <Pressable accessibilityRole="button" accessibilityLabel="Hủy bản ghi" onPress={onCancel} style={styles.cancelLink}>
-          <Text style={styles.cancelText}>Hủy bản ghi</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel={locale === 'en' ? 'Cancel recording' : 'Hủy bản ghi'} onPress={onCancel} style={styles.cancelLink}>
+          <Text style={styles.cancelText}>{locale === 'en' ? 'Cancel recording' : 'Hủy bản ghi'}</Text>
         </Pressable>
       )}
       {error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
       {onOpenSettings && (
-        <Pressable accessibilityRole="button" accessibilityLabel="Mở cài đặt quyền micro" onPress={onOpenSettings} style={styles.settingsLink}>
-          <Text style={styles.settingsText}>Mở Cài đặt</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={locale === 'en' ? 'Open Settings' : 'Mở cài đặt quyền micro'}
+          onPress={onOpenSettings}
+          style={styles.settingsLink}
+        >
+          <Text style={styles.settingsText}>{t('voice.dock.open_settings')}</Text>
         </Pressable>
       )}
     </View>

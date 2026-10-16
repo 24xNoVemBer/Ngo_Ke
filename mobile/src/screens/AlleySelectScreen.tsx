@@ -23,6 +23,8 @@ import {
 } from '../hooks/useMotion';
 import { radius, spacing } from '../theme';
 
+import { useLocale } from '../context/LocaleContext';
+
 type Props = NativeStackScreenProps<RootStackParamList, 'AlleySelect'> & { nodeCount: number; mode?: Mode };
 
 type LocationFilter = 'Tất cả' | 'Hàng Buồm' | 'Hàng Gai' | 'Đồng Xuân' | 'Ẩm thực';
@@ -42,6 +44,7 @@ function AlleyCardItem({
   mode,
   onSelect,
 }: AlleyCardItemProps): ReactElement {
+  const { t } = useLocale();
   const entrance = useEntranceFadeSlide({
     delay: Math.min(650, 220 + index * 75),
     duration: 380,
@@ -58,7 +61,7 @@ function AlleyCardItem({
     >
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`Mở ${alley.name}`}
+        accessibilityLabel={t('alley_select.open_label', { name: alley.name })}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         onPress={onSelect}
@@ -87,7 +90,7 @@ function AlleyCardItem({
             <Text style={styles.cardDistrictText}>{alley.district}</Text>
             <Text style={styles.cardNameText}>{alley.name}</Text>
             <Text style={styles.cardBriefMeta}>
-              Bìa minh họa · bộ {nodeCount} điểm · {mode === 'demo' ? 'Demo' : 'Live'}
+              {t('alley_select.meta_info', { count: nodeCount, mode: mode === 'demo' ? t('common.demo') : t('common.live') })}
             </Text>
           </View>
 
@@ -102,6 +105,7 @@ function AlleyCardItem({
 }
 
 export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Props): ReactElement {
+  const { t } = useLocale();
   const insets = useSafeAreaInsets();
   const { fontScale } = useWindowDimensions();
 
@@ -154,7 +158,7 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
       >
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Quay lại trang chính"
+          accessibilityLabel={t('common.back')}
           onPress={() => navigation.goBack()}
           style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
         >
@@ -163,7 +167,7 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
 
         <View style={styles.topBarTitleCenter}>
           <NgoKeLogo size="sm" variant="iconOnly" />
-          <Text style={styles.topBarMainTitle}>Chọn Con Ngõ</Text>
+          <Text style={styles.topBarMainTitle}>{t('alley_select.title')}</Text>
         </View>
 
         <View style={[styles.gpsHeaderBtn, fontScale > 1.2 && styles.gpsHeaderBtnLarge]}>
@@ -202,9 +206,9 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
               <View style={styles.gpsPulseDot} />
             </View>
             <View style={styles.gpsInfoTextGroup}>
-              <Text style={styles.gpsStatusLabel}>KHU VỰC DEMO</Text>
+              <Text style={styles.gpsStatusLabel}>{t('alley_select.demo_area')}</Text>
               <Text style={styles.gpsLocationName} numberOfLines={1}>
-                Phố cổ Hà Nội · nội dung mô phỏng
+                {t('alley_select.demo_subtext')}
               </Text>
             </View>
           </View>
@@ -213,19 +217,19 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
           <View style={styles.addressSearchBox}>
             <Text style={styles.searchBoxIcon}>🔍</Text>
             <TextInput
-              accessibilityLabel="Tìm phố hoặc ngõ"
+              accessibilityLabel={t('alley_select.search_placeholder')}
               value={searchQuery}
               onChangeText={setSearchQuery}
               multiline={false}
               numberOfLines={1}
-              placeholder="Tìm phố hoặc ngõ"
+              placeholder={t('alley_select.search_placeholder')}
               placeholderTextColor="#8C7D70"
               style={styles.addressInputField}
             />
             {searchQuery.length > 0 && (
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Xóa từ khóa tìm kiếm"
+                accessibilityLabel={t('alley_select.clear_search')}
                 onPress={() => setSearchQuery('')}
                 style={styles.clearSearchButton}
               >
@@ -237,13 +241,13 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
           {/* Hàng 3: Gợi ý ngõ gần nhất theo GPS */}
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Mở ngõ demo Phất Lộc"
+            accessibilityLabel={t('alley_select.hint', { mode: mode === 'demo' ? t('common.demo') : t('common.live') })}
             onPress={() => handleSelectAlley('phat-loc')}
             style={({ pressed }) => [styles.nearestAlleyPill, pressed && styles.pressed]}
           >
             <Text style={styles.nearestSparkle}>✨</Text>
             <Text style={styles.nearestAlleyLabel}>
-              Chọn bìa ngõ bên dưới để mở bộ điểm từ nguồn {mode === 'demo' ? 'Demo' : 'Live'}
+              {t('alley_select.hint', { mode: mode === 'demo' ? t('common.demo') : t('common.live') })}
             </Text>
             <Text style={styles.nearestChevron}>›</Text>
           </Pressable>
@@ -295,24 +299,24 @@ export function AlleySelectScreen({ navigation, nodeCount, mode = 'demo' }: Prop
           ]}
         >
           <Text style={styles.sectionTitle}>
-            Các con ngõ khám phá ({filteredAlleys.length})
+            {t('alley_select.explore_count', { count: filteredAlleys.length })}
           </Text>
           <Text style={styles.sectionSubtitle}>
-            Danh sách mẫu · không đo khoảng cách từ bạn
+            {t('alley_select.sample_list')}
           </Text>
         </Animated.View>
 
         {filteredAlleys.length === 0 ? (
           <View style={styles.emptyStateContainer}>
             <Text style={styles.emptyStateIcon}>🏮</Text>
-            <Text style={styles.emptyStateTitle}>Không tìm thấy địa chỉ hoặc con ngõ phù hợp</Text>
+            <Text style={styles.emptyStateTitle}>{t('alley_select.empty')}</Text>
             <Pressable
               onPress={() => {
                 setSearchQuery('');
                 setSelectedFilter('Tất cả');
               }}
             >
-              <Text style={styles.emptyStateReset}>Xem tất cả các con ngõ ›</Text>
+              <Text style={styles.emptyStateReset}>{t('alley_select.reset_filter')}</Text>
             </Pressable>
           </View>
         ) : (

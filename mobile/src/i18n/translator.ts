@@ -43,6 +43,43 @@ export type TranslationKey =
   | 'voice.stage.ready'
   | 'voice.stage.stopping'
   | 'voice.stage.transcribing'
+  // Voice interaction dock
+  | 'voice.dock.toolbar'
+  | 'voice.dock.start_recording'
+  | 'voice.dock.retry_recording'
+  | 'voice.dock.recording'
+  | 'voice.dock.meter_label'
+  | 'voice.dock.ready'
+  | 'voice.dock.ready_subtitle'
+  | 'voice.dock.preparing'
+  | 'voice.dock.stopping'
+  | 'voice.dock.transcribing'
+  | 'voice.dock.error_title'
+  | 'voice.dock.idle_title'
+  | 'voice.dock.busy_subtitle'
+  | 'voice.dock.idle_subtitle'
+  | 'voice.dock.submit'
+  | 'voice.dock.cancel'
+  | 'voice.dock.btn_submit'
+  | 'voice.dock.btn_cancel'
+  | 'voice.dock.open_settings'
+  | 'voice.dock.type_question'
+  // Player
+  | 'player.play'
+  | 'player.pause'
+  | 'player.ready'
+  | 'player.replay'
+  | 'player.stop'
+  | 'player.progress'
+  // Drawer
+  | 'drawer.title'
+  | 'drawer.placeholder'
+  | 'drawer.close_backdrop'
+  | 'drawer.collapse'
+  | 'drawer.send'
+  | 'drawer.btn_send'
+  | 'drawer.suggestions_title'
+  | 'drawer.select_suggestion'
   // Live status reasons
   | 'live.reason.no_config.title'
   | 'live.reason.no_config.detail'
@@ -74,6 +111,12 @@ export type TranslationKey =
   | 'common.change_language'
   | 'common.switch_to_demo'
   | 'common.minutes'
+  | 'common.photo_disclaimer'
+  | 'common.photo_author'
+  | 'common.visited_stamp'
+  | 'common.simulated_minutes'
+  | 'common.explore_this_point'
+  | 'common.narrator_label'
   // Prologue
   | 'prologue.eyebrow'
   | 'prologue.title'
@@ -110,6 +153,15 @@ export type TranslationKey =
   | 'alley_select.subtitle'
   | 'alley_select.open_label'
   | 'alley_select.meta_info'
+  | 'alley_select.demo_area'
+  | 'alley_select.demo_subtext'
+  | 'alley_select.search_placeholder'
+  | 'alley_select.clear_search'
+  | 'alley_select.hint'
+  | 'alley_select.explore_count'
+  | 'alley_select.sample_list'
+  | 'alley_select.empty'
+  | 'alley_select.reset_filter'
   // Home
   | 'home.open_story'
   | 'home.stories_opened'
@@ -151,17 +203,36 @@ export type TranslationKey =
   | 'plan.recommendations_empty'
   | 'plan.go_to_stop'
   | 'plan.estimated_time'
+  | 'plan.toggle_manual'
+  | 'plan.custom_topic_placeholder'
+  | 'plan.apply_button'
+  | 'plan.topic_hint'
+  | 'plan.custom_time_placeholder'
+  | 'plan.time_hint'
   // Camera
   | 'camera.title'
+  | 'camera.phase'
+  | 'camera.main_title'
+  | 'camera.subtitle'
+  | 'camera.camera_on'
+  | 'camera.camera_off'
+  | 'camera.camera_on_hint'
+  | 'camera.camera_off_hint'
   | 'camera.enable_button'
   | 'camera.turn_off_button'
+  | 'camera.viewfinder_instruction'
   | 'camera.scan_again'
   | 'camera.confirm_point'
+  | 'camera.identified_qr'
+  | 'camera.pending_body'
   | 'camera.manual_selection'
+  | 'camera.manual_hint'
+  | 'camera.choose_manual'
   | 'camera.scanning'
   | 'camera.permission_denied'
   | 'camera.permission_blocked'
   | 'camera.unrecognized_qr'
+  | 'camera.choose_another_stop'
   // Location
   | 'location.title'
   | 'location.find_button'
@@ -169,6 +240,8 @@ export type TranslationKey =
   | 'location.stop_waiting'
   | 'location.confirm_button'
   | 'location.manual_list'
+  | 'location.nearest_candidate'
+  | 'location.distance_hint'
   | 'location.err_poor_accuracy'
   | 'location.err_outside'
   | 'location.err_no_coords'
@@ -222,6 +295,43 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'voice.stage.stopping': 'Đang lưu câu nói.',
     'voice.stage.transcribing': 'Đang xử lý câu hỏi.',
 
+    'voice.dock.toolbar': 'Hỏi người kể',
+    'voice.dock.start_recording': 'Bắt đầu hỏi bằng giọng nói',
+    'voice.dock.retry_recording': 'Thu lại câu hỏi bằng giọng nói',
+    'voice.dock.recording': 'Đang thu · {duration}',
+    'voice.dock.meter_label': 'Mức âm thanh đang thu',
+    'voice.dock.ready': 'Đã thu xong · {duration}',
+    'voice.dock.ready_subtitle': 'Chạm Gửi để hỏi tiếp',
+    'voice.dock.preparing': 'Đang bật micro…',
+    'voice.dock.stopping': 'Đang lưu câu nói…',
+    'voice.dock.transcribing': 'Đang nghe câu hỏi…',
+    'voice.dock.error_title': 'Thử lại bằng giọng nói',
+    'voice.dock.idle_title': 'Nhấn để hỏi',
+    'voice.dock.busy_subtitle': 'Bạn có thể hủy bất cứ lúc nào',
+    'voice.dock.idle_subtitle': 'Nói “Phát lời kể” rồi hỏi tiếp',
+    'voice.dock.submit': 'Gửi câu hỏi',
+    'voice.dock.cancel': 'Hủy lượt hỏi',
+    'voice.dock.btn_submit': 'Gửi',
+    'voice.dock.btn_cancel': 'Hủy',
+    'voice.dock.open_settings': 'Mở Cài đặt',
+    'voice.dock.type_question': 'Mở ô gõ câu hỏi',
+
+    'player.play': 'Phát {label}',
+    'player.pause': 'Tạm dừng lời kể',
+    'player.ready': 'Sẵn sàng',
+    'player.replay': 'Nghe lại {label}',
+    'player.stop': 'Dừng {label}',
+    'player.progress': 'Tiến trình phát {percent} phần trăm',
+
+    'drawer.title': 'Đặt câu hỏi cho người kể',
+    'drawer.placeholder': 'Gõ câu hỏi về con ngõ này…',
+    'drawer.close_backdrop': 'Đóng khung gõ câu hỏi',
+    'drawer.collapse': 'Thu gọn khung nhập',
+    'drawer.send': 'Gửi câu hỏi',
+    'drawer.btn_send': 'Gửi',
+    'drawer.suggestions_title': 'Câu hỏi gợi ý chạm nhanh:',
+    'drawer.select_suggestion': 'Chọn câu hỏi: {question}',
+
     'live.reason.no_config.title': 'Live chưa được cấu hình',
     'live.reason.no_config.detail': 'Chưa có URL backend cho chế độ live. App không tự chuyển sang dữ liệu demo và không tự tạo nội dung. Cấu hình EXPO_PUBLIC_NGOKE_API_BASE_URL hoặc app.json extra.apiBaseUrl rồi bấm “Thử lại”.',
     'live.reason.no_data.title': 'Live chưa có dữ liệu',
@@ -252,6 +362,12 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'common.change_language': 'Đổi ngôn ngữ',
     'common.switch_to_demo': 'Chuyển sang Demo',
     'common.minutes': '{minutes} phút',
+    'common.photo_disclaimer': 'Ảnh minh họa · điểm mô phỏng',
+    'common.photo_author': 'Tác giả: {author}',
+    'common.visited_stamp': 'ĐÃ GHÉ THĂM',
+    'common.simulated_minutes': '{minutes} phút mô phỏng',
+    'common.explore_this_point': 'Khám phá điểm này',
+    'common.narrator_label': 'Người kể 2D tạm',
 
     'prologue.eyebrow': 'MỘT TRANG KÝ ỨC HÀ NỘI',
     'prologue.title': 'NGÕ KỂ',
@@ -288,6 +404,15 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'alley_select.subtitle': 'Chọn một hành trình để bắt đầu khám phá',
     'alley_select.open_label': 'Mở {name}',
     'alley_select.meta_info': 'Bìa minh họa · {count} điểm · {mode}',
+    'alley_select.demo_area': 'KHU VỰC DEMO',
+    'alley_select.demo_subtext': 'Phố cổ Hà Nội · nội dung mô phỏng',
+    'alley_select.search_placeholder': 'Tìm phố hoặc ngõ',
+    'alley_select.clear_search': 'Xóa từ khóa tìm kiếm',
+    'alley_select.hint': 'Chọn bìa ngõ bên dưới để mở bộ điểm từ nguồn {mode}',
+    'alley_select.explore_count': 'Các con ngõ khám phá ({count})',
+    'alley_select.sample_list': 'Danh sách mẫu · không đo khoảng cách từ bạn',
+    'alley_select.empty': 'Không tìm thấy địa chỉ hoặc con ngõ phù hợp',
+    'alley_select.reset_filter': 'Xem tất cả các con ngõ ›',
 
     'home.open_story': 'Xem {name}',
     'home.stories_opened': 'Đã mở {opened}/{total} câu chuyện · {mode}',
@@ -329,17 +454,36 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'plan.recommendations_empty': 'Không tìm thấy điểm dừng phù hợp với lựa chọn này.',
     'plan.go_to_stop': 'Đến điểm này',
     'plan.estimated_time': '~{minutes} phút',
+    'plan.toggle_manual': '⌨ Nhập chủ đề hoặc thời gian khác...',
+    'plan.custom_topic_placeholder': 'Tự gõ: ăn thực, chuyện xưa...',
+    'plan.apply_button': 'Dùng',
+    'plan.topic_hint': 'Chưa nhận ra chủ đề này. Hãy thử “ẩm thực”, “chuyện xưa” hoặc “khám phá tự do”.',
+    'plan.custom_time_placeholder': 'Ví dụ: khoảng 30 phút, 1 tiếng...',
+    'plan.time_hint': 'Chưa nhận ra khoảng thời gian này. Hãy thử 30 phút hoặc 1 tiếng.',
 
     'camera.title': 'Camera và người kể',
+    'camera.phase': 'Góc kính thực tế · Quét QR & Lời kể',
+    'camera.main_title': 'Điểm chạm không gian',
+    'camera.subtitle': 'Quét mã QR gắn tại con ngõ hoặc chọn điểm trên sổ tay để đọc lời kể tại chỗ.',
+    'camera.camera_on': 'Ống kính đang mở',
+    'camera.camera_off': 'Camera chưa bật',
+    'camera.camera_on_hint': 'Hướng camera vào mã QR của điểm ngõ để kích hoạt lời người kể.',
+    'camera.camera_off_hint': 'Ứng dụng tôn trọng quyền riêng tư: chỉ bật camera khi bạn chạm nút dưới đây.',
     'camera.enable_button': 'Bật camera và quét QR',
     'camera.turn_off_button': 'Tắt camera',
+    'camera.viewfinder_instruction': 'Di chuyển mã QR vào giữa khung ngắm',
     'camera.scan_again': 'Quét lại',
     'camera.confirm_point': 'Xác nhận điểm này',
+    'camera.identified_qr': 'NHẬN DIỆN MÃ QR',
+    'camera.pending_body': 'Mã QR xác thực vị trí con ngõ. Bạn bấm xác nhận để bắt đầu nghe lời kể.',
     'camera.manual_selection': 'Hoặc chọn điểm bằng tay',
+    'camera.manual_hint': 'Luôn sẵn sàng sử dụng kể cả khi camera bận hoặc trong điều kiện ánh sáng yếu:',
+    'camera.choose_manual': 'Chọn điểm {name} bằng tay',
     'camera.scanning': 'Đang quét mã QR…',
     'camera.permission_denied': 'Chưa được cấp quyền camera. Bạn vẫn có thể chọn điểm bằng tay bên dưới.',
     'camera.permission_blocked': 'Quyền camera đã bị từ chối trong cài đặt hệ thống. Hãy chọn điểm bằng tay bên dưới.',
     'camera.unrecognized_qr': 'Không nhận mã này. Bạn có thể quét lại hoặc chọn điểm bằng tay.',
+    'camera.choose_another_stop': '← Chọn điểm khác trên sổ tay',
 
     'location.title': 'Xác nhận điểm GPS',
     'location.find_button': 'Tìm điểm gần nhất qua GPS',
@@ -347,6 +491,8 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'location.stop_waiting': 'Dừng tìm',
     'location.confirm_button': 'Xác nhận điểm này',
     'location.manual_list': 'Danh sách điểm dừng',
+    'location.nearest_candidate': 'GỢI Ý TỪ GPS',
+    'location.distance_hint': 'Khoảng cách: ~{meters}',
     'location.err_poor_accuracy': 'Tín hiệu GPS yếu (~{meters}), nên app không đoán điểm nào. Hãy thử lại ở nơi thoáng trời hoặc chọn điểm bằng tay bên dưới.',
     'location.err_outside': 'Bạn đang cách điểm gần nhất khoảng {meters}, vượt ngoài phạm vi ngõ demo. Hãy chọn điểm bằng tay.',
     'location.err_no_coords': 'Điểm này chưa có tọa độ GPS. Hãy chọn điểm trên danh sách bằng tay.',
@@ -399,6 +545,43 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'voice.stage.stopping': 'Saving recording.',
     'voice.stage.transcribing': 'Processing question.',
 
+    'voice.dock.toolbar': 'Ask the storyteller',
+    'voice.dock.start_recording': 'Start voice question',
+    'voice.dock.retry_recording': 'Retry voice question',
+    'voice.dock.recording': 'Recording · {duration}',
+    'voice.dock.meter_label': 'Recording audio level',
+    'voice.dock.ready': 'Recording finished · {duration}',
+    'voice.dock.ready_subtitle': 'Tap Send to ask',
+    'voice.dock.preparing': 'Enabling microphone…',
+    'voice.dock.stopping': 'Saving recording…',
+    'voice.dock.transcribing': 'Listening to question…',
+    'voice.dock.error_title': 'Retry with voice',
+    'voice.dock.idle_title': 'Tap to ask',
+    'voice.dock.busy_subtitle': 'You can cancel anytime',
+    'voice.dock.idle_subtitle': 'Say “Play story” and ask',
+    'voice.dock.submit': 'Send question',
+    'voice.dock.cancel': 'Cancel',
+    'voice.dock.btn_submit': 'Send',
+    'voice.dock.btn_cancel': 'Cancel',
+    'voice.dock.open_settings': 'Open Settings',
+    'voice.dock.type_question': 'Open text input',
+
+    'player.play': 'Play {label}',
+    'player.pause': 'Pause story',
+    'player.ready': 'Ready',
+    'player.replay': 'Replay {label}',
+    'player.stop': 'Stop {label}',
+    'player.progress': 'Playback progress {percent} percent',
+
+    'drawer.title': 'Ask the storyteller',
+    'drawer.placeholder': 'Type a question about this alley…',
+    'drawer.close_backdrop': 'Close question input',
+    'drawer.collapse': 'Collapse input drawer',
+    'drawer.send': 'Send question',
+    'drawer.btn_send': 'Send',
+    'drawer.suggestions_title': 'Quick suggestions:',
+    'drawer.select_suggestion': 'Select question: {question}',
+
     'live.reason.no_config.title': 'Live mode not configured',
     'live.reason.no_config.detail': 'No backend URL configured for Live mode. App will not fall back to demo data or fabricate content. Configure EXPO_PUBLIC_NGOKE_API_BASE_URL or app.json extra.apiBaseUrl and tap “Retry”.',
     'live.reason.no_data.title': 'Live mode has no data',
@@ -429,6 +612,12 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'common.change_language': 'Change language',
     'common.switch_to_demo': 'Switch to Demo',
     'common.minutes': '{minutes} min',
+    'common.photo_disclaimer': 'Illustration photo · simulated point',
+    'common.photo_author': 'Photo: {author}',
+    'common.visited_stamp': 'VISITED',
+    'common.simulated_minutes': '{minutes} min simulated',
+    'common.explore_this_point': 'Explore this stop',
+    'common.narrator_label': '2D Storyteller placeholder',
 
     'prologue.eyebrow': 'A PAGE OF HANOI MEMORIES',
     'prologue.title': 'NGÕ KỂ',
@@ -465,6 +654,15 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'alley_select.subtitle': 'Choose a journey to start exploring',
     'alley_select.open_label': 'Open {name}',
     'alley_select.meta_info': 'Cover photo · {count} stops · {mode}',
+    'alley_select.demo_area': 'DEMO AREA',
+    'alley_select.demo_subtext': 'Hanoi Old Quarter · simulated content',
+    'alley_select.search_placeholder': 'Search street or alley',
+    'alley_select.clear_search': 'Clear search',
+    'alley_select.hint': 'Select an alley cover below to open stops from {mode} source',
+    'alley_select.explore_count': 'Explorable alleys ({count})',
+    'alley_select.sample_list': 'Sample list · distance not measured from you',
+    'alley_select.empty': 'No matching address or alley found',
+    'alley_select.reset_filter': 'See all alleys ›',
 
     'home.open_story': 'View {name}',
     'home.stories_opened': 'Opened {opened}/{total} stories · {mode}',
@@ -506,17 +704,36 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'plan.recommendations_empty': 'No stops match your selection.',
     'plan.go_to_stop': 'Go to this stop',
     'plan.estimated_time': '~{minutes} min',
+    'plan.toggle_manual': '⌨ Enter custom topic or duration...',
+    'plan.custom_topic_placeholder': 'Type: food, old stories...',
+    'plan.apply_button': 'Use',
+    'plan.topic_hint': 'Topic not recognized. Try “food”, “old stories”, or “free exploration”.',
+    'plan.custom_time_placeholder': 'e.g. 30 minutes, 1 hour...',
+    'plan.time_hint': 'Duration not recognized. Try 30 minutes or 1 hour.',
 
     'camera.title': 'Camera & storyteller',
+    'camera.phase': 'Augmented lens · QR Scan & Story',
+    'camera.main_title': 'Spatial touchpoint',
+    'camera.subtitle': 'Scan QR code in the alley or select on passport to read stories on site.',
+    'camera.camera_on': 'Lens is active',
+    'camera.camera_off': 'Camera is off',
+    'camera.camera_on_hint': 'Point camera at the QR code to activate the storyteller.',
+    'camera.camera_off_hint': 'Privacy respected: camera only turns on when you tap the button below.',
     'camera.enable_button': 'Enable camera & scan QR',
     'camera.turn_off_button': 'Turn off camera',
+    'camera.viewfinder_instruction': 'Align QR code within the viewfinder',
     'camera.scan_again': 'Scan again',
     'camera.confirm_point': 'Confirm this stop',
+    'camera.identified_qr': 'QR CODE IDENTIFIED',
+    'camera.pending_body': 'QR verified the alley location. Tap confirm to start hearing the story.',
     'camera.manual_selection': 'Or select manually',
+    'camera.manual_hint': 'Always ready even when camera is unavailable or in low light:',
+    'camera.choose_manual': 'Select {name} manually',
     'camera.scanning': 'Scanning QR code…',
     'camera.permission_denied': 'Camera permission not granted. You can select a stop manually below.',
     'camera.permission_blocked': 'Camera permission is blocked in settings. Please select a stop manually below.',
     'camera.unrecognized_qr': 'Unrecognized code. You can scan again or select manually.',
+    'camera.choose_another_stop': '← Choose another stop from passport',
 
     'location.title': 'Confirm GPS stop',
     'location.find_button': 'Find nearest stop via GPS',
@@ -524,6 +741,8 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'location.stop_waiting': 'Stop searching',
     'location.confirm_button': 'Confirm this stop',
     'location.manual_list': 'List of stops',
+    'location.nearest_candidate': 'SUGGESTED BY GPS',
+    'location.distance_hint': 'Distance: ~{meters}',
     'location.err_poor_accuracy': 'GPS accuracy is weak (~{meters}). Please retry outdoors or select a stop manually below.',
     'location.err_outside': 'You are about {meters} from the nearest stop, outside the tour area. Please select manually.',
     'location.err_no_coords': 'This stop has no GPS coordinates yet. Please select manually from the list.',

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { runInNewContext } from 'node:vm';
 import { URL } from 'node:url';
 import { setTimeout, clearTimeout } from 'node:timers';
@@ -105,6 +106,8 @@ function mount(file, props = {}, overrides = {}, exportName) {
     './src/voice/config': { readVoiceApiBaseUrl: () => '' },
     './src/voice/catalog': { voiceCatalogueRevision: 'fixture-revision', voiceTracks: {} },
     '../voice/catalog': { voiceCatalogueRevision: 'fixture-revision', voiceTracks: {} },
+    './src/voice/localizedCatalog': { voiceCatalogueRevision: 'fixture-revision', lookupVoiceTrack: () => undefined },
+    '../voice/localizedCatalog': { voiceCatalogueRevision: 'fixture-revision', lookupVoiceTrack: () => undefined },
     '../voice/performance': { recordVoicePerformance() {}, voicePerformanceNow: () => 0 },
     './performance': { recordVoicePerformance() {}, voicePerformanceNow: () => 0 },
     '../voice/useVoiceSession': { useVoiceSession: () => ({
@@ -115,7 +118,7 @@ function mount(file, props = {}, overrides = {}, exportName) {
     './src/data/sourceState': sources,
     '../qa/match': qa,
     '../qr/confirmPoint': confirmation,
-    './src/data/live': { readLiveConfig: () => undefined, loadLiveSource: async () => sources.liveEmpty('no-config') },
+    './src/data/live': { readLiveConfig: () => undefined, loadLiveSource: async () => sources.liveEmpty('no-config'), loadLiveSourceV2: async () => sources.liveEmpty('no-config') },
     './src/navigation': { areas: {} },
     '../assets/photoMap': { HERO_PHOTO: 1, getNodePhoto: () => 1, getNodePhotographer: () => 'Demo', getAlleyMeta: () => ({ name: 'Ngõ demo', coverPhoto: 1, photographer: 'Demo' }) },
     '../theme': { colors: {}, radius: {}, spacing: {}, typography: {} },
@@ -185,6 +188,11 @@ function mount(file, props = {}, overrides = {}, exportName) {
       useEntranceFadeSlide: () => ({ opacity: 1, translateY: 0 }),
       useWaveformLoop: () => [1, 1, 1, 1, 1, 1, 1],
       useLaserScanner: () => ({ scanProgress: 0, translateYPct: { interpolate: () => 0 }, beamOpacity: 1 }),
+    },
+    'expo-crypto': {
+      CryptoDigestAlgorithm: { SHA256: 'SHA-256' },
+      digestStringAsync: async (_algo, str) =>
+        createHash('sha256').update(str, 'utf8').digest('hex'),
     },
     ...overrides,
   };
@@ -284,7 +292,7 @@ test('viewing, confirming, reading and planning share state without confirming a
 test('Live retry makes a new request and late results cannot replace Demo', async () => {
   const requests = [];
   const app = mount('../App.tsx', {}, {
-    './src/data/live': { readLiveConfig: () => undefined, loadLiveSource: () => new Promise((resolve) => requests.push(resolve)) },
+    './src/data/live': { readLiveConfig: () => undefined, loadLiveSource: () => new Promise((resolve) => requests.push(resolve)), loadLiveSourceV2: () => new Promise((resolve) => requests.push(resolve)) },
   });
   let tree = app.render();
   screen(tree, 'Home').onModeChange('live');
@@ -430,6 +438,15 @@ test('native playback errors show an accessible text fallback without exposing n
     '../voice/catalog': {
       voiceCatalogueRevision: 'fixture-revision',
       voiceTracks: { 'demo-01-story': { kind: 'story', nodeId: 'demo-01', source: {}, textHash: 'hash', durationSeconds: 12 } },
+    },
+    '../voice/localizedCatalog': {
+      voiceCatalogueRevision: 'fixture-revision',
+      lookupVoiceTrack: ({ contentId }) => {
+        if (contentId === 'demo-01-story') {
+          return { kind: 'story', nodeId: 'demo-01', source: {}, textHash: 'hash', durationSeconds: 12 };
+        }
+        return undefined;
+      },
     },
   });
   const tree = view.render();
@@ -639,6 +656,18 @@ test('duplicate submit, cancel and scope change invalidate pending voice turns',
       },
       voiceCatalogueRevision: 'rev-1',
     },
+    './localizedCatalog': {
+      voiceTracks: {
+        'demo-01-story': { kind: 'story', nodeId: 'demo-01', textHash: 'hash', source: 'story-audio' },
+      },
+      voiceCatalogueRevision: 'rev-1',
+      lookupVoiceTrack: ({ contentId }) => {
+        if (contentId === 'demo-01-story') {
+          return { kind: 'story', nodeId: 'demo-01', textHash: 'hash', source: 'story-audio' };
+        }
+        return undefined;
+      },
+    },
     './appState': voiceAppState,
     './recorderPreparation': {
       prepareVoiceRecorderForTurn: async ({ isCurrent }) => isCurrent(),
@@ -714,6 +743,135 @@ test('duplicate submit, cancel and scope change invalidate pending voice turns',
   asrResponse.resolve('answer from the previous point');
   await staleScopeSubmission;
   assert.equal(delivered, 0, 'the prior point cannot deliver its late transcript');
+  view.unmount();
+});
+
+test('regression - stale voice submission resolution cannot reset a newer active turn across locale or collection', async () => {
+  let delivered = [];
+  let transcribeCalls = 0;
+  const asrResponses = [];
+  const requestSignals = [];
+
+  const audioPlayer = { play: async () => {}, pause: async () => {}, replace: async () => {}, loop: false };
+  const recorder = {
+    prepareToRecordAsync: async () => {},
+    record: async () => {},
+    stop: async () => {},
+    uri: 'file://recording.m4a',
+  };
+  const deletedFiles = [];
+  class MockFile {
+    constructor(uri) { this.uri = uri; }
+    exists() { return true; }
+    delete() { deletedFiles.push(this.uri); }
+    bytes() { return new Uint8Array(); }
+  }
+
+  const options = {
+    apiBaseUrl: 'http://gateway',
+    scope: 'demo:rev-1:demo-01',
+    nodeId: 'demo-01',
+    mode: 'demo',
+    datasetRevision: 'rev-1',
+    locale: 'vi',
+    collectionId: 'fiction-letter',
+    isFocused: true,
+    onTranscript(text) { delivered.push(text); },
+  };
+
+  const deferred = () => {
+    let resolve;
+    const promise = new Promise((r) => { resolve = r; });
+    return { promise, resolve };
+  };
+
+  const view = mount('../src/voice/useVoiceSession.ts', options, {
+    'expo-audio': {
+      RecordingPresets: { HIGH_QUALITY: {} },
+      useAudioPlayer: () => audioPlayer,
+      useAudioPlayerStatus: () => ({ playing: false, currentTime: 0, duration: 0 }),
+      useAudioRecorder: () => recorder,
+      useAudioRecorderState: () => ({ durationMillis: 1000, metering: -30 }),
+      setAudioModeAsync: async () => {},
+      requestRecordingPermissionsAsync: async () => ({ granted: true, canAskAgain: true }),
+    },
+    'react-native': { AppState: { currentState: 'active', addEventListener: () => ({ remove() {} }) } },
+    'expo-crypto': {
+      CryptoDigestAlgorithm: { SHA256: 'SHA-256' },
+      digestStringAsync: async () => 'hash',
+    },
+    'expo-file-system': { File: MockFile },
+    './catalog': {
+      voiceTracks: {},
+      voiceCatalogueRevision: 'rev-1',
+    },
+    './localizedCatalog': {
+      voiceTracks: {},
+      voiceCatalogueRevision: 'rev-1',
+      lookupVoiceTrack: () => undefined,
+    },
+    './appState': voiceAppState,
+    './recorderPreparation': {
+      prepareVoiceRecorderForTurn: async ({ isCurrent }) => isCurrent(),
+      startVoiceRecorder: async (start, _isActive, isCurrent) => { await start(); return isCurrent(); },
+    },
+    './recordingLimit': { hasReachedVoiceRecordingLimit: () => false },
+    './transcribe': {
+      createVoiceRequestBody: () => ({}),
+      transcribeVoiceRequest: async (_url, _body, controller) => {
+        transcribeCalls += 1;
+        requestSignals.push(controller.signal);
+        const def = deferred();
+        asrResponses.push(def);
+        return def.promise;
+      },
+    },
+    './playback': {
+      isPlaybackRequestCurrent: () => true,
+      restartAudioPlayer: async () => {},
+      stopAudioPlayer: async () => true,
+    },
+    __globals: { AbortController },
+  }, 'useVoiceSession');
+
+  // Turn 1: VI start and submit
+  await view.render().startRecording();
+  assert.equal(view.render().stage, 'recording');
+  const submission1 = view.render().submitRecording();
+  for (let i = 0; i < 10 && transcribeCalls === 0; i += 1) await setImmediate();
+  assert.equal(view.render().stage, 'transcribing');
+  assert.equal(transcribeCalls, 1);
+
+  // Switch locale to EN on same scope/node/rev -> cancels turn 1
+  options.locale = 'en';
+  view.render(options);
+  assert.equal(view.render().stage, 'idle');
+  assert.equal(requestSignals[0].aborted, true, 'Turn 1 signal aborted upon locale change');
+
+  // Turn 2: EN start and submit
+  await view.render().startRecording();
+  assert.equal(view.render().stage, 'recording');
+  const submission2 = view.render().submitRecording();
+  for (let i = 0; i < 10 && transcribeCalls === 1; i += 1) await setImmediate();
+  assert.equal(view.render().stage, 'transcribing');
+  assert.equal(transcribeCalls, 2);
+
+  // Resolve OLD turn 1 ASR and wait for submission1 cleanup
+  asrResponses[0].resolve('stale transcript 1');
+  await submission1;
+
+  // CRITICAL: Turn 2 must NOT have been reset to idle by Turn 1 cleanup!
+  assert.equal(view.render().stage, 'transcribing', 'Turn 2 remains transcribing after Turn 1 resolves');
+  assert.equal(delivered.length, 0, 'Old transcript is ignored');
+
+  // Resolve NEW turn 2 ASR and wait for submission2
+  asrResponses[1].resolve('fresh transcript 2');
+  await submission2;
+
+  // Turn 2 delivered exactly once and stage transitioned to idle
+  assert.deepEqual(delivered, ['fresh transcript 2']);
+  assert.equal(view.render().stage, 'idle');
+
   view.unmount();
 });
 
@@ -1065,7 +1223,7 @@ test('Q&A Previous/Next skip closed neighbours and correctly disable at boundari
 });
 
 test('ready Live passes its mode to Q&A/Plan and Home does not label it Demo', async () => {
-  const app = mount('../App.tsx', {}, { './src/data/live': { readLiveConfig() {}, loadLiveSource: async () => ({ status: 'ready', mode: 'live', dataset: fixture }) } });
+  const app = mount('../App.tsx', {}, { './src/data/live': { readLiveConfig() {}, loadLiveSource: async () => ({ status: 'ready', mode: 'live', dataset: fixture }), loadLiveSourceV2: async () => ({ status: 'ready', mode: 'live', dataset: fixture }) } });
   screen(app.render(), 'Home').onModeChange('live');
   app.render();
   await setImmediate();

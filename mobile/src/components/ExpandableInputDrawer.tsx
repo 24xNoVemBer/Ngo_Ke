@@ -18,6 +18,8 @@ import { useMotionState } from '../hooks/MotionPreferences';
 import { AppIcon } from './AppIcon';
 import { colors, radius, spacing, typography } from '../theme';
 
+import { useLocale } from '../context/LocaleContext';
+
 interface Props {
   visible: boolean;
   value: string;
@@ -38,9 +40,12 @@ export function ExpandableInputDrawer({
   onClose,
   suggestedQuestions = [],
   onSelectSuggestion,
-  placeholder = 'Gõ câu hỏi về con ngõ này…',
-  title = 'Đặt câu hỏi cho người kể',
+  placeholder,
+  title,
 }: Props): ReactElement {
+  const { t } = useLocale();
+  const resolvedPlaceholder = placeholder ?? t('drawer.placeholder');
+  const resolvedTitle = title ?? t('drawer.title');
   const { active } = useMotionState();
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
@@ -84,7 +89,7 @@ export function ExpandableInputDrawer({
         <Pressable
           style={styles.dimmedArea}
           onPress={onClose}
-          accessibilityLabel="Đóng khung gõ câu hỏi"
+          accessibilityLabel={t('drawer.close_backdrop')}
           accessibilityRole="button"
         />
 
@@ -101,11 +106,11 @@ export function ExpandableInputDrawer({
           <View style={styles.handleBar} />
           <View style={styles.headerRow}>
             <Text style={styles.drawerTitle} accessibilityRole="header">
-              {title}
+              {resolvedTitle}
             </Text>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Thu gọn khung nhập"
+              accessibilityLabel={t('drawer.collapse')}
               onPress={onClose}
               style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}
             >
@@ -120,15 +125,15 @@ export function ExpandableInputDrawer({
               style={styles.input}
               value={value}
               onChangeText={onChangeText}
-              placeholder={placeholder}
+              placeholder={resolvedPlaceholder}
               placeholderTextColor={colors.muted}
               returnKeyType="send"
               onSubmitEditing={onSubmit}
-              accessibilityLabel={title}
+              accessibilityLabel={resolvedTitle}
             />
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Gửi câu hỏi"
+              accessibilityLabel={t('drawer.send')}
               disabled={value.trim().length === 0}
               onPress={onSubmit}
               style={({ pressed }) => [
@@ -137,14 +142,14 @@ export function ExpandableInputDrawer({
                 pressed && styles.pressed,
               ]}
             >
-              <Text style={styles.sendButtonText}>Gửi</Text>
+              <Text style={styles.sendButtonText}>{t('drawer.btn_send')}</Text>
             </Pressable>
           </View>
 
           {/* Gợi ý câu hỏi chạm nhanh */}
           {suggestedQuestions.length > 0 && (
             <View style={styles.suggestionsWrapper}>
-              <Text style={styles.suggestionTitle}>Câu hỏi gợi ý chạm nhanh:</Text>
+              <Text style={styles.suggestionTitle}>{t('drawer.suggestions_title')}</Text>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -154,7 +159,7 @@ export function ExpandableInputDrawer({
                   <Pressable
                     key={idx}
                     accessibilityRole="button"
-                    accessibilityLabel={`Chọn câu hỏi: ${q}`}
+                    accessibilityLabel={t('drawer.select_suggestion', { question: q })}
                     onPress={() => onSelectSuggestion?.(q)}
                     style={({ pressed }) => [
                       styles.suggestionChip,

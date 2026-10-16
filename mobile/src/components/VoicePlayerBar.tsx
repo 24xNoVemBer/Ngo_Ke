@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppIcon } from './AppIcon';
+import { useLocale } from '../context/LocaleContext';
 
 type Props = {
   label: string;
@@ -22,24 +23,25 @@ function timeLabel(seconds: number): string {
 export function VoicePlayerBar({
   label, active, playing, currentTime, duration, measuredDuration, onPlay, onReplay, onStop,
 }: Props): ReactElement {
+  const { t } = useLocale();
   const total = duration > 0 ? duration : measuredDuration;
   const progress = active && total > 0 ? Math.min(1, currentTime / total) : 0;
   return (
     <View style={styles.card} accessibilityRole="toolbar" accessibilityLabel={label}>
       <View style={styles.topRow}>
-        <Pressable accessibilityRole="button" accessibilityLabel={playing && active ? 'Tạm dừng lời kể' : `Phát ${label}`}
+        <Pressable accessibilityRole="button" accessibilityLabel={playing && active ? t('player.pause') : t('player.play', { label })}
           onPress={onPlay} style={({ pressed }) => [styles.playButton, pressed && styles.pressed]}>
           <AppIcon name={playing && active ? 'pause' : 'play'} size={20} color="#24392E" />
         </Pressable>
         <View style={styles.trackInfo}>
           <Text style={styles.label}>{label}</Text>
-          <Text style={styles.time}>{active ? timeLabel(currentTime) : 'Sẵn sàng'} · {timeLabel(total)}</Text>
+          <Text style={styles.time}>{active ? timeLabel(currentTime) : t('player.ready')} · {timeLabel(total)}</Text>
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel={`Nghe lại ${label}`} onPress={onReplay}
+        <Pressable accessibilityRole="button" accessibilityLabel={t('player.replay', { label })} onPress={onReplay}
           style={({ pressed }) => [styles.smallButton, pressed && styles.pressed]}>
           <AppIcon name="replay" size={18} />
         </Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel={`Dừng ${label}`} onPress={onStop}
+        <Pressable accessibilityRole="button" accessibilityLabel={t('player.stop', { label })} onPress={onStop}
           style={({ pressed }) => [styles.smallButton, pressed && styles.pressed]}>
           <AppIcon name="stop" size={18} />
         </Pressable>
@@ -48,7 +50,7 @@ export function VoicePlayerBar({
         style={styles.progressTrack}
         accessible
         accessibilityRole="progressbar"
-        accessibilityLabel={`Tiến trình phát ${Math.round(progress * 100)} phần trăm`}
+        accessibilityLabel={t('player.progress', { percent: Math.round(progress * 100) })}
         accessibilityValue={{ min: 0, max: 100, now: Math.round(progress * 100) }}
       >
         <View style={[styles.progressFill, { width: `${Math.round(progress * 100)}%` }]} />

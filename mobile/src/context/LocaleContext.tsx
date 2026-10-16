@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactElement,
   type ReactNode,
@@ -55,6 +56,7 @@ export function LocaleProvider({
   const [locale, setLocaleState] = useState<Locale>(() => initialLocale ?? resolveEffectiveLocale(undefined));
   const [collectionId, setCollectionIdState] = useState<CollectionId>(initialCollectionId);
   const [isReady, setIsReady] = useState(initialLocale !== undefined);
+  const manualChoiceRef = useRef(false);
 
   useEffect(() => {
     if (initialLocale !== undefined) {
@@ -63,7 +65,7 @@ export function LocaleProvider({
     let cancelled = false;
     readPersistedLocaleAsync().then((saved) => {
       if (!cancelled) {
-        if (saved) {
+        if (!manualChoiceRef.current && saved) {
           setLocaleState(saved);
         }
         setIsReady(true);
@@ -75,6 +77,7 @@ export function LocaleProvider({
   }, [initialLocale]);
 
   const setLocale = useCallback((next: Locale) => {
+    manualChoiceRef.current = true;
     setLocaleState(next);
     void writePersistedLocaleAsync(next);
   }, []);

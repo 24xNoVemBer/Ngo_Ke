@@ -90,9 +90,9 @@ type SourceDescription = {
 export type LiveReason = 'no-config' | 'no-data' | 'shape' | 'http' | 'network' | 'timeout';
 
 export type SourceState<TDataset = DemoDataset> = SourceDescription & (
-  | { mode: 'demo'; status: 'ready'; dataset: TDataset }
+  | { mode: 'demo'; status: 'ready'; dataset: TDataset; revision?: string }
   | { mode: 'demo'; status: 'error' }
-  | { mode: 'live'; status: 'ready'; dataset: TDataset }
+  | { mode: 'live'; status: 'ready'; dataset: TDataset; revision?: string }
   | { mode: 'live'; status: 'empty'; reason?: LiveReason }
   | { mode: 'live'; status: 'error'; reason?: LiveReason }
 );
@@ -653,22 +653,34 @@ export function getSourceState(mode: Mode, demoData?: unknown, locale: Locale = 
     return liveEmpty('no-config', locale);
   }
 
-  const dataset = parseDataset(demoData, { mode: 'demo' });
+  const dataset = parseAnyDataset(demoData, { mode: 'demo', expectedLocale: locale })
+    ?? parseDataset(demoData, { mode: 'demo' });
   if (dataset === undefined) {
+    const title = locale === 'en' ? 'Cannot read demo data' : 'Không đọc được dữ liệu demo';
+    const detail = locale === 'en'
+      ? 'Demo fixture is missing or invalid. Requires valid schema, simulated points, introduction, and verified Q&A.'
+      : 'Fixture demo thiếu hoặc sai định dạng. Cần schema phiên bản 1 hoặc 2, điểm mô phỏng, lời giới thiệu và bộ câu hỏi có nguồn hợp lệ; app không lấy dữ liệu từ API để thay thế.';
     return {
       mode,
       status: 'error',
-      title: 'Không đọc được dữ liệu demo',
-      detail: 'Fixture demo thiếu hoặc sai định dạng. Cần schema phiên bản 1, sáu điểm mô phỏng, lời giới thiệu và bộ câu hỏi có nguồn hợp lệ; app không lấy dữ liệu từ API để thay thế.',
+      title,
+      detail,
     };
   }
+
+  const title = locale === 'en'
+    ? `Loaded ${dataset.nodes.length} simulated points`
+    : `Đã nạp ${dataset.nodes.length} điểm mô phỏng`;
+  const detail = locale === 'en'
+    ? 'Source: bundled fixture. No API, server or API key required to view this data.'
+    : 'Nguồn: data/demo.json trong bundle. Không cần API, server hoặc API key để xem dữ liệu này.';
 
   return {
     mode,
     status: 'ready',
-    title: 'Đã nạp 6 điểm mô phỏng',
-    detail: 'Nguồn: data/demo.json trong bundle. Không cần API, server hoặc API key để xem dữ liệu này.',
-    dataset,
+    title,
+    detail,
+    dataset: dataset as DemoDataset,
   };
 }
 
