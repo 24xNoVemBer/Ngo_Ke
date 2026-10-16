@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { setTimeout } from 'node:timers';
+import { getResolvedLocalesAsync } from '@expo/config-plugins/build/utils/locales.js';
 import { LOCALES, DEFAULT_LOCALE, isLocale, parseLocale, assertLocale } from '../src/data/locale.ts';
 import { canonicalDatasetJson } from '../src/data/canonicalJson.ts';
 import {
@@ -985,4 +986,35 @@ test('regression - source computation synchronously hides stale live locale', ()
 
   assert.equal(isMatchedLocale, false);
 });
+
+test('native config - getResolvedLocalesAsync isolates iOS purpose keys from Android strings', async () => {
+  const appJsonPath = join(__dirname, '../app.json');
+  const appJson = JSON.parse(readFileSync(appJsonPath, 'utf8'));
+  const projectRoot = join(__dirname, '..');
+
+  const iosResolved = await getResolvedLocalesAsync(projectRoot, appJson.expo.locales, 'ios');
+  const androidResolved = await getResolvedLocalesAsync(projectRoot, appJson.expo.locales, 'android');
+
+  const expectedKeys = [
+    'NSCameraUsageDescription',
+    'NSLocationWhenInUseUsageDescription',
+    'NSMicrophoneUsageDescription',
+  ];
+
+  for (const locale of ['vi', 'en']) {
+    const iosMap = iosResolved.localesMap[locale] || {};
+    assert.equal(Object.keys(iosMap).length, 3);
+    for (const key of expectedKeys) {
+      assert.ok(iosMap[key], `Missing ${key} in iOS ${locale}`);
+      assert.equal(typeof iosMap[key], 'string');
+    }
+
+    const androidMap = androidResolved.localesMap[locale] || {};
+    assert.equal(Object.keys(androidMap).length, 0);
+    for (const key of expectedKeys) {
+      assert.equal(androidMap[key], undefined, `Android ${locale} must not contain iOS key ${key}`);
+    }
+  }
+});
+
 

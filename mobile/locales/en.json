@@ -1,5 +1,7 @@
 {
-  "NSCameraUsageDescription": "Allow Ngõ Kể to use the camera to scan point QR codes.",
-  "NSLocationWhenInUseUsageDescription": "Allow Ngõ Kể to access your location once to suggest the nearest point. The app does not track background location.",
-  "NSMicrophoneUsageDescription": "Allow Ngõ Kể to record audio to listen to your questions."
+  "ios": {
+    "NSCameraUsageDescription": "Allow Ngõ Kể to use the camera to scan point QR codes.",
+    "NSLocationWhenInUseUsageDescription": "Allow Ngõ Kể to access your location once to suggest the nearest point. The app does not track background location.",
+    "NSMicrophoneUsageDescription": "Allow Ngõ Kể to record audio to listen to your questions."
+  }
 }
