@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 2,
+  "locale": "en",
+  "collectionId": "fiction-letter",
+  "kind": "simulated",
+  "disclaimer": "The Letter at the End of the Alley is original fiction created for Ngõ Kể. Its characters, places and coordinates are simulated. This story is not local history or a walking route.",
+  "intro": {
+    "text": "Some alleys stay with us for the smallest reasons. The familiar smell of sticky rice. A chair left empty. Someone calling our name from behind a door. This afternoon, An comes home with a key her mother sent her. Let's follow the little messages waiting along the alley. Before the lamp at its far end comes on, there is a letter to open.",
+    "evidence": ["The Letter at the End of the Alley — original fiction created for Ngõ Kể."]
+  },
+  "startNodeId": "demo-01",
+  "nodes": [
+    {
+      "id": "demo-01", "name": "The alley gate",
+      "summary": "A key, a promise and a familiar voice after years away from home.",
+      "tags": ["kham pha tu do"], "visitMinutes": 5, "available": true, "visited": false,
+      "story": "Picture a late afternoon, with the traffic fading behind you. An stops at the alley gate, holding the key her mother sent in an envelope. The note has just one line: Come home before the lamp at the end of the alley comes on. She has been away for years. Yet inside, the scent of pandan is as familiar as yesterday. Someone calls her name. The voice is quiet, but it is enough. Her fingers loosen around the key.",
+      "caption": "An comes home with a key and a promise to arrive before the alley lamp comes on.",
+      "latitude": 10.76, "longitude": 106.68
+    },
+    {
+      "id": "demo-02", "name": "The clockmaker's porch",
+      "summary": "Mr Lâm has kept an old clock and a promise from the day An left.",
+      "tags": ["chuyen xua"], "visitMinutes": 15, "available": true, "visited": false,
+      "story": "Mr Lâm looks up from his workbench when he sees An. He does not ask where she has been. He simply pulls out the wooden chair, just as he used to. On the wall, the clock An once dropped is still silent. She had been afraid he would scold her. Instead, he said that some things could take their time. Now he places a small gear in her hand. Your mother left this for you. She said to bring it home, and we can get things moving again. An laughs. Someone has been keeping a promise safe for her all this time.",
+      "caption": "The clock has stopped, but Mr Lâm has kept his promise to An.",
+      "latitude": 10.7609, "longitude": 106.6806
+    },
+    {
+      "id": "demo-03", "name": "The kitchen by the lane",
+      "summary": "A warm parcel of cô Hương's sticky rice brings back a half-forgotten memory.",
+      "tags": ["an thuc"], "visitMinutes": 20, "available": true, "visited": false,
+      "story": "From the kitchen by the lane, cô Hương calls An by her childhood nickname. Little one, come and eat while it is hot. Steam rises from a banana leaf, carrying the smell of mung beans and fried shallots. An almost says that she is not little any more. Then she lets it go. Cô Hương still remembers her favourite part, the crisp rice at the bottom of the steamer. She still ties the parcel with a blue string. It matches the strip of cloth on her mother's key. Looking at them side by side, An realises that messages in this alley do not always come in words.",
+      "caption": "Cô Hương remembers An's favourite rice, and a blue string offers another clue.",
+      "latitude": 10.7617, "longitude": 106.6815
+    },
+    {
+      "id": "demo-04", "name": "The bougainvillea courtyard",
+      "summary": "Under the bougainvillea, a cup of sweet black bean chè brings old summers back.",
+      "tags": ["chuyen xua", "an thuc"], "visitMinutes": 25, "available": true, "visited": false,
+      "story": "In the bougainvillea courtyard, bà Nhi sets out two low chairs and pours sweet black bean chè into a cup. A papery flower falls onto the table, where An once practised writing her name. Her mother grew the plant from a small cutting bà Nhi gave her. On the day An left, her mother tied a blue strip of cloth to its branches. So you will recognise home from a distance when you come back. An looks up. The cloth has faded, but its knot is still there. Bà Nhi nudges the cup towards her. Someone has been missing you for longer than you think.",
+      "caption": "The bougainvillea holds a blue ribbon and a message from An's mother.",
+      "latitude": 10.7596, "longitude": 106.6818
+    },
+    {
+      "id":"demo-05", "name":"The sunlit doorstep",
+      "summary":"A wooden box on the doorstep is waiting for the key An has brought home.",
+      "tags":["an thuc", "kham pha tu do"], "visitMinutes":10, "available":true, "visited":false,
+      "story":"The last sunlight reaches across the doorstep and catches a wooden box beside a plant pot. On its lid, in her mother's handwriting, are the words: For An, whenever you want to come home. Bà Nhi has left a plate of bánh đậu xanh beside it. As a child, An used to tuck these little mung bean cakes into her pocket for the journey. She turns the key in the lock. There is a soft click. Inside is no grand present, just a letter folded in four and a fresh strip of blue cloth. An opens the letter. This time, she reads slowly.",
+      "caption":"The key opens her mother's letter box, beside a plate of bánh đậu xanh.",
+      "latitude":10.7603, "longitude":106.6794
+    },
+    {
+      "id":"demo-06", "name":"The lamp at the alley's end",
+      "summary":"A warm light and a letter help An understand what it means to come home.",
+      "tags":["kham pha tu do"], "visitMinutes":30, "available":true, "visited":false,
+      "story":"As An reaches the last line, the lamp at the end of the alley comes on. Her mother has written: Wherever you go, leave yourself a way home. There will always be a share of sticky rice for you here. An looks up. Her mother is sitting on the low chair under the porch, both hands around a cup of tea, as though An has only been to the market. Nobody asks why she has been away so long. Cô Hương brings another bowl. Mr Lâm pulls up a chair. Bà Nhi moves over a little. The alley is as small as ever. Only the person who went away needed such a long journey to discover that the way home was there, in someone calling her name.",
+      "caption":"Under the alley lamp, An finds her mother and a place that has been kept for her.",
+      "latitude":10.7625, "longitude":106.6809
+    }
+  ],
+  "qa": [
+    {
+      "id":"qa-01", "nodeId":"demo-01", "question":"Where are we?",
+      "answer":"The alley gate is where An's homecoming begins. She has the key her mother sent, but does not yet know what it opens. A familiar voice from inside is her first welcome after years away.",
+      "aliases":["where is this", "what is this place", "our current location"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 1."],
+      "followUps":["qa-02","qa-03"], "tags":["gioi thieu"]
+    },
+    {
+      "id":"qa-02", "nodeId":"demo-01", "question":"What is there to see in this alley?",
+      "answer":"A silent clock, a warm parcel of sticky rice and a letter box still waiting to be opened. Each place holds a message for An. By the end of the alley, she will understand why her mother called her home.",
+      "aliases":["what can I see", "what is in the alley", "how many stops are there"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 1."],
+      "followUps":["qa-04"], "tags":["gioi thieu"]
+    },
+    {
+      "id":"qa-03", "nodeId":"demo-01", "question":"Is there anything to eat here?",
+      "answer":"Cô Hương is waiting in the kitchen with hot mung bean sticky rice. She has saved the crisp rice from the bottom of the steamer, just as An liked it as a child. Sometimes people remember our favourite things longer than we do.",
+      "aliases":["what can I eat", "is there food here", "food in this alley"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 1."],
+      "followUps":["qa-05"], "tags":["an thuc"]
+    },
+    {
+      "id":"qa-04", "nodeId":"demo-01", "question":"What can I ask next?",
+      "answer":"You can ask about the key, the blue string around the rice parcel, or the person waiting at the end of the alley. Each question reveals another part of her mother's message.",
+      "aliases":["what else can I ask", "what questions can I ask", "what should I ask"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 1."],
+      "followUps":["qa-02"], "tags":["huong dan"]
+    },
+    {
+      "id":"qa-05", "nodeId":"demo-01", "question":"Are there any old stories here?",
+      "answer":"When An was little, the ticking of Mr Lâm's clocks and the smell of cô Hương's sticky rice were part of every morning. Years later, she thought she had forgotten them. This afternoon, one familiar voice brings those memories back.",
+      "aliases":["tell me an old story", "what memories are here", "a story from the past"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 1."],
+      "followUps":["qa-01"], "tags":["chuyen xua"]
+    },
+    {
+      "id":"qa-06", "nodeId":"demo-01", "question":"What is the next stop?",
+      "answer":"The story continues at the clockmaker's porch. Mr Lâm has kept the clock An once dropped and a small gear her mother left for her. Perhaps the key is not the only message.",
+      "aliases":["where is the next stop", "what comes next", "which stop is next"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 1."],
+      "followUps":["qa-02"], "tags":["huong dan"]
+    },
+    {
+      "id":"qa-clock", "nodeId":"demo-02", "question":"Why has the clock stopped?",
+      "answer":"An dropped it when she was little. Mr Lâm kept it, not to remember a mistake, but to show her that even broken things can wait patiently for someone to mend them.",
+      "aliases":["why is the clock not working", "the story of the clock", "why is the clock silent"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 2."],
+      "followUps":["qa-gear","qa-lam"], "tags":["chuyen xua"]
+    },
+    {
+      "id":"qa-gear", "nodeId":"demo-02", "question":"What does the little gear mean?",
+      "answer":"An's mother wants her to bring it home and repair the clock with Mr Lâm. It is a quiet reminder that it is never too late to return to something left unfinished.",
+      "aliases":["the small gear", "why did her mother send a gear", "what is the gear for"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 2."],
+      "followUps":["qa-lam"], "tags":["chuyen xua"]
+    },
+    {
+      "id":"qa-lam", "nodeId":"demo-02", "question":"How does Mr Lâm remember An?",
+      "answer":"He remembers the little girl who stood beside his workbench, asking why clock hands never grew tired. When she returns as an adult, he pulls out the same chair. A welcome can live in the smallest gesture.",
+      "aliases":["Mr Lâm and An", "the clockmaker", "Mr Lâm's chair"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 2."],
+      "followUps":["qa-clock"], "tags":["chuyen xua"]
+    },
+    {
+      "id":"qa-xoi", "nodeId":"demo-03", "question":"What is special about cô Hương's sticky rice?",
+      "answer":"She wraps mung bean sticky rice in a banana leaf, adds fried shallots and saves the crisp part for An. What matters is not an elaborate recipe, but someone remembering a childhood favourite after all these years.",
+      "aliases":["the banana leaf rice parcel", "cô Hương's rice", "the crisp rice"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 3."],
+      "followUps":["qa-ribbon","qa-huong"], "tags":["an thuc"]
+    },
+    {
+      "id":"qa-ribbon", "nodeId":"demo-03", "question":"What does the blue string connect?",
+      "answer":"The string around the rice parcel is the same colour as the cloth on the key. An's mother asked people along the alley to keep little messages for her. The colour helps An see that they belong to one story.",
+      "aliases":["the blue string", "the cloth on the key", "what does the blue colour mean"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 3."],
+      "followUps":["qa-huong"], "tags":["an thuc"]
+    },
+    {
+      "id":"qa-huong", "nodeId":"demo-03", "question":"Why does cô Hương still call An little one?",
+      "answer":"To cô Hương, An is still the girl who ran past each morning with a warm rice parcel in her arms. The nickname does not ask her to be a child again. It reminds her that here, she never needs to introduce herself from the beginning.",
+      "aliases":["the childhood nickname", "how cô Hương remembers An", "why little one"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 3."],
+      "followUps":["qa-xoi"], "tags":["an thuc"]
+    },
+    {
+      "id":"qa-flowers", "nodeId":"demo-04", "question":"Who planted the bougainvillea?",
+      "answer":"An's mother grew it from a small cutting bà Nhi gave her. Bà Nhi cared for the plant, and her mother tied the blue cloth to its branches. Through the seasons, it grew like a promise they were keeping together.",
+      "aliases":["her mother's bougainvillea", "who planted the flowers", "the cutting from bà Nhi"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 4."],
+      "followUps":["qa-knot","qa-che"], "tags":["chuyen xua"]
+    },
+    {
+      "id":"qa-knot", "nodeId":"demo-04", "question":"What does the knot remind An of?",
+      "answer":"Her mother's words on the day she left: so you will recognise home from a distance when you come back. The cloth may fade, but a knot kept in place can still tell someone far away that they are being waited for.",
+      "aliases":["the old knot", "the ribbon in the courtyard", "the promise on the branches"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 4."],
+      "followUps":["qa-che"], "tags":["chuyen xua"]
+    },
+    {
+      "id":"qa-che", "nodeId":"demo-04", "question":"What memory does bà Nhi's chè bring back?",
+      "answer":"An remembers sitting at the table under the branches, practising her name and secretly blowing the fallen flowers into the air. The sweet black bean chè tastes much the same. Only the person holding the cup has grown.",
+      "aliases":["the sweet black bean dessert", "bà Nhi's chè", "the memory of the table"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 4."],
+      "followUps":["qa-flowers"], "tags":["an thuc"]
+    },
+    {
+      "id":"qa-box", "nodeId":"demo-05", "question":"What does the key open?",
+      "answer":"The wooden box on the doorstep. Inside are her mother's letter, folded in four, and a fresh strip of blue cloth. Her mother left it for An to open, because some words need to be read when the person receiving them is ready.",
+      "aliases":["the wooden box", "what is the key for", "the lock on the doorstep"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 5."],
+      "followUps":["qa-envelope","qa-cake"], "tags":["kham pha tu do"]
+    },
+    {
+      "id":"qa-envelope", "nodeId":"demo-05", "question":"Why does An read the letter slowly?",
+      "answer":"On the lid, her mother wrote that the letter was for whenever An wanted to come home. Suddenly, she no longer needs to hurry. Every line holds a familiar person, an old taste and a space still waiting for her.",
+      "aliases":["An reading slowly", "the folded letter", "the writing on the box"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 5."],
+      "followUps":["qa-cake"], "tags":["kham pha tu do"]
+    },
+    {
+      "id":"qa-cake", "nodeId":"demo-05", "question":"What has bà Nhi left beside the letter box?",
+      "answer":"A plate of bánh đậu xanh, the little mung bean cakes An used to hide in her pocket as a child. Bà Nhi says nothing more. The small plate already tells An that someone remembers her old ways.",
+      "aliases":["the cakes on the doorstep", "the mung bean cakes", "the food beside the box"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 5."],
+      "followUps":["qa-box"], "tags":["an thuc"]
+    },
+    {
+      "id":"qa-letter", "nodeId":"demo-06", "question":"What does her mother write at the end of the letter?",
+      "answer":"Wherever you go, leave yourself a way home. There will always be a share of sticky rice for you here. It is not a reproach for staying away so long, just a reminder that An still has somewhere to return to.",
+      "aliases":["her mother's words", "the last line of the letter", "her mother's message to An"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 6."],
+      "followUps":["qa-light","qa-home"], "tags":["chuyen xua"]
+    },
+    {
+      "id":"qa-light", "nodeId":"demo-06", "question":"Why did her mother ask her to come before the lamp came on?",
+      "answer":"That is when people in the alley usually pull up their chairs and sit together. Her mother wants An to arrive at that moment, surrounded by voices, the smell of food and familiar faces, so she can feel she still belongs.",
+      "aliases":["the lamp at the alley's end", "the promise about the light", "when everyone sits together"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 6."],
+      "followUps":["qa-home"], "tags":["kham pha tu do"]
+    },
+    {
+      "id":"qa-home", "nodeId":"demo-06", "question":"How does An find her way home?",
+      "answer":"It is not the key or a map that shows her. She finds it in cô Hương saving her rice, Mr Lâm pulling out a chair and her mother waiting under the porch. Remembered in these small ways, An knows she is home.",
+      "aliases":["An's way home", "how does the story end", "does An come home"],
+      "evidence":["The Letter at the End of the Alley — original fiction, chapter 6."],
+      "followUps":["qa-letter"], "tags":["kham pha tu do"]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-# Việt/Anh sau Phase8 — hợp đồng/ownership T1, bản phản biện
+# Việt/Anh sau Phase8 — hợp đồng triển khai đã phản biện
 
 **DRAFT T1, chưa coding sản phẩm cho tới khi W1 chốt sau phản biện W2/W3.** Không phải cửa xin duyệt người dùng: prompt đã cho quyền tự chủ, Codex thay vai trò Claude. Phase8 đã chốt91ddfbd bằng code/test/native/artifact/restore; nguồn và giới hạn ở PHASE_8_QA_REPORT.md. Task umbrella29530ca62743. Hai inventory đã review: POST8_W2_UI_INVENTORY.md (248d861), POST8_W3_DATA_VOICE_INVENTORY.md (887d194).
 
@@ -19,7 +19,7 @@
 - Mọi localized file cùngcollection dùng cùngnodeID, QAID,nodeId,startNodeId,order,followUps,logicaltags,availability,visitMinutes,geometry; chỉ text/name/summary/story/caption/question/answer/aliases/evidence/disclaimer đổi ngôn ngữ. Alias/matcher chỉ trong(locale,nodeId), không fuzzy/cross-chapter/cross-language.
 - V2 cho geometry **cảlatitude/longitude lànull** khi chưa có nguồn; chỉ mộtnull làshapeerror. V1giữ numericbounds. GPS chỉ xét node có cặp tọa độ hợp lệ; không có thìUImissing-coordinate/chọn tay, không lấy tọa độfake. Thời gian `visitMinutes` là gợi ý biên tập chưa đo thực địa, không nhận là ETA đi bộ. Sơ đồ trang sách không phải dẫn đường.
 - Giữ toàn bộ giới hạn Phase8: bodyUTF8≤512KiB mỗi locale, story/answer≤2000,caption≤220,intro≤4000,disclaimer≤2000,ID≤128,shorttext≤500,evidence≤20×2000,alias1..7,followUp0..2,tags≤20. Không nâng trần vì dịch. V2metadata/missing locale/locale không khớp expectation làerror, không silently dùngVI.
-- Dataset revision V2 =SHA256 của `JSON.stringify(parsedDataset)` (ECMAScript, giữ array order); NodeCrypto/ExpoCrypto hiện có, không thêm serializer framework. Backend lưu/serve chính chuỗi compact này, kiểmdigest khiđọc; app kiểm/tạo revision từ cùng dữ liệu. VI fiction V1 giữ revision8b318b… hiện có. Manifest mới ghi quy tắc/hash và test parityNode/mobile; hashtext từngtrack vẫn là chốt chọnaudio.
+- Dataset revision V2 =SHA256 UTF8 của `canonicalDatasetJson(validatedDataset)`: object key sắp thứ tự lexical đệ quy, array giữ nguyên thứ tự, primitive dùng JSON.stringify; không Unicode-normalize text. W2 xuất helper thuần dùng chung Node/mobile, không thêm serializer framework. NodeCrypto/ExpoCrypto hiện có tạo digest từ cùng chuỗi; backend lưu/serve chính chuỗi này và kiểm digest khi đọc. Revision không tự nằm trong body để tránh hash đệ quy. VI fiction V1 giữ revision8b318b… hiện có. Test key permutation, nested objects/arrays, dấu tiếng Việt và parity shared helper; build/native kiểm Hermes. Hashtext từngtrack vẫn là chốt chọn audio.
 
 ## 3. API/SQLite — thay đổi hợp đồng có chủ đích
 
@@ -55,7 +55,7 @@
 
 ## 6. Ownership/thứ tự và nghiệm thu
 
-1. W1 chốt draft này sauW2/W3 critique; W4 kiểmsource/claim ledger riêng, W1viếtcontentVI/EN+glossary. Khôngcodingtrướccontractfinal.
+1. W1 đã nhận W2/W3 critique ngày16/10/2026 (dispatch ctx_014282576c51, ctx_4422f1baa846), chốt helper canonical key-sort, guard nullable GPS và persistence có biên native tách khỏi pure test. W4 source review ở b1f4fbd đã kiểm 3 điểm; W1 tiếp tục content VI/EN+glossary, W4 review dịch trước publication. Hợp đồng này cho phép bắt đầu coding theo quyền end-to-end đã có; không mở gate voice cũ.
 2. W2earlycommit locale type/puretranslator +sharedV2parser/loader interfaces. W3cherry-pick đúngsharedcommit, làmbackendV2/migration/STT; W2làmUI songngữ. Mọiworkerxemsourcecụthể91ddfbd vàchỉcommit file sởhữu.
 3. W1/W3/W2 nối1point thậtVIEN đầu tiên (contentapproved+audio+ASR+UI+native) choW4review; đónglỗi trước bulkcatalogue/đủinventory. W1cóthểbiêntập drafttext khácsong song, khôngnhận đãpublished/QC.
 4. W4review từngSHA, coverageUI/text/audio, facts/translation/propernames/fiction distinction, nativecoldEN/persistVI-switch, allfixedQA lookup, ít nhấtcặphỏi/hỏitiếpVIEN ởmọiđiểmdemo(syntheticphânbiệtphone), lifecycle/no-fallback/quota/timeout/cancel/audiofail, fontkeyboardA11y/ReduceMotion, VI34hashregression.
