@@ -830,6 +830,8 @@ test('translator.ts - 100% dictionary parity between VI and EN', () => {
     translate('en', 'home.stories_opened', { opened: 0, total: 6, mode: 'Demo' }),
     'Opened 0/6 stories · Demo',
   );
+  assert.equal(translate('vi', 'qa.read_answer_btn'), 'Xem câu trả lời bằng chữ');
+  assert.equal(translate('en', 'qa.read_answer_btn'), 'Read answer text');
 });
 
 test('pick.ts - English alias parsing for topics and time budgets', () => {
