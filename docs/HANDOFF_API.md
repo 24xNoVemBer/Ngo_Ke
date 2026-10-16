@@ -1,10 +1,10 @@
 # Handoff API — Ngõ Kể
 
-> **Hợp đồng thực hiện 16/10/2026:** [spec Phase7.1/8](PHASE_7_1_8_EXECUTION_SPEC.md#hợp-đồng-live-cuối-cho-đợt-này) thay các quy tắc lịch sử bên dưới về parser dùng chung demo/live, nhãn “đã duyệt”, node count và 200 rỗng. Giữ GET dataset và deadline8s; live mở 1..50 node với simulated/reviewed, reviewed cần metadata approved/updatedAt từng record; empty canonical404, 200 rỗng/sai envelope là error. Phase8 được người dùng cho phép chạy xuyên suốt, backend đang được triển khai, chưa phải đã nghiệm thu. Không API chat/LLM hoặc fallback demo.
+> **Hợp đồng thực hiện 16/10/2026:** [spec Phase7.1/8](PHASE_7_1_8_EXECUTION_SPEC.md#hợp-đồng-live-cuối-cho-đợt-này) thay các quy tắc lịch sử bên dưới về parser dùng chung demo/live, nhãn “đã duyệt”, node count và 200 rỗng. Giữ GET dataset và deadline8s; live mở 1..50 node với simulated/reviewed, reviewed cần metadata approved/updatedAt từng record; empty canonical404, 200 rỗng/sai envelope là error. Quyền thực hiện được người dùng chốt; kết quả kiểm thử/giới hạn nghiệm thu ghi bên dưới. Không API chat/LLM hoặc fallback demo.
 
 **Quyết định 03/10/2026 của người dùng:** backend **do dự án tự viết** (Node 24 + JSON API + SQLite theo plan), không chờ đội ngoài. Dữ liệu MVP là **dữ liệu mô phỏng do dự án sinh**; khi nào có dữ liệu thật thì thay sau, không chặn MVP.
 
-**Trạng thái16/10/2026:** backend đã triển khai ở `valentino/backend-luna` (backend2963fb8, parser c1b65fc, fix tổngbody0399821); nhánh `valentino/phase8-integration` có app/backend/guard và patch tổngbody. Coordinator đã kiểm197 app/19 backend/33 guard tests đạt; W4 đang review/HTTP/native E2E, **chưa tuyên bố nghiệm thu**. Backend không npm dependencies hoặc route chat/LLM. Phase6/mock server là lịch sử kiểm adapter.
+**Trạng thái16/10/2026:** Phase8 tích hợp e3acedf đạt201 app/19 backend/33 guard/15 HTTP độc lập; Muse native19/19 + APK F4FF95 offline/live/retry/denial/restore đạt. [QA report](PHASE_8_QA_REPORT.md) ghi SHA và giới hạn GPS fix/QR thật/iPhone. Backend không npm dependencies hoặc route chat/LLM. Đợt Việt/Anh được mở theo yêu cầu đã có; hợp đồng locale sẽ được chốt riêng trước coding, chưa suy thêm endpoint/schema từ tài liệu này. Phase6/mock server là lịch sử kiểm adapter.
 
 ## Kết nối phía app
 

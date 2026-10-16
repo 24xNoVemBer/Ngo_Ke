@@ -4,13 +4,13 @@
 
 - Người dùng yêu cầu: **“chạy end-to-end đi, hiện tại ch cần t duyệt”**; đã cho phép điều phối triển khai Phase 7.1 và Phase 8, không dừng xin duyệt lại từng task. G1/G2 của Run `run_a728dba15869` đã được resolve theo chỉ dẫn này; đây không phải tuyên bố nghiệm thu đã đạt.
 - Baseline: `9a3931848b13f283155056128bd3ce5aee71a90a`. Đọc `docs/PHASE_7_1_8_EXECUTION_SPEC.md` trước coding; các task DRAFT trong Orca dùng spec cuối tại tài liệu này và chỉ dẫn mới nhất của coordinator.
-- Coordinator/W1 là Codex trong worktree `plan-architecture`, chỉ sửa tài liệu/hợp đồng, không viết source sản phẩm. W2 Antigravity sở hữu app/test app; W3 Codex `gpt-6-luna`/`xhigh` sở hữu backend/test backend; W4 OpenCode `opencode/muse-spark-1.3-contributor-free` sở hữu E2E/review/QA. Không âm thầm đổi model.
+- Coordinator/W1 là Codex trong worktree `plan-architecture`, sở hữu tài liệu/hợp đồng và nội dung theo prompt Việt/Anh, không sửa source UI/backend của worker. W2 Antigravity sở hữu app/test app; W3 Codex `gpt-6-luna`/`xhigh` sở hữu backend/test backend/voice cần cho Việt/Anh; W4 OpenCode `opencode/muse-spark-1.3-contributor-free` sở hữu E2E/review/QA. Không âm thầm đổi model. Đợt Việt/Anh chốt inventory/hợp đồng trước khi W2/W3 coding song song, không cần xin lại từng task nội bộ.
 - Voice cũ đã triển khai nhưng tạm dừng; Phase 7.1/8 không đổi engine/audio/matcher. Sau khi Phase 8 thực sự đạt nghiệm thu, thực hiện yêu cầu hậu Phase 8 trong `E:/Project/Ngo_Ke/ngoke/docs/CLAUDE_POST_PHASE8_STORY_EN_PROMPT.md`, với Codex làm coordinator; chỉ các thay đổi voice cần cho VI/EN trong yêu cầu đó được mở.
 - Không merge vào main/push/deploy, không ghi/stash/checkout workspace chính `E:/Project/Ngo_Ke/ngoke`, không ghi đè WIP. Có quyền commit cục bộ đúng phần sở hữu; cài dependency có sẵn bằng lockfile khi cần. Không LLM/chat/AR/dẫn đường/public hosting.
 
 ## Trạng thái và quyền thực hiện
 
-- **Phase hiện tại: 8, đang kiểm tích hợp/review; chưa tuyên bố nghiệm thu.** Phase7.1 app và guard đã có commit; coordinator kiểm độc lập197 app tests,33 guard tests và19 backend tests (sau fix tổngbody0399821) đạt. Native E2E đang sửa harness lệch baseline; GPS/QR thật/iPhone vẫn cần bằng chứng riêng, không suy từ test Node hoặc export.
+- **Phase8 đã đạt kiểm thử trong phạm vi môi trường hiện có; đang mở đợt Việt/Anh đã được người dùng giao.** Baseline tích hợp `e3acedf`, QA `34073d7` + `f097b52`: coordinator kiểm độc lập201 app +19 backend +33 guard +15 HTTP đạt; Muse chạy19/19 native trên đúng34073d7 và xác minh APK F4FF95 offline/live/retry, từ chối quyền rồi chọn tay, khôi phục settings. Xem `docs/PHASE_8_QA_REPORT.md`; GPS fix/QR thật/iPhone vẫn pending, không coi là đã kiểm. Không có tuyên bố duyệt nội dung/thiết bị của người dùng thay cho bằng chứng.
 - **Implementation approved: Phase7.1 và Phase8** theo yêu cầu chạy end-to-end ở trên; không chờ user duyệt lại từng task. Voice đã triển khai nhưng goal cũ tạm dừng; chỉ scope VI/EN riêng được mở sau Phase8 đạt.
 - Công cụ: **Orca orchestration**, Codex/W1 điều phối, Antigravity/W2 app, Codex Luna/W3 backend, OpenCode Muse/W4 review/QA. Trình độ A/B/C của người dùng chưa xác định.
 - Đọc `MEMORY.md` trước khi làm việc để biết nhiệm vụ, bằng chứng duyệt và bước tiếp theo.
@@ -64,7 +64,7 @@ Các quy tắc dưới là mặc định cho scope chưa được cấp quyền.
 | 5 | GPS candidate, xác nhận/chọn lại (G5) | **Đã được người dùng duyệt 03/10/2026** (nhánh candidate/outside-cluster chưa chạy thật trên thiết bị) |
 | 6 | Live gọi API, tách demo/live, handoff data/UI (G6) | **Đã được người dùng duyệt 03/10/2026** (chưa có backend thật) |
 | 7 | Offline, kiểm thử end-to-end, bàn giao demo (G7) | Đã bàn giao;7.1 đang được kiểm cùng Phase8 theo quyền mới |
-| 8 | Backend Node24+SQLite, dataset/health/ready và CLI nội bộ | Được phép triển khai theo spec; code/unit test xong, đang QA tích hợp |
+| 8 | Backend Node24+SQLite, dataset/health/ready và CLI nội bộ | Code/tích hợp/QA môi trường hiện có đạt; báo cáo có SHA và giới hạn thiết bị |
 | Voice riêng | Goal V0–V7 cũ và scope VI/EN sau8 | Goal cũ tạm dừng; VI/EN đã được yêu cầu, chưa mở trước nghiệm thu8 |
 
 ## Backend và dữ liệu MVP — quyết định của người dùng (03/10/2026)

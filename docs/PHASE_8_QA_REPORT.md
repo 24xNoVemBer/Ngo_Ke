@@ -13,7 +13,7 @@ Task: `task_d82ac6443e6d` · Run `run_a728dba15869` · Worker W4 (OpenCode Muse)
 | W3 backend | `2963fb8` + `c1b65fc` | Node24 + node:http/node:sqlite read-only JSON API |
 | W3 boundary fix (cherry-picked, no hand edit) | `0399821` → local `7179193` | 512KiB aggregate budget on import/read |
 | Voice netsec plugin (cherry-picked, separate integration) | `0ad83c1` → local `94b4653` | private-HTTP API allowlist, API-only, no journey impact |
-| W4 harness + this report | `34073d7` + W4c update below | `tools/e2e/*`, `agent_docs/testing.md`, this file |
+| W4 harness + this report | `34073d791610483002b2a4721d19e0d2f9bb2d04` + `f097b52` | `tools/e2e/*`, `agent_docs/testing.md`, this file |
 
 No app/backend source was hand-edited by W4. No merge to main, no push, no deploy.
 
@@ -28,11 +28,11 @@ No app/backend source was hand-edited by W4. No merge to main, no push, no deplo
 | `node --test tools/e2e/phase8-http.test.mjs` | 15/15 (real loopback backend on temp DB + live-adapter transport faults; aggregate repro now asserts import rejection pre-mutate) |
 | `node tools/e2e/native-flow.mjs --runs 1` (env: `ANDROID_SERIAL=emulator-5554`, `NGOKE_DEV_HOST=10.0.2.2`, `NGOKE_EXPO_PORT=8085`) | **19/19** (provenance run `20261016-084203`; re-ran 19/19 in W4c) |
 
-Evidence: `tools/e2e/.runs/20261016-084203/` (W4c provenance re-run, gitignored):
+Evidence retained in worker worktree `C:/Users/LEGION/orca/workspaces/ngoke/test-opencode/` (the integration worktree does not contain these ignored files): `tools/e2e/.runs/20261016-084203/` (W4c provenance re-run):
 `native-flow.json` (runtime `sourceSha`/device/metro provenance), `*.xml` dumps,
 binary-safe `*.png` (PNG signature verified before write). Manual fault-injection shots:
 `tools/e2e/.runs/live-error-manual/`. Denial evidence: `tools/e2e/.runs/deny-camera-location/`.
-Delivery route is `NGOKE_DEV_HOST` (`10.0.2.2` sanctioned; LAN `192.168.100.36` also
+Delivery route is `NGOKE_DEV_HOST` (`10.0.2.2` configured; LAN `192.168.100.36` also
 proven working) — both configurable, actual URI recorded per run.
 
 ## Native coverage (19/19 scripted + manual fault injection)
@@ -86,9 +86,7 @@ scale `1`, airplane `disabled`; restored exactly after (verified via appops/sett
 - GPS candidate/confirm with a real fix: emulator has no GPS fix (known limit).
 - QR scan of a real code: manual-choice path proven; scan path needs a camera-visible code.
 - Physical device / iPhone: emulator-only in this task.
-- Offline cold start against the release APK: blocked on the W2 APK build (prebuild/
-  assemble in progress); Expo-bundle cold start was exercised via force-stop + relaunch.
-  → CLOSED: verified on the `F4FF95` release build (see above).
+- Offline cold start against the release APK: CLOSED on `F4FF95` (see above); the earlier build-blocked state is historical.
 - `tools/voice`: never run in Phase 7.1/8 per scope.
 
 ## Findings for owners (no W4 source edits made)
@@ -100,8 +98,7 @@ scale `1`, airplane `disabled`; restored exactly after (verified via appops/sett
 2. Expo Go large-bundle download over `10.0.2.2` flaked persistently (redbox
    `Failed to download remote update` while Metro served the same 6MB bundle in 0.2s
    to the host and ping was clean); the LAN-IP route worked. Environment flake, kept
-   as evidence; sanctioned route stays `10.0.2.2` (never `10.0.0.2` — that typo was in
-   W4's own guard test and is fixed).
+   as evidence; both configured routes are supported. `10.0.0.2` was W4's own typo in a guard test and is fixed.
 3. `adb shell input tap` with fractional coordinates is silently dropped on this build;
    the harness rounds to integers (also fixed in the legacy scripts).
 4. PowerShell `>` redirection mangles binary PNGs (UTF-16); all captures are now
@@ -125,3 +122,11 @@ scale `1`, airplane `disabled`; restored exactly after (verified via appops/sett
 - `agent_docs/testing.md` gained a Phase 8 entry pointing at the current commands.
 - Fail history kept: earlier `.runs/` folders (float-tap misses, 0/6-counter cascade,
   Expo-download redbox, UTF-16 PNG) remain untouched as honest NOT-pass records.
+
+## Coordinator closure — 16/10/2026
+
+Source integrated at `e3acedf` after independent review: mobile/data/backend/tools equal the reviewed W4 tree. Coordinator re-ran201 app +67 backend/guard/HTTP checks, viewed offline/airplane-error PNGs and denial XML, verified APK ZIP endpoint/hash, and checked the exact34073d7 native re-run JSON. W4c restored original settings and stopped its Metro PID10672/backend PID33008; emulator-5554 remains available. Main stays9a39318 with the same11 tracked WIP files; no main merge, push or deploy.
+
+Phase8 meets the agreed scope on the available environment; this opens the separately authorized Vietnamese/English work. It does not claim physical-device acceptance.
+
+**Việc cần người dùng quyết / tự làm:** Không có quyết định nào đang chặn triển khai phạm vi kế tiếp đã được giao. Khi có thiết bị thật, người dùng cần kiểm iPhone/điện thoại, GPS có fix và quét QR thật theo plan; đến lúc đó các mục này vẫn pending, không được báo pass từ emulator.

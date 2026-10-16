@@ -2,15 +2,15 @@
 
 > **16/10/2026:** G1/G2 Run run_a728dba15869 đã resolve theo yêu cầu người dùng “chạy end-to-end đi, hiện tại ch cần t duyệt”. Quyền triển khai không đồng nghĩa test/phase đã đạt. Theo [spec Phase7.1/8](docs/PHASE_7_1_8_EXECUTION_SPEC.md); ghi pass/fail/pending và SHA thật trước khi chuyển sang đợt VI/EN.
 
-## Kiểm thực hiện Phase7.1/8 — đang chạy
+## Kiểm thực hiện Phase7.1/8 — đã đạt trên môi trường hiện có
 
 - [x] Quyền chạy xuyên suốt và hợp đồng được ghi bằng chỉ dẫn người dùng; baseline source9a39318, spec commit743bf0c.
 - [x] W2 Antigravity/Gemini3.8FlashHigh, W3 CodexLuna/xhigh, W4 OpenCodeMuse được kiểm tại launch/screen; file ownership riêng.
-- [x] W2 parser/adapter/app tests tại c16b662 +0422ed5: coordinator chạy197/197 đạt; fixture/audio/engine/matcher voice giữ nguyên. Bản sửa API-only native config0ad83c1 đã review và test network độc lập đạt; native APK đang build.
+- [x] W2 parser/adapter/app +0ad83c1 +4b7ffcb: coordinator chạy201/201 đạt; fixture/audio/engine/matcher voice giữ nguyên. APK F4FF95 được hash/bundle kiểm độc lập và kiểm runtime.
 - [x] W3 backend2963fb8 +0399821 không chat/LLM: coordinator chạy19/19 đạt, gồm migration/backup/rollback/HTTP/aggregate512KiB; không thay dataset/audio demo.
-- [ ] W4 guard không pass0/0, integration/security/native E2E có báo cáo pass/fail/pending theo SHA.
-- [ ] Tích hợp local được kiểm độc lập; các giới hạn GPS/QR/iOS/điện thoại thật được ghi đúng bằng chứng.
-- [ ] Chỉ mở đợt VI/EN sau khi Phase8 thực sự đạt, không suy từ worker_done.
+- [x] W4 guard33/33 + HTTP15/15, native19/19 rerun trên34073d7, denial Camera/Location và failure-preflight đạt; QA report f097b52 ghi evidence thật.
+- [x] Tích hợp e3acedf được review/test độc lập; GPS fix/QR thật/iPhone còn pending, không suy từ emulator hoặc export.
+- [x] Mở đợt VI/EN sau khi kiểm code/test/evidence/khôi phục settings/cleanup server Phase8 đạt, theo quyền người dùng đã giao; không suy từ worker_done đơn lẻ.
 
 > Checklist dự án dựa trên template Part 4 trong yêu cầu và gate của [plan](docs/TECH_DEMO_PLAN.md). Không có bản `/templates/REVIEW-CHECKLIST.md` để copy nguyên văn; nguồn và giới hạn ghi ở [setup_review.md](agent_docs/setup_review.md).
 

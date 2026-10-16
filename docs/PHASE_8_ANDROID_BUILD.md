@@ -39,4 +39,4 @@ Sau khi build kết thúc, W2 gỡ riêng mapping đã tạo bằng `subst X: /D
 
 App phải đọc trực tiếp `process.env.EXPO_PUBLIC_NGOKE_API_BASE_URL` tại caller. W1 dùng plugin Expo Babel đang cài để tái hiện trước/sau: caller cũ truyền toàn process.env không inline, caller4b7ffcb nhận literal sentinel đúng. Dữ liệu bundle và kiểm live trên APK xác minh đường đi thực tế; chỉ set biến lúc build không đủ chứng minh.
 
-Kết quả native và giới hạn ở `docs/PHASE_8_QA_REPORT.md`; các ca bổ sung từ chối quyền/provenance đang do W4 hoàn tất. Không chạy tools/voice hoặc thay audio/matcher cũ trong đợt này.
+Kết quả native và giới hạn ở `docs/PHASE_8_QA_REPORT.md`; W4c f097b52 đã đóng các ca từ chối quyền/provenance/restore. Không chạy tools/voice hoặc thay audio/matcher cũ trong Phase7.1/8.

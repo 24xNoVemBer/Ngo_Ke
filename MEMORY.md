@@ -1,5 +1,13 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-16 — Phase8 đã chốt, bắt đầu phạm vi Việt/Anh
+
+- Baseline tích hợp `e3acedf` có toàn bộ code/test/QA của W2/W3/W4; W4 QA commits34073d7 +f097b52. Coordinator kiểm độc lập201 app +67 backend/guard/HTTP (19+33+15) đạt; code cây mobile/data/backend/tools giống hệt cây QA. Native rerun19/19 đúng34073d7 ở `test-opencode/tools/e2e/.runs/20261016-084203/native-flow.json`; đã xem denial XML và ảnh APK offline/error.
+- APKF4FF95,125227724byte, source4b7ffcb: hash installed trùng, bundle có API test10.0.2.2:8086, cold offline/live/error/retry không fallback đạt. Từ chối thật Camera/Location rồi chọn tay/chữ đạt; failure-preflight giữ settings. W4c task70b5a6d3412b/ctx_c8bfaa06be89 succeeded, restored settings, dừng riêng Metro10672/backend33008; emulator giữ cho đợt sau, terminal retained. Recipe ở docs/PHASE_8_ANDROID_BUILD.md.
+- **T4 được chốt theo bằng chứng trong môi trường hiện có**, không phải một tin worker_done hay một lần test xanh. GPS có fix/QR scan thật/iPhone vẫn pending đúng QA report; không gọi là đã thử hoặc người dùng đã duyệt thiết bị. Không có quyết định scope nào chặn; người dùng cần tự kiểm các phần thiết bị theo plan khi có máy.
+- Mở task29530ca62743 theo prompt E:/Project/Ngo_Ke/ngoke/docs/CLAUDE_POST_PHASE8_STORY_EN_PROMPT.md: Codex điều phối thay Claude; W1 inventory/hợp đồng/content trước, W2/W3 coding sau ranh giới ổn định, W4 vẫn Muse. Chỉ voice cần cho Việt/Anh được mở; goalV0–V7 cũ không tự tiếp tục.34audio Việt giữ mức user-reported listeningQC, không nâng thành đo thiết bị.
+- Main đã kiểm read-only: HEAD9a39318 và11trackedWIP giữ nguyên; docs/design/UIreview/prompt mới vẫn untracked của người dùng. Không ghi/stash/checkout main; không main merge/push/deploy. Phần dưới là nhật ký điều tra Phase8, các trạng thái đang chạy/blocked cũ đã được kết quả trên thay thế.
+
 ## 2026-10-16 — Quyền chạy xuyên suốt và chuyển coordinator
 
 - **Code tích hợp và QA chính đã đạt:** local integration `66da9029339d3380892fe74d5c503ac6ee53825c` có Muse34073d7 và app4b7ffcb, cây mobile/data/backend/tools giống hệt W4. Coordinator tự chạy201mobile +67backend/guard/HTTP (19+33+15) đạt, không failure. Muse native19/19 có evidence `.runs/20261016-041616/native-flow.json`, source1de3364 (cherry-pick4b7ffcb), API37/emulator-5554; ảnh/XML APK offline/live/error ở `.runs/live-error-manual/` trong test-opencode, W1 đã xem ảnh offline/airplane-error.

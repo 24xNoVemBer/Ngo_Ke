@@ -4,7 +4,7 @@
 
 **Cập nhật03/10 Phase1:** greenfield được xác nhận; fixture6 điểm mô phỏng đã được đồng ý và Home bundled/native emulator/offline sau nạp bundle đã thử. Không có source cũ phải cung cấp. Chi tiết: [phase_1_completion.md](phase_1_completion.md).
 
-**Cập nhật16/10:** Phase7.1/8 đã được phép chạy xuyên suốt; [spec hiện hành](../docs/PHASE_7_1_8_EXECUTION_SPEC.md), backend/adapter có code trong nhánh tích hợp. Coordinator kiểm với Node24.14.1; các version môi trường03/10 dưới đây là lịch sử, không phải kết quả máy hiện tại. Native E2E/API37 đang do W4 kiểm, chưa nghiệm thu8.
+**Cập nhật16/10:** Phase7.1/8 đã đạt kiểm thử trên môi trường hiện có: [QA report](../docs/PHASE_8_QA_REPORT.md), [recipe APK](../docs/PHASE_8_ANDROID_BUILD.md), source tích hợp e3acedf.201 app +19 backend +33 guard +15 HTTP độc lập, native19/19 và deny/offline/live/retry đạt; GPS fix/QR thật/iPhone còn pending. Coordinator kiểm với Node24.14.1; các version môi trường03/10 dưới đây là lịch sử. Đợt Việt/Anh đang chốt inventory/hợp đồng theo yêu cầu mới, chưa coi các kiểm tra tương lai là đã đạt.
 
 ## Stack và trạng thái
 
