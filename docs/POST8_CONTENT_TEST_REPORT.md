@@ -201,6 +201,34 @@ by design — W2 owns hook tests). 16/16 observed behaviors pass.
   force-idles without the candidate's own `canCleanUpVoiceTurn` check; `start`
   finally clears `permissionPendingRef` even if a newer turn set it.
 
+## Native firstpoint BM VI/EN (2026-10-16, release d1ee78 on emulator-5554)
+
+Build: candidate `d68223e`, APK SHA-256
+`d1ee78850c77c4e8595c53421e699402a4feefec1b0419d9b2295e405bfdcb6f`
+(61,357,774 bytes, installed hash identical), backend `10.0.2.2:18886`
+reviewed pilot live. Evidence: `tools/e2e/.runs/fp/` (binary PNG + fresh XML).
+
+PASS: cold EN OS fallback (en-US device); EN BM Q&A sourced + 2 follow-ups;
+EN answer play 00:10/00:14 + stop; VI switch preserving point; VI BM Q&A +
+follow-ups; VI answer play 00:07/00:15 + stop; VI story play 00:08/00:46;
+EN story play 00:07/01:01; manual VI persistence across force-stop relaunch;
+MM missing-audio text fallback with no player; live reviewed drawer
+(source/count/origin) + 3-node live map; live error/retry/no-fallback (Expo
+build); QR denial (camera off + manual); GPS denial via real OS dialog +
+manual confirm setting the point; unknown-Q refusal both locales; mic
+permission dialog → 19s real-mic capture → ready → cancel → idle; font 150
+renders cleanly (restored 1.0); full session operable with reduce-motion on
+(restored 1); settings/permissions restored exactly (CAMERA ignore,
+locations foreground, airplane off).
+PENDING (honest): in-place locale-during-active-playback (path was
+Back-navigation stop + switch; hook-level covered separately); human
+listening/naturalness and mic audibility (AVD has no audio); real-GPS fix;
+QR scan; physical device/iPhone; bulk-54 assets (12/66 present).
+NOTE for W2 (routed, no source edit): EN answer toggle reads “Read story
+text” on an answer card; Location manual rows append “simulated” next to
+reviewed content and “10 min” editorial estimates — keep source-kind wording
+distinct. No new app defects blocking feasibility beyond these.
+
 ## Limits (not covered here)
 
 100-audio coverage is NOT claimed: only the 100-track text inventory plus the
