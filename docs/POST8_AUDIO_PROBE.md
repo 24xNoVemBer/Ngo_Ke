@@ -280,3 +280,52 @@ node tools/voice/gateway/post8_http_probe.mjs vi tools/voice/.cache/post8-http-p
 ```
 
 Still pending are W4 technical review of the native first point, human listening/pronunciation/naturalness approval for both locales, W2 product wiring/integration of the candidate, and device playback checks. The other five nodes / full 66-asset catalog, any preset shipping selection, and Android/iOS microphone/playback QA remain deliberately ungenerated/unclaimed.
+
+## First-point synthetic question-to-QA integration probe (2026-10-16)
+
+This probe used exactly three approved Bạch Mã questions per locale (six generated WAVs total), without changing either localized dataset, aliases, the original 34 Vietnamese files, or the catalog. The ignored samples and JSON manifests are at `tools/voice/.cache/firstpoint-synthetic-qa-20261016/{en,vi}/`; these are controlled synthetic inputs, not product assets or human speech.
+
+### Engines, revisions, and transport
+
+- English input audio: `hexgrad/Kokoro-82M@f3ff3571791e39611d31c381e3a41a3af07b4987`, `kokoro==0.9.4`, `af_heart` (`en-US`), Apache-2.0, CPU. WAV format is mono PCM signed 16-bit at 24 kHz. Kokoro reported its unknown-phoneme marker for all three exact canonical English question texts; no respelling or text change was used.
+- Vietnamese input audio: `pnnbao-ump/VieNeu-TTS-v3-Turbo@61b85e3d937fbbacb387714180e8182823512523`, `vieneu==3.7.1`, codec `OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX@ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae`, preset `Đoan Trang` (`vi-VN`), CPU. WAV format is mono PCM signed 16-bit at 48 kHz.
+- ASR: `faster-whisper==1.2.1`, `Systran/faster-whisper-small@536b0662742c02347bc0e980a01041f333bce120`, CPU/int8, using the existing isolated cache and runtime.
+- Dataset pair was parsed and validated with `parseDatasetV2` / `validateDatasetV2Pair`; revision is SHA-256 of shared `canonicalDatasetJson` output. Collection: `old-quarter-pilot`; node: `oldquarter-bach-ma`. EN revision: `d75fcc183863f7ea2ec3b24bba1c4664b762c6332f0eb768a3493d9e74089b83`; VI revision: `358209bc5bf8f14e47a3598b93644d168219d919dcb66d9eb1f7cbb7dbd2c94a`.
+- Each WAV was wrapped as a Node `Blob`, submitted via the actual mobile `createVoiceRequestBody` and `transcribeVoiceRequest` helpers to the own loopback gateway `127.0.0.1:18787`, then passed unchanged to production `findAnswer` over only the approved QA entries for this node and locale. The mobile helper accepted matching turn, locale, mode, node, revision, and decoder language on all six HTTP 200 responses. Measured latency includes the HTTP/helper round trip and exact matcher call.
+
+### Actual request outcomes
+
+| Locale / expected ID | Actual ASR transcript | Production match | HTTP / decoder | Latency | Approved graph follow-up |
+| --- | --- | --- | --- | ---: | --- |
+| en / `bm-guardian` | `Who is honored here, and what does Eastern Guardian mean?` | unknown | 200 / en | 4,159 ms | — |
+| en / `bm-observe` | `Which architectural details should I look for?` | `bm-observe` | 200 / en | 3,315 ms | — |
+| en / `bm-horse` | `Why is the temple called B-letter when E-1-C-H maw?` | unknown | 200 / en | 3,562 ms | `bm-observe` → `bm-horse` |
+| vi / `bm-guardian` | `Bền thừa ai và chấn đông nghĩa là gì?` | unknown | 200 / vi | 3,446 ms | — |
+| vi / `bm-observe` | `Mình nên để ý chi tiết kiến trúc nào.` | `bm-observe` | 200 / vi | 3,498 ms | — |
+| vi / `bm-horse` | `Vì sao đến có tên bạch mã?` | `bm-horse` | 200 / vi | 3,366 ms | `bm-observe` → `bm-horse` |
+
+Across six requests: 3 matched the expected ID, 3 returned `unknown`, 0 returned a wrong ID, 6/6 decoder-language values matched the requested locale, and the two `bm-observe` → `bm-horse` requests followed the preceding recognized question in the approved graph. Unknowns were retained without weakening matching or changing text. In English, “honored” differed from the canonical British “honoured”, while the Bạch Mã question was decoded as letter names; the Vietnamese guardian question was also materially misrecognized.
+
+### Sample hashes and duration
+
+| Locale / ID | Duration | WAV bytes | Source text SHA-256 | Audio SHA-256 |
+| --- | ---: | ---: | --- | --- |
+| en / `bm-guardian` | 3.625 s | 174,044 | `49bcce270a12c2e07a408f5425be5079cbcdc2b083731957d1fff0202fc833e1` | `11d10813741eeeeff770e597285e35edbcaeeacf8bdf97ed6cc8d5e1e7d65a39` |
+| en / `bm-observe` | 2.825 s | 135,644 | `4f67902197d42ef816eb2b968f13497b80c53cc3dc24dc74f3044b751255067c` | `7cc10502c65be711841b0122cd940d29e8ddaabc58b056b2f6e236ffda943861` |
+| en / `bm-horse` | 3.550 s | 170,444 | `fbbe63df9ad257a0ff7534fed387b70b6f5246dbb9d56344107203a745c4842a` | `bed374e45f174f65f19880c7c07033cfaedcc3eca30f63d33b755b14fa7f6967` |
+| vi / `bm-guardian` | 2.160 s | 207,404 | `f51b9fda475af9f3d1b48915a75e17f8b02691b85736acc599e3f8d245db3d6a` | `a81c32b17629ccd00b5f537e7da82b93fe9d818fceb9857a1c9659d682c80995` |
+| vi / `bm-observe` | 2.160 s | 207,404 | `b5eb25df8fd834d151591a2c93e926e46dc59c745af1fc08467b3b7972790e32` | `0f5aca9e28f204fbc2aa5d27dedfb58d1d55d15d9aee58b6479c2897afc44462` |
+| vi / `bm-horse` | 1.920 s | 184,364 | `3127a655f990310d48116e61f2c1d16f51e1a7840f59857a048b8fd301590dc1` | `c29cba5f6d15cd54bf9908e2e25a5126e6d8e85d4962404632a963598bcc18ae` |
+
+### Commands and cleanup
+
+With the isolated venv and cached model files already present, the six inputs were generated sequentially:
+
+```powershell
+& .\tools\voice\.venv\Scripts\python.exe -B -X utf8 .\tools\voice\.cache\firstpoint-synthetic-qa-20261016\generate_questions.py en .\tools\voice\.cache\firstpoint-synthetic-qa-20261016\en
+& .\tools\voice\.venv\Scripts\python.exe -B -X utf8 .\tools\voice\.cache\firstpoint-synthetic-qa-20261016\generate_questions.py vi .\tools\voice\.cache\firstpoint-synthetic-qa-20261016\vi
+$env:NGOKE_VOICE_PORT='18787'; $env:NGOKE_VOICE_ASR_PROFILE='small-cpu'; node tools/voice/gateway/server.mjs
+node --experimental-strip-types tools/voice/.cache/firstpoint-synthetic-qa-20261016/run_http_match.mjs
+```
+
+Only the owned gateway and its worker were stopped. After shutdown, port `18787` had zero listeners and there were zero matching `stt_worker.py` processes; existing ports `8081` and `8788` were not touched. No phone, human speech, native app, playback, or device QA is represented by this synthetic-only result; pronunciation quality and these ASR misses remain open for human/device review.
