@@ -75,6 +75,16 @@ class AuditApkAssetsTest(unittest.TestCase):
         problems = audit(self.apk, self.root / "mobile")
         self.assertTrue(any("resourcesFilename" in p for p in problems), problems)
 
+    def test_wrong_resources_folder_fails(self):
+        bad = entry_for("assets/voice/a.mp3", self.wav_a)
+        bad["resourcesFolder"] = "drawable"
+        make_apk(self.apk, [
+            bad,
+            entry_for("assets/voice/b.mp3", self.wav_b),
+        ], {"a.mp3": self.wav_a, "b.mp3": self.wav_b})
+        problems = audit(self.apk, self.root / "mobile")
+        self.assertTrue(any("raw" in p for p in problems), problems)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -95,10 +95,12 @@ def audit(apk: Path, mobile_root: Path) -> list[str]:
             problems.append(f"no app.manifest mp3 entry with packagerHash for {rel}")
             continue
         want = expected_resource_name(rel)
-        if not any(e.get("resourcesFilename") == want for e in cands):
-            got = sorted({str(e.get("resourcesFilename")) for e in cands})
+        good = [e for e in cands
+                if e.get("resourcesFilename") == want and e.get("resourcesFolder") == "raw"]
+        if not good:
+            got = sorted({(str(e.get("resourcesFilename")), str(e.get("resourcesFolder"))) for e in cands})
             problems.append(
-                f"wrong resourcesFilename for {rel}: want {want!r}, manifest has {got}"
+                f"wrong resourcesFilename/Folder for {rel}: want ({want!r}, 'raw'), manifest has {got}"
             )
         if not all(e.get("resourcesFilename") for e in cands):
             problems.append(f"empty resourcesFilename for {rel}")

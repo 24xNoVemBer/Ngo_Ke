@@ -226,9 +226,10 @@ PENDING (honest): in-place locale switch during active playback/recording
 (no in-Qa toggle exists; hook-level covered separately); human listening and
 mic audibility (AVD has no audio); real GPS fix; QR scan; physical
 device/iPhone; bulk-54 human QC beyond synthetic evidence.
-New guard `tools/e2e/audit_apk_assets.py` (+4 stdlib unittests, all pass):
+New guard `tools/e2e/audit_apk_assets.py` (+5 stdlib unittests, all pass):
 FAILS stale f2d0 with exactly the 54 missing manifest entries, PASSES fixed
-13b2 (100/100 multiset + per-file MD5/entry/name checks).
+13b2 (100/100 multiset + per-file MD5/entry/name/raw-folder checks, including
+a wrong-folder negative case).
 
 ## Limits (not covered here) — HISTORICAL d68223e section (superseded above)
 
@@ -259,7 +260,9 @@ QR scan; physical device/iPhone; bulk-54 assets (12/66 present).
 NOTE for W2 (routed, no source edit): EN answer toggle reads “Read story
 text” on an answer card; Location manual rows append “simulated” next to
 reviewed content and “10 min” editorial estimates — keep source-kind wording
-distinct. No new app defects blocking feasibility beyond these.
+distinct. Font200: Home/Qa/Location/drawer EN all readable with no truncation
+except the Home dock “Notebook” tab wrapping to two lines — minor, routed.
+No new app defects blocking feasibility beyond these.
 
 ## Limits (not covered here)
 
