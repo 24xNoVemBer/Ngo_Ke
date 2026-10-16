@@ -960,7 +960,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'qa.disclaimer_live_reviewed': 'reviewed stops · Live source',
     'qa.disclaimer_live_simulated': 'simulated stops · Live source',
     'qa.narrator_header': 'ALLEY STORYTELLER VOICE',
-    'qa.narrator_badge': 'Story',
+    'qa.narrator_badge': 'S',
     'qa.opening_stop': 'Opening stop',
     'qa.waveform_demo': 'FICTIONAL STORY · LISTEN TO NARRATOR',
     'qa.waveform_demo_reviewed': 'DEMO · REVIEWED HERITAGE',
