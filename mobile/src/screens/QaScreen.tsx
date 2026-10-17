@@ -481,7 +481,7 @@ export function QaScreen({
                 onPress={() => setIsTextVisible((visible) => !visible)}
                 style={({ pressed }) => [styles.readerToggle, pressed && styles.pressed]}
               >
-                <AppIcon name="text" size={18} color="#F2C56B" />
+                <AppIcon name="text" size={18} color="#2D5748" />
                 <Text style={styles.readerToggleText}>{isTextVisible ? t('qa.collapse_text') : t('qa.read_text')}</Text>
               </Pressable>
               {isTextVisible && (
@@ -884,7 +884,8 @@ export function QaScreen({
         onChangeText={setDrawerText}
         onSubmit={() => ask(drawerText)}
         onClose={() => setIsInputDrawerVisible(false)}
-        placeholder={t('qa.ask_placeholder', { name: currentNode ? currentNode.name : t('qa.this_point') })}
+        placeholder={t('drawer.placeholder')}
+        title={t('qa.ask_placeholder', { name: currentNode ? currentNode.name : t('qa.this_point') })}
         suggestedQuestions={quickQuestions}
         onSelectSuggestion={(q) => ask(q)}
       />
@@ -1045,11 +1046,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    paddingHorizontal: 12,
+    paddingHorizontal: 13,
     borderRadius: radius.pill,
-    backgroundColor: '#294336',
+    backgroundColor: '#F7EFE1',
+    borderWidth: 1,
+    borderColor: '#DFD1BD',
   },
-  readerToggleText: { color: '#FFFDF7', fontSize: 14, fontWeight: '700' },
+  readerToggleText: { color: '#2C221E', fontSize: 14, fontWeight: '700' },
   playbackError: { color: '#9D3B32', fontSize: 13, lineHeight: 18 },
   storyText: {
     fontSize: 17,
@@ -1214,16 +1217,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     minHeight: 48,
-    backgroundColor: 'rgba(255, 253, 247, 0.92)',
-    paddingHorizontal: 12,
+    backgroundColor: 'rgba(255, 253, 247, 0.94)',
+    paddingHorizontal: 13,
     paddingVertical: 8,
-    borderRadius: radius.pill,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(224, 214, 196, 0.85)',
     gap: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 2,
   },
   chipIcon: {
     fontSize: 12,

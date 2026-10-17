@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import type { DemoNode, Mode, SourceState } from '../data/sourceState';
 import type { RootStackParamList } from '../navigation';
-import { getNodePhoto, getAlleyMeta } from '../assets/photoMap';
+import { getNodePhoto, getNodePhotographer, getAlleyMeta } from '../assets/photoMap';
 import { AVAILABLE_COLLECTIONS, DEFAULT_COLLECTION_ID, getLocalizedCollections } from '../data/collections';
 import { UnavailableScreen } from './UnavailableScreen';
 import { useMotionState } from '../hooks/MotionPreferences';
@@ -140,6 +140,8 @@ export function HomeScreen({
     });
   const collectionCover = activeCollection?.coverPhoto ?? alleyMeta.coverPhoto;
   const currentPhoto = currentNode ? getNodePhoto(currentNode.id) : collectionCover;
+  const currentPhotographer = currentNode ? getNodePhotographer(currentNode.id) : alleyMeta.photographer;
+  const isSimulated = collectionKind === 'simulated';
 
   // Tính toán vùng canvas của dải đường mòn tránh thanh trạng thái và đáy
   const topHeaderPadding = Math.max(insets.top, 28) + 8;
@@ -489,15 +491,18 @@ export function HomeScreen({
             testID="home-selected-node-preview"
             style={[
               styles.compactPreviewCard,
+              fontScale > 1.3 && styles.compactPreviewCardStacked,
               {
                 opacity: cardOpacity,
                 transform: [{ translateY: cardTranslate }],
               },
             ]}
           >
-            <View style={styles.previewThumbWrapper}>
-              <CrossfadePhoto source={currentPhoto} style={styles.previewThumb} />
-            </View>
+            {fontScale <= 1.3 && (
+              <View style={styles.previewThumbWrapper}>
+                <CrossfadePhoto source={currentPhoto} style={styles.previewThumb} />
+              </View>
+            )}
 
             <View style={styles.previewInfo}>
               <View style={styles.previewMetaRow}>
@@ -505,7 +510,7 @@ export function HomeScreen({
                   {t('home.stop_prefix')} {String(selectedIndex + 1).padStart(2, '0')}
                 </Text>
                 <Text style={styles.previewDuration}>
-                  ⏱ {currentNode.visitMinutes} {t('home.min')}
+                  ⏱ {currentNode.visitMinutes} {t('home.min')}{isSimulated ? ` · ${locale === 'en' ? 'simulated' : 'mô phỏng'}` : ''}
                 </Text>
                 {readNodeIds.has(currentNode.id) && (
                   <View style={styles.previewVisitedTag}>
@@ -513,11 +518,14 @@ export function HomeScreen({
                   </View>
                 )}
               </View>
-              <Text style={styles.previewTitle} numberOfLines={1}>
+              <Text style={styles.previewTitle}>
                 {currentNode.name}
               </Text>
               <Text style={styles.previewSummary} numberOfLines={1}>
                 {currentNode.summary ?? t('home.unopened')}
+              </Text>
+              <Text style={styles.previewCreditText} numberOfLines={1}>
+                {t('home.photo_credit')}: {currentPhotographer}
               </Text>
             </View>
 
@@ -532,7 +540,7 @@ export function HomeScreen({
                 style={({ pressed }) => [styles.previewCtaButton, pressed && styles.pressed]}
               >
                 <Text style={styles.previewCtaText}>{t('home.read_story_btn')}</Text>
-                <AppIcon name="arrow" size={12} color="#FFFDF7" />
+                <AppIcon name="arrow" size={14} color="#FFFDF7" />
               </Pressable>
             </Animated.View>
           </Animated.View>
@@ -694,7 +702,11 @@ export function HomeScreen({
                   {liveBusy ? (locale === 'en' ? 'Fetching live data…' : 'Đang lấy dữ liệu live…') : source.title}
                 </Text>
                 <Text style={styles.sourceBody}>
-                  {liveBusy ? (locale === 'en' ? 'Calling server at configured URL.' : 'Đang gọi máy chủ theo URL đã cấu hình.') : source.detail}
+                  {liveBusy
+                    ? (locale === 'en' ? 'Connecting for live content…' : 'Đang kết nối để tải dữ liệu trực tiếp…')
+                    : source.mode === 'demo'
+                      ? (locale === 'en' ? 'Offline demo content is ready to explore.' : 'Dữ liệu ngoại tuyến sẵn sàng để khám phá.')
+                      : source.detail}
                 </Text>
 
                 {source.mode === 'live' && onRetryLive !== undefined && (
@@ -1052,16 +1064,19 @@ const styles = StyleSheet.create({
     elevation: 6,
     zIndex: 10,
   },
+  compactPreviewCardStacked: {
+    flexWrap: 'wrap',
+  },
   previewThumbWrapper: {
-    width: 52,
-    height: 52,
+    width: 48,
+    height: 48,
     borderRadius: 10,
     overflow: 'hidden',
     backgroundColor: '#2A2018',
   },
   previewThumb: {
-    width: 52,
-    height: 52,
+    width: 48,
+    height: 48,
   },
   previewInfo: {
     flex: 1,
@@ -1072,48 +1087,57 @@ const styles = StyleSheet.create({
   previewMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
     gap: 6,
   },
   previewStopPrefix: {
-    fontSize: 9.5,
+    fontSize: 12,
     fontWeight: '800',
     color: '#C26747',
     letterSpacing: 0.5,
     textTransform: 'uppercase',
   },
   previewDuration: {
-    fontSize: 9.5,
+    fontSize: 12,
     fontWeight: '600',
     color: '#7D6F63',
   },
   previewVisitedTag: {
     backgroundColor: '#E8F2EC',
-    paddingHorizontal: 5,
+    paddingHorizontal: 6,
     paddingVertical: 1,
     borderRadius: 4,
   },
   previewVisitedText: {
-    fontSize: 8.5,
+    fontSize: 10,
     fontWeight: '700',
     color: '#1E6B4A',
   },
   previewTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '800',
     color: '#2C221E',
+    lineHeight: 22,
   },
   previewSummary: {
-    fontSize: 11,
+    fontSize: 13,
     color: '#6E5D52',
-    lineHeight: 15,
+    lineHeight: 18,
+  },
+  previewCreditText: {
+    fontSize: 11,
+    color: '#8C7D70',
+    fontStyle: 'italic',
   },
   previewCtaButton: {
     backgroundColor: '#2D5748',
+    minHeight: 44,
     paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 6,
     shadowColor: '#2D5748',
     shadowOffset: { width: 0, height: 2 },
@@ -1123,7 +1147,7 @@ const styles = StyleSheet.create({
   },
   previewCtaText: {
     color: '#FFFDF7',
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '700',
   },
   bottomDockContainer: {

@@ -3758,10 +3758,16 @@ test('HomeScreen positions compact selected node preview directly above bottom d
   const preview = elements(tree, 'Animated.View').find((item) => item.props.testID === 'home-selected-node-preview');
   assert.ok(preview, 'Compact preview card rendered with testID="home-selected-node-preview"');
 
-  // 2. Preview displays selected node name and visit duration
+  // 2. Preview displays selected node name, visit duration, and attribution
   const previewTexts = elements(preview, 'Text').map((t) => [].concat(t.props.children).join(''));
   assert.ok(previewTexts.some((text) => text.includes('Cổng ngõ')), 'Preview shows node name');
   assert.ok(previewTexts.some((text) => text.includes('5 phút')), 'Preview shows visit minutes');
+  assert.ok(previewTexts.some((text) => text.includes('mô phỏng')), 'Preview indicates simulated duration');
+  assert.ok(previewTexts.some((text) => text.includes('Ảnh minh họa')), 'Preview retains photo credit attribution');
+
+  const titleNode = elements(preview, 'Text').find((t) => [].concat(t.props.children).join('') === 'Cổng ngõ');
+  assert.ok(titleNode, 'Title node exists');
+  assert.equal(titleNode.props.numberOfLines, undefined, 'previewTitle must not restrict numberOfLines to 1 so title wraps at font200');
 
   // 3. Preview story CTA triggers navigation to Qa
   const storyCta = elements(preview, 'Pressable').find((item) => item.props.accessibilityLabel === 'Đọc lời kể điểm đang chọn');
@@ -3827,6 +3833,122 @@ test('VoiceInteractionDock idle mic button uses subdued moss-green surface to pr
   // Verify tap starts recording
   micBtn.props.onPress();
   assert.equal(recordingStarted, true, 'Tapping mic button starts recording');
+
+  view.unmount();
+});
+
+test('PrologueScreen clips wave flanks to 28dp and handles stale interval callbacks without cancelling newer attempt', async () => {
+  const replaceCalls = [];
+  const audioEvents = [];
+  let animCallback = null;
+  let seekResolves = [];
+
+  const playerMock = {
+    volume: 1,
+    play: () => audioEvents.push('play'),
+    pause: () => audioEvents.push('pause'),
+    seekTo: () => new Promise((resolve) => seekResolves.push(resolve)),
+  };
+
+  const view = mount('../src/screens/PrologueScreen.tsx', {
+    navigation: { replace: (name) => replaceCalls.push(name) },
+  }, {
+    '../hooks/MotionPreferences': {
+      useMotionState: () => ({ active: true, reducedMotion: false, foreground: true }),
+    },
+    'expo-audio': {
+      useAudioPlayer: () => playerMock,
+    },
+    __animatedTiming: () => ({
+      start: (cb) => { animCallback = cb; },
+      stop: () => {},
+    }),
+  });
+
+  const tree = view.render();
+  const startBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Bắt đầu dạo ngõ Hà Nội');
+  startBtn.props.onLayout({ nativeEvent: { layout: { width: 240, height: 56 } } });
+
+  // 1. Start Attempt A
+  startBtn.props.onPress({ nativeEvent: { locationX: 50, locationY: 25 } });
+  const treeAttemptA = view.render();
+  const leftFlank = elements(treeAttemptA, 'View').find((item) => item.props.testID === 'prologue-ripple-left-flank');
+  const rightFlank = elements(treeAttemptA, 'View').find((item) => item.props.testID === 'prologue-ripple-right-flank');
+  assert.ok(leftFlank && rightFlank, 'Flanks rendered');
+
+  const leftFlankStyle = [].concat(leftFlank.props.style).reduce((acc, s) => ({ ...acc, ...s }), {});
+  const rightFlankStyle = [].concat(rightFlank.props.style).reduce((acc, s) => ({ ...acc, ...s }), {});
+  assert.equal(leftFlankStyle.overflow, 'hidden', 'Left flank clips spread strictly to 28dp');
+  assert.equal(rightFlankStyle.overflow, 'hidden', 'Right flank clips spread strictly to 28dp');
+  assert.equal(leftFlankStyle.width, 28, 'Left flank width is bounded to 28dp');
+  assert.equal(rightFlankStyle.width, 28, 'Right flank width is bounded to 28dp');
+
+  // Complete attempt A animation
+  animCallback({ finished: true });
+  assert.deepEqual(replaceCalls, ['Landing'], 'Navigated to Landing');
+
+  // 2. Late seekTo resolution after navigation must NEVER trigger player.play()
+  const delayedSeeks = seekResolves.slice();
+  seekResolves = [];
+  delayedSeeks.forEach((r) => r());
+  await setImmediate();
+
+  assert.equal(audioEvents.filter((e) => e === 'play').length, 0, 'Late seekTo resolving after navigation never plays audio');
+
+  view.unmount();
+});
+
+test('QaScreen drawer uses short input placeholder while preserving rich contextual accessibility label and lighter reader toggle', () => {
+  const qaProps = {
+    currentNode: fixture.nodes[0],
+    nodeQa: fixture.qa.filter((q) => q.nodeId === fixture.nodes[0].id),
+    dataset: fixture,
+    collectionId: 'fiction-letter',
+    datasetRevision: 'rev-test',
+    mode: 'demo',
+    isFocused: true,
+    navigation: { navigate() {}, goBack() {} },
+    onSelectNode() {},
+    onAskQuestion() {},
+    onModeChange() {},
+    locale: 'vi',
+    readNodeIds: new Set(),
+    onReadNode() {},
+  };
+
+  const view = mount('../src/screens/QaScreen.tsx', qaProps, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        collectionId: 'fiction-letter',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+
+  const tree = view.render();
+
+  // 1. ExpandableInputDrawer receives short placeholder and contextual accessible title
+  const drawer = elements(tree, 'ExpandableInputDrawer')[0];
+  assert.ok(drawer, 'ExpandableInputDrawer rendered in QaScreen');
+  assert.equal(drawer.props.placeholder, 'Gõ câu hỏi…', 'Placeholder is short single-line hint');
+  assert.equal(drawer.props.title, 'Hỏi về Cổng ngõ…', 'Drawer title carries rich contextual stop name for accessibility');
+
+  // 2. readerToggle uses light parchment styling rather than heavy solid dark block
+  const readerToggle = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Xem lời kể bằng chữ');
+  assert.ok(readerToggle, 'Reader toggle button found');
+  const rawToggleStyle = typeof readerToggle.props.style === 'function' ? readerToggle.props.style({ pressed: false }) : readerToggle.props.style;
+  const toggleStyle = [].concat(rawToggleStyle).reduce((acc, s) => ({ ...acc, ...s }), {});
+  assert.equal(toggleStyle.backgroundColor, '#F7EFE1', 'Reader toggle has light parchment #F7EFE1 surface');
+  assert.equal(toggleStyle.borderColor, '#DFD1BD', 'Reader toggle has subtle border');
+
+  // 3. Question chips use lighter surface and border without heavy pill elevation
+  const chips = elements(tree, 'Pressable').filter((item) => item.props.accessibilityLabel?.startsWith('Hỏi:'));
+  assert.ok(chips.length > 0, 'Question chips rendered');
+  const rawChipStyle = typeof chips[0].props.style === 'function' ? chips[0].props.style({ pressed: false }) : chips[0].props.style;
+  const firstChipStyle = [].concat(rawChipStyle).reduce((acc, s) => ({ ...acc, ...s }), {});
+  assert.equal(firstChipStyle.backgroundColor, 'rgba(255, 253, 247, 0.94)', 'Chip has light editorial surface');
+  assert.equal(firstChipStyle.borderRadius, 14, 'Chip has softened radius 14 instead of heavy pill');
 
   view.unmount();
 });

@@ -152,17 +152,14 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
 
     const playSafe = (): void => {
       if (
+        !navigated.current &&
         mounted.current &&
         starting.current &&
-        !navigated.current &&
         isFocused &&
         motion.foreground &&
         attemptToken.current === currentToken
       ) {
         try {
-          if (typeof (player as { volume?: number }).volume === 'number') {
-            (player as { volume?: number }).volume = 1;
-          }
           player.play();
         } catch {
           // Audio playback failure must never block navigation.
@@ -219,7 +216,10 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
     });
 
     // Smooth volume fade initiated toward the conclusion of the 620ms signature wave (~460ms-620ms)
-    fadeTimer.current = setTimeout(() => {
+    const ownFadeTimer = setTimeout(() => {
+      if (fadeTimer.current === ownFadeTimer) {
+        fadeTimer.current = null;
+      }
       if (
         mounted.current &&
         starting.current &&
@@ -227,10 +227,10 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
         attemptToken.current === currentToken
       ) {
         let currentVol = 1.0;
-        fadeInterval.current = setInterval(() => {
-          if (attemptToken.current !== currentToken || !mounted.current || !starting.current) {
-            if (fadeInterval.current) {
-              clearInterval(fadeInterval.current);
+        const ownInterval = setInterval(() => {
+          if (attemptToken.current !== currentToken || !mounted.current || !starting.current || navigated.current) {
+            clearInterval(ownInterval);
+            if (fadeInterval.current === ownInterval) {
               fadeInterval.current = null;
             }
             return;
@@ -244,16 +244,21 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
             // Guard
           }
           if (currentVol <= 0) {
-            if (fadeInterval.current) {
-              clearInterval(fadeInterval.current);
+            clearInterval(ownInterval);
+            if (fadeInterval.current === ownInterval) {
               fadeInterval.current = null;
             }
           }
         }, 35);
+        fadeInterval.current = ownInterval;
       }
     }, 460);
+    fadeTimer.current = ownFadeTimer;
 
-    navigationTimer.current = setTimeout(() => {
+    const ownNavTimer = setTimeout(() => {
+      if (navigationTimer.current === ownNavTimer) {
+        navigationTimer.current = null;
+      }
       if (
         mounted.current &&
         starting.current &&
@@ -262,6 +267,7 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
         navigateOnce(currentToken);
       }
     }, RIPPLE_DURATION_MS);
+    navigationTimer.current = ownNavTimer;
   }
 
   // Semicircular water wave ripple interpolations (staggered outward propagation across two arcs per flank)
@@ -608,7 +614,7 @@ const styles = StyleSheet.create({
     marginTop: -FLANK_HEIGHT / 2,
     width: FLANK_WIDTH,
     height: FLANK_HEIGHT,
-    overflow: 'visible',
+    overflow: 'hidden',
   },
   rightFlank: {
     position: 'absolute',
@@ -617,7 +623,7 @@ const styles = StyleSheet.create({
     marginTop: -FLANK_HEIGHT / 2,
     width: FLANK_WIDTH,
     height: FLANK_HEIGHT,
-    overflow: 'visible',
+    overflow: 'hidden',
   },
   waveContainer: {
     position: 'absolute',
