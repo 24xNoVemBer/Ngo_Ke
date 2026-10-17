@@ -26,20 +26,19 @@ import { spacing } from '../theme';
 import { motionEasings } from '../theme/motion';
 
 const PROLOGUE_DOOR_SOUND = require('../../assets/sounds/prologue_door.wav');
-const RIPPLE_DURATION_MS = 1180;
-const FLANK_WIDTH = 48;
-const FLANK_HEIGHT = 84;
+const RIPPLE_DURATION_MS = 620;
+const FLANK_WIDTH = 28;
+const FLANK_HEIGHT = 68;
 
 // Precise mathematical arcs for semicircular water ripples ((( button )))
+// Two bilateral arcs per flank, max visible spread strictly bounded to 16–28dp outside button edge
 // Left arcs curve like ( bulging outward to the left (toward -X)
-const LEFT_ARC_1 = 'M 39.5 23.9 A 20 20 0 0 0 39.5 60.1';
-const LEFT_ARC_2 = 'M 36.2 16.6 A 28 28 0 0 0 36.2 67.4';
-const LEFT_ARC_3 = 'M 31.9 7.6 A 38 38 0 0 0 31.9 76.4';
+const LEFT_ARC_1 = 'M 24 18 A 14 16 0 0 0 24 50';
+const LEFT_ARC_2 = 'M 26 10 A 22 24 0 0 0 26 58';
 
 // Right arcs curve like ) bulging outward to the right (toward +X)
-const RIGHT_ARC_1 = 'M 8.5 23.9 A 20 20 0 0 1 8.5 60.1';
-const RIGHT_ARC_2 = 'M 11.8 16.6 A 28 28 0 0 1 11.8 67.4';
-const RIGHT_ARC_3 = 'M 16.1 7.6 A 38 38 0 0 1 16.1 76.4';
+const RIGHT_ARC_1 = 'M 4 18 A 14 16 0 0 1 4 50';
+const RIGHT_ARC_2 = 'M 2 10 A 22 24 0 0 1 2 58';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Prologue'>;
 
@@ -57,6 +56,8 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
   const navigated = useRef(false);
   const attemptToken = useRef(0);
   const navigationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fadeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fadeInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const buttonLayout = useRef({ width: 240, height: 56 });
 
   const [buttonSize, setButtonSize] = useState({ width: 240, height: 56 });
@@ -65,16 +66,28 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
 
   const { locale, setLocale, t } = useLocale();
 
+  function clearAllTimers(): void {
+    if (navigationTimer.current) {
+      clearTimeout(navigationTimer.current);
+      navigationTimer.current = null;
+    }
+    if (fadeTimer.current) {
+      clearTimeout(fadeTimer.current);
+      fadeTimer.current = null;
+    }
+    if (fadeInterval.current) {
+      clearInterval(fadeInterval.current);
+      fadeInterval.current = null;
+    }
+  }
+
   // Clean up timers, animations, and sound playback on unmount
   useEffect(() => {
     mounted.current = true;
     return () => {
       mounted.current = false;
       attemptToken.current += 1; // Invalidate any in-flight attempt before stopAnimation
-      if (navigationTimer.current) {
-        clearTimeout(navigationTimer.current);
-        navigationTimer.current = null;
-      }
+      clearAllTimers();
       rippleProgress.stopAnimation();
       try {
         player.pause();
@@ -94,10 +107,7 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
   useEffect(() => {
     if (!isFocused || !motion.foreground) {
       attemptToken.current += 1; // Invalidate any in-flight attempt before stopAnimation
-      if (navigationTimer.current) {
-        clearTimeout(navigationTimer.current);
-        navigationTimer.current = null;
-      }
+      clearAllTimers();
       rippleProgress.stopAnimation();
       starting.current = false;
       setRippleActive(false);
@@ -119,10 +129,7 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
     if (navigated.current || !mounted.current || !starting.current) return;
     if (token !== undefined && attemptToken.current !== token) return;
     navigated.current = true;
-    if (navigationTimer.current) {
-      clearTimeout(navigationTimer.current);
-      navigationTimer.current = null;
-    }
+    clearAllTimers();
     navigation.replace('Landing');
   }
 
@@ -132,16 +139,30 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
     starting.current = true;
     attemptToken.current += 1;
     const currentToken = attemptToken.current;
+    clearAllTimers();
+
+    // Reset volume to full on every new valid attempt
+    try {
+      if (typeof (player as { volume?: number }).volume === 'number') {
+        (player as { volume?: number }).volume = 1;
+      }
+    } catch {
+      // Volume reset guard
+    }
 
     const playSafe = (): void => {
       if (
         mounted.current &&
         starting.current &&
+        !navigated.current &&
         isFocused &&
         motion.foreground &&
         attemptToken.current === currentToken
       ) {
         try {
+          if (typeof (player as { volume?: number }).volume === 'number') {
+            (player as { volume?: number }).volume = 1;
+          }
           player.play();
         } catch {
           // Audio playback failure must never block navigation.
@@ -197,6 +218,41 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
       }
     });
 
+    // Smooth volume fade initiated toward the conclusion of the 620ms signature wave (~460ms-620ms)
+    fadeTimer.current = setTimeout(() => {
+      if (
+        mounted.current &&
+        starting.current &&
+        !navigated.current &&
+        attemptToken.current === currentToken
+      ) {
+        let currentVol = 1.0;
+        fadeInterval.current = setInterval(() => {
+          if (attemptToken.current !== currentToken || !mounted.current || !starting.current) {
+            if (fadeInterval.current) {
+              clearInterval(fadeInterval.current);
+              fadeInterval.current = null;
+            }
+            return;
+          }
+          currentVol = Math.max(0, currentVol - 0.25);
+          try {
+            if (typeof (player as { volume?: number }).volume === 'number') {
+              (player as { volume?: number }).volume = currentVol;
+            }
+          } catch {
+            // Guard
+          }
+          if (currentVol <= 0) {
+            if (fadeInterval.current) {
+              clearInterval(fadeInterval.current);
+              fadeInterval.current = null;
+            }
+          }
+        }, 35);
+      }
+    }, 460);
+
     navigationTimer.current = setTimeout(() => {
       if (
         mounted.current &&
@@ -205,61 +261,44 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
       ) {
         navigateOnce(currentToken);
       }
-    }, RIPPLE_DURATION_MS + 60);
+    }, RIPPLE_DURATION_MS);
   }
 
-  // Semicircular water wave ripple interpolations (staggered outward propagation)
+  // Semicircular water wave ripple interpolations (staggered outward propagation across two arcs per flank)
   const leftWave1TranslateX = rippleProgress.interpolate({
     inputRange: [0, 1],
-    outputRange: [2, -6],
+    outputRange: [2, -2],
   });
   const leftWave2TranslateX = rippleProgress.interpolate({
-    inputRange: [0, 0.12, 1],
-    outputRange: [2, 2, -10],
-  });
-  const leftWave3TranslateX = rippleProgress.interpolate({
-    inputRange: [0, 0.24, 1],
-    outputRange: [2, 2, -14],
+    inputRange: [0, 0.15, 1],
+    outputRange: [2, 2, -4],
   });
 
   const rightWave1TranslateX = rippleProgress.interpolate({
     inputRange: [0, 1],
-    outputRange: [-2, 6],
+    outputRange: [-2, 2],
   });
   const rightWave2TranslateX = rippleProgress.interpolate({
-    inputRange: [0, 0.12, 1],
-    outputRange: [-2, -2, 10],
-  });
-  const rightWave3TranslateX = rippleProgress.interpolate({
-    inputRange: [0, 0.24, 1],
-    outputRange: [-2, -2, 14],
+    inputRange: [0, 0.15, 1],
+    outputRange: [-2, -2, 4],
   });
 
   const wave1Scale = rippleProgress.interpolate({
     inputRange: [0, 0.4, 1],
-    outputRange: [0.85, 1.02, 1.12],
+    outputRange: [0.9, 1.02, 1.08],
   });
   const wave1Opacity = rippleProgress.interpolate({
     inputRange: [0, 0.15, 0.6, 1],
-    outputRange: [0.2, 0.85, 0.45, 0],
+    outputRange: [0.3, 0.85, 0.35, 0],
   });
 
   const wave2Scale = rippleProgress.interpolate({
-    inputRange: [0, 0.12, 0.55, 1],
-    outputRange: [0.75, 0.82, 1.05, 1.22],
+    inputRange: [0, 0.15, 0.6, 1],
+    outputRange: [0.85, 0.92, 1.04, 1.12],
   });
   const wave2Opacity = rippleProgress.interpolate({
-    inputRange: [0, 0.12, 0.32, 0.75, 1],
-    outputRange: [0, 0.2, 0.70, 0.35, 0],
-  });
-
-  const wave3Scale = rippleProgress.interpolate({
-    inputRange: [0, 0.24, 0.7, 1],
-    outputRange: [0.65, 0.72, 1.05, 1.30],
-  });
-  const wave3Opacity = rippleProgress.interpolate({
-    inputRange: [0, 0.24, 0.48, 0.85, 1],
-    outputRange: [0, 0.1, 0.50, 0.18, 0],
+    inputRange: [0, 0.15, 0.35, 0.75, 1],
+    outputRange: [0, 0.25, 0.75, 0.25, 0],
   });
 
   return (
@@ -384,8 +423,8 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
                           <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
                         </LinearGradient>
                       </Defs>
-                      <Path d={LEFT_ARC_1} stroke="url(#glow-l1)" strokeWidth={3.8} strokeLinecap="round" fill="none" />
-                      <Path d={LEFT_ARC_1} stroke="url(#core-l1)" strokeWidth={1.8} strokeLinecap="round" fill="none" />
+                      <Path d={LEFT_ARC_1} stroke="url(#glow-l1)" strokeWidth={3.4} strokeLinecap="round" fill="none" />
+                      <Path d={LEFT_ARC_1} stroke="url(#core-l1)" strokeWidth={1.6} strokeLinecap="round" fill="none" />
                     </Svg>
                   </Animated.View>
                   <Animated.View
@@ -415,39 +454,8 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
                           <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
                         </LinearGradient>
                       </Defs>
-                      <Path d={LEFT_ARC_2} stroke="url(#glow-l2)" strokeWidth={3.0} strokeLinecap="round" fill="none" />
-                      <Path d={LEFT_ARC_2} stroke="url(#core-l2)" strokeWidth={1.3} strokeLinecap="round" fill="none" />
-                    </Svg>
-                  </Animated.View>
-                  <Animated.View
-                    testID="prologue-ripple-wave-left-3"
-                    style={[
-                      styles.waveContainer,
-                      {
-                        transform: [{ translateX: leftWave3TranslateX }, { scale: wave3Scale }],
-                        opacity: wave3Opacity,
-                      },
-                    ]}
-                  >
-                    <Svg width={FLANK_WIDTH} height={FLANK_HEIGHT} viewBox={`0 0 ${FLANK_WIDTH} ${FLANK_HEIGHT}`}>
-                      <Defs>
-                        <LinearGradient id="glow-l3" x1="0" y1="0" x2="0" y2="1">
-                          <Stop offset="0" stopColor="#E8BA5A" stopOpacity="0" />
-                          <Stop offset="0.25" stopColor="#E8BA5A" stopOpacity="0.15" />
-                          <Stop offset="0.5" stopColor="#E8BA5A" stopOpacity="0.20" />
-                          <Stop offset="0.75" stopColor="#E8BA5A" stopOpacity="0.15" />
-                          <Stop offset="1" stopColor="#E8BA5A" stopOpacity="0" />
-                        </LinearGradient>
-                        <LinearGradient id="core-l3" x1="0" y1="0" x2="0" y2="1">
-                          <Stop offset="0" stopColor="#F4D086" stopOpacity="0" />
-                          <Stop offset="0.25" stopColor="#F4D086" stopOpacity="0.65" />
-                          <Stop offset="0.5" stopColor="#F4D086" stopOpacity="0.8" />
-                          <Stop offset="0.75" stopColor="#F4D086" stopOpacity="0.65" />
-                          <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
-                        </LinearGradient>
-                      </Defs>
-                      <Path d={LEFT_ARC_3} stroke="url(#glow-l3)" strokeWidth={2.4} strokeLinecap="round" fill="none" />
-                      <Path d={LEFT_ARC_3} stroke="url(#core-l3)" strokeWidth={0.9} strokeLinecap="round" fill="none" />
+                      <Path d={LEFT_ARC_2} stroke="url(#glow-l2)" strokeWidth={2.8} strokeLinecap="round" fill="none" />
+                      <Path d={LEFT_ARC_2} stroke="url(#core-l2)" strokeWidth={1.2} strokeLinecap="round" fill="none" />
                     </Svg>
                   </Animated.View>
                 </View>
@@ -481,8 +489,8 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
                           <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
                         </LinearGradient>
                       </Defs>
-                      <Path d={RIGHT_ARC_1} stroke="url(#glow-r1)" strokeWidth={3.8} strokeLinecap="round" fill="none" />
-                      <Path d={RIGHT_ARC_1} stroke="url(#core-r1)" strokeWidth={1.8} strokeLinecap="round" fill="none" />
+                      <Path d={RIGHT_ARC_1} stroke="url(#glow-r1)" strokeWidth={3.4} strokeLinecap="round" fill="none" />
+                      <Path d={RIGHT_ARC_1} stroke="url(#core-r1)" strokeWidth={1.6} strokeLinecap="round" fill="none" />
                     </Svg>
                   </Animated.View>
                   <Animated.View
@@ -512,39 +520,8 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
                           <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
                         </LinearGradient>
                       </Defs>
-                      <Path d={RIGHT_ARC_2} stroke="url(#glow-r2)" strokeWidth={3.0} strokeLinecap="round" fill="none" />
-                      <Path d={RIGHT_ARC_2} stroke="url(#core-r2)" strokeWidth={1.3} strokeLinecap="round" fill="none" />
-                    </Svg>
-                  </Animated.View>
-                  <Animated.View
-                    testID="prologue-ripple-wave-right-3"
-                    style={[
-                      styles.waveContainer,
-                      {
-                        transform: [{ translateX: rightWave3TranslateX }, { scale: wave3Scale }],
-                        opacity: wave3Opacity,
-                      },
-                    ]}
-                  >
-                    <Svg width={FLANK_WIDTH} height={FLANK_HEIGHT} viewBox={`0 0 ${FLANK_WIDTH} ${FLANK_HEIGHT}`}>
-                      <Defs>
-                        <LinearGradient id="glow-r3" x1="0" y1="0" x2="0" y2="1">
-                          <Stop offset="0" stopColor="#E8BA5A" stopOpacity="0" />
-                          <Stop offset="0.25" stopColor="#E8BA5A" stopOpacity="0.15" />
-                          <Stop offset="0.5" stopColor="#E8BA5A" stopOpacity="0.20" />
-                          <Stop offset="0.75" stopColor="#E8BA5A" stopOpacity="0.15" />
-                          <Stop offset="1" stopColor="#E8BA5A" stopOpacity="0" />
-                        </LinearGradient>
-                        <LinearGradient id="core-r3" x1="0" y1="0" x2="0" y2="1">
-                          <Stop offset="0" stopColor="#F4D086" stopOpacity="0" />
-                          <Stop offset="0.25" stopColor="#F4D086" stopOpacity="0.65" />
-                          <Stop offset="0.5" stopColor="#F4D086" stopOpacity="0.8" />
-                          <Stop offset="0.75" stopColor="#F4D086" stopOpacity="0.65" />
-                          <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
-                        </LinearGradient>
-                      </Defs>
-                      <Path d={RIGHT_ARC_3} stroke="url(#glow-r3)" strokeWidth={2.4} strokeLinecap="round" fill="none" />
-                      <Path d={RIGHT_ARC_3} stroke="url(#core-r3)" strokeWidth={0.9} strokeLinecap="round" fill="none" />
+                      <Path d={RIGHT_ARC_2} stroke="url(#glow-r2)" strokeWidth={2.8} strokeLinecap="round" fill="none" />
+                      <Path d={RIGHT_ARC_2} stroke="url(#core-r2)" strokeWidth={1.2} strokeLinecap="round" fill="none" />
                     </Svg>
                   </Animated.View>
                 </View>

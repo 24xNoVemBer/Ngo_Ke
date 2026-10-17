@@ -19,10 +19,7 @@ import { HERO_PHOTO } from '../assets/photoMap';
 import { useMotionState } from '../hooks/MotionPreferences';
 import { AppIcon } from '../components/AppIcon';
 import { NgoKeLogo } from '../components/NgoKeLogo';
-import {
-  useEntranceFadeSlide,
-  usePressSpring,
-} from '../hooks/useMotion';
+import { useEntranceFadeSlide } from '../hooks/useMotion';
 import { useLocale } from '../context/LocaleContext';
 import { getLocalizedCollections } from '../data/collections';
 import { colors, radius, spacing } from '../theme';
@@ -39,18 +36,11 @@ export function LandingScreen({ navigation, mode = 'demo' }: Props): ReactElemen
 
   const topPadding = Math.max(insets.top, 28) + 12;
   const { reducedMotion } = useMotionState();
-  const bottomPadding = Math.max(insets.bottom, 20) + 12;
 
   const headerEntrance = useEntranceFadeSlide({ delay: 40, duration: 360, offsetY: 14 });
-  const quoteEntrance = useEntranceFadeSlide({ delay: 130, duration: 380, offsetY: 16 });
-  const carouselEntrance = useEntranceFadeSlide({ delay: 220, duration: 380, offsetY: 18 });
+  const carouselEntrance = useEntranceFadeSlide({ delay: 130, duration: 380, offsetY: 16 });
+  const quoteEntrance = useEntranceFadeSlide({ delay: 220, duration: 380, offsetY: 18 });
   const teaserEntrance = useEntranceFadeSlide({ delay: 310, duration: 380, offsetY: 18 });
-
-  const {
-    scaleAnim: ctaPressScale,
-    handlePressIn: handleCtaPressIn,
-    handlePressOut: handleCtaPressOut,
-  } = usePressSpring(0.96);
 
   return (
     <View style={styles.rootContainer}>
@@ -71,7 +61,7 @@ export function LandingScreen({ navigation, mode = 'demo' }: Props): ReactElemen
           style={styles.scrollView}
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingTop: topPadding, paddingBottom: 24 },
+            { paddingTop: topPadding, paddingBottom: Math.max(insets.bottom, 24) + 20 },
           ]}
           showsVerticalScrollIndicator={false}
         >
@@ -111,26 +101,7 @@ export function LandingScreen({ navigation, mode = 'demo' }: Props): ReactElemen
             </Text>
           </View>
 
-          {/* 3. KHỐI LỜI TỰ SỰ MỞ LỐI (HERO INTRO) */}
-          <Animated.View
-            style={[
-              styles.heroQuoteCard,
-              {
-                opacity: quoteEntrance.opacity,
-                transform: [{ translateY: quoteEntrance.translateY }],
-              },
-            ]}
-          >
-            <View style={styles.quoteDecorStrip} />
-            <Text style={styles.quoteMark}>“</Text>
-            <Text style={styles.quoteText}>
-              {t('landing.quote_text')}
-            </Text>
-            <Text style={styles.quoteAuthor}>{t('landing.quote_author')}</Text>
-
-          </Animated.View>
-
-          {/* 5. DANH MỤC CÁC CON NGÕ TIÊU BIỂU (CAROUSEL NẰM NGANG) */}
+          {/* 3. DANH MỤC CÁC CON NGÕ TIÊU BIỂU (CAROUSEL NẰM NGANG) - ĐƯA LÊN TRƯỚC */}
           <Animated.View
             style={{
               opacity: carouselEntrance.opacity,
@@ -206,7 +177,29 @@ export function LandingScreen({ navigation, mode = 'demo' }: Props): ReactElemen
             </ScrollView>
           </Animated.View>
 
-          {/* 6. LỐI TẮT HỘ CHIẾU NGÕ PHỐ (ALLEY PASSPORT) */}
+          {/* 4. KHỐI LỜI DẪN TỰ SỰ GỌN (COMPACT LEAD QUOTE) - ĐẶT SAU CAROUSEL */}
+          <Animated.View
+            style={[
+              styles.compactQuoteCard,
+              {
+                opacity: quoteEntrance.opacity,
+                transform: [{ translateY: quoteEntrance.translateY }],
+              },
+            ]}
+          >
+            <View style={styles.quoteDecorStrip} />
+            <View style={styles.compactQuoteRow}>
+              <Text style={styles.compactQuoteMark}>“</Text>
+              <View style={styles.compactQuoteTextGroup}>
+                <Text style={styles.compactQuoteText}>
+                  {t('landing.quote_text')}
+                </Text>
+                <Text style={styles.compactQuoteAuthor}>{t('landing.quote_author')}</Text>
+              </View>
+            </View>
+          </Animated.View>
+
+          {/* 5. LỐI TẮT HỘ CHIẾU NGÕ PHỐ (ALLEY PASSPORT) */}
           <Animated.View
             style={{
               opacity: teaserEntrance.opacity,
@@ -232,25 +225,6 @@ export function LandingScreen({ navigation, mode = 'demo' }: Props): ReactElemen
             </Pressable>
           </Animated.View>
         </ScrollView>
-
-        {/* 7. THANH CTA CỐ ĐỊNH Ở ĐÁY: BƯỚC VÀO TRANG CHỌN VỊ TRÍ */}
-        <View style={[styles.bottomCtaBar, { paddingBottom: bottomPadding }]}>
-          <Animated.View style={{ transform: [{ scale: ctaPressScale }] }}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t('landing.cta_label')}
-              onPressIn={handleCtaPressIn}
-              onPressOut={handleCtaPressOut}
-              onPress={() => navigation.navigate('AlleySelect')}
-              style={styles.primaryCtaButton}
-            >
-              <Text style={styles.primaryCtaText}>{t('landing.cta_button')}</Text>
-              <View style={styles.ctaArrowCircle}>
-                <Text style={styles.ctaArrowText}>→</Text>
-              </View>
-            </Pressable>
-          </Animated.View>
-        </View>
       </ImageBackground>
 
       {/* 8. MODAL HỘ CHIẾU NGÕ PHỐ (STAMP PASSPORT MODAL) */}
@@ -384,49 +358,55 @@ const styles = StyleSheet.create({
     color: '#FFFDF7',
     fontStyle: 'italic',
   },
-  heroQuoteCard: {
+  compactQuoteCard: {
     backgroundColor: 'rgba(255, 253, 247, 0.94)',
-    borderRadius: 20,
-    padding: spacing.lg,
-    paddingTop: spacing.md,
+    borderRadius: 16,
+    padding: spacing.md,
+    paddingTop: spacing.sm + 4,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.35,
-    shadowRadius: 18,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.22,
+    shadowRadius: 8,
+    elevation: 4,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.85)',
+    borderColor: 'rgba(255, 255, 255, 0.75)',
     position: 'relative',
     overflow: 'hidden',
-    gap: 6,
+  },
+  compactQuoteRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+  },
+  compactQuoteMark: {
+    fontSize: 26,
+    color: '#C26747',
+    fontWeight: '900',
+    lineHeight: 28,
+  },
+  compactQuoteTextGroup: {
+    flex: 1,
+    gap: 2,
+  },
+  compactQuoteText: {
+    fontSize: 13,
+    lineHeight: 19,
+    color: '#342922',
+    fontWeight: '500',
+    fontStyle: 'italic',
+  },
+  compactQuoteAuthor: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    color: '#8C5A40',
   },
   quoteDecorStrip: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: 4,
+    height: 3,
     backgroundColor: '#C26747',
-  },
-  quoteMark: {
-    fontSize: 36,
-    color: '#C26747',
-    fontWeight: '900',
-    lineHeight: 38,
-    marginBottom: -16,
-  },
-  quoteText: {
-    fontSize: 14.5,
-    lineHeight: 22,
-    color: '#342922',
-    fontWeight: '500',
-    fontStyle: 'italic',
-  },
-  quoteAuthor: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#8C5A40',
-    marginTop: 2,
   },
   sectionHeaderRow: {
     flexDirection: 'row',
@@ -614,48 +594,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '700',
     color: '#C26747',
-  },
-  bottomCtaBar: {
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
-    backgroundColor: 'rgba(20, 16, 12, 0.82)',
-    borderTopWidth: 1,
-    borderColor: 'rgba(255, 245, 230, 0.15)',
-  },
-  primaryCtaButton: {
-    backgroundColor: '#1E6B4A',
-    borderRadius: 26,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    shadowColor: '#1E6B4A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.45,
-    shadowRadius: 10,
-    elevation: 6,
-  },
-  primaryCtaText: {
-    flex: 1,
-    marginRight: 8,
-    color: '#FFFFFF',
-    fontSize: 14.5,
-    fontWeight: '800',
-    letterSpacing: 0.3,
-  },
-  ctaArrowCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.22)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ctaArrowText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '900',
   },
   modalBackdrop: {
     flex: 1,

@@ -441,7 +441,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'player.progress': 'Tiến trình phát {percent} phần trăm',
 
     'drawer.title': 'Đặt câu hỏi cho người kể',
-    'drawer.placeholder': 'Gõ câu hỏi về con ngõ này…',
+    'drawer.placeholder': 'Gõ câu hỏi…',
     'drawer.close_backdrop': 'Đóng khung gõ câu hỏi',
     'drawer.collapse': 'Thu gọn khung nhập',
     'drawer.send': 'Gửi câu hỏi',
@@ -490,7 +490,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
 
     'prologue.eyebrow': 'MỘT TRANG KÝ ỨC HÀ NỘI',
     'prologue.title': 'NGÕ KỂ',
-    'prologue.subtitle': 'KÝ ỨC NGÕ PHỐ HÀ NỘI',
+    'prologue.subtitle': 'Mỗi ngõ nhỏ, một câu chuyện chờ bạn mở.',
     'prologue.quote': '“Trong bóng sớm mai, ngõ nhỏ bâng khuâng thức giấc,\nkể lại lời thì thầm giữa lòng phố cổ.”',
     'prologue.start_button': 'BẮT ĐẦU DẠO NGÕ',
     'prologue.start_label': 'Bắt đầu dạo ngõ Hà Nội',
@@ -807,7 +807,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'player.progress': 'Playback progress {percent} percent',
 
     'drawer.title': 'Ask the storyteller',
-    'drawer.placeholder': 'Type a question about this alley…',
+    'drawer.placeholder': 'Type a question…',
     'drawer.close_backdrop': 'Close question input',
     'drawer.collapse': 'Collapse input drawer',
     'drawer.send': 'Send question',
@@ -856,7 +856,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
 
     'prologue.eyebrow': 'A PAGE OF HANOI MEMORIES',
     'prologue.title': 'NGÕ KỂ',
-    'prologue.subtitle': 'MEMORIES OF HANOI ALLEYS',
+    'prologue.subtitle': 'Every alley holds a story waiting to unfold.',
     'prologue.quote': '“In the early morning shade, the alley wakes,\nwhispering stories deep within the Old Quarter.”',
     'prologue.start_button': 'START JOURNEY',
     'prologue.start_label': 'Start exploring Hanoi alleys',

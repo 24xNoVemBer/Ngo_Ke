@@ -55,9 +55,13 @@ export function VoiceInteractionDock({
             accessibilityRole="button"
             accessibilityLabel={stage === 'error' ? t('voice.dock.retry_recording') : t('voice.dock.start_recording')}
             onPress={onStartRecording}
-            style={({ pressed }) => [styles.micButton, pressed && styles.pressed]}
+            style={({ pressed }) => [
+              styles.micButton,
+              stage === 'error' && styles.micButtonError,
+              pressed && styles.pressed,
+            ]}
           >
-            <AppIcon name="mic" size={25} color="#24392E" />
+            <AppIcon name="mic" size={25} color="#FFFDF7" />
           </Pressable>
         )}
 
@@ -150,7 +154,20 @@ const styles = StyleSheet.create({
   dock: { marginHorizontal: 16, padding: 9, backgroundColor: '#252D26', borderRadius: 22,
     borderWidth: 1, borderColor: 'rgba(255,253,247,0.22)' },
   mainRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  micButton: { width: 56, height: 56, borderRadius: 20, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F2C56B' },
+  micButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#31483A',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 253, 247, 0.22)',
+  },
+  micButtonError: {
+    backgroundColor: '#522824',
+    borderColor: 'rgba(235, 120, 100, 0.45)',
+  },
   stateIcon: { width: 56, height: 56, borderRadius: 20, justifyContent: 'center', alignItems: 'center', backgroundColor: '#31483A' },
   recordDot: { width: 13, height: 13, borderRadius: 7, backgroundColor: '#F2C56B' },
   readyMark: { color: '#F2C56B', fontSize: 25, fontWeight: '700' },

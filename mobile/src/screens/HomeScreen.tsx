@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import type { DemoNode, Mode, SourceState } from '../data/sourceState';
 import type { RootStackParamList } from '../navigation';
-import { getNodePhoto, getNodePhotographer, getAlleyMeta } from '../assets/photoMap';
+import { getNodePhoto, getAlleyMeta } from '../assets/photoMap';
 import { AVAILABLE_COLLECTIONS, DEFAULT_COLLECTION_ID, getLocalizedCollections } from '../data/collections';
 import { UnavailableScreen } from './UnavailableScreen';
 import { useMotionState } from '../hooks/MotionPreferences';
@@ -140,9 +140,6 @@ export function HomeScreen({
     });
   const collectionCover = activeCollection?.coverPhoto ?? alleyMeta.coverPhoto;
   const currentPhoto = currentNode ? getNodePhoto(currentNode.id) : collectionCover;
-  const currentPhotographer = currentNode
-    ? getNodePhotographer(currentNode.id)
-    : (activeCollection?.kind === 'reviewed' ? 'Dự án Ngõ Kể' : alleyMeta.photographer);
 
   // Tính toán vùng canvas của dải đường mòn tránh thanh trạng thái và đáy
   const topHeaderPadding = Math.max(insets.top, 28) + 8;
@@ -482,77 +479,66 @@ export function HomeScreen({
           })}
 
         </View>
-          {/* THẺ BƯU ẢNH SỔ TAY NỔI (STACKED SCRAPBOOK POLAROID CARD) */}
-          {currentNode !== undefined && (
-            <Animated.View
-              style={[
-                styles.scrapbookCardWrapper,
-                {
-                  width: Math.min(480, screenWidth - 32),
-                  transform: [{ translateY: cardTranslate }],
-                  opacity: cardOpacity,
-                },
-              ]}
-              pointerEvents="box-none"
-            >
-              {/* Lớp giấy thứ 2 xếp lệch góc +5 độ */}
-
-              {/* Lớp giấy thứ 1 xếp lệch góc +2.5 độ */}
-
-              {/* Tấm bưu ảnh sổ tay chính lệch nhẹ -1.5 độ */}
-              <View style={styles.mainPolaroidCard}>
-                {/* Băng dính Washi Tape dán mép trên */}
-                <View style={styles.washiTapeStrip} />
-
-                {/* Khung ảnh Polaroid viền trắng cổ điển */}
-                <View style={styles.polaroidFrame}>
-                  <CrossfadePhoto source={currentPhoto} style={styles.polaroidPhoto} />
-                </View>
-
-                {/* Chữ ghi chú viết tay & mũi tên chỉ dẫn */}
-                <View style={styles.handwritingNoteBox}>
-                  <Text style={styles.handwritingCursive}>
-                    {currentNode.name}
-                  </Text>
-                </View>
-
-                {/* Hàng thông tin thời lượng và con dấu mộc son gạch nung */}
-                <View style={styles.cardMetaRow}>
-                  <View style={styles.durationPill}>
-                    <Text style={styles.durationPillText}>
-                      ⏱ {currentNode.visitMinutes} {t('home.min')}
-                    </Text>
-                  </View>
-
-                  {readNodeIds.has(currentNode.id) && <View style={styles.terracottaStamp}><Text style={styles.stampHeader}>{t('home.story_opened')}</Text></View>}
-                </View>
-
-                {/* Tên nhiếp ảnh gia minh họa */}
-                <Text style={styles.creditText} numberOfLines={1}>
-                  {t('home.photo_credit')}: {currentPhotographer}
-                </Text>
-
-                {/* Nút hành động chính: KHÁM PHÁ ĐIỂM NÀY */}
-                <Animated.View style={{ transform: [{ scale: explorePressScale }] }}>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={`${t('home.explore_point_label')} ${currentNode.name}`}
-                    onPressIn={handleExplorePressIn}
-                    onPressOut={handleExplorePressOut}
-                    onPress={handleExploreCurrent}
-                    style={styles.exploreCtaButton}
-                  >
-                    <Text style={styles.exploreCtaText}>{t('home.explore_this_point')}</Text>
-                  </Pressable>
-                </Animated.View>
-              </View>
-            </Animated.View>
-          )}
           </>
         )}
         </ScrollView>
 
-        {/* 4. THANH ĐIỀU HƯỚNG ĐÁY: 3 NÚT TRÒN TRÊN ĐẢO NỔI KÍNH MỜ */}
+        {/* 4. THANH PREVIEW ĐIỂM ĐANG CHỌN (GỌN GÀNG, NHÌN THẤY NGAY TRÊN VÙNG THAO TÁC) */}
+        {currentNode !== undefined && (
+          <Animated.View
+            testID="home-selected-node-preview"
+            style={[
+              styles.compactPreviewCard,
+              {
+                opacity: cardOpacity,
+                transform: [{ translateY: cardTranslate }],
+              },
+            ]}
+          >
+            <View style={styles.previewThumbWrapper}>
+              <CrossfadePhoto source={currentPhoto} style={styles.previewThumb} />
+            </View>
+
+            <View style={styles.previewInfo}>
+              <View style={styles.previewMetaRow}>
+                <Text style={styles.previewStopPrefix}>
+                  {t('home.stop_prefix')} {String(selectedIndex + 1).padStart(2, '0')}
+                </Text>
+                <Text style={styles.previewDuration}>
+                  ⏱ {currentNode.visitMinutes} {t('home.min')}
+                </Text>
+                {readNodeIds.has(currentNode.id) && (
+                  <View style={styles.previewVisitedTag}>
+                    <Text style={styles.previewVisitedText}>{t('home.opened')}</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={styles.previewTitle} numberOfLines={1}>
+                {currentNode.name}
+              </Text>
+              <Text style={styles.previewSummary} numberOfLines={1}>
+                {currentNode.summary ?? t('home.unopened')}
+              </Text>
+            </View>
+
+            {/* Single Primary Story CTA */}
+            <Animated.View style={{ transform: [{ scale: explorePressScale }] }}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('home.read_story_label')}
+                onPressIn={handleExplorePressIn}
+                onPressOut={handleExplorePressOut}
+                onPress={handleExploreCurrent}
+                style={({ pressed }) => [styles.previewCtaButton, pressed && styles.pressed]}
+              >
+                <Text style={styles.previewCtaText}>{t('home.read_story_btn')}</Text>
+                <AppIcon name="arrow" size={12} color="#FFFDF7" />
+              </Pressable>
+            </Animated.View>
+          </Animated.View>
+        )}
+
+        {/* 5. THANH ĐIỀU HƯỚNG ĐÁY: 2 THAO TÁC PHỤ TRÊN ĐẢO NỔI (ĐÃ BỎ NÚT READ STORY TRÙNG LẶP) */}
         <View style={[styles.bottomDockContainer, { paddingBottom: bottomDockPadding }]}>
           <View style={styles.floatingDockIsland}>
             {/* Nút La bàn / GPS xác nhận tọa độ */}
@@ -562,17 +548,8 @@ export function HomeScreen({
               onPress={() => navigation.navigate('Location')}
               style={({ pressed }) => [styles.dockSideCircle, pressed && styles.pressed]}
             >
-              <AppIcon name="compass" /><Text style={styles.dockLabel}>GPS</Text>
-            </Pressable>
-
-            {/* Nút Trạm khám phá trung tâm phát sáng */}
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t('home.read_story_label')}
-              onPress={handleExploreCurrent}
-              style={({ pressed }) => [styles.dockCenterCircle, pressed && styles.pressed]}
-            >
-              <AppIcon name="book" color="#2D5748" /><Text style={[styles.dockLabel, { color: '#2D5748' }]}>{t('home.read_story_btn')}</Text>
+              <AppIcon name="compass" />
+              <Text style={styles.dockLabel}>GPS</Text>
             </Pressable>
 
             {/* Nút Sổ tay & Công cụ ngõ phố */}
@@ -582,7 +559,8 @@ export function HomeScreen({
               onPress={() => setDrawerVisible(true)}
               style={({ pressed }) => [styles.dockSideCircle, pressed && styles.pressed]}
             >
-              <AppIcon name="write" /><Text style={styles.dockLabel}>{t('home.notebook_btn')}</Text>
+              <AppIcon name="write" />
+              <Text style={styles.dockLabel}>{t('home.notebook_btn')}</Text>
             </Pressable>
           </View>
         </View>
@@ -1056,11 +1034,97 @@ const styles = StyleSheet.create({
     elevation: 5,
     marginTop: 2,
   },
-  exploreCtaText: {
-    color: '#FFFFFF',
-    fontSize: 16,
+  compactPreviewCard: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+    padding: 10,
+    backgroundColor: 'rgba(255, 253, 247, 0.95)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(235, 222, 200, 0.9)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
+    zIndex: 10,
+  },
+  previewThumbWrapper: {
+    width: 52,
+    height: 52,
+    borderRadius: 10,
+    overflow: 'hidden',
+    backgroundColor: '#2A2018',
+  },
+  previewThumb: {
+    width: 52,
+    height: 52,
+  },
+  previewInfo: {
+    flex: 1,
+    minWidth: 0,
+    justifyContent: 'center',
+    gap: 2,
+  },
+  previewMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  previewStopPrefix: {
+    fontSize: 9.5,
+    fontWeight: '800',
+    color: '#C26747',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  previewDuration: {
+    fontSize: 9.5,
+    fontWeight: '600',
+    color: '#7D6F63',
+  },
+  previewVisitedTag: {
+    backgroundColor: '#E8F2EC',
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  previewVisitedText: {
+    fontSize: 8.5,
     fontWeight: '700',
-    letterSpacing: 0.2,
+    color: '#1E6B4A',
+  },
+  previewTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#2C221E',
+  },
+  previewSummary: {
+    fontSize: 11,
+    color: '#6E5D52',
+    lineHeight: 15,
+  },
+  previewCtaButton: {
+    backgroundColor: '#2D5748',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    shadowColor: '#2D5748',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  previewCtaText: {
+    color: '#FFFDF7',
+    fontSize: 12,
+    fontWeight: '700',
   },
   bottomDockContainer: {
     paddingHorizontal: 16,

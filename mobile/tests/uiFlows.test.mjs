@@ -3183,17 +3183,19 @@ test('PrologueScreen triggers bilateral semicircular golden water ripple arcs ra
   const leftFlankStyle = [].concat(leftFlank.props.style).reduce((acc, s) => ({ ...acc, ...s }), {});
   const rightFlankStyle = [].concat(rightFlank.props.style).reduce((acc, s) => ({ ...acc, ...s }), {});
   assert.equal(leftFlankStyle.position, 'absolute');
-  assert.equal(leftFlankStyle.left, -48, 'Left flank positioned outside left button edge');
-  assert.equal(rightFlankStyle.right, -48, 'Right flank positioned outside right button edge');
+  assert.equal(leftFlankStyle.left, -28, 'Left flank positioned outside left button edge (bounded within 16-28dp)');
+  assert.equal(rightFlankStyle.right, -28, 'Right flank positioned outside right button edge (bounded within 16-28dp)');
 
-  // Verify 3 staggered wave arcs on each flank
+  // Verify 2 staggered wave arcs on each flank (bounded strictly to 16-28dp spread)
   const leftWave1 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-left-1');
   const leftWave2 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-left-2');
   const leftWave3 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-left-3');
   const rightWave1 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-right-1');
   const rightWave2 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-right-2');
   const rightWave3 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-right-3');
-  assert.ok(leftWave1 && leftWave2 && leftWave3 && rightWave1 && rightWave2 && rightWave3, 'Bilateral semicircular ripple wave arcs rendered');
+  assert.ok(leftWave1 && leftWave2 && rightWave1 && rightWave2, 'Bilateral semicircular ripple wave arcs rendered (2 per flank)');
+  assert.equal(leftWave3, undefined, 'Third wave arc removed per approved 2-wave design');
+  assert.equal(rightWave3, undefined, 'Third wave arc removed per approved 2-wave design');
 
   // 2. Rapid second press does not play sound again or navigate multiple times
   startBtn.props.onPress({ nativeEvent: { locationX: 120, locationY: 40 } });
@@ -3287,8 +3289,8 @@ test('PrologueScreen anchors flank ripples symmetrically to button ends regardle
 
   const leftFlankStyle = [].concat(leftFlank.props.style).reduce((acc, s) => ({ ...acc, ...s }), {});
   const rightFlankStyle = [].concat(rightFlank.props.style).reduce((acc, s) => ({ ...acc, ...s }), {});
-  assert.equal(leftFlankStyle.left, -48, 'Left flank anchored at -48 regardless of tap at 0');
-  assert.equal(rightFlankStyle.right, -48, 'Right flank anchored at -48 regardless of tap at 0');
+  assert.equal(leftFlankStyle.left, -28, 'Left flank anchored at -28 regardless of tap at 0');
+  assert.equal(rightFlankStyle.right, -28, 'Right flank anchored at -28 regardless of tap at 0');
 
   const leftWave1 = elements(treeAfter, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-left-1');
   const rightWave1 = elements(treeAfter, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-right-1');
@@ -3669,6 +3671,164 @@ test('useEntranceFadeSlide preserves legitimate staggered delays (40, 130, 220, 
 
   // 3. Delays must be strictly monotonic (progressively ascending stagger)
   assert.ok(delays[0] < delays[1] && delays[1] < delays[2] && delays[2] < delays[3], 'Stagger cascade must be strictly ascending');
+});
+
+test('LandingScreen layout prioritizes alley carousel ahead of compact quote and removes redundant fixed bottom CTA', () => {
+  const navigatedRoutes = [];
+  let chosenCollection = null;
+
+  const view = mount('../src/screens/LandingScreen.tsx', {
+    navigation: {
+      navigate: (route, params) => navigatedRoutes.push({ route, params }),
+      goBack() {},
+      replace() {},
+    },
+    route: { params: {} },
+    nodeCount: 6,
+    mode: 'demo',
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        setLocale: () => {},
+        setCollectionId: (id) => { chosenCollection = id; },
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+
+  const tree = view.render();
+
+  // 1. "Xem tất cả" link exists and navigates directly to AlleySelect
+  const seeAllBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Xem tất cả con ngõ');
+  assert.ok(seeAllBtn, 'See all link rendered with accessible label');
+  seeAllBtn.props.onPress();
+  assert.deepEqual(navigatedRoutes[0], { route: 'AlleySelect', params: undefined });
+
+  // 2. Direct alley card tap selects collection and navigates to Home
+  const firstCard = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel?.startsWith('Khám phá'));
+  assert.ok(firstCard, 'Alley preview card rendered in carousel');
+  firstCard.props.onPress();
+  assert.equal(chosenCollection, 'fiction-letter');
+  assert.equal(navigatedRoutes[1].route, 'Home');
+  assert.equal(navigatedRoutes[1].params?.alleyId, 'fiction-letter');
+
+  // 3. Compact quote is rendered with proper text
+  const quoteMark = elements(tree, 'Text').find((t) => t.props.children === '“');
+  assert.ok(quoteMark, 'Compact quote rendered below carousel');
+
+  // 4. No duplicate bottom fixed CTA bar exists
+  const oldCtaBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Khám phá ngõ Hà Nội');
+  assert.equal(oldCtaBtn, undefined, 'Redundant bottom CTA button removed from LandingScreen');
+
+  view.unmount();
+});
+
+test('HomeScreen positions compact selected node preview directly above bottom dock with single story CTA and no duplicate dock center circle', () => {
+  const navigatedRoutes = [];
+  const selectedNodes = [];
+
+  const props = {
+    mode: 'demo',
+    source: sources.getSourceState('demo', fixture),
+    currentNodeId: 'demo-01',
+    onSelectNode: (id) => selectedNodes.push(id),
+    readNodeIds: new Set(['demo-01']),
+    onModeChange() {},
+    navigation: {
+      navigate: (route) => navigatedRoutes.push(route),
+      goBack() {},
+    },
+    route: { params: {} },
+  };
+
+  const view = mount('../src/screens/HomeScreen.tsx', props, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        setLocale: () => {},
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+  });
+
+  let tree = view.render();
+
+  // 1. Compact selected node preview is rendered
+  const preview = elements(tree, 'Animated.View').find((item) => item.props.testID === 'home-selected-node-preview');
+  assert.ok(preview, 'Compact preview card rendered with testID="home-selected-node-preview"');
+
+  // 2. Preview displays selected node name and visit duration
+  const previewTexts = elements(preview, 'Text').map((t) => [].concat(t.props.children).join(''));
+  assert.ok(previewTexts.some((text) => text.includes('Cổng ngõ')), 'Preview shows node name');
+  assert.ok(previewTexts.some((text) => text.includes('5 phút')), 'Preview shows visit minutes');
+
+  // 3. Preview story CTA triggers navigation to Qa
+  const storyCta = elements(preview, 'Pressable').find((item) => item.props.accessibilityLabel === 'Đọc lời kể điểm đang chọn');
+  assert.ok(storyCta, 'Story CTA rendered on preview card');
+  storyCta.props.onPress();
+  assert.deepEqual(navigatedRoutes, ['Qa'], 'Story CTA on preview navigates to Qa');
+
+  // 4. Selecting another node updates preview
+  tree = view.render({ ...props, currentNodeId: 'demo-02' });
+  const preview2 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'home-selected-node-preview');
+  const previewTexts2 = elements(preview2, 'Text').map((t) => [].concat(t.props.children).join(''));
+  assert.ok(previewTexts2.some((text) => text.includes('Hiên đồng hồ')), 'Preview updates to second node');
+  assert.ok(previewTexts2.some((text) => text.includes('15 phút')), 'Preview shows updated visit minutes');
+
+  // 5. Dock contains exactly 2 secondary buttons (GPS and Notebook), with NO duplicate center circle button
+  const dockButtons = elements(tree, 'Pressable').filter((item) =>
+    item.props.accessibilityLabel === 'Xác nhận điểm GPS' ||
+    item.props.accessibilityLabel === 'Mở sổ tay ngõ phố'
+  );
+  assert.equal(dockButtons.length, 2, 'Bottom dock contains GPS and Notebook secondary buttons');
+
+  const oldCenterCircle = elements(tree, 'Pressable').find((item) =>
+    item.props.style && [].concat(item.props.style).some((s) => s?.backgroundColor === '#F5ECE0')
+  );
+  assert.equal(oldCenterCircle, undefined, 'Old duplicate dock center circle button removed');
+
+  view.unmount();
+});
+
+test('VoiceInteractionDock idle mic button uses subdued moss-green surface to preserve listen-first visual hierarchy', () => {
+  let recordingStarted = false;
+
+  const view = mount('../src/components/VoiceInteractionDock.tsx', {
+    stage: 'idle',
+    error: null,
+    recordingDurationMs: 0,
+    onStartRecording: () => { recordingStarted = true; },
+    onSubmitRecording() {},
+    onCancel() {},
+    onOpenInput() {},
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+    '../voice/metering': {
+      meteringToLevel: () => 0.5,
+    },
+  });
+
+  const tree = view.render();
+  const micBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Bắt đầu hỏi bằng giọng nói');
+  assert.ok(micBtn, 'Idle mic button found');
+
+  // Verify background is surface green (#31483A), not player gold (#F2C56B)
+  const rawStyle = typeof micBtn.props.style === 'function' ? micBtn.props.style({ pressed: false }) : micBtn.props.style;
+  const micStyles = [].concat(rawStyle).reduce((acc, s) => ({ ...acc, ...s }), {});
+  assert.equal(micStyles.backgroundColor, '#31483A', 'Idle mic button has quiet #31483A surface');
+  assert.notEqual(micStyles.backgroundColor, '#F2C56B', 'Idle mic button does not compete with gold listen button');
+
+  // Verify tap starts recording
+  micBtn.props.onPress();
+  assert.equal(recordingStarted, true, 'Tapping mic button starts recording');
+
+  view.unmount();
 });
 
 
