@@ -2,9 +2,9 @@
 
 ## Demo QR hiện đang chạy — hiệu ứng mở đầu 17/10/2026
 
-Mở Expo Go cùng Wi-Fi với máy tính bằng `exp://192.168.100.36:8081`; QR tại `C:/Users/LEGION/AppData/Local/Temp/ngoke-demo-qr.png`. Reload để quay về màn mở đầu, bấm **BẮT ĐẦU DẠO NGÕ**: sóng nước vàng lan từ điểm chạm trong520ms, kèm âm mở cửa/chuông nhẹ500ms rồi chuyển trang. Giảm chuyển động bỏ sóng lan và vào trang ngay. Âm tôn trọng chế độ audio hiện hành; lỗi âm không chặn chuyển trang. Rời app/màn hủy hiệu ứng đang chờ.
+Mở Expo Go cùng Wi-Fi với máy tính bằng `exp://192.168.100.36:8081`; QR tại `C:/Users/LEGION/AppData/Local/Temp/ngoke-demo-qr.png`. Reload để quay về màn mở đầu, bấm **BẮT ĐẦU DẠO NGÕ**: các cung sóng vàng nửa vòng tròn lan ngắn từ **hai sườn nút**, nét và hai đầu mờ mềm, từng lớp lệch pha rồi tan trong1180ms. Âm mới1100ms có đoạn dâng, mở rộng và đuôi ngân, hoàn tất trước chuyển trang. Giảm chuyển động bỏ sóng lan và vào trang ngay. Âm dùng chế độ audio hiện hành; lỗi seek/play không chặn chuyển trang. Rời app/màn hủy hiệu ứng đang chờ, callback âm cũ không phát sau hủy.
 
-Source hiệu ứng `c03bb8781f860e5915b775de417cb796e961cac4` (primary53a848e + cancellation follow-up). Root264app/typecheck/lint và bundle Metro iOS/Android đạt; WAV22094bytes được phục vụ đúng hash nguồn. Chưa xem/nghe hiệu ứng trên máy thật. **APK66c bên dưới chưa được build lại với hiệu ứng này.** Backend Live/gateway mic chưa bật trong phiên QR; Q&A/gợi ý/audio bundle vẫn dùng được.
+Source hiện hành `0d1dff75e03479ff36ee50eb562f2392c20f7369` (product5e12f3b + asyncseek tests). Root266app, typecheck/lint và bundle Metro iOS/Android đạt; WAV48554bytes được phục vụ đúng SHA25623d6711964f5f320ffce7e6604e8e49dab4e719e80697c580ed79fa96faa4a9e. Ảnh native trực tiếp VI/EN xác nhận cung sóng ngoài nút; MP4 debug có khung trắng trong đoạn chuyển nên chưa dùng để kết luận không flicker/FPS. Chưa đánh giá cảm giác/âm trên máy thật. **APK66c bên dưới chưa được build lại với hiệu ứng này.** Backend Live/gateway mic chưa bật trong phiên QR; Q&A/gợi ý/audio bundle vẫn dùng được.
 
 ## Artifact cụ thể
 
