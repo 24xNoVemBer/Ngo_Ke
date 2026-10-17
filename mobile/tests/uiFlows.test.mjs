@@ -3612,5 +3612,65 @@ test('motion tokens obey Premium archetype hierarchy, bounded choreography budge
   entrance.unmount();
 });
 
+test('useEntranceFadeSlide preserves legitimate staggered delays (40, 130, 220, 310ms) and slow duration (380ms) without collapsing to old 100ms/250ms clamps', () => {
+  const code = ts.transpileModule(readFileSync(new URL('../src/theme/motion.ts', import.meta.url), 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS },
+  }).outputText;
+  const motionExports = {};
+  runInNewContext('(function(require, exports){' + code + '\n})')((id) => {
+    if (id === 'react-native') {
+      return {
+        Easing: {
+          out: (fn) => fn,
+          in: (fn) => fn,
+          inOut: (fn) => fn,
+          cubic: (t) => t,
+          quad: (t) => t,
+          linear: (t) => t,
+        },
+      };
+    }
+    throw new Error(`Unexpected import: ${id}`);
+  }, motionExports);
+
+  const configs = [];
+  class Value {
+    constructor(val) { this.val = val; }
+    setValue(v) { this.val = v; }
+    interpolate(cfg) { this.cfg = cfg; return this; }
+  }
+
+  const requestedDelays = [40, 130, 220, 310];
+  for (const requestedDelay of requestedDelays) {
+    const entrance = mount('../src/hooks/useMotion.ts', { delay: requestedDelay, duration: 380 }, {
+      './MotionPreferences': { useMotionState: () => ({ active: true }) },
+      '../theme/motion': motionExports,
+      'react-native': {
+        Animated: {
+          Value,
+          timing: (anim, cfg) => {
+            configs.push(cfg);
+            return { start: () => {}, stop: () => {} };
+          },
+        },
+      },
+    }, 'useEntranceFadeSlide');
+    entrance.render();
+    entrance.unmount();
+  }
+
+  // 1. Durations must preserve 380ms (old bug clamped to 250ms)
+  const durations = configs.map((c) => c.duration);
+  assert.deepEqual(durations, [380, 380, 380, 380], 'Each section must preserve 380ms duration (cannot clamp to 250ms)');
+
+  // 2. Delays must preserve distinct staggered start times (old bug collapsed delays > 100ms to 100ms -> [40, 100, 100, 100])
+  const delays = configs.map((c) => c.delay);
+  assert.deepEqual(delays, [40, 130, 220, 310], 'Delays must preserve distinct stagger schedule (cannot collapse 130/220/310ms to 100ms)');
+
+  // 3. Delays must be strictly monotonic (progressively ascending stagger)
+  assert.ok(delays[0] < delays[1] && delays[1] < delays[2] && delays[2] < delays[3], 'Stagger cascade must be strictly ascending');
+});
+
+
 
 

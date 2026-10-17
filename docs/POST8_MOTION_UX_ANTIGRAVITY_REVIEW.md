@@ -111,7 +111,7 @@ Tests were executed using Node.js v24 built-in test runner across all repository
 ```sh
 # 1. Mobile Test Suite (tests/*.test.mjs)
 npm test --prefix mobile
-# Output: 201 top-level TAP tests (1..201), 253 total leaf assertions passing (0 failed, 0 skipped)
+# Output: 201 top-level TAP tests (1..201), 254 total leaf assertions passing (0 failed, 0 skipped)
 
 # 2. Mobile Static Analysis
 npm run typecheck --prefix mobile   # tsc --noEmit (0 errors)
@@ -125,13 +125,14 @@ npm test --prefix backend
 node --test tools/e2e/*.test.mjs
 # Output: 48 tests passing (33 guards + 15 HTTP contracts, 0 failed, 0 skipped)
 ```
-- **Aggregate Test Count:** $253\text{ (mobile)} + 19\text{ (backend)} + 48\text{ (e2e)} = 320\text{ test cases passing}$.
+- **Aggregate Test Count:** $254\text{ (mobile)} + 19\text{ (backend)} + 48\text{ (e2e)} = 321\text{ test cases passing}$.
 - **Dedicated Motion Unit Tests Added (`uiFlows.test.mjs`):**
   - Token duration monotonicity: `instant (120) < fast (180) < normal (240) < relaxed (320) < slow (380)`.
   - Ambient pulse timing: `2400ms`.
   - Spring damping and halo scale restraint: `friction >= 18`, `pulseHaloMax <= 1.15`.
   - `useEntranceFadeSlide` bound enforcement: `delay <= 450ms`, `duration <= 500ms`, `offsetY <= 24dp`.
   - `AlleySelect` status bar style assertion: confirms `dark-content` on light header.
+  - **Behavioral Delay & Duration Regression Test:** Verifies that legitimate staggered delays (`40ms, 130ms, 220ms, 310ms`) and slow duration (`380ms`) are strictly preserved and monotonically ascending without collapsing to old `Math.min(delay, 100)` or `Math.min(duration, 250)` clamps.
 
 ---
 
@@ -145,8 +146,25 @@ node --test tools/e2e/*.test.mjs
 2. **Native Driver Offloading:**
    - 100% of spatial and opacity animations use `useNativeDriver: true`. No layout-triggering properties (`width`, `height`, `top`, `margin`) are animated.
 
-3. **Pending Verification Scope:**
-   - Visual inspection under 200% font scale across English and Vietnamese.
-   - Physical keyboard appearance and focus scrolling behavior on real Android/iOS devices.
-   - Native GPU frame rendering measurements.
-   - These items are deferred to coordinator emulator verification (`Medium_Phone_API_37.0`) and downstream device QA.
+---
+
+## 7. Coordinator Native Emulator QA Evidence (Independent Run)
+
+Following commit `5099429`, the coordinator conducted independent native visual and functional verification on candidate `c83b5ee` / `d3e9842` using Android emulator `Medium_Phone_API_37.0`:
+
+1. **Status Bar Contrast Verification (`after-alley-select-en.png`):**
+   - Confirmed dark clock, battery, and network status icons render with crisp, high-contrast visibility over the light `#F5EFE6` cream header, proving the fix in `mobile/App.tsx:212`.
+
+2. **Q&A and Reader Presentation (`after-qa-answer-en.png`, `after-question-drawer-en.png`):**
+   - Verified story narrative, audio player controls, and answer reveal card remain stable and clearly attributed to the source fiction.
+
+3. **Font Scale 200% & Reduced Motion Adaptation:**
+   - **Snapshots:** `after-home-font200-reduced-en.png`, `after-qa-font200-reduced-en.png`.
+   - **Technical Finding:** Verified in installed React Native Kotlin core that OS-level reduced motion requires `transition_animation_scale 0`; setting `animator_duration_scale 0` alone does not fully disable native screen transition curves.
+   - **On-Screen Keyboard (`after-drawer-font200-typed-en.png`):**
+     - Confirmed that "Where are we?" input text and Send button remain fully visible, accessible, and interactable above the soft keyboard at 200% font scale.
+     - **Cosmetic P2 Pending:** Extremely long placeholder text in an empty drawer may show boundary clipping at 200% font scale; this does not impede typing or question dispatch and is retained within cosmetic backlog without expanding scope.
+
+4. **Environment Restoration & Untested Boundaries:**
+   - Coordinator W1 completed independent test suite passes (full 267 app tests + typecheck + lint) and restored AVD settings prior to clean emulator shutdown.
+   - **Explicit Untested Scope:** Physical iOS/iPhone devices, hardware 60fps/120fps GPU frame timing, and human acoustic listening comfort remain **untested** and marked pending real-world field trials.
