@@ -20,14 +20,17 @@ Following user approval ("triển khai đi") for the overall layout and golden w
 3. **Listen-First Hierarchy & Lightened Accessories:**
    - Audio player bar owns the primary gold signature (`#F2C56B`).
    - `VoiceInteractionDock` idle mic button recedes to a calm moss-green surface (`#31483A`).
-   - `QaScreen` text reader toggle (`readerToggle`) is lightened to warm parchment (`#F7EFE1`) with deep forest icon (`#2D5748`), avoiding dark visual competition.
+   - `QaScreen` text reader toggles (`readerToggle`) are lightened to warm parchment (`#F7EFE1`) with deep forest green icons (`#2D5748`) across all three instances (story drawer toggle, recognized question toggle, and answer text toggle), completely eliminating low-contrast gold on cream.
    - Question suggestion chips are softened to a light editorial surface (`rgba(255, 253, 247, 0.94)`, border, radius 14) without heavy pill shadows.
 4. **Natural Flank Waves (620ms) & Strict 28dp Clipping:**
    - 2 bilateral honey-gold arcs radiating from button flanks.
    - Flank containers explicitly enforce `overflow: 'hidden'`, strictly bounding visible extent to 28dp regardless of scale or translate.
    - Smooth in-flight audio volume fade starts at ~460ms with isolated interval ownership.
 5. **Readable Home Preview & Contextual Drawer Hint:**
-   - Home selected node preview card features full wrapping title (no `numberOfLines={1}` truncation), readable typography (title 16, summary 13, meta 12, CTA 14, minHeight 44), thumbnail adaptation at `fontScale > 1.3`, photo credit attribution, and explicit simulated duration indicator.
+   - Home selected node preview card features full wrapping title (no `numberOfLines={1}` truncation), readable typography (title 16, summary 13, meta 12, CTA 14, minHeight 44).
+   - Enforces true column/stretch layout at `fontScale > 1.3` (`flexDirection: 'column'`, `alignItems: 'stretch'`, `flex: 0, width: '100%'`, full-width CTA) so the CTA button does not horizontally squeeze the title.
+   - Secondary summary and photo credit are omitted at `fontScale > 1.3` to leave ample body scroll room.
+   - Duration badge reuses `t('common.simulated')`.
    - `QaScreen` drawer uses short single-line placeholder (`Gõ câu hỏi…` / `Type a question…`) while preserving full contextual stop title in accessible attributes.
    - Tool drawer source copy simplified to friendly user-facing offline/live descriptions rather than technical server/URL internals.
 
@@ -35,7 +38,7 @@ Following user approval ("triển khai đi") for the overall layout and golden w
 - **Audio Assets:** 100% untouched. All cue WAV and 34 story MP3 files remain binary-identical.
 - **Data & Historical Fidelity:** Zero synthetic historical claims. `data/demo.json` and collection metadata remain untouched.
 - **Backend & EAS:** No backend, network gateway, or EAS build configuration changes.
-- **Validation Reality:** All 259 automated tests run under Node.js (`node --test`). Native GPU framerates, physical iOS devices, and real-time GPS fixes remain honest emulator and device testing pending coordinator QA.
+- **Validation Reality:** All 259 automated tests run under Node.js (`node --test`). Verification is code/prop/test-based. Native GPU framerates, physical iOS devices, physical keyboard layout, and on-device font200 rendering are explicitly not claimed as verified on device; emulator startup was rejected/blocked by policy, and native QA is owned by the coordinator.
 
 ---
 
@@ -95,8 +98,9 @@ Following user approval ("triển khai đi") for the overall layout and golden w
   - Positioned immediately above the bottom dock island (`testID="home-selected-node-preview"`).
   - **Wrapping Title:** `previewTitle` has no `numberOfLines={1}` constraint, allowing long Vietnamese and English stop names to wrap naturally without clipping.
   - **Readability Typography:** Standardized to comfortable typography hierarchy: title `16dp` (lineHeight 22), summary `13dp` (lineHeight 18), metadata `12dp`, CTA `14dp` with `minHeight: 44dp`.
-  - **Adaptive Thumbnail:** At `fontScale > 1.3`, the photo thumbnail is hidden and card wraps into stacked layout, dedicating 100% width to text legibility.
-  - **Attribution & Truthful Duration:** Retains photo credit (`Ảnh minh họa: <photographer>`) and visibly qualifies simulated durations (`⏱ 5 phút · mô phỏng`).
+  - **True Column Stacking & Scroll Room:** At `fontScale > 1.3`, the preview card switches to a true column/stretch layout (`compactPreviewCardStacked: { flexDirection: 'column', alignItems: 'stretch' }`, `previewInfoStacked: { flex: 0, width: '100%' }`, `compactPreviewCtaWrapper: { width: '100%' }`, `previewCtaButtonStacked: { width: '100%' }`). This guarantees the CTA button sits below the text and never horizontally squeezes the title.
+  - **Omission of Secondary Metadata:** At `fontScale > 1.3`, the photo thumbnail, summary text, and photo credit are omitted, leaving ample vertical room for the main screen body to scroll comfortably.
+  - **Attribution & Truthful Duration:** Retains photo credit (`Ảnh minh họa: <photographer>`) and visibly qualifies simulated durations (`⏱ 5 phút · mô phỏng` / `⏱ 5 min · simulated`) using the shared `t('common.simulated')` string.
   - Single primary story button (`Đọc lời kể` / `Read story`) with subtle pressed feedback.
 - **Streamlined Floating Dock Island:**
   - Redundant center circular story button removed.
@@ -123,8 +127,13 @@ Following user approval ("triển khai đi") for the overall layout and golden w
 - **Listen-First Visual Hierarchy:**
   - Story audio player bar maintains exclusive ownership of the honey-gold action accent (`#F2C56B`).
   - In `VoiceInteractionDock`, the idle mic button was quieted to a subdued, atmospheric moss-green surface (`#31483A` with subtle `rgba(255, 253, 247, 0.22)` border and white icon).
-- **Lightened Reader Toggle & Suggestion Chips:**
+- **Lightened Reader Toggles & Suggestion Chips:**
   - `readerToggle`: Soft parchment surface (`#F7EFE1`, border `#DFD1BD`, text `#2C221E`, icon `#2D5748`) replacing solid dark block.
+  - **Unified Contrast across All Three Reader Toggles:** Applied the readable deep forest green icon (`#2D5748`) to all three controls sharing the `#F7EFE1` reader toggle style:
+    1. Story text drawer toggle (`readerToggle` at line 484)
+    2. Recognized question toggle (`readerToggle` at line 743)
+    3. Answer text toggle (`readerToggle` at line 779)
+    This completely eliminates illegible gold-on-cream across the entire screen.
   - Question chips: Softened radius (14dp), light parchment background (`rgba(255, 253, 247, 0.94)`), subtle border (`#E0D6C4`), and reduced elevation, ensuring high readability without visual heaviness.
 - **Compact Single-Line Drawer Input Placeholder:**
   - `QaScreen` passes short `t('drawer.placeholder')` (`"Gõ câu hỏi…"` / `"Type a question…"`) to `placeholder`.
@@ -153,15 +162,15 @@ In strict adherence to the Premium archetype and coordinator instructions, scree
 | **Interval Handle Isolation** | Automated test assertion | **PASS** | Stale attempt callbacks do not clear or corrupt active attempt intervals. |
 | **Late Seek Guard** | Automated test assertion | **PASS** | Delayed `seekTo` resolving after navigation never triggers `player.play()`. |
 | **Home Preview Title Wrapping** | Automated test assertion | **PASS** | `previewTitle` verifies no `numberOfLines={1}` restriction; wraps at font200. |
-| **Home Attribution & Simulation** | Automated test assertion | **PASS** | Verifies photo credit text and simulated duration badge. |
+| **Home Column Stacking & Simulation** | Automated test assertion | **PASS** | Verifies column/stretch stacking at font200, photo credit, and `common.simulated` reuse. |
 | **Qa Drawer Contextual Title** | Automated test assertion | **PASS** | Verifies short single-line placeholder with contextual stop name accessibility title. |
-| **Lightened Reader Toggle** | Automated test assertion | **PASS** | Verifies `#F7EFE1` parchment surface and subtle border. |
+| **Lightened Reader Toggles (All 3)** | Automated test assertion | **PASS** | Verifies `#F7EFE1` parchment surface and `#2D5748` deep green icon across all 3 toggles. |
 | **Lightened Question Chips** | Automated test assertion | **PASS** | Verifies radius 14, light surface, and border without heavy pill shadows. |
 
 ---
 
 ## 4. Honest Limitations & Device Testing Scope
 
-1. **Automated vs. Physical Execution:** Node.js tests verify state machines, mock timers, and component logic. They do **not** simulate physical GPU compositor bottlenecks or real audio output hardware.
-2. **Emulator & Hardware Exemption:** Per coordinator instructions and tool safety policies, W2 did not run ADB commands or launch Android emulators to avoid conflicting with active sessions. Native screenshot QA is owned by W1 (Coordinator).
-3. **Pending Physical Verification:** Physical iOS devices, true outdoor GPS fixes, and physical QR code scanning on textured printed surfaces remain pending final device validation.
+1. **Automated vs. Physical Execution:** Node.js tests verify state machines, mock timers, style calculations, and component logic. They do **not** simulate physical GPU compositor bottlenecks, 60fps rendering, or physical keyboard layout.
+2. **No On-Device font200 or Keyboard Claims:** Large font wrapping, stacking behavior, and input drawer layouts are verified through component style logic and deterministic Node test assertions; no physical on-device font200 or soft-keyboard rendering is claimed as verified.
+3. **Emulator Startup Blocked & Physical Device Ownership:** In strict compliance with tool policy, emulator startup was blocked/rejected and no ADB commands were run. W2 did not touch or launch emulator sessions. All native screenshot and physical device QA (iOS devices, true outdoor GPS fixes, physical QR code scanning) is owned by W1 (Coordinator).

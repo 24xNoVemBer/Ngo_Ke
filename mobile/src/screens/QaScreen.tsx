@@ -740,7 +740,7 @@ export function QaScreen({
                         onPress={() => setIsTextVisible(true)}
                         style={({ pressed }) => [styles.readerToggle, pressed && styles.pressed]}
                       >
-                        <AppIcon name="text" size={18} color="#F2C56B" />
+                        <AppIcon name="text" size={18} color="#2D5748" />
                         <Text style={styles.readerToggleText}>
                           {askedSource === 'voice' ? t('qa.view_recognized_question') : t('qa.view_asked_question')}
                         </Text>
@@ -776,7 +776,7 @@ export function QaScreen({
                       onPress={() => setIsTextVisible((visible) => !visible)}
                       style={({ pressed }) => [styles.readerToggle, pressed && styles.pressed]}
                     >
-                      <AppIcon name="text" size={18} color="#F2C56B" />
+                      <AppIcon name="text" size={18} color="#2D5748" />
                       <Text style={styles.readerToggleText}>{isTextVisible ? t('qa.collapse_answer_btn') : t('qa.read_answer_btn')}</Text>
                     </Pressable>
                     <View style={styles.evidenceRow}>

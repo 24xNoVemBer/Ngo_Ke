@@ -504,13 +504,13 @@ export function HomeScreen({
               </View>
             )}
 
-            <View style={styles.previewInfo}>
+            <View style={[styles.previewInfo, fontScale > 1.3 && styles.previewInfoStacked]}>
               <View style={styles.previewMetaRow}>
                 <Text style={styles.previewStopPrefix}>
                   {t('home.stop_prefix')} {String(selectedIndex + 1).padStart(2, '0')}
                 </Text>
                 <Text style={styles.previewDuration}>
-                  ⏱ {currentNode.visitMinutes} {t('home.min')}{isSimulated ? ` · ${locale === 'en' ? 'simulated' : 'mô phỏng'}` : ''}
+                  ⏱ {currentNode.visitMinutes} {t('home.min')}{isSimulated ? ` · ${t('common.simulated').toLowerCase()}` : ''}
                 </Text>
                 {readNodeIds.has(currentNode.id) && (
                   <View style={styles.previewVisitedTag}>
@@ -521,23 +521,31 @@ export function HomeScreen({
               <Text style={styles.previewTitle}>
                 {currentNode.name}
               </Text>
-              <Text style={styles.previewSummary} numberOfLines={1}>
-                {currentNode.summary ?? t('home.unopened')}
-              </Text>
-              <Text style={styles.previewCreditText} numberOfLines={1}>
-                {t('home.photo_credit')}: {currentPhotographer}
-              </Text>
+              {fontScale <= 1.3 && (
+                <>
+                  <Text style={styles.previewSummary} numberOfLines={1}>
+                    {currentNode.summary ?? t('home.unopened')}
+                  </Text>
+                  <Text style={styles.previewCreditText} numberOfLines={1}>
+                    {t('home.photo_credit')}: {currentPhotographer}
+                  </Text>
+                </>
+              )}
             </View>
 
             {/* Single Primary Story CTA */}
-            <Animated.View style={{ transform: [{ scale: explorePressScale }] }}>
+            <Animated.View style={[{ transform: [{ scale: explorePressScale }] }, fontScale > 1.3 && styles.compactPreviewCtaWrapper]}>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={t('home.read_story_label')}
                 onPressIn={handleExplorePressIn}
                 onPressOut={handleExplorePressOut}
                 onPress={handleExploreCurrent}
-                style={({ pressed }) => [styles.previewCtaButton, pressed && styles.pressed]}
+                style={({ pressed }) => [
+                  styles.previewCtaButton,
+                  fontScale > 1.3 && styles.previewCtaButtonStacked,
+                  pressed && styles.pressed,
+                ]}
               >
                 <Text style={styles.previewCtaText}>{t('home.read_story_btn')}</Text>
                 <AppIcon name="arrow" size={14} color="#FFFDF7" />
@@ -1065,7 +1073,17 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   compactPreviewCardStacked: {
-    flexWrap: 'wrap',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 8,
+  },
+  previewInfoStacked: {
+    flex: 0,
+    width: '100%',
+  },
+  compactPreviewCtaWrapper: {
+    width: '100%',
+    alignItems: 'stretch',
   },
   previewThumbWrapper: {
     width: 48,
@@ -1144,6 +1162,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.35,
     shadowRadius: 4,
     elevation: 4,
+  },
+  previewCtaButtonStacked: {
+    width: '100%',
+    justifyContent: 'center',
   },
   previewCtaText: {
     color: '#FFFDF7',
