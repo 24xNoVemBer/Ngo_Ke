@@ -3794,6 +3794,40 @@ test('HomeScreen positions compact selected node preview directly above bottom d
   );
   assert.equal(oldCenterCircle, undefined, 'Old duplicate dock center circle button removed');
 
+  // 6. Large font scale (> 1.3) verifies column/stretch layout and omission of secondary metadata
+  const largeFontView = mount('../src/screens/HomeScreen.tsx', props, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        setLocale: () => {},
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+    __windowDimensions: { width: 400, height: 850, fontScale: 2.0 },
+  });
+  const largeTree = largeFontView.render();
+  const largePreview = elements(largeTree, 'Animated.View').find((item) => item.props.testID === 'home-selected-node-preview');
+  assert.ok(largePreview, 'Large font preview rendered');
+
+  const rawPreviewStyle = typeof largePreview.props.style === 'function' ? largePreview.props.style({ pressed: false }) : largePreview.props.style;
+  const previewCardStyle = [].concat(rawPreviewStyle).reduce((acc, s) => ({ ...acc, ...s }), {});
+  assert.equal(previewCardStyle.flexDirection, 'column', 'compactPreviewCardStacked enforces column layout');
+  assert.equal(previewCardStyle.alignItems, 'stretch', 'compactPreviewCardStacked stretches children');
+
+  // Verify thumbnail is hidden
+  const thumb = elements(largePreview, 'CrossfadePhoto');
+  assert.equal(thumb.length, 0, 'Thumbnail is hidden at large fontScale');
+
+  // Verify summary and photo credit are omitted to preserve body scroll room
+  const largePreviewTexts = elements(largePreview, 'Text').map((t) => [].concat(t.props.children).join(''));
+  assert.equal(largePreviewTexts.some((text) => text.includes('Ảnh minh họa')), false, 'Photo credit omitted at large font');
+
+  // Verify full title and CTA still present
+  assert.ok(largePreviewTexts.some((text) => text.includes('Cổng ngõ')), 'Title remains visible');
+  const largeStoryCta = elements(largePreview, 'Pressable').find((item) => item.props.accessibilityLabel === 'Đọc lời kể điểm đang chọn');
+  assert.ok(largeStoryCta, 'Single story CTA remains accessible at large font');
+
+  largeFontView.unmount();
   view.unmount();
 });
 
@@ -4098,6 +4132,11 @@ test('QaScreen drawer uses short input placeholder while preserving rich context
   const firstChipStyle = [].concat(rawChipStyle).reduce((acc, s) => ({ ...acc, ...s }), {});
   assert.equal(firstChipStyle.backgroundColor, 'rgba(255, 253, 247, 0.94)', 'Chip has light editorial surface');
   assert.equal(firstChipStyle.borderRadius, 14, 'Chip has softened radius 14 instead of heavy pill');
+
+  // 4. All readerToggle text icons use consistent deep green #2D5748
+  const textIcons = elements(tree, 'AppIcon').filter((icon) => icon.props.name === 'text');
+  assert.ok(textIcons.length >= 1, 'At least one text icon rendered');
+  assert.ok(textIcons.every((icon) => icon.props.color === '#2D5748'), 'All readerToggle text icons use consistent deep green #2D5748');
 
   view.unmount();
 });

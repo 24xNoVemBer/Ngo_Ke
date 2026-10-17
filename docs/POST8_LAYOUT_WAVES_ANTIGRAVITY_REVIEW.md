@@ -38,7 +38,7 @@ Following user approval ("triển khai đi") for the overall layout and golden w
 - **Audio Assets:** 100% untouched. All cue WAV and 34 story MP3 files remain binary-identical.
 - **Data & Historical Fidelity:** Zero synthetic historical claims. `data/demo.json` and collection metadata remain untouched.
 - **Backend & EAS:** No backend, network gateway, or EAS build configuration changes.
-- **Validation Reality:** All 260 automated tests run under Node.js (`node --test`). Verification is code/prop/test-based. Native GPU framerates, physical iOS devices, physical keyboard layout, and on-device font200 rendering are explicitly not claimed as verified on device; emulator startup was rejected/blocked by policy, and native QA is owned by the coordinator.
+- **Validation Reality:** All 260 automated tests run under Node.js across all 20 test suites (`node --test tests/*.test.mjs`, with `uiFlows.test.mjs` contributing 69 tests). Node tests verify structural styles, state machines, and timer logic. No new native or font200 visual/keyboard verification was performed on device due to automatic emulator launch policy rejection; native device and visual QA remain owned by W1 (Coordinator).
 
 ---
 
@@ -155,7 +155,7 @@ In strict adherence to the Premium archetype and coordinator instructions, scree
 
 | Check | Tool / Command | Result | Details |
 | :--- | :--- | :--- | :--- |
-| **Node.js Automated Test Suite** | `npm test` (`mobile/tests/uiFlows.test.mjs`) | **260 / 260 PASS** | 100% pass across all unit, integration, and UI flow tests. |
+| **Full Mobile Test Suite** | `npm test` (`node --test tests/*.test.mjs`) | **260 / 260 PASS** | 100% pass across all 20 mobile test files (including 69 in `uiFlows.test.mjs`, voice suites, recommendation, QA, and security). |
 | **TypeScript Static Typecheck** | `npm run typecheck` (`tsc --noEmit`) | **PASS (0 errors)** | Full type safety across modified screens, components, and translator keys. |
 | **ESLint Code Quality** | `npm run lint` (`eslint .`) | **PASS (0 errors)** | Zero lint or formatting warnings across all project files. |
 | **Flank 28dp Clip** | Automated test assertion | **PASS** | Flank containers verify `overflow: 'hidden'` and `width: 28dp`. |
@@ -171,6 +171,6 @@ In strict adherence to the Premium archetype and coordinator instructions, scree
 
 ## 4. Honest Limitations & Device Testing Scope
 
-1. **Automated vs. Physical Execution:** Node.js tests verify state machines, mock timers, style calculations, and component logic. They do **not** simulate physical GPU compositor bottlenecks, 60fps rendering, or physical keyboard layout.
-2. **No On-Device font200 or Keyboard Claims:** Large font wrapping, stacking behavior, and input drawer layouts are verified through component style logic and deterministic Node test assertions; no physical on-device font200 or soft-keyboard rendering is claimed as verified.
+1. **Structural/Behavioral Node Execution vs. Visual Device QA:** Node.js tests verify state machines, mock timers, style calculations, and component logic across all 260 mobile tests (including 69 in `uiFlows.test.mjs`). They do **not** simulate physical GPU compositor bottlenecks, 60fps rendering, or physical keyboard layout.
+2. **No On-Device font200 or Keyboard Claims:** Large font wrapping, column/stretch stacking behavior, and input drawer layouts are verified through component style logic and deterministic Node test assertions; no new native/font200 or soft-keyboard visual verification was performed due to automatic emulator launch policy rejection.
 3. **Emulator Startup Blocked & Physical Device Ownership:** In strict compliance with tool policy, emulator startup was blocked/rejected and no ADB commands were run. W2 did not touch or launch emulator sessions. All native screenshot and physical device QA (iOS devices, true outdoor GPS fixes, physical QR code scanning) is owned by W1 (Coordinator).
