@@ -121,7 +121,7 @@ function mount(file, props = {}, overrides = {}, exportName) {
     '@react-navigation/native': { DefaultTheme: { colors: {} }, NavigationContainer: 'NavigationContainer', useIsFocused: () => true },
     '@react-navigation/native-stack': { createNativeStackNavigator: () => ({ Navigator: 'Navigator', Screen: 'Screen' }) },
     'expo-status-bar': { StatusBar: 'StatusBar' },
-    'react-native-svg': { default: 'Svg', Path: 'Path', __esModule: true },
+    'react-native-svg': { default: 'Svg', Path: 'Path', Defs: 'Defs', LinearGradient: 'LinearGradient', Stop: 'Stop', __esModule: true },
     './app.json': { expo: { extra: {} } },
     '../data/demo.json': fixture,
     '../data/sourceState': sources,
@@ -3106,7 +3106,7 @@ test('QaScreen localizes inline voice pick reasons in EN without leaking raw Vie
   viewVi.unmount();
 });
 
-test('PrologueScreen triggers golden water ripple from tap coordinates and plays gentle discovery sound', () => {
+test('PrologueScreen triggers bilateral semicircular golden water ripple arcs radiating from button flanks and plays portal sound', () => {
   const replaceCalls = [];
   const audioEvents = [];
   const playerMock = {
@@ -3137,7 +3137,7 @@ test('PrologueScreen triggers golden water ripple from tap coordinates and plays
   tree = view.render();
 
   // Verify audio played
-  assert.deepEqual(audioEvents, ['play'], 'Gentle discovery sound plays on tap');
+  assert.deepEqual(audioEvents, ['play'], 'Portal discovery sound plays on tap');
 
   // Verify golden water ripple overlay is rendered with proper accessibility exclusion
   const rippleOverlay = elements(tree, 'View').find((item) => item.props.testID === 'prologue-ripple-overlay');
@@ -3145,18 +3145,25 @@ test('PrologueScreen triggers golden water ripple from tap coordinates and plays
   assert.equal(rippleOverlay.props.pointerEvents, 'none', 'Ripple overlay has pointerEvents="none"');
   assert.equal(rippleOverlay.props['aria-hidden'], true, 'Ripple overlay has aria-hidden=true');
 
-  // Verify concentric wave layers exist
-  const wave1 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-1');
-  const wave2 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-2');
-  const wave3 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-3');
-  const crest = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-crest');
-  assert.ok(wave1 && wave2 && wave3 && crest, 'Concentric golden water ripple waves rendered');
+  // Verify bilateral flanks exist outside button
+  const leftFlank = elements(tree, 'View').find((item) => item.props.testID === 'prologue-ripple-left-flank');
+  const rightFlank = elements(tree, 'View').find((item) => item.props.testID === 'prologue-ripple-right-flank');
+  assert.ok(leftFlank && rightFlank, 'Bilateral flank ripple containers rendered');
 
-  // Verify ripple center is positioned around tap location (100, 35)
-  // RIPPLE_SIZE = 80, so left = 100 - 40 = 60, top = 35 - 40 = -5
-  const wave1Style = [].concat(wave1.props.style).reduce((acc, s) => ({ ...acc, ...s }), {});
-  assert.equal(wave1Style.left, 60, 'Wave 1 centered at tap X coordinate');
-  assert.equal(wave1Style.top, -5, 'Wave 1 centered at tap Y coordinate');
+  const leftFlankStyle = [].concat(leftFlank.props.style).reduce((acc, s) => ({ ...acc, ...s }), {});
+  const rightFlankStyle = [].concat(rightFlank.props.style).reduce((acc, s) => ({ ...acc, ...s }), {});
+  assert.equal(leftFlankStyle.position, 'absolute');
+  assert.equal(leftFlankStyle.left, -48, 'Left flank positioned outside left button edge');
+  assert.equal(rightFlankStyle.right, -48, 'Right flank positioned outside right button edge');
+
+  // Verify 3 staggered wave arcs on each flank
+  const leftWave1 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-left-1');
+  const leftWave2 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-left-2');
+  const leftWave3 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-left-3');
+  const rightWave1 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-right-1');
+  const rightWave2 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-right-2');
+  const rightWave3 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-right-3');
+  assert.ok(leftWave1 && leftWave2 && leftWave3 && rightWave1 && rightWave2 && rightWave3, 'Bilateral semicircular ripple wave arcs rendered');
 
   // 2. Rapid second press does not play sound again or navigate multiple times
   startBtn.props.onPress({ nativeEvent: { locationX: 120, locationY: 40 } });
@@ -3192,7 +3199,9 @@ test('PrologueScreen accessibility activation falls back to button center and re
 
   // Ripple waves are skipped under reduced motion
   const treeAfter = viewReduced.render();
-  const wave1 = elements(treeAfter, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-1');
+  const overlay = elements(treeAfter, 'View').find((item) => item.props.testID === 'prologue-ripple-overlay');
+  assert.equal(overlay, undefined, 'No expanding ripple overlay under reduced motion');
+  const wave1 = elements(treeAfter, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-left-1');
   assert.equal(wave1, undefined, 'No expanding ripple waves under reduced motion');
   viewReduced.unmount();
 });
@@ -3225,7 +3234,7 @@ test('PrologueScreen audio play failure never blocks navigation', () => {
   viewError.unmount();
 });
 
-test('PrologueScreen respects tap coordinate 0 as valid without falling back to button center', () => {
+test('PrologueScreen anchors flank ripples symmetrically to button ends regardless of tap coordinates', () => {
   const replaceCalls = [];
   const view = mount('../src/screens/PrologueScreen.tsx', {
     navigation: { replace: (name) => replaceCalls.push(name) },
@@ -3242,11 +3251,19 @@ test('PrologueScreen respects tap coordinate 0 as valid without falling back to 
   // Tap at exactly (0, 0)
   startBtn.props.onPress({ nativeEvent: { locationX: 0, locationY: 0 } });
   const treeAfter = view.render();
-  const wave1 = elements(treeAfter, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-1');
-  const wave1Style = [].concat(wave1.props.style).reduce((acc, s) => ({ ...acc, ...s }), {});
-  // RIPPLE_SIZE = 80, so left = 0 - 40 = -40, top = 0 - 40 = -40
-  assert.equal(wave1Style.left, -40, 'Coordinate 0 is valid and wave left is -40, not center fallback (80)');
-  assert.equal(wave1Style.top, -40, 'Coordinate 0 is valid and wave top is -40, not center fallback (-12)');
+  const leftFlank = elements(treeAfter, 'View').find((item) => item.props.testID === 'prologue-ripple-left-flank');
+  const rightFlank = elements(treeAfter, 'View').find((item) => item.props.testID === 'prologue-ripple-right-flank');
+  assert.ok(leftFlank && rightFlank, 'Flanks rendered symmetrically when tapping at (0, 0)');
+
+  const leftFlankStyle = [].concat(leftFlank.props.style).reduce((acc, s) => ({ ...acc, ...s }), {});
+  const rightFlankStyle = [].concat(rightFlank.props.style).reduce((acc, s) => ({ ...acc, ...s }), {});
+  assert.equal(leftFlankStyle.left, -48, 'Left flank anchored at -48 regardless of tap at 0');
+  assert.equal(rightFlankStyle.right, -48, 'Right flank anchored at -48 regardless of tap at 0');
+
+  const leftWave1 = elements(treeAfter, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-left-1');
+  const rightWave1 = elements(treeAfter, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-right-1');
+  assert.ok(leftWave1 && rightWave1, 'Bilateral wave arcs present for tap coordinate 0');
+
   view.unmount();
 });
 

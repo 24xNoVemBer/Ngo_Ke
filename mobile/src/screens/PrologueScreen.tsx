@@ -4,7 +4,6 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import {
   Animated,
-  type GestureResponderEvent,
   ImageBackground,
   Pressable,
   ScrollView,
@@ -15,6 +14,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAudioPlayer } from 'expo-audio';
+import Svg, { Defs, LinearGradient, Stop, Path } from 'react-native-svg';
 import type { RootStackParamList } from '../navigation';
 import { HERO_PHOTO } from '../assets/photoMap';
 import { NgoKeLogo } from '../components/NgoKeLogo';
@@ -26,8 +26,20 @@ import { spacing } from '../theme';
 import { motionEasings } from '../theme/motion';
 
 const PROLOGUE_DOOR_SOUND = require('../../assets/sounds/prologue_door.wav');
-const RIPPLE_SIZE = 80;
-const RIPPLE_DURATION_MS = 520;
+const RIPPLE_DURATION_MS = 1180;
+const FLANK_WIDTH = 48;
+const FLANK_HEIGHT = 84;
+
+// Precise mathematical arcs for semicircular water ripples ((( button )))
+// Left arcs curve like ( bulging outward to the left (toward -X)
+const LEFT_ARC_1 = 'M 39.5 23.9 A 20 20 0 0 0 39.5 60.1';
+const LEFT_ARC_2 = 'M 36.2 16.6 A 28 28 0 0 0 36.2 67.4';
+const LEFT_ARC_3 = 'M 31.9 7.6 A 38 38 0 0 0 31.9 76.4';
+
+// Right arcs curve like ) bulging outward to the right (toward +X)
+const RIGHT_ARC_1 = 'M 8.5 23.9 A 20 20 0 0 1 8.5 60.1';
+const RIGHT_ARC_2 = 'M 11.8 16.6 A 28 28 0 0 1 11.8 67.4';
+const RIGHT_ARC_3 = 'M 16.1 7.6 A 38 38 0 0 1 16.1 76.4';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Prologue'>;
 
@@ -47,8 +59,8 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
   const navigationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const buttonLayout = useRef({ width: 240, height: 56 });
 
+  const [buttonSize, setButtonSize] = useState({ width: 240, height: 56 });
   const [rippleActive, setRippleActive] = useState(false);
-  const [rippleCenter, setRippleCenter] = useState({ x: 120, y: 28 });
   const rippleProgress = useRef(new Animated.Value(0)).current;
 
   const { locale, setLocale, t } = useLocale();
@@ -66,6 +78,12 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
       rippleProgress.stopAnimation();
       try {
         player.pause();
+        if (typeof player.seekTo === 'function') {
+          const seekRes = player.seekTo(0);
+          if (seekRes && typeof (seekRes as Promise<void>).catch === 'function') {
+            (seekRes as Promise<void>).catch(() => {});
+          }
+        }
       } catch {
         // Safe disposal
       }
@@ -85,6 +103,12 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
       setRippleActive(false);
       try {
         player.pause();
+        if (typeof player.seekTo === 'function') {
+          const seekRes = player.seekTo(0);
+          if (seekRes && typeof (seekRes as Promise<void>).catch === 'function') {
+            (seekRes as Promise<void>).catch(() => {});
+          }
+        }
       } catch {
         // Safe disposal
       }
@@ -102,41 +126,58 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
     navigation.replace('Landing');
   }
 
-  function handleStartJourney(event?: GestureResponderEvent): void {
+  function handleStartJourney(): void {
     // Early return press if already starting or if screen is hidden/blurred/backgrounded
     if (starting.current || !isFocused || !motion.foreground) return;
     starting.current = true;
     attemptToken.current += 1;
     const currentToken = attemptToken.current;
 
-    // 1. Resolve tap coordinates (or fallback to button center for accessibility activation)
-    const locX = event?.nativeEvent?.locationX;
-    const locY = event?.nativeEvent?.locationY;
-    const centerX =
-      typeof locX === 'number' && Number.isFinite(locX) && locX >= 0
-        ? locX
-        : buttonLayout.current.width / 2;
-    const centerY =
-      typeof locY === 'number' && Number.isFinite(locY) && locY >= 0
-        ? locY
-        : buttonLayout.current.height / 2;
+    const playSafe = (): void => {
+      if (
+        mounted.current &&
+        starting.current &&
+        isFocused &&
+        motion.foreground &&
+        attemptToken.current === currentToken
+      ) {
+        try {
+          player.play();
+        } catch {
+          // Audio playback failure must never block navigation.
+        }
+      }
+    };
 
-    setRippleCenter({ x: centerX, y: centerY });
-
-    // 2. Play gentle door to discovery sound effect (failure must never block navigation)
-    try {
-      player.play();
-    } catch {
-      // Audio playback failure must never block navigation.
+    // 1. Play gentle door to discovery sound effect with async seek reset guarded by attempt token
+    if (typeof player.seekTo === 'function') {
+      try {
+        const seekRes = player.seekTo(0);
+        if (seekRes && typeof (seekRes as Promise<void>).then === 'function') {
+          (seekRes as Promise<void>)
+            .then(() => {
+              playSafe();
+            })
+            .catch(() => {
+              playSafe();
+            });
+        } else {
+          playSafe();
+        }
+      } catch {
+        playSafe();
+      }
+    } else {
+      playSafe();
     }
 
-    // 3. If reduced motion or inactive, avoid expanding waves and navigate promptly
+    // 2. If reduced motion or inactive, avoid expanding waves and navigate promptly
     if (motion.reducedMotion || !motion.active) {
       navigateOnce(currentToken);
       return;
     }
 
-    // 4. Trigger expanding golden water ripple ("sóng nước màu vàng")
+    // 3. Trigger outward semicircular golden water ripple waves ((( button )))
     setRippleActive(true);
     rippleProgress.setValue(0);
 
@@ -164,46 +205,61 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
       ) {
         navigateOnce(currentToken);
       }
-    }, RIPPLE_DURATION_MS + 40);
+    }, RIPPLE_DURATION_MS + 60);
   }
 
-  // Concentric water wave ripple interpolations
-  const wave1Scale = rippleProgress.interpolate({
+  // Semicircular water wave ripple interpolations (staggered outward propagation)
+  const leftWave1TranslateX = rippleProgress.interpolate({
     inputRange: [0, 1],
-    outputRange: [0.15, 4.2],
+    outputRange: [2, -6],
+  });
+  const leftWave2TranslateX = rippleProgress.interpolate({
+    inputRange: [0, 0.12, 1],
+    outputRange: [2, 2, -10],
+  });
+  const leftWave3TranslateX = rippleProgress.interpolate({
+    inputRange: [0, 0.24, 1],
+    outputRange: [2, 2, -14],
+  });
+
+  const rightWave1TranslateX = rippleProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-2, 6],
+  });
+  const rightWave2TranslateX = rippleProgress.interpolate({
+    inputRange: [0, 0.12, 1],
+    outputRange: [-2, -2, 10],
+  });
+  const rightWave3TranslateX = rippleProgress.interpolate({
+    inputRange: [0, 0.24, 1],
+    outputRange: [-2, -2, 14],
+  });
+
+  const wave1Scale = rippleProgress.interpolate({
+    inputRange: [0, 0.4, 1],
+    outputRange: [0.85, 1.02, 1.12],
   });
   const wave1Opacity = rippleProgress.interpolate({
-    inputRange: [0, 0.25, 0.7, 1],
-    outputRange: [0.85, 0.75, 0.35, 0],
+    inputRange: [0, 0.15, 0.6, 1],
+    outputRange: [0.2, 0.85, 0.45, 0],
   });
 
   const wave2Scale = rippleProgress.interpolate({
-    inputRange: [0, 0.15, 1],
-    outputRange: [0.1, 0.1, 3.2],
+    inputRange: [0, 0.12, 0.55, 1],
+    outputRange: [0.75, 0.82, 1.05, 1.22],
   });
   const wave2Opacity = rippleProgress.interpolate({
-    inputRange: [0, 0.15, 0.35, 0.8, 1],
-    outputRange: [0, 0.8, 0.65, 0.25, 0],
+    inputRange: [0, 0.12, 0.32, 0.75, 1],
+    outputRange: [0, 0.2, 0.70, 0.35, 0],
   });
 
   const wave3Scale = rippleProgress.interpolate({
-    inputRange: [0, 0.3, 1],
-    outputRange: [0.1, 0.1, 2.2],
+    inputRange: [0, 0.24, 0.7, 1],
+    outputRange: [0.65, 0.72, 1.05, 1.30],
   });
   const wave3Opacity = rippleProgress.interpolate({
-    inputRange: [0, 0.3, 0.5, 0.9, 1],
-    outputRange: [0, 0.7, 0.5, 0.15, 0],
-  });
-
-  const crestScale = rippleProgress.interpolate({
-    inputRange: [0, 0.2, 0.5],
-    outputRange: [0.4, 1.2, 1.8],
-    extrapolate: 'clamp',
-  });
-  const crestOpacity = rippleProgress.interpolate({
-    inputRange: [0, 0.15, 0.45],
-    outputRange: [0.9, 0.7, 0],
-    extrapolate: 'clamp',
+    inputRange: [0, 0.24, 0.48, 0.85, 1],
+    outputRange: [0, 0.1, 0.50, 0.18, 0],
   });
 
   return (
@@ -265,7 +321,7 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
         </Animated.View>
 
         <View style={styles.action}>
-          <Animated.View style={{ transform: [{ scale: press.scaleAnim }] }}>
+          <Animated.View style={[styles.buttonWrapper, { transform: [{ scale: press.scaleAnim }] }]}>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={t('prologue.start_label')}
@@ -275,75 +331,225 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
               onLayout={(e) => {
                 const { width, height } = e.nativeEvent.layout;
                 buttonLayout.current = { width, height };
+                setButtonSize({ width, height });
               }}
               style={({ pressed }) => [styles.button, pressed && { opacity: 0.85 }]}
             >
               <Text style={styles.buttonText}>{t('prologue.start_button')}</Text>
               <AppIcon name="arrow" />
+            </Pressable>
 
-              {/* Polished golden/yellow water ripple ("sóng nước màu vàng") */}
-              {rippleActive && (
-                <View
-                  testID="prologue-ripple-overlay"
-                  pointerEvents="none"
-                  accessible={false}
-                  importantForAccessibility="no"
-                  aria-hidden={true}
-                  style={styles.rippleOverlay}
-                >
+            {/* Semicircular golden water ripple arcs radiating outside each button flank ((( button ))) */}
+            {rippleActive && (
+              <View
+                testID="prologue-ripple-overlay"
+                pointerEvents="none"
+                accessible={false}
+                importantForAccessibility="no"
+                aria-hidden={true}
+                style={[
+                  styles.rippleOverlay,
+                  {
+                    width: buttonSize.width,
+                    height: buttonSize.height,
+                  },
+                ]}
+              >
+                {/* Left flank ripple waves ((( */}
+                <View testID="prologue-ripple-left-flank" style={styles.leftFlank}>
                   <Animated.View
-                    testID="prologue-ripple-wave-1"
+                    testID="prologue-ripple-wave-left-1"
                     style={[
-                      styles.rippleWave,
+                      styles.waveContainer,
                       {
-                        left: rippleCenter.x - RIPPLE_SIZE / 2,
-                        top: rippleCenter.y - RIPPLE_SIZE / 2,
-                        transform: [{ scale: wave1Scale }],
+                        transform: [{ translateX: leftWave1TranslateX }, { scale: wave1Scale }],
                         opacity: wave1Opacity,
                       },
                     ]}
-                  />
+                  >
+                    <Svg width={FLANK_WIDTH} height={FLANK_HEIGHT} viewBox={`0 0 ${FLANK_WIDTH} ${FLANK_HEIGHT}`}>
+                      <Defs>
+                        <LinearGradient id="glow-l1" x1="0" y1="0" x2="0" y2="1">
+                          <Stop offset="0" stopColor="#E8BA5A" stopOpacity="0" />
+                          <Stop offset="0.25" stopColor="#E8BA5A" stopOpacity="0.25" />
+                          <Stop offset="0.5" stopColor="#E8BA5A" stopOpacity="0.30" />
+                          <Stop offset="0.75" stopColor="#E8BA5A" stopOpacity="0.25" />
+                          <Stop offset="1" stopColor="#E8BA5A" stopOpacity="0" />
+                        </LinearGradient>
+                        <LinearGradient id="core-l1" x1="0" y1="0" x2="0" y2="1">
+                          <Stop offset="0" stopColor="#F4D086" stopOpacity="0" />
+                          <Stop offset="0.25" stopColor="#F4D086" stopOpacity="0.85" />
+                          <Stop offset="0.5" stopColor="#F4D086" stopOpacity="1" />
+                          <Stop offset="0.75" stopColor="#F4D086" stopOpacity="0.85" />
+                          <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
+                        </LinearGradient>
+                      </Defs>
+                      <Path d={LEFT_ARC_1} stroke="url(#glow-l1)" strokeWidth={3.8} strokeLinecap="round" fill="none" />
+                      <Path d={LEFT_ARC_1} stroke="url(#core-l1)" strokeWidth={1.8} strokeLinecap="round" fill="none" />
+                    </Svg>
+                  </Animated.View>
                   <Animated.View
-                    testID="prologue-ripple-wave-2"
+                    testID="prologue-ripple-wave-left-2"
                     style={[
-                      styles.rippleWave,
-                      styles.rippleWave2,
+                      styles.waveContainer,
                       {
-                        left: rippleCenter.x - RIPPLE_SIZE / 2,
-                        top: rippleCenter.y - RIPPLE_SIZE / 2,
-                        transform: [{ scale: wave2Scale }],
+                        transform: [{ translateX: leftWave2TranslateX }, { scale: wave2Scale }],
                         opacity: wave2Opacity,
                       },
                     ]}
-                  />
+                  >
+                    <Svg width={FLANK_WIDTH} height={FLANK_HEIGHT} viewBox={`0 0 ${FLANK_WIDTH} ${FLANK_HEIGHT}`}>
+                      <Defs>
+                        <LinearGradient id="glow-l2" x1="0" y1="0" x2="0" y2="1">
+                          <Stop offset="0" stopColor="#E8BA5A" stopOpacity="0" />
+                          <Stop offset="0.25" stopColor="#E8BA5A" stopOpacity="0.20" />
+                          <Stop offset="0.5" stopColor="#E8BA5A" stopOpacity="0.25" />
+                          <Stop offset="0.75" stopColor="#E8BA5A" stopOpacity="0.20" />
+                          <Stop offset="1" stopColor="#E8BA5A" stopOpacity="0" />
+                        </LinearGradient>
+                        <LinearGradient id="core-l2" x1="0" y1="0" x2="0" y2="1">
+                          <Stop offset="0" stopColor="#F4D086" stopOpacity="0" />
+                          <Stop offset="0.25" stopColor="#F4D086" stopOpacity="0.75" />
+                          <Stop offset="0.5" stopColor="#F4D086" stopOpacity="0.9" />
+                          <Stop offset="0.75" stopColor="#F4D086" stopOpacity="0.75" />
+                          <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
+                        </LinearGradient>
+                      </Defs>
+                      <Path d={LEFT_ARC_2} stroke="url(#glow-l2)" strokeWidth={3.0} strokeLinecap="round" fill="none" />
+                      <Path d={LEFT_ARC_2} stroke="url(#core-l2)" strokeWidth={1.3} strokeLinecap="round" fill="none" />
+                    </Svg>
+                  </Animated.View>
                   <Animated.View
-                    testID="prologue-ripple-wave-3"
+                    testID="prologue-ripple-wave-left-3"
                     style={[
-                      styles.rippleWave,
-                      styles.rippleWave3,
+                      styles.waveContainer,
                       {
-                        left: rippleCenter.x - RIPPLE_SIZE / 2,
-                        top: rippleCenter.y - RIPPLE_SIZE / 2,
-                        transform: [{ scale: wave3Scale }],
+                        transform: [{ translateX: leftWave3TranslateX }, { scale: wave3Scale }],
                         opacity: wave3Opacity,
                       },
                     ]}
-                  />
+                  >
+                    <Svg width={FLANK_WIDTH} height={FLANK_HEIGHT} viewBox={`0 0 ${FLANK_WIDTH} ${FLANK_HEIGHT}`}>
+                      <Defs>
+                        <LinearGradient id="glow-l3" x1="0" y1="0" x2="0" y2="1">
+                          <Stop offset="0" stopColor="#E8BA5A" stopOpacity="0" />
+                          <Stop offset="0.25" stopColor="#E8BA5A" stopOpacity="0.15" />
+                          <Stop offset="0.5" stopColor="#E8BA5A" stopOpacity="0.20" />
+                          <Stop offset="0.75" stopColor="#E8BA5A" stopOpacity="0.15" />
+                          <Stop offset="1" stopColor="#E8BA5A" stopOpacity="0" />
+                        </LinearGradient>
+                        <LinearGradient id="core-l3" x1="0" y1="0" x2="0" y2="1">
+                          <Stop offset="0" stopColor="#F4D086" stopOpacity="0" />
+                          <Stop offset="0.25" stopColor="#F4D086" stopOpacity="0.65" />
+                          <Stop offset="0.5" stopColor="#F4D086" stopOpacity="0.8" />
+                          <Stop offset="0.75" stopColor="#F4D086" stopOpacity="0.65" />
+                          <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
+                        </LinearGradient>
+                      </Defs>
+                      <Path d={LEFT_ARC_3} stroke="url(#glow-l3)" strokeWidth={2.4} strokeLinecap="round" fill="none" />
+                      <Path d={LEFT_ARC_3} stroke="url(#core-l3)" strokeWidth={0.9} strokeLinecap="round" fill="none" />
+                    </Svg>
+                  </Animated.View>
+                </View>
+
+                {/* Right flank ripple waves ))) */}
+                <View testID="prologue-ripple-right-flank" style={styles.rightFlank}>
                   <Animated.View
-                    testID="prologue-ripple-crest"
+                    testID="prologue-ripple-wave-right-1"
                     style={[
-                      styles.rippleCrest,
+                      styles.waveContainer,
                       {
-                        left: rippleCenter.x - 12,
-                        top: rippleCenter.y - 12,
-                        transform: [{ scale: crestScale }],
-                        opacity: crestOpacity,
+                        transform: [{ translateX: rightWave1TranslateX }, { scale: wave1Scale }],
+                        opacity: wave1Opacity,
                       },
                     ]}
-                  />
+                  >
+                    <Svg width={FLANK_WIDTH} height={FLANK_HEIGHT} viewBox={`0 0 ${FLANK_WIDTH} ${FLANK_HEIGHT}`}>
+                      <Defs>
+                        <LinearGradient id="glow-r1" x1="0" y1="0" x2="0" y2="1">
+                          <Stop offset="0" stopColor="#E8BA5A" stopOpacity="0" />
+                          <Stop offset="0.25" stopColor="#E8BA5A" stopOpacity="0.25" />
+                          <Stop offset="0.5" stopColor="#E8BA5A" stopOpacity="0.30" />
+                          <Stop offset="0.75" stopColor="#E8BA5A" stopOpacity="0.25" />
+                          <Stop offset="1" stopColor="#E8BA5A" stopOpacity="0" />
+                        </LinearGradient>
+                        <LinearGradient id="core-r1" x1="0" y1="0" x2="0" y2="1">
+                          <Stop offset="0" stopColor="#F4D086" stopOpacity="0" />
+                          <Stop offset="0.25" stopColor="#F4D086" stopOpacity="0.85" />
+                          <Stop offset="0.5" stopColor="#F4D086" stopOpacity="1" />
+                          <Stop offset="0.75" stopColor="#F4D086" stopOpacity="0.85" />
+                          <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
+                        </LinearGradient>
+                      </Defs>
+                      <Path d={RIGHT_ARC_1} stroke="url(#glow-r1)" strokeWidth={3.8} strokeLinecap="round" fill="none" />
+                      <Path d={RIGHT_ARC_1} stroke="url(#core-r1)" strokeWidth={1.8} strokeLinecap="round" fill="none" />
+                    </Svg>
+                  </Animated.View>
+                  <Animated.View
+                    testID="prologue-ripple-wave-right-2"
+                    style={[
+                      styles.waveContainer,
+                      {
+                        transform: [{ translateX: rightWave2TranslateX }, { scale: wave2Scale }],
+                        opacity: wave2Opacity,
+                      },
+                    ]}
+                  >
+                    <Svg width={FLANK_WIDTH} height={FLANK_HEIGHT} viewBox={`0 0 ${FLANK_WIDTH} ${FLANK_HEIGHT}`}>
+                      <Defs>
+                        <LinearGradient id="glow-r2" x1="0" y1="0" x2="0" y2="1">
+                          <Stop offset="0" stopColor="#E8BA5A" stopOpacity="0" />
+                          <Stop offset="0.25" stopColor="#E8BA5A" stopOpacity="0.20" />
+                          <Stop offset="0.5" stopColor="#E8BA5A" stopOpacity="0.25" />
+                          <Stop offset="0.75" stopColor="#E8BA5A" stopOpacity="0.20" />
+                          <Stop offset="1" stopColor="#E8BA5A" stopOpacity="0" />
+                        </LinearGradient>
+                        <LinearGradient id="core-r2" x1="0" y1="0" x2="0" y2="1">
+                          <Stop offset="0" stopColor="#F4D086" stopOpacity="0" />
+                          <Stop offset="0.25" stopColor="#F4D086" stopOpacity="0.75" />
+                          <Stop offset="0.5" stopColor="#F4D086" stopOpacity="0.9" />
+                          <Stop offset="0.75" stopColor="#F4D086" stopOpacity="0.75" />
+                          <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
+                        </LinearGradient>
+                      </Defs>
+                      <Path d={RIGHT_ARC_2} stroke="url(#glow-r2)" strokeWidth={3.0} strokeLinecap="round" fill="none" />
+                      <Path d={RIGHT_ARC_2} stroke="url(#core-r2)" strokeWidth={1.3} strokeLinecap="round" fill="none" />
+                    </Svg>
+                  </Animated.View>
+                  <Animated.View
+                    testID="prologue-ripple-wave-right-3"
+                    style={[
+                      styles.waveContainer,
+                      {
+                        transform: [{ translateX: rightWave3TranslateX }, { scale: wave3Scale }],
+                        opacity: wave3Opacity,
+                      },
+                    ]}
+                  >
+                    <Svg width={FLANK_WIDTH} height={FLANK_HEIGHT} viewBox={`0 0 ${FLANK_WIDTH} ${FLANK_HEIGHT}`}>
+                      <Defs>
+                        <LinearGradient id="glow-r3" x1="0" y1="0" x2="0" y2="1">
+                          <Stop offset="0" stopColor="#E8BA5A" stopOpacity="0" />
+                          <Stop offset="0.25" stopColor="#E8BA5A" stopOpacity="0.15" />
+                          <Stop offset="0.5" stopColor="#E8BA5A" stopOpacity="0.20" />
+                          <Stop offset="0.75" stopColor="#E8BA5A" stopOpacity="0.15" />
+                          <Stop offset="1" stopColor="#E8BA5A" stopOpacity="0" />
+                        </LinearGradient>
+                        <LinearGradient id="core-r3" x1="0" y1="0" x2="0" y2="1">
+                          <Stop offset="0" stopColor="#F4D086" stopOpacity="0" />
+                          <Stop offset="0.25" stopColor="#F4D086" stopOpacity="0.65" />
+                          <Stop offset="0.5" stopColor="#F4D086" stopOpacity="0.8" />
+                          <Stop offset="0.75" stopColor="#F4D086" stopOpacity="0.65" />
+                          <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
+                        </LinearGradient>
+                      </Defs>
+                      <Path d={RIGHT_ARC_3} stroke="url(#glow-r3)" strokeWidth={2.4} strokeLinecap="round" fill="none" />
+                      <Path d={RIGHT_ARC_3} stroke="url(#core-r3)" strokeWidth={0.9} strokeLinecap="round" fill="none" />
+                    </Svg>
+                  </Animated.View>
                 </View>
-              )}
-            </Pressable>
+              </View>
+            )}
           </Animated.View>
           <Text style={styles.hint}>{t('prologue.hint')}</Text>
         </View>
@@ -390,6 +596,12 @@ const styles = StyleSheet.create({
   rule: { height: 1, width: 100, backgroundColor: '#B9A589', marginVertical: 12 },
   quote: { fontSize: 16, lineHeight: 26, fontStyle: 'italic', color: '#FFF8EB', textAlign: 'center', maxWidth: 420 },
   action: { alignItems: 'center', gap: 14 },
+  buttonWrapper: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'visible',
+  },
   button: {
     minHeight: 56,
     paddingVertical: 16,
@@ -407,34 +619,36 @@ const styles = StyleSheet.create({
   buttonText: { flexShrink: 1, color: '#FFFDF7', fontSize: 15, fontWeight: '800', letterSpacing: 1 },
   hint: { color: '#E8D5BC', fontSize: 13, textAlign: 'center' },
   rippleOverlay: {
-    ...StyleSheet.absoluteFill,
-    overflow: 'hidden',
-    borderRadius: 28,
-  },
-  rippleWave: {
     position: 'absolute',
-    width: RIPPLE_SIZE,
-    height: RIPPLE_SIZE,
-    borderRadius: RIPPLE_SIZE / 2,
-    borderWidth: 2,
-    borderColor: '#F2C56B',
-    backgroundColor: 'rgba(242, 197, 107, 0.16)',
+    top: 0,
+    left: 0,
+    overflow: 'visible',
   },
-  rippleWave2: {
-    borderWidth: 1.5,
-    borderColor: '#F5D78E',
-    backgroundColor: 'rgba(245, 215, 142, 0.09)',
-  },
-  rippleWave3: {
-    borderWidth: 1,
-    borderColor: '#FFF4D4',
-    backgroundColor: 'rgba(255, 244, 212, 0.14)',
-  },
-  rippleCrest: {
+  leftFlank: {
     position: 'absolute',
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'rgba(242, 197, 107, 0.65)',
+    left: -FLANK_WIDTH,
+    top: '50%',
+    marginTop: -FLANK_HEIGHT / 2,
+    width: FLANK_WIDTH,
+    height: FLANK_HEIGHT,
+    overflow: 'visible',
+  },
+  rightFlank: {
+    position: 'absolute',
+    right: -FLANK_WIDTH,
+    top: '50%',
+    marginTop: -FLANK_HEIGHT / 2,
+    width: FLANK_WIDTH,
+    height: FLANK_HEIGHT,
+    overflow: 'visible',
+  },
+  waveContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: FLANK_WIDTH,
+    height: FLANK_HEIGHT,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
