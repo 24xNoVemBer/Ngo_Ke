@@ -56,63 +56,68 @@ function mount(file, props = {}, overrides = {}, exportName) {
       return slots[i].callback;
     },
   };
+  const defaultAudioPlayer = overrides.__audioPlayer ?? {
+    play() {},
+    pause() {},
+    seekTo: async () => {},
+    volume: 1,
+  };
+  const rnDefaults = {
+    AccessibilityInfo: overrides.__accessibilityInfo ?? { announceForAccessibility() {} },
+    StyleSheet: { create: (styles) => styles, absoluteFill: {} },
+    Platform: { OS: 'android' },
+    Keyboard: { dismiss() {} },
+    Linking: overrides.__linking ?? { openSettings: async () => {} },
+    useWindowDimensions: () => overrides.__windowDimensions ?? ({ width: 400, height: 850, fontScale: 1 }),
+    Animated: {
+      View: 'Animated.View',
+      Image: 'Animated.Image',
+      Value: class {
+        constructor(val) {
+          this.val = val;
+        }
+        interpolate() {
+          return this;
+        }
+        setValue(value) { this.val = value; }
+        stopAnimation(cb) {
+          this.animation?.stop();
+          cb?.(this.val);
+          overrides.__onStopAnimation?.();
+        }
+      },
+      timing(value, config) {
+        if (overrides.__animatedTiming) return overrides.__animatedTiming(value, config);
+        return { start: (cb) => { value.setValue(config.toValue); cb?.({ finished: true }); }, stop() {} };
+      },
+      spring(value, config) {
+        return { start: (cb) => { value.setValue(config.toValue); cb?.({ finished: true }); }, stop() {} };
+      },
+      loop() {
+        return { start: () => {}, stop: () => {} };
+      },
+      sequence() {
+        return { start: (cb) => cb?.({ finished: true }), stop() {} };
+      },
+    },
+  };
+  const rnOverrides = overrides['react-native'] ?? {};
+  const rnMerged = {
+    ...rnDefaults,
+    ...rnOverrides,
+    StyleSheet: {
+      ...rnDefaults.StyleSheet,
+      ...(rnOverrides.StyleSheet ?? {}),
+    },
+    Animated: {
+      ...rnDefaults.Animated,
+      ...(rnOverrides.Animated ?? {}),
+    },
+  };
   const modules = {
     react,
     'react/jsx-runtime': { jsx: element, jsxs: element },
-    'react-native': new Proxy({
-      AccessibilityInfo: overrides.__accessibilityInfo ?? { announceForAccessibility() {} },
-      StyleSheet: { create: (styles) => styles, absoluteFill: {} },
-      Platform: { OS: 'android' },
-      Keyboard: { dismiss() {} },
-      Linking: overrides.__linking ?? { openSettings: async () => {} },
-      useWindowDimensions: () => overrides.__windowDimensions ?? ({ width: 400, height: 850, fontScale: 1 }),
-      Animated: {
-        View: 'Animated.View',
-        Image: 'Animated.Image',
-        Value: class {
-          constructor(val) {
-            this.val = val;
-          }
-          interpolate() {
-            return this;
-          }
-          setValue(value) { this.val = value; }
-          stopAnimation(cb) {
-            this.animation?.stop();
-            cb?.(this.val);
-            overrides.__onStopAnimation?.();
-          }
-        },
-        timing(value, config) {
-          if (overrides.__animatedTiming) return overrides.__animatedTiming(value, config);
-          return { start: (cb) => { value.setValue(config.toValue); cb?.({ finished: true }); }, stop() {} };
-        },
-        spring(value, config) {
-          return { start: (cb) => { value.setValue(config.toValue); cb?.({ finished: true }); }, stop() {} };
-        },
-        loop() {
-          return { start: () => {}, stop: () => {} };
-        },
-        sequence() {
-          return { start: (cb) => cb?.({ finished: true }), stop() {} };
-        },
-      },
-    }, { get: (object, key) => object[key] ?? key }),
     'react-native-safe-area-context': { SafeAreaProvider: 'SafeAreaProvider', useSafeAreaInsets: () => ({ top: 24, bottom: 24 }) },
-    'expo-audio': {
-      useAudioPlayer: () => ({
-        play() {},
-        pause() {},
-        seekTo: async () => {},
-        volume: 1,
-      }),
-      createAudioPlayer: () => ({
-        play() {},
-        pause() {},
-        seekTo: async () => {},
-        volume: 1,
-      }),
-    },
     '@react-navigation/native': { DefaultTheme: { colors: {} }, NavigationContainer: 'NavigationContainer', useIsFocused: () => true },
     '@react-navigation/native-stack': { createNativeStackNavigator: () => ({ Navigator: 'Navigator', Screen: 'Screen' }) },
     'expo-status-bar': { StatusBar: 'StatusBar' },
@@ -244,6 +249,12 @@ function mount(file, props = {}, overrides = {}, exportName) {
         createHash('sha256').update(str, 'utf8').digest('hex'),
     },
     ...overrides,
+    'react-native': new Proxy(rnMerged, { get: (object, key) => object[key] ?? key }),
+    'expo-audio': {
+      useAudioPlayer: () => defaultAudioPlayer,
+      createAudioPlayer: () => defaultAudioPlayer,
+      ...(overrides['expo-audio'] ?? {}),
+    },
   };
   const module = { exports: {} };
   const code = ts.transpileModule(readFileSync(new URL(file, import.meta.url), 'utf8'), {
@@ -3239,7 +3250,7 @@ test('PrologueScreen respects tap coordinate 0 as valid without falling back to 
   view.unmount();
 });
 
-test('PrologueScreen does not navigate if animation finishes with finished:false (cancelled callback)', () => {
+test('PrologueScreen does not navigate if animation finishes with finished:false (cancelled callback and RN override merges StyleSheet)', () => {
   const replaceCalls = [];
   let animCallback = null;
 
@@ -3249,10 +3260,14 @@ test('PrologueScreen does not navigate if animation finishes with finished:false
     '../hooks/MotionPreferences': {
       useMotionState: () => ({ active: true, reducedMotion: false, foreground: true }),
     },
-    __animatedTiming: () => ({
-      start: (cb) => { animCallback = cb; },
-      stop: () => {},
-    }),
+    'react-native': {
+      Animated: {
+        timing: () => ({
+          start: (cb) => { animCallback = cb; },
+          stop: () => {},
+        }),
+      },
+    },
   });
 
   const tree = view.render();
@@ -3264,6 +3279,56 @@ test('PrologueScreen does not navigate if animation finishes with finished:false
   animCallback({ finished: false });
 
   assert.equal(replaceCalls.length, 0, 'No navigation when animation finishes with finished: false');
+  view.unmount();
+});
+
+test('PrologueScreen early returns press when hidden and retries with new attempt token on foreground', () => {
+  const replaceCalls = [];
+  const audioEvents = [];
+  let animCallback = null;
+  let foregroundState = false; // Initially backgrounded
+
+  const view = mount('../src/screens/PrologueScreen.tsx', {
+    navigation: { replace: (name) => replaceCalls.push(name) },
+  }, {
+    '../hooks/MotionPreferences': {
+      useMotionState: () => ({ active: foregroundState, reducedMotion: false, foreground: foregroundState }),
+    },
+    'expo-audio': {
+      useAudioPlayer: () => ({
+        play: () => audioEvents.push('play'),
+        pause: () => audioEvents.push('pause'),
+      }),
+    },
+    __animatedTiming: () => ({
+      start: (cb) => { animCallback = cb; },
+      stop: () => {},
+    }),
+  });
+
+  let tree = view.render();
+  const startBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Bắt đầu dạo ngõ Hà Nội');
+
+  // 1. Press while hidden -> early returns immediately
+  startBtn.props.onPress({ nativeEvent: { locationX: 50, locationY: 20 } });
+  assert.equal(audioEvents.includes('play'), false, 'No play sound when hidden');
+  assert.equal(animCallback, null, 'No animation started when hidden');
+  assert.equal(replaceCalls.length, 0, 'No navigation when hidden');
+
+  // 2. Return to foreground
+  foregroundState = true;
+  tree = view.render();
+  const startBtnForeground = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Bắt đầu dạo ngõ Hà Nội');
+
+  // 3. Press now starts attempt with token
+  startBtnForeground.props.onPress({ nativeEvent: { locationX: 50, locationY: 20 } });
+  assert.ok(audioEvents.includes('play'), 'Sound played on foreground press');
+  assert.ok(animCallback, 'Animation started on foreground press');
+
+  // Complete animation with finished: true
+  animCallback({ finished: true });
+  assert.deepEqual(replaceCalls, ['Landing'], 'Navigation succeeds on valid foreground attempt');
+
   view.unmount();
 });
 

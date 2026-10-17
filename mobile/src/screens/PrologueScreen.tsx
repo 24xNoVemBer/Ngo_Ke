@@ -41,9 +41,9 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
   const player = useAudioPlayer(PROLOGUE_DOOR_SOUND);
 
   const mounted = useRef(true);
-  const cancelled = useRef(false);
   const starting = useRef(false);
   const navigated = useRef(false);
+  const attemptToken = useRef(0);
   const navigationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const buttonLayout = useRef({ width: 240, height: 56 });
 
@@ -58,7 +58,7 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
     mounted.current = true;
     return () => {
       mounted.current = false;
-      cancelled.current = true;
+      attemptToken.current += 1; // Invalidate any in-flight attempt before stopAnimation
       if (navigationTimer.current) {
         clearTimeout(navigationTimer.current);
         navigationTimer.current = null;
@@ -75,7 +75,7 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
   // Cancel in-flight ripple, timer, and pause audio when blurred or backgrounded so foreground can retry
   useEffect(() => {
     if (!isFocused || !motion.foreground) {
-      cancelled.current = true;
+      attemptToken.current += 1; // Invalidate any in-flight attempt before stopAnimation
       if (navigationTimer.current) {
         clearTimeout(navigationTimer.current);
         navigationTimer.current = null;
@@ -91,8 +91,9 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
     }
   }, [isFocused, motion.foreground, player, rippleProgress]);
 
-  function navigateOnce(): void {
-    if (navigated.current || !mounted.current || cancelled.current) return;
+  function navigateOnce(token?: number): void {
+    if (navigated.current || !mounted.current || !starting.current) return;
+    if (token !== undefined && attemptToken.current !== token) return;
     navigated.current = true;
     if (navigationTimer.current) {
       clearTimeout(navigationTimer.current);
@@ -102,9 +103,11 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
   }
 
   function handleStartJourney(event?: GestureResponderEvent): void {
-    if (starting.current) return;
+    // Early return press if already starting or if screen is hidden/blurred/backgrounded
+    if (starting.current || !isFocused || !motion.foreground) return;
     starting.current = true;
-    cancelled.current = false;
+    attemptToken.current += 1;
+    const currentToken = attemptToken.current;
 
     // 1. Resolve tap coordinates (or fallback to button center for accessibility activation)
     const locX = event?.nativeEvent?.locationX;
@@ -129,7 +132,7 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
 
     // 3. If reduced motion or inactive, avoid expanding waves and navigate promptly
     if (motion.reducedMotion || !motion.active) {
-      navigateOnce();
+      navigateOnce(currentToken);
       return;
     }
 
@@ -143,14 +146,23 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
       easing: motionEasings.gentleOut,
       useNativeDriver: true,
     }).start((result) => {
-      if (result?.finished && mounted.current && !cancelled.current) {
-        navigateOnce();
+      if (
+        result?.finished &&
+        mounted.current &&
+        starting.current &&
+        attemptToken.current === currentToken
+      ) {
+        navigateOnce(currentToken);
       }
     });
 
     navigationTimer.current = setTimeout(() => {
-      if (mounted.current && !cancelled.current) {
-        navigateOnce();
+      if (
+        mounted.current &&
+        starting.current &&
+        attemptToken.current === currentToken
+      ) {
+        navigateOnce(currentToken);
       }
     }, RIPPLE_DURATION_MS + 40);
   }
