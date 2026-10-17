@@ -1,5 +1,12 @@
 # Mở demo Việt/Anh — bản tích hợp local
 
+## Bản bố cục và sóng vàng mới — 17/10/2026
+
+- Candidate product source `4d98f3b`, test/docs cuối `76ac81a`: Landing ưu tiên chọn ngõ, bỏ footer lặp; Home có preview điểm chọn và một CTA; Q&A/công cụ nhẹ hơn; Prologue hai cung mỗi sườn, khung28dp, hiệu ứng620ms. Cue asset giữ bytes, đoạn phát fade trước chuyển màn.
+- **274/274 app tests**, tsc/lint đạt; bundle iOS/Android HTTP200. Native sau thay đổi chưa xác minh vì công cụ chặn khởi động emulator (`blocked by policy`); không lấy ảnh cũ làm bằng chứng mới.
+- Mở Expo Go với `exp://192.168.100.36:8081`, cùng Wi-Fi, reload nếu đang mở bản cũ. QR: `C:/Users/LEGION/AppData/Local/Temp/ngoke-demo-qr.png`. Metro terminal `term_f0bc65ee-88d7-4ebf-bb1a-48bc4a1a7d6b` đang phục vụ source mới.
+- Báo cáo: `docs/POST8_LAYOUT_WAVES_COORDINATOR_REVIEW.md`. Cần người dùng quyết: không có bước chặn. Cần người dùng tự làm: kiểm cảm nhận trên máy thật khi nghiệm thu; chưa publish đợt này lên Expo.dev, link team bên dưới vẫn là bản trước.
+
 ## Preview Expo.dev cho team — 17/10/2026
 
 - [Mở trang preview và QR](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/861bab90-e6cf-428b-8a21-f5a31e15c72a).

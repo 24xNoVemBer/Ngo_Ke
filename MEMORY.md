@@ -1,5 +1,18 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-17 — hoàn tất triển khai bố cục và sóng vàng gọn, native mới còn pending
+
+- Người dùng duyệt “triển khai đi” sau đề xuất: Landing chọn ngõ lên trước, bỏ footer lặp; Home preview điểm chọn luôn thấy + một CTA mở chuyện; Q&A nghe/đọc làm trọng tâm, công cụ phụ nhẹ; Prologue câu dẫn ngắn và hai cung bán nguyệt mỗi sườn, lan16–28dp, khoảng500–650ms. Quyền này thay thế giới hạn cũ giữ layout/ba cung/1180ms. Không hỏi lại duyệt.
+- Brief `docs/POST8_LAYOUT_WAVES_IMPLEMENTATION.md`, W1 commit `03e3e65`. Giao W2 Antigravity đúng Gemini3.8Flash/high, cùng terminal `term_b8569f42-8f0d-4b42-a05f-9250fdddcd37`, task `task_451b56112ba7`, dispatch `ctx_c31a9f108678`. Receipt turn_unobserved, terminal xác nhận đã đọc brief; không dispatch lặp. Handoff `msg_c7d2dd927c2d` và `msg_597b55b898af`.
+- Candidate baseline `1ec615d`,268 tests; worker `95b438c`,254 tests. Source/assets `c83b5ee..1ec615d` giống hệt nên PNG native đợt trước là baseline trước sửa hợp lệ (không dùng làm chứng cứ sau sửa).
+- **Native mới bị chặn:** lệnh Start-Process emulator headless Medium_Phone_API_37.0 bị automatic tool review từ chối `blocked by policy`; không có lý do chi tiết hơn, không thử vòng qua shell/tool/worker khác. Đã báo user, W2 không được retry emulator. Không coi đây là cửa xin user duyệt; tiếp tục source/tests/bundle checks, native mới pending.
+- Metro candidate8081 đang chạy, terminal mới từ lượt mở QR `term_f0bc65ee-88d7-4ebf-bb1a-48bc4a1a7d6b`, `exp://192.168.100.36:8081`, ảnh QR Temp/ngoke-demo-qr.png đã mở. Terminal cũ9a0c orphaned/operator_close, không dùng lại.
+- Giữ100 narrationMP3 và cueWAV nguyênbytes; được fade phần cue phát khi chuyển sớm, không mở voice engine/backend/data/EAS/deps/publish. Cần test seek resolve quá deadline, fade/cancel/retry/unmount và guard lượt cũ.
+- Đã review/cherry-pick W2 `3df2df3`→`8d9d81d`, `93f73c9`→`e8d7516`, `edd851c`→`4d98f3b`, `236a09d`→`843daf3`, `cc0fabf`→`76ac81a`. Hai cung mỗi sườn/clip28dp/620ms; cue fade460–600ms. Home preview cố định, chữ lớn chuyển cột; Landing bỏ CTA lặp; Q&A phân cấp nhẹ và hint ngắn. Giữ assets/data/backend/voice/deps/EAS.
+- W1 độc lập tại `76ac81a`: **274/274 mobile Node tests**,0 fail/cancel/skip, lint exit0. TypeScript exit0 tại `4d98f3b`, product source không đổi sau đó; bundle iOS5,822,638 và Android5,822,784 bytes HTTP200. Test thực kiểm callback intervalA cũ không hủy intervalB, seek không reset fade; thêm kiểm fontScale2.0 và icon đọc chữ. Báo cáo `docs/POST8_LAYOUT_WAVES_COORDINATOR_REVIEW.md`.
+- Follow-up `task_4bfed92ec374`: lần `ctx_770a1d540fd8` readiness timeout, retry đúng task `ctx_b676fd39a98f` worker_done succeeded `msg_e525b6b696b4`; đã review, release external-retained/processnone, ACK `delivery_b3ae56d9edc4`. Completion trễ task cũ đã ACK và bỏ qua, không dùng thay bằng chứng follow-up. Không đổi model.
+- Metro8081 đã khởi động lại từ candidate source cuối; QR cũ dùng được sau reload. Expo.dev vẫn bản publish trước, không publish đợt này. Cần người dùng quyết: không có quyết định chặn. Cần người dùng tự làm: thử cảm nhận trên điện thoại thật khi nghiệm thu; native mới/FPS/âm thanh thực/iPhone chưa xác minh do hạn chế công cụ nêu trên.
+
 ## 2026-10-17 — mở đợt đánh giá/thiết kế UI UX theo motion-design
 
 - Người dùng yêu cầu cài/dùng motion-design đánh giá toàn bộ UI/UX và giao Antigravity thiết kế lại, tự đánh giá theo mục tiêu app. Skill đã có ở `C:/Users/LEGION/.agents/skills/motion-design/SKILL.md`, W1 đọc skill + context-adaptation/quality-checklist; không cài trùng hoặc thêm thư viện animation.
