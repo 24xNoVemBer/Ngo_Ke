@@ -77,9 +77,14 @@ function mount(file, props = {}, overrides = {}, exportName) {
             return this;
           }
           setValue(value) { this.val = value; }
-          stopAnimation() { this.animation?.stop(); }
+          stopAnimation(cb) {
+            this.animation?.stop();
+            cb?.(this.val);
+            overrides.__onStopAnimation?.();
+          }
         },
         timing(value, config) {
+          if (overrides.__animatedTiming) return overrides.__animatedTiming(value, config);
           return { start: (cb) => { value.setValue(config.toValue); cb?.({ finished: true }); }, stop() {} };
         },
         spring(value, config) {
@@ -94,6 +99,20 @@ function mount(file, props = {}, overrides = {}, exportName) {
       },
     }, { get: (object, key) => object[key] ?? key }),
     'react-native-safe-area-context': { SafeAreaProvider: 'SafeAreaProvider', useSafeAreaInsets: () => ({ top: 24, bottom: 24 }) },
+    'expo-audio': {
+      useAudioPlayer: () => ({
+        play() {},
+        pause() {},
+        seekTo: async () => {},
+        volume: 1,
+      }),
+      createAudioPlayer: () => ({
+        play() {},
+        pause() {},
+        seekTo: async () => {},
+        volume: 1,
+      }),
+    },
     '@react-navigation/native': { DefaultTheme: { colors: {} }, NavigationContainer: 'NavigationContainer', useIsFocused: () => true },
     '@react-navigation/native-stack': { createNativeStackNavigator: () => ({ Navigator: 'Navigator', Screen: 'Screen' }) },
     'expo-status-bar': { StatusBar: 'StatusBar' },
@@ -232,7 +251,7 @@ function mount(file, props = {}, overrides = {}, exportName) {
   }).outputText;
   runInNewContext('(function(require,module,exports){' + code + '\n})', { process: { env: {} }, setTimeout, clearTimeout, AbortController: globalThis.AbortController, ...overrides.__globals })((id) => {
     if (modules[id]) return modules[id];
-    if (/\.(png|jpe?g|gif|webp)$/i.test(id)) return 1;
+    if (/\.(png|jpe?g|gif|webp|wav|mp3)$/i.test(id)) return 1;
     if (/\/screens\//.test(id) || /\/components\//.test(id) || id === './UnavailableScreen') {
       const name = id.split('/').at(-1);
       return { [name]: name };
@@ -3075,5 +3094,227 @@ test('QaScreen localizes inline voice pick reasons in EN without leaking raw Vie
   assert.equal(dockVi?.quickActionLabel, 'Mở sổ tay ngõ phố', 'QaScreen passes localized home.notebook_label as quickActionLabel in VI');
   viewVi.unmount();
 });
+
+test('PrologueScreen triggers golden water ripple from tap coordinates and plays gentle discovery sound', () => {
+  const replaceCalls = [];
+  const audioEvents = [];
+  const playerMock = {
+    play: () => { audioEvents.push('play'); },
+    pause: () => { audioEvents.push('pause'); },
+  };
+
+  const view = mount('../src/screens/PrologueScreen.tsx', {
+    navigation: { replace: (name) => replaceCalls.push(name) },
+  }, {
+    '../hooks/MotionPreferences': {
+      useMotionState: () => ({ active: true, reducedMotion: false, foreground: true }),
+    },
+    'expo-audio': {
+      useAudioPlayer: () => playerMock,
+    },
+  });
+
+  let tree = view.render();
+  const startBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Bắt đầu dạo ngõ Hà Nội');
+  assert.ok(startBtn, 'Start button found with accessible label');
+
+  // Button layout measurement
+  startBtn.props.onLayout({ nativeEvent: { layout: { width: 260, height: 60 } } });
+
+  // 1. Tap with local coordinates (x: 100, y: 35)
+  startBtn.props.onPress({ nativeEvent: { locationX: 100, locationY: 35 } });
+  tree = view.render();
+
+  // Verify audio played
+  assert.deepEqual(audioEvents, ['play'], 'Gentle discovery sound plays on tap');
+
+  // Verify golden water ripple overlay is rendered with proper accessibility exclusion
+  const rippleOverlay = elements(tree, 'View').find((item) => item.props.testID === 'prologue-ripple-overlay');
+  assert.ok(rippleOverlay, 'Ripple overlay rendered with testID="prologue-ripple-overlay"');
+  assert.equal(rippleOverlay.props.pointerEvents, 'none', 'Ripple overlay has pointerEvents="none"');
+  assert.equal(rippleOverlay.props['aria-hidden'], true, 'Ripple overlay has aria-hidden=true');
+
+  // Verify concentric wave layers exist
+  const wave1 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-1');
+  const wave2 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-2');
+  const wave3 = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-3');
+  const crest = elements(tree, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-crest');
+  assert.ok(wave1 && wave2 && wave3 && crest, 'Concentric golden water ripple waves rendered');
+
+  // Verify ripple center is positioned around tap location (100, 35)
+  // RIPPLE_SIZE = 80, so left = 100 - 40 = 60, top = 35 - 40 = -5
+  const wave1Style = [].concat(wave1.props.style).reduce((acc, s) => ({ ...acc, ...s }), {});
+  assert.equal(wave1Style.left, 60, 'Wave 1 centered at tap X coordinate');
+  assert.equal(wave1Style.top, -5, 'Wave 1 centered at tap Y coordinate');
+
+  // 2. Rapid second press does not play sound again or navigate multiple times
+  startBtn.props.onPress({ nativeEvent: { locationX: 120, locationY: 40 } });
+  assert.equal(audioEvents.length, 1, 'Rapid press debounced: sound played only once');
+
+  // 3. Navigation replaces to Landing
+  assert.deepEqual(replaceCalls, ['Landing'], 'Navigation replaces to Landing');
+
+  // 4. Unmount cleans up audio
+  view.unmount();
+  assert.ok(audioEvents.includes('pause'), 'Audio paused on unmount');
+});
+
+test('PrologueScreen accessibility activation falls back to button center and reduced motion navigates promptly without expanding ripple', () => {
+  const replaceCalls = [];
+  const viewReduced = mount('../src/screens/PrologueScreen.tsx', {
+    navigation: { replace: (name) => replaceCalls.push(name) },
+  }, {
+    '../hooks/MotionPreferences': {
+      useMotionState: () => ({ active: false, reducedMotion: true, foreground: true }),
+    },
+  });
+
+  const tree = viewReduced.render();
+  const startBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Bắt đầu dạo ngõ Hà Nội');
+
+  // Screen reader / TalkBack activation with no location coordinates
+  startBtn.props.onLayout({ nativeEvent: { layout: { width: 240, height: 56 } } });
+  startBtn.props.onPress(); // No event / no locationX
+
+  // Navigates promptly when reducedMotion is true
+  assert.deepEqual(replaceCalls, ['Landing'], 'Reduced motion navigates promptly to Landing');
+
+  // Ripple waves are skipped under reduced motion
+  const treeAfter = viewReduced.render();
+  const wave1 = elements(treeAfter, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-1');
+  assert.equal(wave1, undefined, 'No expanding ripple waves under reduced motion');
+  viewReduced.unmount();
+});
+
+test('PrologueScreen audio play failure never blocks navigation', () => {
+  const replaceCalls = [];
+  const viewError = mount('../src/screens/PrologueScreen.tsx', {
+    navigation: { replace: (name) => replaceCalls.push(name) },
+  }, {
+    '../hooks/MotionPreferences': {
+      useMotionState: () => ({ active: false, reducedMotion: true, foreground: true }),
+    },
+    'expo-audio': {
+      useAudioPlayer: () => ({
+        play: () => { throw new Error('Hardware audio device busy'); },
+        pause: () => {},
+      }),
+    },
+  });
+
+  const tree = viewError.render();
+  const startBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Bắt đầu dạo ngõ Hà Nội');
+
+  // Tap button when audio subsystem throws
+  assert.doesNotThrow(() => {
+    startBtn.props.onPress({ nativeEvent: { locationX: 50, locationY: 25 } });
+  }, 'Audio playback failure must not throw');
+
+  assert.deepEqual(replaceCalls, ['Landing'], 'Navigation succeeds despite audio failure');
+  viewError.unmount();
+});
+
+test('PrologueScreen respects tap coordinate 0 as valid without falling back to button center', () => {
+  const replaceCalls = [];
+  const view = mount('../src/screens/PrologueScreen.tsx', {
+    navigation: { replace: (name) => replaceCalls.push(name) },
+  }, {
+    '../hooks/MotionPreferences': {
+      useMotionState: () => ({ active: true, reducedMotion: false, foreground: true }),
+    },
+  });
+
+  const tree = view.render();
+  const startBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Bắt đầu dạo ngõ Hà Nội');
+  startBtn.props.onLayout({ nativeEvent: { layout: { width: 240, height: 56 } } });
+
+  // Tap at exactly (0, 0)
+  startBtn.props.onPress({ nativeEvent: { locationX: 0, locationY: 0 } });
+  const treeAfter = view.render();
+  const wave1 = elements(treeAfter, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-1');
+  const wave1Style = [].concat(wave1.props.style).reduce((acc, s) => ({ ...acc, ...s }), {});
+  // RIPPLE_SIZE = 80, so left = 0 - 40 = -40, top = 0 - 40 = -40
+  assert.equal(wave1Style.left, -40, 'Coordinate 0 is valid and wave left is -40, not center fallback (80)');
+  assert.equal(wave1Style.top, -40, 'Coordinate 0 is valid and wave top is -40, not center fallback (-12)');
+  view.unmount();
+});
+
+test('PrologueScreen does not navigate if animation finishes with finished:false (cancelled callback)', () => {
+  const replaceCalls = [];
+  let animCallback = null;
+
+  const view = mount('../src/screens/PrologueScreen.tsx', {
+    navigation: { replace: (name) => replaceCalls.push(name) },
+  }, {
+    '../hooks/MotionPreferences': {
+      useMotionState: () => ({ active: true, reducedMotion: false, foreground: true }),
+    },
+    __animatedTiming: () => ({
+      start: (cb) => { animCallback = cb; },
+      stop: () => {},
+    }),
+  });
+
+  const tree = view.render();
+  const startBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Bắt đầu dạo ngõ Hà Nội');
+  startBtn.props.onPress({ nativeEvent: { locationX: 50, locationY: 20 } });
+
+  assert.ok(animCallback, 'Animation was started');
+  // Trigger callback with finished: false (e.g. stopped/cancelled)
+  animCallback({ finished: false });
+
+  assert.equal(replaceCalls.length, 0, 'No navigation when animation finishes with finished: false');
+  view.unmount();
+});
+
+test('PrologueScreen background or unmount mid-ripple cancels animation and prevents unmounted/hidden navigation', () => {
+  const replaceCalls = [];
+  const audioEvents = [];
+  let animCallback = null;
+  let foregroundState = true;
+
+  const view = mount('../src/screens/PrologueScreen.tsx', {
+    navigation: { replace: (name) => replaceCalls.push(name) },
+  }, {
+    '../hooks/MotionPreferences': {
+      useMotionState: () => ({ active: true, reducedMotion: false, foreground: foregroundState }),
+    },
+    'expo-audio': {
+      useAudioPlayer: () => ({
+        play: () => audioEvents.push('play'),
+        pause: () => audioEvents.push('pause'),
+      }),
+    },
+    __animatedTiming: () => ({
+      start: (cb) => { animCallback = cb; },
+      stop: () => {},
+    }),
+    __onStopAnimation: () => audioEvents.push('stopAnimation'),
+  });
+
+  const tree = view.render();
+  const startBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Bắt đầu dạo ngõ Hà Nội');
+  startBtn.props.onPress({ nativeEvent: { locationX: 60, locationY: 25 } });
+
+  assert.deepEqual(audioEvents, ['play'], 'Audio started on initial tap');
+
+  // App is backgrounded mid-ripple
+  foregroundState = false;
+  view.render();
+
+  assert.ok(audioEvents.includes('pause'), 'Audio paused on backgrounding');
+  assert.ok(audioEvents.includes('stopAnimation'), 'Animation stopped on backgrounding');
+
+  // Late animation completion arriving after backgrounding must NOT navigate
+  if (animCallback) {
+    animCallback({ finished: true });
+  }
+  assert.equal(replaceCalls.length, 0, 'No navigation occurred while in background');
+
+  // Unmount while un-navigated
+  view.unmount();
+  assert.equal(replaceCalls.length, 0, 'No navigation after unmount');
+});
+
 
 
