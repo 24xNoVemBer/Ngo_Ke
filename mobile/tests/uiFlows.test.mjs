@@ -3837,7 +3837,7 @@ test('VoiceInteractionDock idle mic button uses subdued moss-green surface to pr
   view.unmount();
 });
 
-test('PrologueScreen clips wave flanks to 28dp and handles stale interval callbacks without cancelling newer attempt', async () => {
+test('PrologueScreen clips wave flanks to 28dp and deferred seek after navigation never plays audio', async () => {
   const replaceCalls = [];
   const audioEvents = [];
   let animCallback = null;
@@ -3896,6 +3896,155 @@ test('PrologueScreen clips wave flanks to 28dp and handles stale interval callba
   assert.equal(audioEvents.filter((e) => e === 'play').length, 0, 'Late seekTo resolving after navigation never plays audio');
 
   view.unmount();
+});
+
+test('PrologueScreen handles stale interval callbacks without cancelling newer attempt and preserves volume during fade', async () => {
+  let timerSeq = 1;
+  const timeouts = new Map();
+  const intervals = new Map();
+
+  const fakeSetTimeout = (fn, ms) => {
+    const id = timerSeq++;
+    timeouts.set(id, { fn, ms });
+    return id;
+  };
+  const fakeClearTimeout = (id) => {
+    timeouts.delete(id);
+  };
+  const fakeSetInterval = (fn, ms) => {
+    const id = timerSeq++;
+    intervals.set(id, { fn, ms });
+    return id;
+  };
+  const fakeClearInterval = (id) => {
+    intervals.delete(id);
+  };
+
+  const replaceCalls = [];
+  const audioEvents = [];
+  let seekResolves = [];
+
+  const playerMock = {
+    volume: 1,
+    play: () => audioEvents.push('play'),
+    pause: () => audioEvents.push('pause'),
+    seekTo: () => new Promise((resolve) => seekResolves.push(resolve)),
+  };
+
+  let motionState = { active: true, reducedMotion: false, foreground: true };
+
+  const view = mount('../src/screens/PrologueScreen.tsx', {
+    navigation: { replace: (name) => replaceCalls.push(name) },
+  }, {
+    '../hooks/MotionPreferences': {
+      useMotionState: () => motionState,
+    },
+    'expo-audio': {
+      useAudioPlayer: () => playerMock,
+    },
+    __animatedTiming: () => ({
+      start: () => {},
+      stop: () => {},
+    }),
+    __globals: {
+      setTimeout: fakeSetTimeout,
+      clearTimeout: fakeClearTimeout,
+      setInterval: fakeSetInterval,
+      clearInterval: fakeClearInterval,
+    },
+  });
+
+  const tree = view.render();
+  const startBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Bắt đầu dạo ngõ Hà Nội');
+  startBtn.props.onLayout({ nativeEvent: { layout: { width: 240, height: 56 } } });
+
+  // 1. Start Attempt A and capture seekTo promise
+  startBtn.props.onPress({ nativeEvent: { locationX: 50, locationY: 25 } });
+
+  assert.equal(seekResolves.length, 1, 'Attempt A triggered seekTo');
+  const seekResolvesA = seekResolves.slice();
+  seekResolves = [];
+
+  const timeout460EntryA = Array.from(timeouts.entries()).find(([, t]) => t.ms === 460);
+  assert.ok(timeout460EntryA, 'Attempt A registered 460ms fade timeout');
+  const [timeout460IdA, timeout460A] = timeout460EntryA;
+
+  // Run fadeA
+  timeouts.delete(timeout460IdA);
+  timeout460A.fn();
+
+  const interval35EntryA = Array.from(intervals.entries()).find(([, t]) => t.ms === 35);
+  assert.ok(interval35EntryA, 'fadeA registered 35ms volume interval');
+  const [intervalIdA, intervalA] = interval35EntryA;
+  const oldCallbackA = intervalA.fn;
+
+  // 2. Foreground false render to cancel Attempt A
+  motionState = { active: true, reducedMotion: false, foreground: false };
+  view.render();
+
+  assert.equal(intervals.has(intervalIdA), false, 'Interval A cleared upon background cancel');
+  seekResolves.forEach((resolve) => resolve());
+  seekResolves = [];
+
+  // 3. Foreground true, start Attempt B, run fadeB
+  motionState = { active: true, reducedMotion: false, foreground: true };
+  view.render();
+
+  startBtn.props.onPress({ nativeEvent: { locationX: 50, locationY: 25 } });
+
+  assert.equal(seekResolves.length, 1, 'Attempt B triggered seekTo');
+  const seekResolvesB = seekResolves.slice();
+  seekResolves = [];
+
+  const timeout460EntryB = Array.from(timeouts.entries()).find(([, t]) => t.ms === 460);
+  assert.ok(timeout460EntryB, 'Attempt B registered 460ms fade timeout');
+  const [timeout460IdB, timeout460B] = timeout460EntryB;
+
+  // Run fadeB
+  timeouts.delete(timeout460IdB);
+  timeout460B.fn();
+
+  const interval35EntryB = Array.from(intervals.entries()).find(([, t]) => t.ms === 35);
+  assert.ok(interval35EntryB, 'fadeB registered 35ms volume interval');
+  const [intervalIdB, intervalB] = interval35EntryB;
+
+  // 4. Invoke oldA callback => intervalB must remain registered
+  oldCallbackA();
+  assert.ok(intervals.has(intervalIdB), 'intervalB must remain registered after oldA callback fires');
+
+  // 5. Run B tick => volume .75
+  intervalB.fn();
+  assert.equal(playerMock.volume, 0.75, 'volume decremented to 0.75 after first B tick');
+
+  // 6. Resolve B deferred seek during fade => volume stays .75 (no reset1)
+  seekResolvesB.forEach((resolve) => resolve());
+  await setImmediate();
+  assert.equal(playerMock.volume, 0.75, 'volume stays 0.75 without resetting to 1 when seek resolves');
+
+  // 7. Navigate B deadline620, resolve old seek => no late play
+  const timeout620EntryB = Array.from(timeouts.entries()).find(([, t]) => t.ms === 620);
+  assert.ok(timeout620EntryB, 'Attempt B registered 620ms navigation timeout');
+  const [timeout620IdB, timeout620B] = timeout620EntryB;
+
+  timeouts.delete(timeout620IdB);
+  timeout620B.fn();
+  assert.deepEqual(replaceCalls, ['Landing'], 'Navigated to Landing on B deadline 620');
+
+  const playCountAfterB = audioEvents.filter((e) => e === 'play').length;
+
+  seekResolvesA.forEach((resolve) => resolve());
+  await setImmediate();
+
+  assert.equal(
+    audioEvents.filter((e) => e === 'play').length,
+    playCountAfterB,
+    'Resolving old seek from Attempt A never triggers late play after navigation'
+  );
+
+  // 8. Unmount clears timer handles, no leaks
+  view.unmount();
+  assert.equal(timeouts.size, 0, 'all timeouts cleared on unmount');
+  assert.equal(intervals.size, 0, 'all intervals cleared on unmount');
 });
 
 test('QaScreen drawer uses short input placeholder while preserving rich contextual accessibility label and lighter reader toggle', () => {

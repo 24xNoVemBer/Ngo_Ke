@@ -38,7 +38,7 @@ Following user approval ("triển khai đi") for the overall layout and golden w
 - **Audio Assets:** 100% untouched. All cue WAV and 34 story MP3 files remain binary-identical.
 - **Data & Historical Fidelity:** Zero synthetic historical claims. `data/demo.json` and collection metadata remain untouched.
 - **Backend & EAS:** No backend, network gateway, or EAS build configuration changes.
-- **Validation Reality:** All 259 automated tests run under Node.js (`node --test`). Verification is code/prop/test-based. Native GPU framerates, physical iOS devices, physical keyboard layout, and on-device font200 rendering are explicitly not claimed as verified on device; emulator startup was rejected/blocked by policy, and native QA is owned by the coordinator.
+- **Validation Reality:** All 260 automated tests run under Node.js (`node --test`). Verification is code/prop/test-based. Native GPU framerates, physical iOS devices, physical keyboard layout, and on-device font200 rendering are explicitly not claimed as verified on device; emulator startup was rejected/blocked by policy, and native QA is owned by the coordinator.
 
 ---
 
@@ -155,7 +155,7 @@ In strict adherence to the Premium archetype and coordinator instructions, scree
 
 | Check | Tool / Command | Result | Details |
 | :--- | :--- | :--- | :--- |
-| **Node.js Automated Test Suite** | `npm test` (`mobile/tests/uiFlows.test.mjs`) | **259 / 259 PASS** | 100% pass across all unit, integration, and UI flow tests. |
+| **Node.js Automated Test Suite** | `npm test` (`mobile/tests/uiFlows.test.mjs`) | **260 / 260 PASS** | 100% pass across all unit, integration, and UI flow tests. |
 | **TypeScript Static Typecheck** | `npm run typecheck` (`tsc --noEmit`) | **PASS (0 errors)** | Full type safety across modified screens, components, and translator keys. |
 | **ESLint Code Quality** | `npm run lint` (`eslint .`) | **PASS (0 errors)** | Zero lint or formatting warnings across all project files. |
 | **Flank 28dp Clip** | Automated test assertion | **PASS** | Flank containers verify `overflow: 'hidden'` and `width: 28dp`. |
