@@ -25,6 +25,7 @@ import { AppIcon } from '../components/AppIcon';
 import { usePressSpring, usePulseLoop } from '../hooks/useMotion';
 import { useLocale } from '../context/LocaleContext';
 import { radius, spacing } from '../theme';
+import { motionDurations, motionEasings } from '../theme/motion';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'> & {
   mode: Mode;
@@ -186,14 +187,19 @@ export function HomeScreen({
     maxScale: 1.12,
     minOpacity: 0.1,
     maxOpacity: 0.45,
-    duration: 1900,
+    duration: motionDurations.ambientPulse,
   });
 
   const cardAnim = useRef(new Animated.Value(1)).current;
   useEffect(() => {
     cardAnim.stopAnimation();
     cardAnim.setValue(motion.active ? 0 : 1);
-    const animation = Animated.timing(cardAnim, { toValue: 1, duration: 180, useNativeDriver: true });
+    const animation = Animated.timing(cardAnim, {
+      toValue: 1,
+      duration: motion.active ? motionDurations.normal : 0,
+      easing: motionEasings.gentleOut,
+      useNativeDriver: true,
+    });
     if (motion.active) animation.start();
     return () => { animation.stop(); cardAnim.setValue(1); };
   }, [currentNode?.id, cardAnim, motion.active]);

@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMotionState } from '../hooks/MotionPreferences';
 import { AppIcon } from './AppIcon';
 import { colors, radius, spacing, typography } from '../theme';
+import { motionDurations, motionEasings } from '../theme/motion';
 
 import { useLocale } from '../context/LocaleContext';
 
@@ -61,7 +62,10 @@ export function ExpandableInputDrawer({
     else Keyboard.dismiss();
     progress.stopAnimation();
     const animation = Animated.timing(progress, {
-      toValue: visible ? 1 : 0, duration: active ? (visible ? 260 : 200) : 0, useNativeDriver: true,
+      toValue: visible ? 1 : 0,
+      duration: active ? (visible ? motionDurations.slow : motionDurations.normal) : 0,
+      easing: visible ? motionEasings.gentleOut : motionEasings.accelerate,
+      useNativeDriver: true,
     });
     animation.start(({ finished }) => {
       if (finished && id === request.current && !visible) setPresented(false);

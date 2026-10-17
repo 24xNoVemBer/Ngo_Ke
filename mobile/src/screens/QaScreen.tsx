@@ -29,6 +29,7 @@ import { lookupVoiceTrack } from '../voice/localizedCatalog';
 import { useLocale } from '../context/LocaleContext';
 import type { TranslationKey } from '../i18n/translator';
 import { colors, radius, spacing, typography } from '../theme';
+import { motionDurations, motionEasings } from '../theme/motion';
 
 const CHIP_COUNT = 4;
 
@@ -133,14 +134,19 @@ export function QaScreen({
     if (match === null) return;
     answerAnim.stopAnimation();
     answerAnim.setValue(motion.active ? 0 : 1);
-    const animation = Animated.timing(answerAnim, { toValue: 1, duration: 180, useNativeDriver: true });
+    const animation = Animated.timing(answerAnim, {
+      toValue: 1,
+      duration: motion.active ? motionDurations.normal : 0,
+      easing: motionEasings.gentleOut,
+      useNativeDriver: true,
+    });
     if (motion.active) animation.start();
     const timer = setTimeout(() => {
       if (isFocused && revealAnswer.current) {
         revealAnswer.current = false;
         scroll.current?.scrollTo({ y: Math.max(0, answerY.current - 12), animated: motion.active });
       }
-    }, motion.active ? 220 : 0);
+    }, motion.active ? motionDurations.normal : 0);
     return () => { clearTimeout(timer); animation.stop(); answerAnim.setValue(1); };
   }, [match, answerAnim, motion.active, isFocused]);
 

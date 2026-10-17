@@ -122,9 +122,9 @@ export function AlleySelectScreen({
     navigation.navigate('Home', { alleyId: collectionId });
   }
 
-  const topBarEntrance = useEntranceFadeSlide({ delay: 30, duration: 360, offsetY: 14 });
-  const gpsCardEntrance = useEntranceFadeSlide({ delay: 110, duration: 420, offsetY: 22 });
-  const listHeaderEntrance = useEntranceFadeSlide({ delay: 190, duration: 400, offsetY: 20 });
+  const topBarEntrance = useEntranceFadeSlide({ delay: 30, duration: 320, offsetY: 12 });
+  const gpsCardEntrance = useEntranceFadeSlide({ delay: 110, duration: 360, offsetY: 16 });
+  const listHeaderEntrance = useEntranceFadeSlide({ delay: 190, duration: 360, offsetY: 16 });
   const radarScale = 1;
   const radarOpacity = 0.4;
 

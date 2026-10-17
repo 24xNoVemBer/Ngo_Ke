@@ -209,7 +209,7 @@ export default function App(): ReactElement {
     setReadNodeIds(new Set());
     setPlanDraft({});
   };
-  const lightStatusBar = routeName === 'Prologue' || routeName === 'Landing' || routeName === 'AlleySelect'
+  const lightStatusBar = routeName === 'Prologue' || routeName === 'Landing'
     || ((routeName === 'Home' || routeName === 'Qa') && source.status === 'ready');
 
   const localeContextValue: LocaleContextValue = {

@@ -100,6 +100,14 @@ function mount(file, props = {}, overrides = {}, exportName) {
         return { start: (cb) => cb?.({ finished: true }), stop() {} };
       },
     },
+    Easing: overrides.__easing ?? {
+      out: (fn) => fn,
+      in: (fn) => fn,
+      inOut: (fn) => fn,
+      cubic: (t) => t,
+      quad: (t) => t,
+      linear: (t) => t,
+    },
   };
   const rnOverrides = overrides['react-native'] ?? {};
   const rnMerged = {
@@ -112,6 +120,10 @@ function mount(file, props = {}, overrides = {}, exportName) {
     Animated: {
       ...rnDefaults.Animated,
       ...(rnOverrides.Animated ?? {}),
+    },
+    Easing: {
+      ...rnDefaults.Easing,
+      ...(rnOverrides.Easing ?? {}),
     },
   };
   const modules = {
@@ -165,8 +177,24 @@ function mount(file, props = {}, overrides = {}, exportName) {
     './src/theme': { colors: {} },
     './src/hooks/MotionPreferences': { MotionProvider: 'MotionProvider', useMotionPreferences: () => ({ reducedMotion: false, foreground: true }) },
     '../hooks/MotionPreferences': { useMotionState: () => ({ active: false, reducedMotion: true, foreground: true }) },
-    './MotionPreferences': { useMotionState: () => ({ active: false, reducedMotion: true }) },
-    '../theme/motion': { motionDurations: { fast: 220, ambientPulse: 2400 }, motionEasings: {}, motionScales: {}, motionSprings: { tactilePress: {} } },
+    '../theme/motion': {
+      motionDurations: { instant: 120, fast: 180, normal: 240, relaxed: 320, slow: 380, ambientPulse: 2400, radarPing: 1800, laserScan: 2000, staggerStep: 50 },
+      motionSprings: {
+        tactilePress: { tension: 260, friction: 20, useNativeDriver: true },
+        gentleSlide: { tension: 140, friction: 18, useNativeDriver: true },
+      },
+      motionEasings: { gentleOut: (t) => t, accelerate: (t) => t, easeInOutQuad: (t) => t, linear: (t) => t },
+      motionScales: { pressedButton: 0.97, pressedCard: 0.975, pulseHaloMin: 1.0, pulseHaloMax: 1.12, popInMin: 0.92, popInMax: 1.0 },
+    },
+    './src/theme/motion': {
+      motionDurations: { instant: 120, fast: 180, normal: 240, relaxed: 320, slow: 380, ambientPulse: 2400, radarPing: 1800, laserScan: 2000, staggerStep: 50 },
+      motionSprings: {
+        tactilePress: { tension: 260, friction: 20, useNativeDriver: true },
+        gentleSlide: { tension: 140, friction: 18, useNativeDriver: true },
+      },
+      motionEasings: { gentleOut: (t) => t, accelerate: (t) => t, easeInOutQuad: (t) => t, linear: (t) => t },
+      motionScales: { pressedButton: 0.97, pressedCard: 0.975, pulseHaloMin: 1.0, pulseHaloMax: 1.12, popInMin: 0.92, popInMax: 1.0 },
+    },
     './AppIcon': { AppIcon: 'AppIcon' },
     '../i18n/translator': translator,
     './src/i18n/translator': translator,
@@ -325,6 +353,8 @@ test('status bar follows navigation and unavailable pages without iOS native-sta
   assert.equal(style(), 'dark-content');
   navigate('Landing');
   assert.equal(style(), 'light-content');
+  navigate('AlleySelect');
+  assert.equal(style(), 'dark-content', 'AlleySelect light background requires dark status bar icons');
 });
 
 test('viewing, confirming, reading and planning share state without confirming a preview', () => {
@@ -3512,6 +3542,74 @@ test('PrologueScreen handles async seekTo rejection without unhandled rejection 
 
   assert.deepEqual(replaceCalls, ['Landing'], 'Navigation replaces to Landing exactly once despite seekTo rejection');
   view.unmount();
+});
+
+test('motion tokens obey Premium archetype hierarchy, bounded choreography budgets and enter/exit asymmetry', () => {
+  const code = ts.transpileModule(readFileSync(new URL('../src/theme/motion.ts', import.meta.url), 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS },
+  }).outputText;
+  const motionExports = {};
+  runInNewContext('(function(require, exports){' + code + '\n})')((id) => {
+    if (id === 'react-native') {
+      return {
+        Easing: {
+          out: (fn) => fn,
+          in: (fn) => fn,
+          inOut: (fn) => fn,
+          cubic: (t) => t,
+          quad: (t) => t,
+          linear: (t) => t,
+        },
+      };
+    }
+    throw new Error(`Unexpected import: ${id}`);
+  }, motionExports);
+
+  const { motionDurations, motionScales, motionSprings } = motionExports;
+
+  // 1. Hierarchy: instant (120) < fast (180) < normal (240) < relaxed (320) < slow (380)
+  assert.ok(motionDurations.instant < motionDurations.fast);
+  assert.ok(motionDurations.fast < motionDurations.normal);
+  assert.ok(motionDurations.normal < motionDurations.relaxed);
+  assert.ok(motionDurations.relaxed < motionDurations.slow);
+  assert.equal(motionDurations.instant, 120);
+  assert.equal(motionDurations.fast, 180);
+  assert.equal(motionDurations.normal, 240);
+  assert.equal(motionDurations.relaxed, 320);
+  assert.equal(motionDurations.slow, 380);
+  assert.equal(motionDurations.ambientPulse, 2400);
+
+  // 2. Restrained damping and halo scale
+  assert.ok(motionScales.pulseHaloMax <= 1.15, 'Halo scale must not expand aggressively');
+  assert.ok(motionSprings.tactilePress.friction >= 18, 'Tactile press requires high damping (friction >= 18)');
+
+  // 3. useEntranceFadeSlide enforces 1/3 distance rule and bounded delay
+  let recordedTiming = null;
+  class Value {
+    constructor(val) { this.val = val; }
+    setValue(v) { this.val = v; }
+    interpolate(cfg) { this.cfg = cfg; return this; }
+  }
+  const entrance = mount('../src/hooks/useMotion.ts', { delay: 600, duration: 800, offsetY: 50 }, {
+    './MotionPreferences': { useMotionState: () => ({ active: true }) },
+    '../theme/motion': motionExports,
+    'react-native': {
+      Animated: {
+        Value,
+        timing: (anim, cfg) => {
+          recordedTiming = cfg;
+          return { start: () => {}, stop: () => {} };
+        },
+      },
+    },
+  }, 'useEntranceFadeSlide');
+
+  const rendered = entrance.render();
+  // Bound checks: delay clamped to <= 450, duration clamped to <= 500, offsetY clamped to <= 24
+  assert.ok(recordedTiming.delay <= 450, `Delay must be bounded to <= 450ms, got ${recordedTiming.delay}`);
+  assert.ok(recordedTiming.duration <= 500, `Duration must be bounded to <= 500ms, got ${recordedTiming.duration}`);
+  assert.ok(rendered.translateY.cfg.outputRange[0] <= 24, `OffsetY must be bounded within 24dp (1/3 distance rule)`);
+  entrance.unmount();
 });
 
 

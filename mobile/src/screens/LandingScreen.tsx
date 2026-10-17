@@ -41,10 +41,10 @@ export function LandingScreen({ navigation, mode = 'demo' }: Props): ReactElemen
   const { reducedMotion } = useMotionState();
   const bottomPadding = Math.max(insets.bottom, 20) + 12;
 
-  const headerEntrance = useEntranceFadeSlide({ delay: 60, duration: 420, offsetY: 18 });
-  const quoteEntrance = useEntranceFadeSlide({ delay: 160, duration: 420, offsetY: 22 });
-  const carouselEntrance = useEntranceFadeSlide({ delay: 320, duration: 420, offsetY: 22 });
-  const teaserEntrance = useEntranceFadeSlide({ delay: 400, duration: 420, offsetY: 22 });
+  const headerEntrance = useEntranceFadeSlide({ delay: 40, duration: 360, offsetY: 14 });
+  const quoteEntrance = useEntranceFadeSlide({ delay: 130, duration: 380, offsetY: 16 });
+  const carouselEntrance = useEntranceFadeSlide({ delay: 220, duration: 380, offsetY: 18 });
+  const teaserEntrance = useEntranceFadeSlide({ delay: 310, duration: 380, offsetY: 18 });
 
   const {
     scaleAnim: ctaPressScale,

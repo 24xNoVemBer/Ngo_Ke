@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { Animated, Image, StyleSheet, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
 import { useMotionState } from '../hooks/MotionPreferences';
+import { motionDurations, motionEasings } from '../theme/motion';
 
 export function CrossfadePhoto({ source, style }: { source: ImageSourcePropType; style: StyleProp<ViewStyle> }): ReactElement {
   const { active } = useMotionState();
@@ -15,7 +16,12 @@ export function CrossfadePhoto({ source, style }: { source: ImageSourcePropType;
   }, [source, previous, opacity]);
   function reveal(): void {
     if (current.current !== source) return;
-    const animation = Animated.timing(opacity, { toValue: 1, duration: active ? 180 : 0, useNativeDriver: true });
+    const animation = Animated.timing(opacity, {
+      toValue: 1,
+      duration: active ? motionDurations.fast : 0,
+      easing: motionEasings.gentleOut,
+      useNativeDriver: true,
+    });
     animation.start(({ finished }) => {
       if (finished && current.current === source) setPrevious(source);
     });
