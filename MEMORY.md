@@ -1,5 +1,14 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-17 — publish Expo.dev cho team theo quyền mới
+
+- Người dùng yêu cầu “delploy lên expo dev để t cho thành viên trong team test nữa”: cho phép upload bản preview Expo hiện hành; không mở quyền store, backend hosting, git push hoặc merge main. Không hỏi lại duyệt publish.
+- Đã publish và truy vấn độc lập `eas update:view` xác nhận iOS, branch `ios-preview`, runtime `exposdk:57.0.0`, source `9fdfad9ff1a359876e41f4d1ba93a8861ac9e56b`, lúc `2026-10-17T05:59:24.598Z`. Group `861bab90-e6cf-428b-8a21-f5a31e15c72a`; update `01a14871-90b6-706d-a015-22e56964f56f`. Cached EAS CLI 24.14.0; tài khoản có quyền Owner của `valentino241s-team`.
+- Trang chia sẻ: https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/861bab90-e6cf-428b-8a21-f5a31e15c72a ; mở Expo Go: `exp://u.expo.dev/update/01a14871-90b6-706d-a015-22e56964f56f`. QR: `C:/Users/LEGION/AppData/Local/Temp/ngoke-expo-team-qr.png`.
+- Publish với `EXPO_NO_DOTENV=1`, `CI=1`, môi trường preview (project/account đều không có biến EAS preview), API/voice base URL rỗng. Export có 100 MP3 + cue mới trong assetmap; bundle HBC 2,162,312 bytes không chứa các URL LAN 192.168.100.36:18886/18787. Upload 1 bundle, 68 assets mới + 63 assets dùng lại; service báo Published và truy vấn sau đó thành công. PowerShell trả exit1 do chuyển dòng thông báo stderr thành NativeCommandError; không lấy exit đó làm bằng chứng thất bại khi service receipt và readback đã xác nhận thành công.
+- Phạm vi bản đã upload: iPhone Expo Go SDK57, demo/Q&A/âm thanh bundle và hiệu ứng mới, không cần Metro/Wi-Fi chung. Chưa publish Android hoặc tạo APK mới; chưa kiểm mở bản EAS trên điện thoại thành viên. Không coi QA Android Metro cũ là bằng chứng EAS iOS.
+- Việc cần người dùng quyết: không có quyết định chặn bản iOS đã publish. Việc cần người dùng tự làm: thêm tài khoản Expo của tester vào tổ chức `valentino241s-team` (Viewer đủ), tester đăng nhập Expo Go rồi mở QR; đây là điều kiện truy cập Expo, không tự mời người chưa được chỉ định hoặc chia sẻ mật khẩu. Live/STT từ xa chưa có máy chủ; không tự triển khai thêm.
+
 ## 2026-10-17 — hoàn tất sóng bán nguyệt mượt + âm khám phá mới trên QR
 
 - Chỉ dẫn **“sửa cho sóng mượt hơn là được đồng thời đổi âm thanh”** đã mở lại implementation theo concept Anti; preview-paused dưới đây là lịch sử, không xin duyệt lại. W2 giữ Antigravity/GeminiFlashhigh. Primary `task_7f82782fd93f`/`ctx_5c207e5b092c` succeeded **0be3589059f1435ac9496dfa4442f13c684ca137** → candidate **5e12f3b**; ACKdelivery33e544cdba80. Test follow-up `task_a96c769cb534`/`ctx_b0a311b0d84b` succeeded **8ef2a7ab926d1e4445dd56c8156decdd0fe3d13a** → candidate **0d1dff75e03479ff36ee50eb562f2392c20f7369**, ACKdelivery566e9c6123b5/release retained external/processnone. Start receipts unobserved không đổi sự thật có worker_done hợp lệ; không duplicate/restart/modelchange.

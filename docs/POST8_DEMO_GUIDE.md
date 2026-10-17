@@ -1,5 +1,13 @@
 # Mở demo Việt/Anh — bản tích hợp local
 
+## Preview Expo.dev cho team — 17/10/2026
+
+- [Mở trang preview và QR](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/861bab90-e6cf-428b-8a21-f5a31e15c72a).
+- iPhone: cài Expo Go tương thích SDK57, đăng nhập tài khoản thuộc tổ chức `valentino241s-team`, mở `exp://u.expo.dev/update/01a14871-90b6-706d-a015-22e56964f56f` hoặc quét QR `C:/Users/LEGION/AppData/Local/Temp/ngoke-expo-team-qr.png`. Không cần cùng Wi-Fi hoặc máy Metro chạy.
+- Bản này gồm sóng vàng mượt ở hai sườn nút và âm khám phá mới; source `9fdfad9`, branch `ios-preview`. Service publish/readback đã xác nhận; chưa xác minh mở trên iPhone thật hoặc tài khoản tester.
+- Chỉ upload iOS, chưa có bản EAS Android mới. Demo/Q&A/100 audio VI/EN có trong bundle; Live và nhận giọng nói từ mạng ngoài chưa có backend/gateway được triển khai.
+- Việc cần người dùng quyết: không có quyết định chặn preview iOS. Việc cần người dùng tự làm: thêm tài khoản tester vào tổ chức với quyền Viewer rồi tester đăng nhập Expo Go. Điều kiện thành viên theo [quy định Expo Go hiện hành](https://expo.dev/changelog/expo-go-loading-changes-may-2026); không gửi mật khẩu cá nhân.
+
 ## Demo QR hiện đang chạy — hiệu ứng mở đầu 17/10/2026
 
 Mở Expo Go cùng Wi-Fi với máy tính bằng `exp://192.168.100.36:8081`; QR tại `C:/Users/LEGION/AppData/Local/Temp/ngoke-demo-qr.png`. Reload để quay về màn mở đầu, bấm **BẮT ĐẦU DẠO NGÕ**: các cung sóng vàng nửa vòng tròn lan ngắn từ **hai sườn nút**, nét và hai đầu mờ mềm, từng lớp lệch pha rồi tan trong1180ms. Âm mới1100ms có đoạn dâng, mở rộng và đuôi ngân, hoàn tất trước chuyển trang. Giảm chuyển động bỏ sóng lan và vào trang ngay. Âm dùng chế độ audio hiện hành; lỗi seek/play không chặn chuyển trang. Rời app/màn hủy hiệu ứng đang chờ, callback âm cũ không phát sau hủy.
