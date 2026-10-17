@@ -3398,5 +3398,121 @@ test('PrologueScreen background or unmount mid-ripple cancels animation and prev
   assert.equal(replaceCalls.length, 0, 'No navigation after unmount');
 });
 
+test('PrologueScreen deferred async seekTo resolution after cancellation or unmount never triggers late player.play', async () => {
+  const replaceCalls = [];
+  const audioEvents = [];
+  let pendingResolves = [];
+  let animCallback = null;
+  let foregroundState = true;
+
+  const playerMock = {
+    play: () => audioEvents.push('play'),
+    pause: () => audioEvents.push('pause'),
+    seekTo: () => new Promise((resolve) => {
+      pendingResolves.push(resolve);
+    }),
+  };
+
+  const view = mount('../src/screens/PrologueScreen.tsx', {
+    navigation: { replace: (name) => replaceCalls.push(name) },
+  }, {
+    '../hooks/MotionPreferences': {
+      useMotionState: () => ({ active: true, reducedMotion: false, foreground: foregroundState }),
+    },
+    'expo-audio': {
+      useAudioPlayer: () => playerMock,
+    },
+    __animatedTiming: () => ({
+      start: (cb) => { animCallback = cb; },
+      stop: () => {},
+    }),
+  });
+
+  const tree = view.render();
+  const startBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Bắt đầu dạo ngõ Hà Nội');
+
+  // 1. Initial press: seekTo promise is deferred while ripple is active
+  startBtn.props.onPress({ nativeEvent: { locationX: 50, locationY: 25 } });
+  assert.ok(animCallback, 'Animation timing started and captured');
+  assert.equal(audioEvents.includes('play'), false, 'Play is held while seekTo is pending');
+
+  // 2. Background the screen mid-ripple before seekTo resolves
+  foregroundState = false;
+  view.render();
+  assert.ok(audioEvents.includes('pause'), 'Audio paused on backgrounding');
+
+  // 3. Resolve deferred seekTo promises after background cancellation
+  const toResolve1 = pendingResolves.slice();
+  pendingResolves = [];
+  toResolve1.forEach((res) => res());
+  await setImmediate();
+
+  assert.equal(audioEvents.includes('play'), false, 'No late player.play after background cancellation');
+  assert.equal(replaceCalls.length, 0, 'No navigation while backgrounded');
+
+  // 4. Return to foreground and press again
+  foregroundState = true;
+  view.render();
+  startBtn.props.onPress({ nativeEvent: { locationX: 50, locationY: 25 } });
+  assert.equal(audioEvents.includes('play'), false, 'Play still held while second seekTo is pending');
+
+  // 5. Unmount mid-ripple before second seekTo resolves
+  view.unmount();
+
+  // 6. Resolve deferred seekTo promises after unmount
+  const toResolve2 = pendingResolves.slice();
+  pendingResolves = [];
+  toResolve2.forEach((res) => res());
+  await setImmediate();
+
+  assert.equal(audioEvents.includes('play'), false, 'No late player.play after unmount');
+  assert.equal(replaceCalls.length, 0, 'No navigation after unmount');
+});
+
+test('PrologueScreen handles async seekTo rejection without unhandled rejection and navigates exactly once', async () => {
+  const replaceCalls = [];
+  const audioEvents = [];
+  let animCallback = null;
+
+  const playerMock = {
+    play: () => audioEvents.push('play'),
+    pause: () => audioEvents.push('pause'),
+    seekTo: () => Promise.reject(new Error('Audio hardware device busy')),
+  };
+
+  const view = mount('../src/screens/PrologueScreen.tsx', {
+    navigation: { replace: (name) => replaceCalls.push(name) },
+  }, {
+    '../hooks/MotionPreferences': {
+      useMotionState: () => ({ active: true, reducedMotion: false, foreground: true }),
+    },
+    'expo-audio': {
+      useAudioPlayer: () => playerMock,
+    },
+    __animatedTiming: () => ({
+      start: (cb) => { animCallback = cb; },
+      stop: () => {},
+    }),
+  });
+
+  const tree = view.render();
+  const startBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Bắt đầu dạo ngõ Hà Nội');
+
+  // Tap button with rejecting seekTo
+  startBtn.props.onPress({ nativeEvent: { locationX: 50, locationY: 25 } });
+
+  // Await microtasks to let seekTo rejection handler settle
+  await setImmediate();
+
+  // Verify animation was initiated despite seek rejection
+  assert.ok(animCallback, 'Animation was started despite seekTo rejection');
+
+  // Complete animation
+  animCallback({ finished: true });
+
+  assert.deepEqual(replaceCalls, ['Landing'], 'Navigation replaces to Landing exactly once despite seekTo rejection');
+  view.unmount();
+});
+
 
 
