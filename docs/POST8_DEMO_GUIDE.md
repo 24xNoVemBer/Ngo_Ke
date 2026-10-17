@@ -1,5 +1,11 @@
 # Mở demo Việt/Anh — bản tích hợp local
 
+## Demo QR hiện đang chạy — hiệu ứng mở đầu 17/10/2026
+
+Mở Expo Go cùng Wi-Fi với máy tính bằng `exp://192.168.100.36:8081`; QR tại `C:/Users/LEGION/AppData/Local/Temp/ngoke-demo-qr.png`. Reload để quay về màn mở đầu, bấm **BẮT ĐẦU DẠO NGÕ**: sóng nước vàng lan từ điểm chạm trong520ms, kèm âm mở cửa/chuông nhẹ500ms rồi chuyển trang. Giảm chuyển động bỏ sóng lan và vào trang ngay. Âm tôn trọng chế độ audio hiện hành; lỗi âm không chặn chuyển trang. Rời app/màn hủy hiệu ứng đang chờ.
+
+Source hiệu ứng `c03bb8781f860e5915b775de417cb796e961cac4` (primary53a848e + cancellation follow-up). Root264app/typecheck/lint và bundle Metro iOS/Android đạt; WAV22094bytes được phục vụ đúng hash nguồn. Chưa xem/nghe hiệu ứng trên máy thật. **APK66c bên dưới chưa được build lại với hiệu ứng này.** Backend Live/gateway mic chưa bật trong phiên QR; Q&A/gợi ý/audio bundle vẫn dùng được.
+
 ## Artifact cụ thể
 
 **Bản demo đã kiểm trong môi trường hiện có:** các sửa UI Việt/Anh/font200 đã được kiểm lại trên APK dưới đây. Report phân biệt bằng chứng native hiện hành, ca không đổi của bản trước và phần chưa kiểm; không nhận human QC/máy thật đã đạt. APK `f2d0b7ab…` cũ đã bị rút do manifest chỉ có46mapping dù ZIP có100file; bản hiện hành kiểm đủ100mapping.
