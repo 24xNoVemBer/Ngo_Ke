@@ -64,6 +64,11 @@ def write_json(path, value):
 def build():
     source = (HERE / "USER_SCRIPT_VI.txt").read_text(encoding="utf-8-sig").replace("\r", "")
     english = json.loads((HERE / "EN_AUTHORING.json").read_text(encoding="utf8"))
+    vi_editorial = json.loads((HERE / "VI_AUTHORING.json").read_text(encoding="utf8"))
+    en_editorial = json.loads((HERE / "EN_NARRATIVE.json").read_text(encoding="utf8"))
+    english.update({key: en_editorial[key] for key in ("intro", "transitions", "closing")})
+    for original, richer in zip(english["chapters"], en_editorial["chapters"], strict=True):
+        original.update(richer)
     vi_chapters, vi_qa, transitions = [], [], []
     for i, heading in enumerate(HEADINGS):
         section = source[source.index(heading):]
@@ -75,7 +80,7 @@ def build():
             story = story.replace("băng-rôn bạn nhìn thấy", "băng-rôn trong ảnh năm 2026")
         if i == 3:
             story = story.replace("Bước vào Chợ Đồng Xuân, bạn có thể bắt gặp", "Trong ảnh nội thất Chợ Đồng Xuân do người dùng cung cấp, có")
-        vi_chapters.append({"title": title, "hook": hook, "story": story, "observation": observation, "photoKey": CHAPTER_IDS[i]})
+        vi_chapters.append({"title": title, "hook": vi_editorial["chapters"][i]["hook"], "story": vi_editorial["chapters"][i]["story"], "observation": observation, "photoKey": CHAPTER_IDS[i]})
         qa_section = re.search(r"5\. Q&A[^\n]*\n(.*?)\n6\. Kiểm chứng", section, re.S).group(1)
         pairs = re.findall(r"Câu hỏi \d+: (.*?)\nTrả lời: (.*?)(?=\nCâu hỏi \d+:|\Z)", qa_section, re.S)
         assert len(pairs) == [3, 4, 3, 3, 3][i], (i, len(pairs))
@@ -89,6 +94,7 @@ def build():
     intro_hook, intro_body = re.search(r"\nHook\n(.*?)\nLời dẫn\n(.*)", intro_section, re.S).groups()
     vi_intro = clean(intro_hook) + "\n\n" + clean(intro_body) + "\n\nĐây là ba địa điểm thực trong phố cổ, không phải ba trạm của cùng một con ngõ. Trải nghiệm không cung cấp dẫn đường."
     closing = clean(re.search(r"PHẦN KẾT THÚC —[^\n]*\nLời kết\n(.*?)\nPHỤ LỤC A", source, re.S).group(1))
+    vi_intro, transitions, closing = vi_editorial["intro"], vi_editorial["transitions"], vi_editorial["closing"]
     old = json.loads((ROOT / "data/localized/old-quarter.vi.json").read_text(encoding="utf8"))
     assert len(vi_qa) == len(english["qa"]) == 16
 
