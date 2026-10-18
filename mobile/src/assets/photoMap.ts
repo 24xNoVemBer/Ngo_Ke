@@ -172,9 +172,19 @@ export const ALLEY_LIST: AlleyMeta[] = [
   },
 ];
 
-export function getNodePhoto(nodeId?: string, photoKey?: string): ImageSourcePropType {
+export const THREE_LENSES_NODE_FIRST_CHAPTER_PHOTO_KEY: Record<string, string> = {
+  'oldquarter-bach-ma': 'bach-ma',
+  'oldquarter-ma-may': 'ma-may',
+  'oldquarter-dong-xuan': 'dong-xuan-timeline',
+};
+
+export function getNodePhoto(nodeId?: string, photoKey?: string, collectionId?: string): ImageSourcePropType {
   if (photoKey && photoKey in THREE_LENSES_PHOTOS) {
     return THREE_LENSES_PHOTOS[photoKey as keyof typeof THREE_LENSES_PHOTOS];
+  }
+  if (collectionId === 'old-quarter-three-lenses' && nodeId && nodeId in THREE_LENSES_NODE_FIRST_CHAPTER_PHOTO_KEY) {
+    const key = THREE_LENSES_NODE_FIRST_CHAPTER_PHOTO_KEY[nodeId];
+    return THREE_LENSES_PHOTOS[key as keyof typeof THREE_LENSES_PHOTOS];
   }
   if (nodeId && NODE_PHOTO_MAP[nodeId]) {
     return NODE_PHOTO_MAP[nodeId].source;
@@ -182,14 +192,16 @@ export function getNodePhoto(nodeId?: string, photoKey?: string): ImageSourcePro
   return HERO_PHOTO;
 }
 
-export function getNodePhotographer(nodeId?: string, photoKey?: string): string {
-  if (photoKey && photoKey in THREE_LENSES_PHOTOS) {
-    return 'Tài liệu người dùng cung cấp (quyền chưa kiểm chứng)';
+export function getNodePhotographer(nodeId?: string, photoKey?: string, collectionId?: string, locale?: string): string {
+  if ((photoKey && photoKey in THREE_LENSES_PHOTOS) || (collectionId === 'old-quarter-three-lenses' && nodeId && nodeId in THREE_LENSES_NODE_FIRST_CHAPTER_PHOTO_KEY)) {
+    return locale === 'en'
+      ? 'User-supplied material (rights unverified)'
+      : 'Tài liệu người dùng cung cấp (quyền chưa kiểm chứng)';
   }
   if (nodeId && NODE_PHOTO_MAP[nodeId]) {
     return NODE_PHOTO_MAP[nodeId].photographer;
   }
-  return 'Dự án Ngõ Kể';
+  return locale === 'en' ? 'Ngõ Kể Project' : 'Dự án Ngõ Kể';
 }
 
 export function getAlleyMeta(alleyId?: string): AlleyMeta {

@@ -176,7 +176,7 @@ export function QaScreen({
     ? dataset.collectionId
     : (collectionId ?? 'fiction-letter');
   const isReviewedContent = 'kind' in dataset && dataset.kind === 'reviewed';
-  const isThreeLenses = actualCollectionId === THREE_LENSES_COLLECTION_ID;
+  const isThreeLenses = actualCollectionId === THREE_LENSES_COLLECTION_ID && isReviewedContent;
   const intro = dataset.intro;
 
   const companion = getScopedCompanion({
@@ -248,8 +248,8 @@ export function QaScreen({
     : (currentNode ? getNodePhoto(currentNode.id) : HERO_PHOTO);
 
   const currentPhotographer = activeChapter
-    ? getNodePhotographer(currentNode?.id, activeChapter.photoKey)
-    : (currentNode ? getNodePhotographer(currentNode.id) : 'Dự án Ngõ Kể');
+    ? getNodePhotographer(currentNode?.id, activeChapter.photoKey, isThreeLenses ? 'old-quarter-three-lenses' : undefined, locale)
+    : (currentNode ? getNodePhotographer(currentNode.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined, locale) : (locale === 'en' ? 'Ngõ Kể Project' : 'Dự án Ngõ Kể'));
 
   const chapterQa = (activeChapter && activeChapter.qaIds && activeChapter.qaIds.length > 0)
     ? nodeQa.filter((q) => activeChapter.qaIds.includes(q.id))
@@ -414,8 +414,8 @@ export function QaScreen({
   function requestTrack(id: string, text: string, kind: 'intro' | 'story' | 'answer', nodeId: string, replay = false): void {
     playbackIntent.current += 1;
     lastTrack.current = { id, text, kind, nodeId, revision: datasetRevision };
-    if (replay) void (voiceSession.replayTrack as (trackId: string, trackText: string, trackKind: string, trackNodeId: string) => Promise<void>)(id, text, kind, nodeId);
-    else void (voiceSession.playTrack as (trackId: string, trackText: string, trackKind: string, trackNodeId: string) => Promise<void>)(id, text, kind, nodeId);
+    if (replay) void voiceSession.replayTrack(id, text, kind, nodeId);
+    else void voiceSession.playTrack(id, text, kind, nodeId);
   }
 
   function showPlanCard(draft: PlanDraft, message?: string): void {

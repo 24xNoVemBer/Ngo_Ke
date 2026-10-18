@@ -31,11 +31,11 @@ export function PostcardCard({
 }: Props): ReactElement {
   const { t, locale, collectionId } = useLocale();
   const { fontScale } = useWindowDimensions();
-  const isThreeLenses = collectionId === 'old-quarter-three-lenses';
   const isReviewed = collectionKind === 'reviewed';
+  const isThreeLenses = collectionId === 'old-quarter-three-lenses' && isReviewed;
   const resolvedActionLabel = actionLabel ?? t('common.explore_this_point');
-  const photo = getNodePhoto(node.id);
-  const credit = getNodePhotographer(node.id);
+  const photo = getNodePhoto(node.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined);
+  const credit = getNodePhotographer(node.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined, locale);
 
   return (
     <View style={[styles.card, isActive && styles.cardActive]}>
@@ -46,7 +46,7 @@ export function PostcardCard({
         <View style={styles.disclaimerBadge}>
           <Text style={styles.disclaimerText}>
             {isThreeLenses
-              ? (locale === 'en' ? 'Supplied photo (SOURCED_ONLY) · unverified rights' : 'Ảnh người dùng cung cấp (SOURCED_ONLY) · chưa kiểm chứng bản quyền')
+              ? (locale === 'en' ? 'Supplied photo (Sourced · not officially approved) · unverified rights' : 'Ảnh người dùng cung cấp (Có nguồn · chưa duyệt chính thức) · chưa kiểm chứng bản quyền')
               : t(isReviewed ? 'common.photo_disclaimer_reviewed' : 'common.photo_disclaimer')}
           </Text>
         </View>

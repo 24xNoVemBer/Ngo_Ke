@@ -21,8 +21,8 @@ type Props = {
 export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionId }: Props): ReactElement {
   const { t, locale, collectionId: ctxCollectionId } = useLocale();
   const effectiveCollectionId = collectionId ?? ctxCollectionId;
-  const isThreeLenses = effectiveCollectionId === 'old-quarter-three-lenses';
   const isReviewed = collectionKind === 'reviewed';
+  const isThreeLenses = effectiveCollectionId === 'old-quarter-three-lenses' && isReviewed;
   const { foreground } = useMotionState();
   const isFocused = useIsFocused() && foreground;
   const cameraRequest = useRef(0);
@@ -271,19 +271,19 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
             {/* Ảnh điểm ngõ đã kích hoạt */}
             <View style={[styles.activeImageWrapper, isThreeLenses && { backgroundColor: '#1E1E1E' }]}>
               <Image
-                source={getNodePhoto(active.id)}
+                source={getNodePhoto(active.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined)}
                 style={styles.activeImage}
                 resizeMode={isThreeLenses ? 'contain' : 'cover'}
               />
               <View style={styles.disclaimerBadge}>
                 <Text style={styles.disclaimerText}>
                   {isThreeLenses
-                    ? (locale === 'en' ? 'Supplied photo (SOURCED_ONLY) · unverified rights' : 'Ảnh người dùng cung cấp (SOURCED_ONLY) · chưa kiểm chứng bản quyền')
+                    ? (locale === 'en' ? 'Supplied photo (Sourced · not officially approved) · unverified rights' : 'Ảnh người dùng cung cấp (Có nguồn · chưa duyệt chính thức) · chưa kiểm chứng bản quyền')
                     : t(isReviewed ? 'common.photo_disclaimer_reviewed' : 'common.photo_disclaimer')}
                 </Text>
               </View>
               <View style={styles.creditBadge}>
-                <Text style={styles.creditText}>{t('common.photo_author', { author: getNodePhotographer(active.id) })}</Text>
+                <Text style={styles.creditText}>{t('common.photo_author', { author: getNodePhotographer(active.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined, locale) })}</Text>
               </View>
             </View>
 
@@ -331,9 +331,9 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
                   style={({ pressed }) => [styles.pointRow, pressed && styles.pressed]}
                 >
                   <Image
-                    source={getNodePhoto(node.id)}
-                    style={styles.thumbnail}
-                    resizeMode="cover"
+                    source={getNodePhoto(node.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined)}
+                    style={[styles.thumbnail, isThreeLenses && { backgroundColor: '#1E1E1E' }]}
+                    resizeMode={isThreeLenses ? 'contain' : 'cover'}
                   />
                   <View style={styles.pointInfo}>
                     <Text style={styles.pointName}>{node.name}</Text>
@@ -341,7 +341,7 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
                       {t(isReviewed ? 'location.suggested_visit_minutes' : 'common.simulated_minutes', {
                         minutes: node.visitMinutes,
                       })}{' '}
-                      · {getNodePhotographer(node.id)}
+                      · {getNodePhotographer(node.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined, locale)}
                     </Text>
                   </View>
                   <Text style={styles.chevron}>{node.available ? '→' : (locale === 'en' ? 'Locked' : 'Chưa mở')}</Text>

@@ -137,8 +137,10 @@ export function HomeScreen({
     return layout ? [{ ...layout, id: node.id }] : [];
   });
   const collectionCover = activeCollection?.coverPhoto ?? alleyMeta.coverPhoto;
-  const currentPhoto = currentNode ? getNodePhoto(currentNode.id) : collectionCover;
-  const currentPhotographer = currentNode ? getNodePhotographer(currentNode.id) : alleyMeta.photographer;
+  const isReviewed = collectionKind === 'reviewed';
+  const isThreeLenses = activeCollectionId === 'old-quarter-three-lenses' && isReviewed;
+  const currentPhoto = currentNode ? getNodePhoto(currentNode.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined) : collectionCover;
+  const currentPhotographer = currentNode ? getNodePhotographer(currentNode.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined, locale) : alleyMeta.photographer;
   const isSimulated = collectionKind === 'simulated';
 
   // Tính toán vùng canvas của dải đường mòn tránh thanh trạng thái và đáy

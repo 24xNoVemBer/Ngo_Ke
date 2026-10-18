@@ -44,7 +44,8 @@ export function LocationScreen({
   collectionKind = 'simulated',
 }: Props): ReactElement {
   const isReviewed = collectionKind === 'reviewed';
-  const { t, locale } = useLocale();
+  const { t, locale, collectionId } = useLocale();
+  const isThreeLenses = collectionId === 'old-quarter-three-lenses' && isReviewed;
   const focused = useIsFocused();
   const request = useRef(0);
   const waiting = useRef(false);
@@ -128,9 +129,9 @@ export function LocationScreen({
         <View style={styles.currentCard}>
           <View style={styles.currentRow}>
             <Image
-              source={getNodePhoto(currentNodeId ?? '')}
-              style={styles.currentThumb}
-              resizeMode="cover"
+              source={getNodePhoto(currentNodeId ?? '', undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined)}
+              style={[styles.currentThumb, isThreeLenses && { backgroundColor: '#1E1E1E' }]}
+              resizeMode={isThreeLenses ? 'contain' : 'cover'}
             />
             <View style={styles.currentInfo}>
               <Text style={styles.currentLabel}>
@@ -140,7 +141,7 @@ export function LocationScreen({
                 {current?.name ?? (locale === 'en' ? 'Unconfirmed stop' : 'Chưa xác nhận điểm')}
               </Text>
               <Text style={styles.currentPhotographer}>
-                {t('common.photo_author', { author: getNodePhotographer(currentNodeId ?? '') })}
+                {t('common.photo_author', { author: getNodePhotographer(currentNodeId ?? '', undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined, locale) })}
               </Text>
             </View>
           </View>
@@ -194,9 +195,9 @@ export function LocationScreen({
 
               <View style={styles.candidatePreviewRow}>
                 <Image
-                  source={getNodePhoto(result.node.id)}
-                  style={styles.candidateImage}
-                  resizeMode="cover"
+                  source={getNodePhoto(result.node.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined)}
+                  style={[styles.candidateImage, isThreeLenses && { backgroundColor: '#1E1E1E' }]}
+                  resizeMode={isThreeLenses ? 'contain' : 'cover'}
                 />
                 <View style={styles.candidateDetails}>
                   <Text style={styles.candidateTitle}>{result.node.name}</Text>
@@ -279,14 +280,16 @@ export function LocationScreen({
                   ]}
                 >
                   <Image
-                    source={getNodePhoto(node.id)}
-                    style={styles.thumbnail}
-                    resizeMode="cover"
+                    source={getNodePhoto(node.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined)}
+                    style={[styles.thumbnail, isThreeLenses && { backgroundColor: '#1E1E1E' }]}
+                    resizeMode={isThreeLenses ? 'contain' : 'cover'}
                   />
                   <View style={styles.pointInfo}>
                     <Text style={styles.pointName}>{node.name}</Text>
                     <Text style={styles.pointMeta}>
-                      {t(isReviewed ? 'location.suggested_visit_minutes' : 'common.simulated_minutes', { minutes: node.visitMinutes })}
+                      {isThreeLenses
+                        ? (locale === 'en' ? 'Sourced · not officially approved' : 'Có nguồn · chưa duyệt chính thức')
+                        : t(isReviewed ? 'location.suggested_visit_minutes' : 'common.simulated_minutes', { minutes: node.visitMinutes })}
                       {isCurrent ? (locale === 'en' ? ' · Currently selected' : ' · Đang là điểm hiện tại') : ''}
                     </Text>
                   </View>

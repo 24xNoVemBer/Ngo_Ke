@@ -168,7 +168,9 @@ export function LandingScreen({ navigation, mode = 'demo' }: Props): ReactElemen
                         {t('common.stop_count', { count: col.nodeCount })} · {mode === 'demo' ? t('common.demo') : t('common.live')}
                       </Text>
                       <Text style={styles.cardDuration}>
-                        {col.kind === 'reviewed' ? t('common.reviewed') : t('common.simulated')}
+                        {col.id === 'old-quarter-three-lenses'
+                          ? (locale === 'en' ? 'Sourced · not officially approved' : 'Có nguồn · chưa duyệt chính thức')
+                          : (col.kind === 'reviewed' ? t('common.reviewed') : t('common.simulated'))}
                       </Text>
                     </View>
                   </View>

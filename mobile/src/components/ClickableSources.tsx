@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useLocale } from '../context/LocaleContext';
+import type { Locale } from '../data/locale';
 import { colors, spacing, typography } from '../theme';
 
 import { parseEvidenceItem, type ParsedEvidence } from './evidenceParser.ts';
@@ -8,11 +10,16 @@ interface Props {
   evidence: string[];
   label?: string;
   isThreeLenses?: boolean;
+  locale?: Locale;
 }
 
 export { parseEvidenceItem, type ParsedEvidence };
 
-export function ClickableSources({ evidence, label, isThreeLenses }: Props): ReactElement {
+export function ClickableSources({ evidence, label, isThreeLenses, locale: propLocale }: Props): ReactElement {
+  const { locale: ctxLocale } = useLocale();
+  const effectiveLocale = propLocale ?? ctxLocale;
+  const isEn = effectiveLocale === 'en';
+
   if (!evidence || evidence.length === 0) {
     return <></>;
   }
@@ -20,6 +27,11 @@ export function ClickableSources({ evidence, label, isThreeLenses }: Props): Rea
   const handleOpen = (url: string) => {
     void Linking.openURL(url).catch(() => {});
   };
+
+  const openLabelPrefix = isEn ? 'Open source: ' : 'Mở nguồn: ';
+  const disclaimerText = isEn
+    ? 'Sourced · not officially approved · Content references cited sources and does not represent official heritage management approval.'
+    : 'Có nguồn · chưa duyệt chính thức · Nội dung trích dẫn nguồn tham khảo, không đại diện phê duyệt chính thức từ ban quản lý di tích.';
 
   return (
     <View style={styles.container}>
@@ -32,7 +44,7 @@ export function ClickableSources({ evidence, label, isThreeLenses }: Props): Rea
               {url ? (
                 <Pressable
                   accessibilityRole="link"
-                  accessibilityLabel={`Mở nguồn: ${text}`}
+                  accessibilityLabel={`${openLabelPrefix}${text}`}
                   onPress={() => handleOpen(url)}
                   style={({ pressed }) => [styles.linkPressable, pressed && styles.pressed]}
                 >
@@ -50,7 +62,7 @@ export function ClickableSources({ evidence, label, isThreeLenses }: Props): Rea
       {isThreeLenses && (
         <View style={styles.sourcedOnlyDisclaimer}>
           <Text style={styles.sourcedOnlyDisclaimerText}>
-            SOURCED_ONLY · Nội dung trích dẫn nguồn tham khảo, không đại diện phê duyệt chính thức từ ban quản lý di tích.
+            {disclaimerText}
           </Text>
         </View>
       )}

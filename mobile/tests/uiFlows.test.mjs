@@ -2596,6 +2596,26 @@ test('AlleyTrailView and PostcardCard branch visit time on collectionKind', () =
   assert.ok(textCardSimVi.includes('Ảnh minh họa · điểm mô phỏng'));
   assert.equal(textCardSimVi.includes('điểm đã duyệt'), false);
   viewCardSimVi.unmount();
+
+  // 8. PostcardCard simulated kind wins over selected new collection (old-quarter-three-lenses)
+  const viewCardSimPrecedence = mount('../src/components/PostcardCard.tsx', {
+    node: actualReviewedPilotEn.nodes[0],
+    collectionKind: 'simulated',
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        collectionId: 'old-quarter-three-lenses',
+        t: (key, params) => translator.t('en', key, params),
+      }),
+    },
+  });
+  const textCardSimPrecedence = JSON.stringify(viewCardSimPrecedence.render());
+  assert.ok(textCardSimPrecedence.includes('10 min simulated'), 'simulated kind must win over old-quarter-three-lenses collection');
+  assert.ok(textCardSimPrecedence.includes('Illustration photo · simulated point'), 'simulated photo disclaimer must display when collectionKind is simulated');
+  assert.equal(textCardSimPrecedence.includes('Supplied photo'), false, 'supplied photo disclaimer must NOT display when collectionKind is simulated');
+  assert.equal(textCardSimPrecedence.includes('Sourced · not officially approved'), false, 'sourced disclaimer must NOT display when collectionKind is simulated');
+  viewCardSimPrecedence.unmount();
 });
 
 test('HomeScreen passes source dataset.kind precedence to AlleyTrailView (ready simulated never upgraded by reviewed metadata)', () => {
@@ -4314,6 +4334,11 @@ test('QaScreen Three Lenses multi-chapter journey mounts chapter tabs, updates s
   openingBtn.props.onPress();
   tree = view.render();
 
+  assert.ok(threeLensesViCore.intro?.text, 'Intro text exists in core dataset');
+  assert.ok(elements(tree, 'Text').some((t) => t.props.children === threeLensesViCore.intro.text), 'Opening narration intro.text is displayed in story card');
+  assert.equal(selectedNodeId, dongXuanNode.id, 'Physical node remains unchanged during opening narration');
+  assert.equal(qaProps.currentNodeId, dongXuanNode.id, 'Props currentNodeId is unchanged');
+
   const playerBarOpening = elements(tree, 'VoicePlayerBar')[0];
   assert.ok(playerBarOpening, 'VoicePlayerBar rendered for opening intro');
   playerBarOpening.props.onPlay();
@@ -4346,4 +4371,111 @@ test('QaScreen Three Lenses multi-chapter journey mounts chapter tabs, updates s
   assert.equal(transPlay.kind, 'story', 'Transition audio play requests kind: story');
 
   viewBachMa.unmount();
+});
+
+test('switching chapters cancels a pending deferred automatic answer playback', async () => {
+  const threeLensesViCore = JSON.parse(readFileSync(new URL('../../data/localized/three-lenses.vi.json', import.meta.url), 'utf8'));
+  const viRev = threeLensesModule.getThreeLensesDatasetRevision('vi');
+  const dongXuanNode = threeLensesViCore.nodes.find((n) => n.id === 'oldquarter-dong-xuan');
+  const dongXuanQa = threeLensesViCore.qa.filter((q) => q.nodeId === 'oldquarter-dong-xuan');
+
+  let transcript;
+  let finishStop;
+  const played = [];
+  const playbackStopped = new Promise((resolve) => { finishStop = resolve; });
+
+  const voiceSession = {
+    stage: 'idle',
+    error: null,
+    recordingDurationMs: 0,
+    metering: -60,
+    playback: { playing: false, currentTime: 0, duration: 0 },
+    activeTrackId: null,
+    playbackError: null,
+    startRecording() {},
+    submitRecording() {},
+    cancel() {},
+    stopPlayback: () => playbackStopped,
+    playTrack(...args) { played.push(args); },
+    replayTrack() {},
+  };
+
+  const sharedOverrides = {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        collectionId: 'old-quarter-three-lenses',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+    '../data/threeLensesCompanion': threeLensesModule,
+    './src/data/threeLensesCompanion': threeLensesModule,
+    '../voice/useVoiceSession': {
+      useVoiceSession: (options) => {
+        transcript = options.onTranscript;
+        return voiceSession;
+      },
+    },
+    '../voice/localizedCatalog': {
+      voiceCatalogueRevision: '32e1553d10078b5e6e3c0f4df21921c5fa624aef6d2671ae818a77a94413e117',
+      lookupVoiceTrack: ({ contentId }) => ({
+        id: contentId,
+        kind: 'answer',
+        source: 1,
+        textHash: 'hash',
+        durationSeconds: 15,
+      }),
+    },
+    '../assets/photoMap': {
+      getNodePhoto: (_nodeId, photoKey) => ({ uri: photoKey ?? 'default' }),
+      getNodePhotographer: () => 'Tài liệu người dùng cung cấp (quyền chưa kiểm chứng)',
+      HERO_PHOTO: { uri: 'hero' },
+    },
+  };
+
+  const view = mount('../src/screens/QaScreen.tsx', {
+    currentNodeId: dongXuanNode.id,
+    currentNode: dongXuanNode,
+    nodeQa: dongXuanQa,
+    dataset: threeLensesViCore,
+    collectionId: 'old-quarter-three-lenses',
+    datasetRevision: viRev,
+    mode: 'demo',
+    isFocused: true,
+    navigation: { navigate() {}, goBack() {} },
+    onSelectNode() {},
+    onAskQuestion() {},
+    onModeChange() {},
+    locale: 'vi',
+    readNodeIds: new Set(),
+    onReadNode() {},
+  }, sharedOverrides);
+
+  let tree = view.render();
+  const firstQa = dongXuanQa[0];
+  assert.ok(firstQa, 'First Dong Xuan QA exists');
+
+  // Trigger voice transcript for question while playback.playing is false, queueing answer playback behind playbackStopped promise
+  transcript(firstQa.question, {
+    turnId: 'turn-1',
+    scope: `demo:${viRev}:${dongXuanNode.id}`,
+    nodeId: dongXuanNode.id,
+    mode: 'demo',
+    datasetRevision: viRev,
+  });
+
+  // User selects Chapter 2 before the old stopPlayback promise resolves
+  const chapterTabs = elements(tree, 'Pressable').filter((p) => p.props.accessibilityRole === 'tab');
+  assert.equal(chapterTabs.length, 3, 'Must render 3 chapter tabs');
+  chapterTabs[1].props.onPress();
+  tree = view.render();
+  assert.equal(elements(tree, 'Pressable').filter((p) => p.props.accessibilityRole === 'tab')[1].props.accessibilityState?.selected, true);
+
+  // Now resolve the old pending stop promise
+  finishStop(true);
+  await Promise.resolve();
+
+  // Assert that old answer playback was cancelled and never starts
+  assert.equal(played.length, 0, 'Switching chapter cancels pending deferred automatic answer playback');
+  view.unmount();
 });

@@ -22,8 +22,9 @@ export function AlleyTrailView({
   onSelectNode,
   collectionKind = 'simulated',
 }: Props): ReactElement {
-  const { locale, t } = useLocale();
+  const { locale, t, collectionId } = useLocale();
   const isReviewed = collectionKind === 'reviewed';
+  const isThreeLenses = collectionId === 'old-quarter-three-lenses' && isReviewed;
   const visitedCount = nodes.filter((n) => n.visited).length;
 
   return (
@@ -52,9 +53,11 @@ export function AlleyTrailView({
           const isCurrent = node.id === currentNodeId;
           const isVisited = node.visited;
           const isLast = index === nodes.length - 1;
-          const visitMinutesLabel = isReviewed
-            ? t('location.suggested_visit_minutes', { minutes: node.visitMinutes })
-            : (locale === 'en' ? `${node.visitMinutes} simulated min` : `${node.visitMinutes} phút mô phỏng`);
+          const visitMinutesLabel = isThreeLenses
+            ? (locale === 'en' ? 'Sourced · not officially approved' : 'Có nguồn · chưa duyệt chính thức')
+            : isReviewed
+              ? t('location.suggested_visit_minutes', { minutes: node.visitMinutes })
+              : (locale === 'en' ? `${node.visitMinutes} simulated min` : `${node.visitMinutes} phút mô phỏng`);
 
           return (
             <View key={node.id} style={styles.stepRow}>
