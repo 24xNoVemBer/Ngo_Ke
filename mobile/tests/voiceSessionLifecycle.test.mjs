@@ -293,6 +293,47 @@ test('playback keeps kind and node checks in the hook with the four-field catalo
   view.unmount();
 });
 
+test('intro playback requires a node-less intro track and keeps the current node as its playback scope', async () => {
+  let track = { kind: 'intro', nodeId: undefined, textHash: 'hash', source: 'intro-audio' };
+  const view = mountVoiceSession({ lookupTrack: () => track });
+
+  await view.render().playTrack('intro', 'intro text', 'intro', 'node-1');
+  assert.deepEqual(view.playerEvents, ['replace', 'play']);
+  assert.deepEqual(view.playerSources, ['intro-audio']);
+  view.playbackStatus = { playing: false, currentTime: 0, duration: 60, error: 'native playback error' };
+  assert.equal(view.render().playbackError, 'en:voice.notice.audio_unavailable');
+
+  view.playbackStatus = { playing: false, currentTime: 0, duration: 0, error: null };
+  track = { ...track, nodeId: 'node-1' };
+  await view.render().playTrack('intro', 'intro text', 'intro', 'node-1');
+  track = { ...track, kind: 'story' };
+  await view.render().playTrack('intro', 'intro text', 'intro', 'node-1');
+  track = { ...track, kind: 'intro', nodeId: undefined };
+  await view.render().playTrack('intro', 'intro text', 'intro', 'node-2');
+  assert.deepEqual(view.playerEvents, ['replace', 'play']);
+  assert.equal(view.render().playbackError, 'en:voice.notice.audio_unavailable');
+  view.unmount();
+});
+
+test('an intro hash completed after a current-node scope change cannot start playback', async () => {
+  const digest = deferred();
+  const view = mountVoiceSession({
+    lookupTrack: () => ({ kind: 'intro', nodeId: undefined, textHash: 'hash', source: 'intro-audio' }),
+    hash: () => digest.promise,
+  });
+  const playing = view.render().playTrack('intro', 'intro text', 'intro', 'node-1');
+  view.options.scope = 'demo:rev-2:node-2';
+  view.options.nodeId = 'node-2';
+  view.options.datasetRevision = 'rev-2';
+  view.render(view.options);
+  digest.resolve('hash');
+  await playing;
+
+  assert.equal(view.playerEvents.includes('replace'), false);
+  assert.equal(view.playerEvents.includes('play'), false);
+  view.unmount();
+});
+
 test('native playback failure stays visible, retry reloads the source, and scope change clears stale errors', async () => {
   const previousRequire = globalThis.require;
   globalThis.require = () => 'ma-may-vietnamese-audio';

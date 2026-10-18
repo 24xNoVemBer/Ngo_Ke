@@ -435,12 +435,13 @@ export function useVoiceSession({
   const playTrack = useCallback(async (
     id: string,
     text: string,
-    expectedKind: 'story' | 'answer',
+    expectedKind: 'intro' | 'story' | 'answer',
     expectedNodeId: string,
     restart = false,
   ) => {
     const track = lookupVoiceTrack({ collectionId, locale, contentId: id, datasetRevision });
-    if (!track || track.kind !== expectedKind || track.nodeId !== expectedNodeId) {
+    if (!track || track.kind !== expectedKind || expectedNodeId !== nodeId
+        || (expectedKind === 'intro' ? track.nodeId !== undefined : track.nodeId !== expectedNodeId)) {
       setPlaybackError(translate(locale, 'voice.notice.audio_unavailable'));
       return;
     }
@@ -481,12 +482,12 @@ export function useVoiceSession({
         setPlaybackError(translate(locale, 'voice.notice.audio_unavailable'));
       }
     }
-  }, [activeTrackId, collectionId, datasetRevision, locale, playback.error, playback.playing, playbackError, player, scope]);
+  }, [activeTrackId, collectionId, datasetRevision, locale, nodeId, playback.error, playback.playing, playbackError, player, scope]);
 
   const replayTrack = useCallback(async (
     id: string,
     text: string,
-    expectedKind: 'story' | 'answer',
+    expectedKind: 'intro' | 'story' | 'answer',
     expectedNodeId: string,
   ) => {
     await playTrack(id, text, expectedKind, expectedNodeId, true);
