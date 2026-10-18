@@ -89,6 +89,11 @@ const CANONICAL_BUNDLED_CORE: Record<Locale, string> = {
   en: canonicalDatasetJson(bundledCoreEn),
 };
 
+const CANONICAL_BUNDLED_COMPANION: Record<Locale, string> = {
+  vi: canonicalDatasetJson(companionVi),
+  en: canonicalDatasetJson(companionEn),
+};
+
 export interface ScopedCompanionQuery {
   mode?: string;
   collectionId?: string;
@@ -179,6 +184,18 @@ export function getScopedCompanion(query?: ScopedCompanionQuery | null): ThreeLe
   try {
     const canonicalCore = canonicalDatasetJson(core);
     if (canonicalCore !== CANONICAL_BUNDLED_CORE[locale]) {
+      return null;
+    }
+  } catch {
+    return null;
+  }
+
+  // 12. Companion snapshot integrity gate:
+  // Compare actual companion full canonical payload against immutable module-load snapshot before return
+  // Tampered or mutated companion text/chapters (even retaining claimed scriptRevision) is strictly rejected!
+  try {
+    const canonicalComp = canonicalDatasetJson(companion);
+    if (canonicalComp !== CANONICAL_BUNDLED_COMPANION[locale]) {
       return null;
     }
   } catch {

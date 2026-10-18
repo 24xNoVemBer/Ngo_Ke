@@ -157,6 +157,26 @@ test('Review 903761 - strict fail-closed companion scopeguard and integrity gate
     'mutated core text with claimed revision must be rejected by canonical integrity gate'
   );
 
+  // 8b. Tampered / mutated companion chapter text in memory with same claimed revision -> strictly rejected!
+  const companionToTamper = getThreeLensesCompanion('vi');
+  const originalChapterText = companionToTamper.chapters[0].text;
+  try {
+    companionToTamper.chapters[0].text = 'Lời kể chương bị sửa đổi trái phép';
+    assert.equal(
+      getScopedCompanion({
+        mode: 'demo',
+        collectionId: THREE_LENSES_COLLECTION_ID,
+        locale: 'vi',
+        datasetRevision: viRev,
+        dataset: viCore,
+      }),
+      null,
+      'mutated companion chapter text with claimed revision must be rejected by companion snapshot integrity gate'
+    );
+  } finally {
+    companionToTamper.chapters[0].text = originalChapterText;
+  }
+
   // 9. Valid inputs -> returns full companion
   const companionViResult = getScopedCompanion({
     mode: 'demo',

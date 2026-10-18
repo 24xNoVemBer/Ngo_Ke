@@ -29,8 +29,9 @@ export function PostcardCard({
   subReason,
   collectionKind = 'simulated',
 }: Props): ReactElement {
-  const { t } = useLocale();
+  const { t, locale, collectionId } = useLocale();
   const { fontScale } = useWindowDimensions();
+  const isThreeLenses = collectionId === 'old-quarter-three-lenses';
   const isReviewed = collectionKind === 'reviewed';
   const resolvedActionLabel = actionLabel ?? t('common.explore_this_point');
   const photo = getNodePhoto(node.id);
@@ -39,12 +40,14 @@ export function PostcardCard({
   return (
     <View style={[styles.card, isActive && styles.cardActive]}>
       {/* Khung ảnh chụp chân thực */}
-      <View style={styles.imageContainer}>
-        <Image source={photo} style={styles.image} resizeMode="cover" />
+      <View style={[styles.imageContainer, isThreeLenses && { backgroundColor: '#1E1E1E' }]}>
+        <Image source={photo} style={styles.image} resizeMode={isThreeLenses ? 'contain' : 'cover'} />
         {/* Nhãn minh bạch */}
         <View style={styles.disclaimerBadge}>
           <Text style={styles.disclaimerText}>
-            {t(isReviewed ? 'common.photo_disclaimer_reviewed' : 'common.photo_disclaimer')}
+            {isThreeLenses
+              ? (locale === 'en' ? 'Supplied photo (SOURCED_ONLY) · unverified rights' : 'Ảnh người dùng cung cấp (SOURCED_ONLY) · chưa kiểm chứng bản quyền')
+              : t(isReviewed ? 'common.photo_disclaimer_reviewed' : 'common.photo_disclaimer')}
           </Text>
         </View>
 

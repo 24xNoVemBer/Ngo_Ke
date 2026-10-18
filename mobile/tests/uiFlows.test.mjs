@@ -15,6 +15,7 @@ import * as recommendation from '../src/recommendation/pick.ts';
 import * as voiceIntent from '../src/voice/intent.ts';
 import * as voiceAppState from '../src/voice/appState.ts';
 import * as translator from '../src/i18n/translator.ts';
+import * as threeLensesModule from '../src/data/threeLensesCompanion.ts';
 
 const fixture = JSON.parse(readFileSync(new URL('../../data/demo.json', import.meta.url), 'utf8'));
 
@@ -4151,6 +4152,198 @@ test('QaScreen drawer uses short input placeholder while preserving rich context
   view.unmount();
 });
 
+test('QaScreen Three Lenses multi-chapter journey mounts chapter tabs, updates story/photo/QA on the same node, dispatches intro/story audio, and clears old playback and answers on chapter switch', () => {
+  const threeLensesViCore = JSON.parse(readFileSync(new URL('../../data/localized/three-lenses.vi.json', import.meta.url), 'utf8'));
+  const viRev = threeLensesModule.getThreeLensesDatasetRevision('vi');
+  const dongXuanNode = threeLensesViCore.nodes.find((n) => n.id === 'oldquarter-dong-xuan');
+  const dongXuanQa = threeLensesViCore.qa.filter((q) => q.nodeId === 'oldquarter-dong-xuan');
 
+  const playedTracks = [];
+  let stoppedPlaybackCount = 0;
+  const voiceSession = {
+    stage: 'idle',
+    error: null,
+    recordingDurationMs: 0,
+    metering: -60,
+    playback: { playing: false, currentTime: 0, duration: 45 },
+    activeTrackId: null,
+    playbackError: null,
+    startRecording() {},
+    submitRecording() {},
+    cancel() {},
+    stopPlayback() {
+      stoppedPlaybackCount++;
+      voiceSession.playback.playing = false;
+      voiceSession.activeTrackId = null;
+    },
+    playTrack(id, text, kind, nodeId) {
+      playedTracks.push({ id, text, kind, nodeId, type: 'play' });
+      voiceSession.activeTrackId = id;
+    },
+    replayTrack(id, text, kind, nodeId) {
+      playedTracks.push({ id, text, kind, nodeId, type: 'replay' });
+      voiceSession.activeTrackId = id;
+    },
+  };
 
+  const sharedOverrides = {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        collectionId: 'old-quarter-three-lenses',
+        t: (key, params) => translator.t('vi', key, params),
+      }),
+    },
+    '../data/threeLensesCompanion': threeLensesModule,
+    './src/data/threeLensesCompanion': threeLensesModule,
+    '../voice/useVoiceSession': {
+      useVoiceSession: () => voiceSession,
+    },
+    '../voice/localizedCatalog': {
+      voiceCatalogueRevision: '32e1553d10078b5e6e3c0f4df21921c5fa624aef6d2671ae818a77a94413e117',
+      lookupVoiceTrack: ({ contentId }) => ({
+        id: contentId,
+        kind: contentId === 'intro' ? 'intro' : 'story',
+        source: 1,
+        textHash: 'hash',
+        durationSeconds: 30,
+      }),
+    },
+    '../assets/photoMap': {
+      getNodePhoto: (_nodeId, photoKey) => ({ uri: photoKey ?? 'default' }),
+      getNodePhotographer: () => 'Tài liệu người dùng cung cấp (quyền chưa kiểm chứng)',
+      HERO_PHOTO: { uri: 'hero' },
+    },
+  };
 
+  let selectedNodeId = dongXuanNode.id;
+  const qaProps = {
+    currentNodeId: dongXuanNode.id,
+    currentNode: dongXuanNode,
+    nodeQa: dongXuanQa,
+    dataset: threeLensesViCore,
+    collectionId: 'old-quarter-three-lenses',
+    datasetRevision: viRev,
+    mode: 'demo',
+    isFocused: true,
+    navigation: { navigate() {}, goBack() {} },
+    onSelectNode(id) { selectedNodeId = id; },
+    onAskQuestion() {},
+    onModeChange() {},
+    locale: 'vi',
+    readNodeIds: new Set(),
+    onReadNode() {},
+  };
+
+  const view = mount('../src/screens/QaScreen.tsx', qaProps, sharedOverrides);
+  let tree = view.render();
+
+  // 1. Verify 3 Đồng Xuân chapter buttons (tabs) are rendered with correct titles
+  const chapterTabs = elements(tree, 'Pressable').filter((p) => p.props.accessibilityRole === 'tab');
+  assert.equal(chapterTabs.length, 3, 'Must render 3 chapter buttons for Đồng Xuân node');
+  assert.equal(chapterTabs[0].props.accessibilityLabel, 'Chợ Đồng Xuân: hơn một thế kỷ thay đổi');
+  assert.equal(chapterTabs[1].props.accessibilityLabel, 'Ngọn lửa năm 1994');
+  assert.equal(chapterTabs[2].props.accessibilityLabel, 'Nhịp sống bên hông chợ');
+  assert.equal(chapterTabs[0].props.accessibilityState?.selected, true, 'Chapter 1 (Timeline) is selected initially');
+
+  // Verify initial chapter (Timeline) text, photo, and QA chips
+  const rootsPhoto = elements(tree, 'ImageBackground')[0].props.source;
+  const initialChips = elements(tree, 'Pressable').filter((p) => p.props.accessibilityLabel?.startsWith('Hỏi:'));
+  assert.equal(initialChips.length, 3, 'Timeline chapter displays its 3 mapped QA chips');
+  assert.ok(JSON.stringify(tree).includes('1890'), 'Timeline chapter contains 1890 foundation history');
+
+  // 2. Click Chapter 2 (Ngọn lửa năm 1994): verify story text, photo, and QA update WITHOUT changing currentNode
+  chapterTabs[1].props.onPress();
+  tree = view.render();
+
+  assert.equal(selectedNodeId, dongXuanNode.id, 'Node does NOT change when switching chapters');
+  assert.equal(elements(tree, 'Pressable').filter((p) => p.props.accessibilityRole === 'tab')[1].props.accessibilityState?.selected, true);
+  const firePhoto = elements(tree, 'ImageBackground')[0].props.source;
+  assert.notEqual(firePhoto.uri, rootsPhoto.uri, 'Background photo updates to Fire chapter photo');
+  assert.ok(JSON.stringify(tree).includes('1994'), 'Story updates to Fire chapter content');
+
+  const fireChips = elements(tree, 'Pressable').filter((p) => p.props.accessibilityLabel?.startsWith('Hỏi:'));
+  assert.equal(fireChips.length, 3, 'Fire chapter displays its 3 mapped QA chips');
+  const fireQuestions = fireChips.map((c) => c.props.accessibilityLabel);
+  assert.ok(fireQuestions.some((q) => q.includes('cháy')), 'Fire QA chips include fire question');
+
+  // 3. Select a suggestion in Chapter 2, reveal answer, set playing = true, then switch to Chapter 3
+  const fireQa = dongXuanQa.find((q) => q.id === 'dx-fire');
+  assert.ok(fireQa, 'dx-fire question exists');
+  elements(tree, 'ExpandableInputDrawer')[0].props.onSelectSuggestion(fireQa.question);
+  tree = view.render();
+
+  // Reveal answer via reader toggle
+  const showTextBtn = elements(tree, 'Pressable').find((p) =>
+    elements(p, 'Text').some((t) => t.props.children === 'Xem lời kể bằng chữ')
+  );
+  showTextBtn?.props.onPress();
+  tree = view.render();
+  assert.ok(JSON.stringify(tree).includes(fireQa.answer), 'Fire answer is revealed');
+
+  // Set playback playing
+  voiceSession.playback.playing = true;
+  stoppedPlaybackCount = 0;
+
+  // Now switch to Chapter 3 (Nhịp sống bên hông chợ)
+  const tabsRecheck = elements(tree, 'Pressable').filter((p) => p.props.accessibilityRole === 'tab');
+  tabsRecheck[2].props.onPress();
+  tree = view.render();
+
+  assert.ok(stoppedPlaybackCount > 0, 'Switching chapter immediately cancels/stops active voice playback');
+  assert.equal(JSON.stringify(tree).includes(fireQa.answer), false, 'Old answer from previous chapter is cleared');
+  assert.equal(selectedNodeId, dongXuanNode.id, 'Node remains unchanged');
+  assert.ok(JSON.stringify(tree).includes('bên hông chợ') || JSON.stringify(tree).includes('nhịp sống'), 'Story updates to street life chapter');
+
+  // 4. Test closing requesting kind: 'story' on final node
+  const closingBtn = elements(tree, 'Pressable').find((p) => p.props.accessibilityLabel === 'Những câu chuyện vẫn tiếp diễn');
+  assert.ok(closingBtn, 'Closing button is available');
+  closingBtn.props.onPress();
+  tree = view.render();
+
+  const playerBarClosing = elements(tree, 'VoicePlayerBar')[0];
+  assert.ok(playerBarClosing, 'VoicePlayerBar is present for closing');
+  playerBarClosing.props.onPlay();
+  const closingPlay = playedTracks[playedTracks.length - 1];
+  assert.equal(closingPlay.id, 'oldquarter-dong-xuan-closing-story');
+  assert.equal(closingPlay.kind, 'story', 'Closing audio play requests kind: story');
+
+  // 5. Test opening play requesting kind: 'intro'
+  const openingBtn = elements(tree, 'Pressable').find((p) => p.props.accessibilityLabel === 'Phần mở đầu');
+  assert.ok(openingBtn, 'Opening narration button is available');
+  openingBtn.props.onPress();
+  tree = view.render();
+
+  const playerBarOpening = elements(tree, 'VoicePlayerBar')[0];
+  assert.ok(playerBarOpening, 'VoicePlayerBar rendered for opening intro');
+  playerBarOpening.props.onPlay();
+  const openingPlay = playedTracks[playedTracks.length - 1];
+  assert.equal(openingPlay.id, 'intro');
+  assert.equal(openingPlay.kind, 'intro', 'Opening audio play requests kind: intro');
+
+  view.unmount();
+
+  // 6. Test transition play requesting kind: 'story' on Bach Ma node
+  const bachMaNode = threeLensesViCore.nodes.find((n) => n.id === 'oldquarter-bach-ma');
+  const viewBachMa = mount('../src/screens/QaScreen.tsx', {
+    ...qaProps,
+    currentNodeId: bachMaNode.id,
+    currentNode: bachMaNode,
+    nodeQa: threeLensesViCore.qa.filter((q) => q.nodeId === bachMaNode.id),
+  }, sharedOverrides);
+  let treeBachMa = viewBachMa.render();
+
+  const transBtn = elements(treeBachMa, 'Pressable').find((p) => p.props.accessibilityLabel === 'Chuyển đoạn');
+  assert.ok(transBtn, 'Transition button is available on Bach Ma stop');
+  transBtn.props.onPress();
+  treeBachMa = viewBachMa.render();
+
+  const playerBarTrans = elements(treeBachMa, 'VoicePlayerBar')[0];
+  assert.ok(playerBarTrans, 'VoicePlayerBar is present for transition');
+  playerBarTrans.props.onPlay();
+  const transPlay = playedTracks[playedTracks.length - 1];
+  assert.equal(transPlay.id, 'oldquarter-bach-ma-transition-story');
+  assert.equal(transPlay.kind, 'story', 'Transition audio play requests kind: story');
+
+  viewBachMa.unmount();
+});

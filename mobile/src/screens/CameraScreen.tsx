@@ -269,11 +269,11 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
         {active !== undefined ? (
           <View style={styles.activeCard}>
             {/* Ảnh điểm ngõ đã kích hoạt */}
-            <View style={styles.activeImageWrapper}>
+            <View style={[styles.activeImageWrapper, isThreeLenses && { backgroundColor: '#1E1E1E' }]}>
               <Image
                 source={getNodePhoto(active.id)}
                 style={styles.activeImage}
-                resizeMode="cover"
+                resizeMode={isThreeLenses ? 'contain' : 'cover'}
               />
               <View style={styles.disclaimerBadge}>
                 <Text style={styles.disclaimerText}>

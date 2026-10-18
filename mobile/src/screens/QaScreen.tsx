@@ -414,8 +414,8 @@ export function QaScreen({
   function requestTrack(id: string, text: string, kind: 'intro' | 'story' | 'answer', nodeId: string, replay = false): void {
     playbackIntent.current += 1;
     lastTrack.current = { id, text, kind, nodeId, revision: datasetRevision };
-    if (replay) void voiceSession.replayTrack(id, text, kind, nodeId);
-    else void voiceSession.playTrack(id, text, kind, nodeId);
+    if (replay) void (voiceSession.replayTrack as (trackId: string, trackText: string, trackKind: string, trackNodeId: string) => Promise<void>)(id, text, kind, nodeId);
+    else void (voiceSession.playTrack as (trackId: string, trackText: string, trackKind: string, trackNodeId: string) => Promise<void>)(id, text, kind, nodeId);
   }
 
   function showPlanCard(draft: PlanDraft, message?: string): void {
@@ -597,7 +597,7 @@ export function QaScreen({
               )}
 
               {/* NÚT CHUYỂN ĐOẠN / KẾT THÚC / QUAY LẠI CÂU CHUYỆN */}
-              {(nodeTransition || nodeClosing || selectedSegment !== 'chapter') && (
+              {(nodeTransition || nodeClosing || selectedSegment !== 'chapter' || isThreeLenses) && (
                 <View style={styles.journeySegmentControls}>
                   {selectedSegment !== 'chapter' && (
                     <Pressable
@@ -608,6 +608,18 @@ export function QaScreen({
                     >
                       <Text style={[styles.journeySegmentText, styles.journeySegmentTextActive]}>
                         ← {locale === 'en' ? 'Back to story' : 'Quay lại điểm dừng'}
+                      </Text>
+                    </Pressable>
+                  )}
+                  {isThreeLenses && selectedSegment !== 'intro' && (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={locale === 'en' ? 'Opening narration' : 'Phần mở đầu'}
+                      onPress={() => handleSelectSegment('intro')}
+                      style={({ pressed }) => [styles.journeySegmentBtn, pressed && styles.pressed]}
+                    >
+                      <Text style={styles.journeySegmentText}>
+                        🎙️ {locale === 'en' ? 'Opening' : 'Mở đầu'}
                       </Text>
                     </Pressable>
                   )}
