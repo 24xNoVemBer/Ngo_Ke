@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "collectionId": "old-quarter-three-lenses",
+  "locale": "en",
+  "title": "Three lenses on the Old Quarter",
+  "tagline": "From belief and family homes to the rhythm of the market",
+  "verification": "SOURCED_ONLY",
+  "officiallyApproved": false,
+  "sourceDocument": "https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit",
+  "chapters": [
+    {
+      "id": "bach-ma",
+      "nodeId": "oldquarter-bach-ma",
+      "title": "The white horse and Thăng Long's eastern guardian",
+      "text": "On Hàng Buồm Street stands a temple called Bạch Mã, meaning white horse. How did a horse become part of a story about building the citadel of Thăng Long?\n\nBạch Mã Temple is a historic place of worship on Hàng Buồm Street, dedicated to Long Đỗ, a deity associated with protecting the land of Thăng Long. The temple is known as the eastern guardian in the traditional system of Thăng Long's four guardian temples.\n\nAccording to legend, King Lý Thái Tổ repeatedly encountered difficulties while building the citadel. After prayers were offered to the deity, a white horse appeared and left hoofprints. The king ordered the walls to follow those tracks, and the work was completed.\n\nThe white horse story is a folk legend. It expresses a belief in divine protection; it is not a historically proven account of construction. Through repeated repairs, Bạch Mã Temple has remained a place of worship connected with Hà Nội's long memory.\n\nLook closer\nIn the supplied photograph, look for the tiled roof and its decorative details, the Chinese-character sign above the main entrance, and the wooden doors and front columns. The image does not establish the exact age of these features. This is a place of worship: remain quiet, respect religious activities, and take photographs only where permitted.",
+      "voiceContentId": "oldquarter-bach-ma-story",
+      "photoKey": "bach-ma",
+      "qaIds": [
+        "bm-deity",
+        "bm-name",
+        "bm-east"
+      ],
+      "evidence": [
+        "BM-01 — Hoàn Kiếm 360 — Đền Bạch Mã: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+        "BM-02 — Báo Điện tử Chính phủ — Tứ trấn Hà Nội: https://thanglong.chinhphu.vn/tu-tran-ha-noi-net-van-hoa-lich-su-dac-sac-10323385.htm",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "verification": "LEGEND"
+    },
+    {
+      "id": "ma-may",
+      "nodeId": "oldquarter-ma-may",
+      "title": "One house, many generations",
+      "text": "Have you ever wondered how people once lived in the Old Quarter's houses with their narrow street frontages?\n\nThe heritage house at 87 Mã Mây preserves features of traditional housing in Hà Nội's Old Quarter. Its frontage is narrow, but the plot extends deep behind the street. The front rooms were used for trade, with family living spaces further inside. Small courtyards between the buildings bring in light and allow air to circulate.\n\nAccording to the Department of Cultural Heritage, the owner before 1945 traded in rice. Later, the house was used as a home and a place to sell traditional herbal medicine. At one stage, several families lived here together.\n\nIn 1999, the building was restored through a conservation partnership between Hà Nội and Toulouse in France. In 2004, the house was listed as a national monument. It offers visitors a way to understand life in the Old Quarter. Sources disagree about its original construction date, so this account does not give an exact year.\n\nLook closer\nIn the supplied photograph, notice the Heritage House sign, the central wooden doors, the wooden balustrade above, the tiled roof and the wall colour. If entry is permitted, you can also look at the sequence of rooms and courtyards. Enter or photograph the interior only when allowed; check visiting arrangements at the time of your visit.",
+      "voiceContentId": "oldquarter-ma-may-story",
+      "photoKey": "ma-may",
+      "qaIds": [
+        "mm-layout",
+        "mm-trade",
+        "mm-restore",
+        "mm-date"
+      ],
+      "evidence": [
+        "MM-01 — Cục Di sản văn hóa — Nhà số 87 Mã Mây: https://dsvh.gov.vn/nha-so-87-ma-may-thanh-pho-ha-noi-22260",
+        "MM-02 — Hoàn Kiếm 360 — Ngôi nhà di sản 87 Mã Mây: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+        "MM-03 — Báo Điện tử Chính phủ — Nơi lưu giữ nếp nhà người Việt: https://thanglong.chinhphu.vn/noi-luu-giu-nep-nha-nguoi-viet-10332566.htm",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "verification": "SOURCED_ONLY"
+    },
+    {
+      "id": "dong-xuan-timeline",
+      "nodeId": "oldquarter-dong-xuan",
+      "title": "Đồng Xuân: more than a century of change",
+      "text": "The supplied 2026 photograph shows a thirtieth-anniversary banner on Đồng Xuân Market's facade. But the market's history stretches back much further than thirty years.\n\nĐồng Xuân Market is a longstanding trading centre connected with the growth of Hà Nội's Old Quarter. Archival material records steel-framed market halls with metal roofs here in 1890. Increasing trade led to further expansion.\n\nIn 1917, plans were made for an additional hall and a facade with five large arches. The dates 1996–2026 on the banner in the supplied photograph refer to thirty years since Đồng Xuân Corporation was established in 1996, not the age of the market itself.\n\nAfter many phases of change, Đồng Xuân remains an important part of Hà Nội's commercial history. This account does not claim that today's entire facade survives unchanged from 1890.\n\nLook closer\nIn the photograph, look at the facade, the repeated openings and decorative features, the 2026 anniversary banner, and the trading activity in front. The banner belongs to the time of the photograph; it is not a permanent feature or a guarantee of what is displayed today.",
+      "voiceContentId": "oldquarter-dong-xuan-story",
+      "photoKey": "dong-xuan-timeline",
+      "qaIds": [
+        "dx-history",
+        "dx-banner",
+        "dx-facade"
+      ],
+      "evidence": [
+        "DX-01 — Trung tâm Lưu trữ quốc gia I — Chợ Đồng Xuân đầu thế kỷ XX: https://www.archives.org.vn/gioi-thieu-tai-lieu-nghiep-vu/cho-dong-xuan-dau-the-ki-20-khi-hai-day-nha-khung-thep-khong-con-du-che-nhip-song-pho-thi.htm",
+        "DX-02 — Công ty Cổ phần Đồng Xuân — Thông tin chung: https://www.dongxuancorp.com/thong-tin-chung-ve-cong-ty-co-phan-dong-xuan",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "verification": "SOURCED_ONLY"
+    },
+    {
+      "id": "dong-xuan-fire",
+      "nodeId": "oldquarter-dong-xuan",
+      "title": "The fire of 1994",
+      "text": "It can be hard to imagine that the busy market shown in these photographs once suffered a devastating fire.\n\nThe supplied interior photograph shows layers of stalls and walkways beneath the market's high roof. Yet this place has also experienced a major disaster.\n\nIn 1994, a fire burned through almost all the market's stalls, seriously disrupting trading. In 1995, Đồng Xuân Market was rebuilt as a three-storey complex so that buying and selling could continue.\n\nThe story of the market is therefore about more than architecture. It is also about the traders whose working lives have been connected with this place through periods of change.\n\nLook closer\nLook at the high roof, the arrangement of floors and stalls, and the central water feature visible in the supplied photograph. The sources checked do not establish when that water feature was built. Do not assume it dates from the French colonial period.",
+      "voiceContentId": "oldquarter-dong-xuan-fire-story",
+      "photoKey": "dong-xuan-fire",
+      "qaIds": [
+        "dx-fire",
+        "dx-rebuild",
+        "dx-fountain"
+      ],
+      "evidence": [
+        "DX-03 — VnExpress — Hơn 100 năm tồn tại của chợ Đồng Xuân: https://vnexpress.net/hon-100-nam-ton-tai-cua-cho-dong-xuan-3735553.html",
+        "DX-04 — Hoàn Kiếm 360 — Chợ Đồng Xuân: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/cho-dong-xuan.html",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "verification": "SOURCED_ONLY"
+    },
+    {
+      "id": "dong-xuan-street",
+      "nodeId": "oldquarter-dong-xuan",
+      "title": "Everyday life beside the market",
+      "text": "Beyond the halls is another view of Đồng Xuân: small food stalls, passing people and the everyday rhythm of the surrounding streets.\n\nĐồng Xuân is more than a large market building. Commercial life also takes place on the streets around it. From the late nineteenth century, the market brought together goods from within the country and from abroad. Connections with trading streets and transport links helped it become an important commercial centre.\n\nGoods, vehicles and ways of trading have changed over time. Around the market, shops and streetside food businesses remain part of everyday life.\n\nThese ordinary scenes remind us that Hà Nội's history is not held only in old buildings. It also continues through the lives of people today. The supplied photograph records one moment, rather than proving the current operation or history of every business shown.\n\nLook closer\nNotice the side of the market building, the streetside food stalls, the traffic and trading activity, and the connection between the large market and smaller businesses. Do not describe a particular stall as longstanding or family-run without evidence for that business.",
+      "voiceContentId": "oldquarter-dong-xuan-street-story",
+      "photoKey": "dong-xuan-street",
+      "qaIds": [
+        "dx-trade",
+        "dx-goods",
+        "dx-stalls"
+      ],
+      "evidence": [
+        "DX-04 — Hoàn Kiếm 360 — Chợ Đồng Xuân: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/cho-dong-xuan.html",
+        "DX-01 — Trung tâm Lưu trữ quốc gia I — Chợ Đồng Xuân đầu thế kỷ XX: https://www.archives.org.vn/gioi-thieu-tai-lieu-nghiep-vu/cho-dong-xuan-dau-the-ki-20-khi-hai-day-nha-khung-thep-khong-con-du-che-nhip-song-pho-thi.htm",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "verification": "SOURCED_ONLY"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "transition-1",
+      "nodeId": "oldquarter-bach-ma",
+      "title": "Continue the journey",
+      "text": "Leaving the story of deities and the citadel, we turn to a different perspective on Hà Nội. Our next place is a house on Mã Mây Street, where everyday life in the Old Quarter can be explored through architecture. This is a narrative transition, not walking directions.",
+      "voiceContentId": "oldquarter-bach-ma-transition-story",
+      "evidence": [
+        "BM-01 — Hoàn Kiếm 360 — Đền Bạch Mã: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+        "BM-02 — Báo Điện tử Chính phủ — Tứ trấn Hà Nội: https://thanglong.chinhphu.vn/tu-tran-ha-noi-net-van-hoa-lich-su-dac-sac-10323385.htm",
+        "MM-01 — Cục Di sản văn hóa — Nhà số 87 Mã Mây: https://dsvh.gov.vn/nha-so-87-ma-may-thanh-pho-ha-noi-22260",
+        "MM-02 — Hoàn Kiếm 360 — Ngôi nhà di sản 87 Mã Mây: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+        "MM-03 — Báo Điện tử Chính phủ — Nơi lưu giữ nếp nhà người Việt: https://thanglong.chinhphu.vn/noi-luu-giu-nep-nha-nguoi-viet-10332566.htm",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ]
+    },
+    {
+      "id": "transition-2",
+      "nodeId": "oldquarter-ma-may",
+      "title": "Continue the journey",
+      "text": "From the house on Mã Mây Street, the journey continues to a much larger space. If 87 Mã Mây tells a story of families and generations of residents, Đồng Xuân Market introduces trading, upheaval and the city's commercial rhythm. This is a narrative transition, not walking directions.",
+      "voiceContentId": "oldquarter-ma-may-transition-story",
+      "evidence": [
+        "MM-01 — Cục Di sản văn hóa — Nhà số 87 Mã Mây: https://dsvh.gov.vn/nha-so-87-ma-may-thanh-pho-ha-noi-22260",
+        "MM-02 — Hoàn Kiếm 360 — Ngôi nhà di sản 87 Mã Mây: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+        "MM-03 — Báo Điện tử Chính phủ — Nơi lưu giữ nếp nhà người Việt: https://thanglong.chinhphu.vn/noi-luu-giu-nep-nha-nguoi-viet-10332566.htm",
+        "DX-01 — Trung tâm Lưu trữ quốc gia I — Chợ Đồng Xuân đầu thế kỷ XX: https://www.archives.org.vn/gioi-thieu-tai-lieu-nghiep-vu/cho-dong-xuan-dau-the-ki-20-khi-hai-day-nha-khung-thep-khong-con-du-che-nhip-song-pho-thi.htm",
+        "DX-02 — Công ty Cổ phần Đồng Xuân — Thông tin chung: https://www.dongxuancorp.com/thong-tin-chung-ve-cong-ty-co-phan-dong-xuan",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ]
+    }
+  ],
+  "closing": {
+    "id": "closing",
+    "nodeId": "oldquarter-dong-xuan",
+    "title": "The stories continue",
+    "text": "Our journey began at Bạch Mã Temple, with a legend linked to the building of Thăng Long. At the heritage house at 87 Mã Mây, we explored how people organised home and work in the Old Quarter. At Đồng Xuân Market, we encountered trading across generations, through upheaval and change.\n\nThree places offer three perspectives: belief, family life and commerce. This is what Ngõ Kể hopes to share: not only where a place is, but the cultural stories behind it. Walk through a street, discover layers of Hà Nội's memory. Visiting arrangements, routes and access still need to be checked locally.",
+    "voiceContentId": "oldquarter-dong-xuan-closing-story",
+    "evidence": [
+      "BM-01 — Hoàn Kiếm 360 — Đền Bạch Mã: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+      "MM-01 — Cục Di sản văn hóa — Nhà số 87 Mã Mây: https://dsvh.gov.vn/nha-so-87-ma-may-thanh-pho-ha-noi-22260",
+      "DX-01 — Trung tâm Lưu trữ quốc gia I — Chợ Đồng Xuân đầu thế kỷ XX: https://www.archives.org.vn/gioi-thieu-tai-lieu-nghiep-vu/cho-dong-xuan-dau-the-ki-20-khi-hai-day-nha-khung-thep-khong-con-du-che-nhip-song-pho-thi.htm",
+      "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+    ]
+  },
+  "photoCredit": "Photos from the supplied document; usage rights have not been independently verified.",
+  "photoContext": "Document survey photos; the banner is dated 2026, not a guarantee of current conditions.",
+  "scriptRevision": "13480dc14cc362b79d4f218e52d6f3cfa5089807d21ef3a9f5c7650293dc4730",
+  "datasetRevision": "f1b4bd8824822fd86e56dff6e44d1d4d4034659eea1b472da1cde06c19647940"
+}

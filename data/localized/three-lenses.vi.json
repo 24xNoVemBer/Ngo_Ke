@@ -1,0 +1,512 @@
+{
+  "schemaVersion": 2,
+  "collectionId": "old-quarter-three-lenses",
+  "locale": "vi",
+  "kind": "reviewed",
+  "scriptRevision": "ec27ed0c6dbfe24407aa9d7aa479ad55652cdc320a3b846ec6e007b669cf2267",
+  "disclaimer": "DEMO · Có nguồn tham khảo (SOURCED_ONLY), chưa được đơn vị quản lý di tích duyệt chính thức. Truyền thuyết không phải sử liệu đã chứng minh. Ảnh do người dùng cung cấp, quyền chưa kiểm chứng độc lập; băng-rôn thuộc ảnh năm 2026. Thời lượng tham quan là gợi ý biên tập, không phải ETA; tọa độ tham khảo từ pilot/OpenStreetMap, chưa khảo sát thực địa, không dẫn đường. © OpenStreetMap contributors, ODbL: https://www.openstreetmap.org/copyright",
+  "intro": {
+    "text": "Giữa những con phố đông đúc của Hà Nội, bạn có bao giờ tự hỏi: điều gì đã tạo nên bản sắc của khu phố cổ qua hàng trăm năm?\n\nHà Nội không chỉ lưu giữ ký ức trong những công trình lớn. Đôi khi, câu chuyện của thành phố nằm trong một mái đền cổ, một ngôi nhà nhỏ hay một khu chợ đông người.\nTrong hành trình hôm nay, Ngõ Kể sẽ cùng bạn khám phá ba góc nhìn về phố cổ Hà Nội.\nChúng ta sẽ bắt đầu tại Đền Bạch Mã, tìm hiểu một truyền thuyết gắn với kinh thành Thăng Long; tiếp tục đến ngôi nhà di sản 87 Mã Mây, nơi lưu giữ dấu ấn sinh hoạt của người Hà Nội xưa; và kết thúc tại Chợ Đồng Xuân, một trung tâm giao thương đã trải qua nhiều biến động.\nMỗi địa điểm là một câu chuyện. Khi đặt cạnh nhau, chúng giúp chúng ta hiểu hơn về văn hóa, con người và lịch sử đô thị Hà Nội.\n\nĐây là ba địa điểm thực trong phố cổ, không phải ba trạm của cùng một con ngõ. Trải nghiệm không cung cấp dẫn đường.",
+    "evidence": [
+      "BM-01 — Hoàn Kiếm 360 — Đền Bạch Mã: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+      "MM-01 — Cục Di sản văn hóa — Nhà số 87 Mã Mây: https://dsvh.gov.vn/nha-so-87-ma-may-thanh-pho-ha-noi-22260",
+      "DX-01 — Trung tâm Lưu trữ quốc gia I — Chợ Đồng Xuân đầu thế kỷ XX: https://www.archives.org.vn/gioi-thieu-tai-lieu-nghiep-vu/cho-dong-xuan-dau-the-ki-20-khi-hai-day-nha-khung-thep-khong-con-du-che-nhip-song-pho-thi.htm",
+      "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+    ],
+    "reviewStatus": "approved",
+    "updatedAt": "2026-10-19T00:00:00Z"
+  },
+  "startNodeId": "oldquarter-bach-ma",
+  "nodes": [
+    {
+      "id": "oldquarter-bach-ma",
+      "name": "Đền Bạch Mã",
+      "summary": "Thần Long Đỗ, truyền thuyết ngựa trắng và trấn Đông Thăng Long.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 15,
+      "available": true,
+      "visited": false,
+      "story": "Giữa phố Hàng Buồm có một ngôi đền mang tên Bạch Mã, nghĩa là ngựa trắng. Nhưng vì sao một con ngựa lại gắn với câu chuyện xây dựng kinh thành Thăng Long?\n\nTrước mặt bạn là Đền Bạch Mã, một ngôi đền cổ trên phố Hàng Buồm, nơi thờ thần Long Đỗ — vị thần gắn với tín ngưỡng bảo hộ đất Thăng Long.\nNgôi đền được biết đến là trấn phía Đông trong hệ thống Thăng Long tứ trấn.\nTheo truyền thuyết, khi vua Lý Thái Tổ cho xây dựng kinh thành, việc đắp thành nhiều lần gặp khó khăn. Sau khi cầu thần, một con ngựa trắng xuất hiện và để lại dấu chân. Nhà vua cho xây thành theo dấu chân ấy, và công việc được hoàn thành.\nCâu chuyện ngựa trắng là một truyền thuyết dân gian, phản ánh niềm tin của người xưa vào sự che chở của thần linh.\nTrải qua nhiều lần tu sửa, Đền Bạch Mã vẫn là một không gian tín ngưỡng gắn với ký ức lâu đời của Hà Nội.\n\nGợi ý quan sát\nKhi đứng trước ngôi đền, hãy chú ý:\n• Mái ngói và các họa tiết trang trí trên nóc.\n• Tấm biển chữ Hán phía trên cửa chính.\n• Những cánh cửa gỗ và hệ cột phía trước.\nCác chi tiết này có thể nhìn thấy trong ảnh khảo sát. Không tự suy ra niên đại cụ thể của chúng.\nLưu ý: Đây là nơi thờ tự. Hãy giữ yên lặng, tôn trọng hoạt động tín ngưỡng và chỉ chụp ảnh tại khu vực được cho phép.",
+      "caption": "Bạch Mã: nơi thờ tự; câu chuyện ngựa trắng được trình bày là truyền thuyết.",
+      "latitude": null,
+      "longitude": null,
+      "evidence": [
+        "BM-01 — Hoàn Kiếm 360 — Đền Bạch Mã: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+        "BM-02 — Báo Điện tử Chính phủ — Tứ trấn Hà Nội: https://thanglong.chinhphu.vn/tu-tran-ha-noi-net-van-hoa-lich-su-dac-sac-10323385.htm",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "oldquarter-ma-may",
+      "name": "Nhà di sản 87 Mã Mây",
+      "summary": "Nhà ống, sân lấy sáng và nếp sống gắn với buôn bán ở phố cổ.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 15,
+      "available": true,
+      "visited": false,
+      "story": "Bạn có bao giờ thắc mắc người Hà Nội xưa sinh sống như thế nào trong những ngôi nhà phố có mặt tiền nhỏ hẹp?\n\nTrước mặt bạn là nhà di sản số 87 Mã Mây, một công trình lưu giữ những đặc điểm của kiến trúc nhà ở truyền thống trong khu phố cổ Hà Nội.\nNgôi nhà có mặt tiền hẹp nhưng kéo dài vào bên trong. Gian phía trước từng dành cho hoạt động buôn bán, còn những không gian phía sau phục vụ sinh hoạt gia đình. Các khoảng sân nhỏ nằm xen giữa các lớp nhà giúp đón ánh sáng và lưu thông không khí.\nTheo hồ sơ của Cục Di sản văn hóa, trước năm 1945, gia chủ từng kinh doanh gạo. Về sau, ngôi nhà được sử dụng để ở và kinh doanh thuốc Bắc. Có giai đoạn nhiều gia đình cùng sinh sống tại đây.\nNăm 1999, công trình được tu bổ trong chương trình hợp tác bảo tồn giữa Hà Nội và thành phố Toulouse của Pháp.\nĐến năm 2004, nhà số 87 Mã Mây được xếp hạng di tích quốc gia, trở thành một địa điểm giúp người tham quan hiểu thêm về nếp sống phố cổ.\n\nGợi ý quan sát\nHãy quan sát những chi tiết xuất hiện trong bức ảnh:\n• Tấm biển “Ngôi nhà di sản — Heritage House”.\n• Bộ cửa gỗ ở chính giữa mặt tiền.\n• Hàng con tiện gỗ phía trên.\n• Mái ngói và màu tường đặc trưng.\nNếu được phép vào tham quan, bạn có thể quan sát cách các lớp nhà và khoảng sân được bố trí bên trong.\nLưu ý: Chỉ tham quan hoặc chụp ảnh bên trong khi được phép. Điều kiện mở cửa cần được xác nhận tại thời điểm đến.",
+      "caption": "87 Mã Mây: mặt phố hẹp, chiều sâu dài, sân đón ánh sáng và không khí.",
+      "latitude": 21.0343659,
+      "longitude": 105.8535931,
+      "evidence": [
+        "MM-01 — Cục Di sản văn hóa — Nhà số 87 Mã Mây: https://dsvh.gov.vn/nha-so-87-ma-may-thanh-pho-ha-noi-22260",
+        "MM-02 — Hoàn Kiếm 360 — Ngôi nhà di sản 87 Mã Mây: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+        "MM-03 — Báo Điện tử Chính phủ — Nơi lưu giữ nếp nhà người Việt: https://thanglong.chinhphu.vn/noi-luu-giu-nep-nha-nguoi-viet-10332566.htm",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit",
+        "Geometry tham khảo từ pilot/OSM, chưa khảo sát thực địa: https://www.openstreetmap.org/copyright"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "oldquarter-dong-xuan",
+      "name": "Chợ Đồng Xuân",
+      "summary": "Ba chương trong một địa điểm: lịch sử, vụ cháy 1994 và nhịp sống bên chợ.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do",
+        "an thuc"
+      ],
+      "visitMinutes": 20,
+      "available": true,
+      "visited": false,
+      "story": "Trong ảnh khảo sát năm 2026, trên mặt tiền Chợ Đồng Xuân có băng-rôn kỷ niệm ba mươi năm. Nhưng bạn có biết lịch sử khu chợ này đã kéo dài hơn một thế kỷ?\n\nChợ Đồng Xuân là một trong những trung tâm buôn bán lâu đời của Hà Nội, gắn với sự phát triển của khu phố cổ.\nNăm 1890, tại khu vực này đã xuất hiện những dãy nhà chợ bằng khung thép, mái tôn. Hoạt động giao thương ngày càng phát triển khiến khu chợ tiếp tục được mở rộng.\nĐến năm 1917, một kế hoạch xây dựng thêm dãy nhà và mặt tiền với năm vòm lớn được triển khai.\nĐiều thú vị là dòng chữ “1996–2026” trên băng-rôn trong ảnh năm 2026 không phải tuổi của khu chợ. Đây là mốc ba mươi năm thành lập Công ty Cổ phần Đồng Xuân, doanh nghiệp được thành lập năm 1996.\nQua nhiều giai đoạn thay đổi, Chợ Đồng Xuân vẫn là một dấu ấn nổi bật trong lịch sử thương mại của Hà Nội.\n\nGợi ý quan sát\nQuan sát:\n• Kiến trúc mặt tiền chợ.\n• Những nhịp cửa và chi tiết trang trí.\n• Băng-rôn kỷ niệm năm 2026.\n• Dòng người và hoạt động buôn bán trước chợ.\nBăng-rôn là chi tiết tại thời điểm chụp năm 2026, không nên xem là đặc điểm cố định của địa điểm.",
+      "caption": "Đồng Xuân: ba chương khám phá ở cùng một địa điểm thật, không phải ba điểm GPS.",
+      "latitude": 21.0382556,
+      "longitude": 105.849671,
+      "evidence": [
+        "DX-01 — Trung tâm Lưu trữ quốc gia I — Chợ Đồng Xuân đầu thế kỷ XX: https://www.archives.org.vn/gioi-thieu-tai-lieu-nghiep-vu/cho-dong-xuan-dau-the-ki-20-khi-hai-day-nha-khung-thep-khong-con-du-che-nhip-song-pho-thi.htm",
+        "DX-02 — Công ty Cổ phần Đồng Xuân — Thông tin chung: https://www.dongxuancorp.com/thong-tin-chung-ve-cong-ty-co-phan-dong-xuan",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit",
+        "Geometry tham khảo từ pilot/OSM, chưa khảo sát thực địa: https://www.openstreetmap.org/copyright"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    }
+  ],
+  "qa": [
+    {
+      "id": "bm-deity",
+      "nodeId": "oldquarter-bach-ma",
+      "question": "Đền Bạch Mã thờ vị thần nào?",
+      "answer": "Đền thờ thần Long Đỗ, vị thần được dân gian gắn với việc bảo hộ vùng đất Thăng Long.",
+      "aliases": [
+        "đền thờ ai",
+        "thần Long Đỗ"
+      ],
+      "evidence": [
+        "BM-01 — Hoàn Kiếm 360 — Đền Bạch Mã: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+        "BM-02 — Báo Điện tử Chính phủ — Tứ trấn Hà Nội: https://thanglong.chinhphu.vn/tu-tran-ha-noi-net-van-hoa-lich-su-dac-sac-10323385.htm",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "followUps": [
+        "bm-name",
+        "bm-east"
+      ],
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "bm-name",
+      "nodeId": "oldquarter-bach-ma",
+      "question": "Vì sao ngôi đền được gọi là Bạch Mã?",
+      "answer": "Theo truyền thuyết, một con ngựa trắng đã xuất hiện và để lại dấu chân giúp vua Lý Thái Tổ xây dựng kinh thành. Đây là câu chuyện tín ngưỡng dân gian, không phải sự kiện đã được chứng minh bằng sử liệu.",
+      "aliases": [
+        "vì sao gọi là Bạch Mã",
+        "truyền thuyết ngựa trắng"
+      ],
+      "evidence": [
+        "BM-01 — Hoàn Kiếm 360 — Đền Bạch Mã: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+        "BM-02 — Báo Điện tử Chính phủ — Tứ trấn Hà Nội: https://thanglong.chinhphu.vn/tu-tran-ha-noi-net-van-hoa-lich-su-dac-sac-10323385.htm",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "followUps": [
+        "bm-deity",
+        "bm-east"
+      ],
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "bm-east",
+      "nodeId": "oldquarter-bach-ma",
+      "question": "Đền Bạch Mã thuộc trấn nào của Thăng Long?",
+      "answer": "Đền Bạch Mã thuộc trấn Đông, một trong bốn trấn bảo hộ kinh thành Thăng Long theo tín ngưỡng truyền thống.",
+      "aliases": [
+        "đền Bạch Mã trấn nào",
+        "trấn Đông"
+      ],
+      "evidence": [
+        "BM-01 — Hoàn Kiếm 360 — Đền Bạch Mã: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/den-bach-ma.html",
+        "BM-02 — Báo Điện tử Chính phủ — Tứ trấn Hà Nội: https://thanglong.chinhphu.vn/tu-tran-ha-noi-net-van-hoa-lich-su-dac-sac-10323385.htm",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "followUps": [
+        "bm-deity",
+        "bm-name"
+      ],
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "mm-layout",
+      "nodeId": "oldquarter-ma-may",
+      "question": "Vì sao nhà 87 Mã Mây có mặt tiền hẹp nhưng chiều sâu lớn?",
+      "answer": "Đây là đặc điểm phổ biến của kiểu nhà ống trong khu phố cổ. Không gian được chia thành nhiều lớp, kết hợp nơi buôn bán, sinh hoạt và các khoảng sân lấy sáng, thông gió.",
+      "aliases": [
+        "vì sao nhà hẹp",
+        "kiến trúc nhà ống"
+      ],
+      "evidence": [
+        "MM-01 — Cục Di sản văn hóa — Nhà số 87 Mã Mây: https://dsvh.gov.vn/nha-so-87-ma-may-thanh-pho-ha-noi-22260",
+        "MM-02 — Hoàn Kiếm 360 — Ngôi nhà di sản 87 Mã Mây: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+        "MM-03 — Báo Điện tử Chính phủ — Nơi lưu giữ nếp nhà người Việt: https://thanglong.chinhphu.vn/noi-luu-giu-nep-nha-nguoi-viet-10332566.htm",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "followUps": [
+        "mm-trade",
+        "mm-restore"
+      ],
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "mm-trade",
+      "nodeId": "oldquarter-ma-may",
+      "question": "Ngày xưa ngôi nhà được sử dụng để kinh doanh gì?",
+      "answer": "Theo Cục Di sản văn hóa, trước năm 1945, gia chủ kinh doanh gạo. Sau đó, nơi đây từng được sử dụng để ở và kinh doanh thuốc Bắc.",
+      "aliases": [
+        "ngày xưa bán gì",
+        "gạo và thuốc Bắc"
+      ],
+      "evidence": [
+        "MM-01 — Cục Di sản văn hóa — Nhà số 87 Mã Mây: https://dsvh.gov.vn/nha-so-87-ma-may-thanh-pho-ha-noi-22260",
+        "MM-02 — Hoàn Kiếm 360 — Ngôi nhà di sản 87 Mã Mây: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+        "MM-03 — Báo Điện tử Chính phủ — Nơi lưu giữ nếp nhà người Việt: https://thanglong.chinhphu.vn/noi-luu-giu-nep-nha-nguoi-viet-10332566.htm",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "followUps": [
+        "mm-layout",
+        "mm-restore"
+      ],
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "mm-restore",
+      "nodeId": "oldquarter-ma-may",
+      "question": "Nhà di sản 87 Mã Mây được tu bổ vào năm nào?",
+      "answer": "Năm 1999, trong chương trình hợp tác bảo tồn giữa Hà Nội và thành phố Toulouse của Pháp.",
+      "aliases": [
+        "năm tu bổ nhà",
+        "tu bổ năm nào"
+      ],
+      "evidence": [
+        "MM-01 — Cục Di sản văn hóa — Nhà số 87 Mã Mây: https://dsvh.gov.vn/nha-so-87-ma-may-thanh-pho-ha-noi-22260",
+        "MM-02 — Hoàn Kiếm 360 — Ngôi nhà di sản 87 Mã Mây: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+        "MM-03 — Báo Điện tử Chính phủ — Nơi lưu giữ nếp nhà người Việt: https://thanglong.chinhphu.vn/noi-luu-giu-nep-nha-nguoi-viet-10332566.htm",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "followUps": [
+        "mm-layout",
+        "mm-trade"
+      ],
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "mm-date",
+      "nodeId": "oldquarter-ma-may",
+      "question": "Ngôi nhà được xây dựng chính xác vào năm nào?",
+      "answer": "Các nguồn hiện có chưa thống nhất về thời điểm xây dựng ban đầu. Vì vậy, Ngõ Kể chưa đưa ra một năm xây dựng chính xác.",
+      "aliases": [
+        "năm xây dựng chính xác",
+        "ngôi nhà xây khi nào"
+      ],
+      "evidence": [
+        "MM-01 — Cục Di sản văn hóa — Nhà số 87 Mã Mây: https://dsvh.gov.vn/nha-so-87-ma-may-thanh-pho-ha-noi-22260",
+        "MM-02 — Hoàn Kiếm 360 — Ngôi nhà di sản 87 Mã Mây: https://hoankiem360.tourism.vn/chi_tiet_pho_co/ngoi-nha-di-san-87-ma-may.html",
+        "MM-03 — Báo Điện tử Chính phủ — Nơi lưu giữ nếp nhà người Việt: https://thanglong.chinhphu.vn/noi-luu-giu-nep-nha-nguoi-viet-10332566.htm",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "followUps": [
+        "mm-layout",
+        "mm-trade"
+      ],
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "dx-history",
+      "nodeId": "oldquarter-dong-xuan",
+      "question": "Chợ Đồng Xuân có từ khi nào?",
+      "answer": "Tư liệu lưu trữ ghi nhận những dãy nhà chợ khung thép, mái tôn đã được xây dựng tại đây vào năm 1890. Hoạt động chợ trong khu vực có lịch sử gắn với quá trình phát triển thương mại của Hà Nội.",
+      "aliases": [
+        "chợ có từ bao giờ",
+        "dãy nhà chợ năm 1890"
+      ],
+      "evidence": [
+        "DX-01 — Trung tâm Lưu trữ quốc gia I — Chợ Đồng Xuân đầu thế kỷ XX: https://www.archives.org.vn/gioi-thieu-tai-lieu-nghiep-vu/cho-dong-xuan-dau-the-ki-20-khi-hai-day-nha-khung-thep-khong-con-du-che-nhip-song-pho-thi.htm",
+        "DX-02 — Công ty Cổ phần Đồng Xuân — Thông tin chung: https://www.dongxuancorp.com/thong-tin-chung-ve-cong-ty-co-phan-dong-xuan",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "followUps": [
+        "dx-banner",
+        "dx-facade"
+      ],
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do",
+        "an thuc"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "dx-banner",
+      "nodeId": "oldquarter-dong-xuan",
+      "question": "Vì sao băng-rôn lại ghi 30 năm?",
+      "answer": "Vì 1996–2026 là ba mươi năm thành lập Công ty Cổ phần Đồng Xuân, không phải tuổi của khu chợ. Băng-rôn là chi tiết trong ảnh được ghi nhận năm 2026.",
+      "aliases": [
+        "băng rôn ba mươi năm",
+        "1996 đến 2026 là gì"
+      ],
+      "evidence": [
+        "DX-01 — Trung tâm Lưu trữ quốc gia I — Chợ Đồng Xuân đầu thế kỷ XX: https://www.archives.org.vn/gioi-thieu-tai-lieu-nghiep-vu/cho-dong-xuan-dau-the-ki-20-khi-hai-day-nha-khung-thep-khong-con-du-che-nhip-song-pho-thi.htm",
+        "DX-02 — Công ty Cổ phần Đồng Xuân — Thông tin chung: https://www.dongxuancorp.com/thong-tin-chung-ve-cong-ty-co-phan-dong-xuan",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "followUps": [
+        "dx-history",
+        "dx-facade"
+      ],
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do",
+        "an thuc"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "dx-facade",
+      "nodeId": "oldquarter-dong-xuan",
+      "question": "Mặt tiền chợ hiện tại có giữ nguyên từ năm 1890 không?",
+      "answer": "Không có cơ sở để khẳng định như vậy. Chợ Đồng Xuân đã trải qua nhiều giai đoạn xây dựng, mở rộng và cải tạo.",
+      "aliases": [
+        "mặt tiền có nguyên từ 1890",
+        "mặt tiền nguyên gốc"
+      ],
+      "evidence": [
+        "DX-01 — Trung tâm Lưu trữ quốc gia I — Chợ Đồng Xuân đầu thế kỷ XX: https://www.archives.org.vn/gioi-thieu-tai-lieu-nghiep-vu/cho-dong-xuan-dau-the-ki-20-khi-hai-day-nha-khung-thep-khong-con-du-che-nhip-song-pho-thi.htm",
+        "DX-02 — Công ty Cổ phần Đồng Xuân — Thông tin chung: https://www.dongxuancorp.com/thong-tin-chung-ve-cong-ty-co-phan-dong-xuan",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "followUps": [
+        "dx-history",
+        "dx-banner"
+      ],
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do",
+        "an thuc"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "dx-fire",
+      "nodeId": "oldquarter-dong-xuan",
+      "question": "Chợ Đồng Xuân từng bị cháy vào năm nào?",
+      "answer": "Năm 1994, một vụ hỏa hoạn lớn đã xảy ra, thiêu rụi gần như toàn bộ các gian hàng.",
+      "aliases": [
+        "chợ cháy năm nào",
+        "vụ cháy năm 1994"
+      ],
+      "evidence": [
+        "DX-03 — VnExpress — Hơn 100 năm tồn tại của chợ Đồng Xuân: https://vnexpress.net/hon-100-nam-ton-tai-cua-cho-dong-xuan-3735553.html",
+        "DX-04 — Hoàn Kiếm 360 — Chợ Đồng Xuân: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/cho-dong-xuan.html",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "followUps": [
+        "dx-history",
+        "dx-banner"
+      ],
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do",
+        "an thuc"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "dx-rebuild",
+      "nodeId": "oldquarter-dong-xuan",
+      "question": "Chợ được xây dựng lại khi nào?",
+      "answer": "Năm 1995, Chợ Đồng Xuân được xây dựng lại với quy mô ba tầng.",
+      "aliases": [
+        "xây lại sau cháy",
+        "xây lại năm 1995"
+      ],
+      "evidence": [
+        "DX-03 — VnExpress — Hơn 100 năm tồn tại của chợ Đồng Xuân: https://vnexpress.net/hon-100-nam-ton-tai-cua-cho-dong-xuan-3735553.html",
+        "DX-04 — Hoàn Kiếm 360 — Chợ Đồng Xuân: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/cho-dong-xuan.html",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "followUps": [
+        "dx-history",
+        "dx-banner"
+      ],
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do",
+        "an thuc"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "dx-fountain",
+      "nodeId": "oldquarter-dong-xuan",
+      "question": "Đài phun nước giữa chợ có từ thời Pháp không?",
+      "answer": "Hiện chưa có tài liệu đáng tin cậy trong bộ nguồn đã kiểm tra để xác định niên đại của đài phun nước. Ngõ Kể chưa đưa ra kết luận.",
+      "aliases": [
+        "đài phun nước có từ bao giờ",
+        "tuổi đài phun nước"
+      ],
+      "evidence": [
+        "DX-03 — VnExpress — Hơn 100 năm tồn tại của chợ Đồng Xuân: https://vnexpress.net/hon-100-nam-ton-tai-cua-cho-dong-xuan-3735553.html",
+        "DX-04 — Hoàn Kiếm 360 — Chợ Đồng Xuân: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/cho-dong-xuan.html",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "followUps": [
+        "dx-history",
+        "dx-banner"
+      ],
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do",
+        "an thuc"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "dx-trade",
+      "nodeId": "oldquarter-dong-xuan",
+      "question": "Vì sao Chợ Đồng Xuân trở thành trung tâm giao thương quan trọng?",
+      "answer": "Nhờ vị trí kết nối với các khu phố buôn bán và những đầu mối giao thông, đồng thời tập trung nhiều loại hàng hóa từ các vùng khác nhau.",
+      "aliases": [
+        "vì sao là đầu mối giao thương",
+        "kết nối giao thông buôn bán"
+      ],
+      "evidence": [
+        "DX-04 — Hoàn Kiếm 360 — Chợ Đồng Xuân: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/cho-dong-xuan.html",
+        "DX-01 — Trung tâm Lưu trữ quốc gia I — Chợ Đồng Xuân đầu thế kỷ XX: https://www.archives.org.vn/gioi-thieu-tai-lieu-nghiep-vu/cho-dong-xuan-dau-the-ki-20-khi-hai-day-nha-khung-thep-khong-con-du-che-nhip-song-pho-thi.htm",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "followUps": [
+        "dx-history",
+        "dx-banner"
+      ],
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do",
+        "an thuc"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "dx-goods",
+      "nodeId": "oldquarter-dong-xuan",
+      "question": "Chợ Đồng Xuân ngày xưa buôn bán những mặt hàng gì?",
+      "answer": "Tư liệu lịch sử ghi nhận nhiều loại hàng hóa, bao gồm sản phẩm địa phương, vải vóc và hàng nhập khẩu.",
+      "aliases": [
+        "mặt hàng ngày xưa",
+        "hàng hóa trong quá khứ"
+      ],
+      "evidence": [
+        "DX-04 — Hoàn Kiếm 360 — Chợ Đồng Xuân: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/cho-dong-xuan.html",
+        "DX-01 — Trung tâm Lưu trữ quốc gia I — Chợ Đồng Xuân đầu thế kỷ XX: https://www.archives.org.vn/gioi-thieu-tai-lieu-nghiep-vu/cho-dong-xuan-dau-the-ki-20-khi-hai-day-nha-khung-thep-khong-con-du-che-nhip-song-pho-thi.htm",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "followUps": [
+        "dx-history",
+        "dx-banner"
+      ],
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do",
+        "an thuc"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    },
+    {
+      "id": "dx-stalls",
+      "nodeId": "oldquarter-dong-xuan",
+      "question": "Các quán ăn quanh chợ có đều là quán lâu đời không?",
+      "answer": "Không thể kết luận như vậy. Khu vực quanh chợ có hoạt động ẩm thực, nhưng tuổi đời và lịch sử từng quán phải được xác minh riêng.",
+      "aliases": [
+        "quán ăn đều lâu đời không",
+        "quán gia truyền quanh chợ"
+      ],
+      "evidence": [
+        "DX-04 — Hoàn Kiếm 360 — Chợ Đồng Xuân: https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/cho-dong-xuan.html",
+        "DX-01 — Trung tâm Lưu trữ quốc gia I — Chợ Đồng Xuân đầu thế kỷ XX: https://www.archives.org.vn/gioi-thieu-tai-lieu-nghiep-vu/cho-dong-xuan-dau-the-ki-20-khi-hai-day-nha-khung-thep-khong-con-du-che-nhip-song-pho-thi.htm",
+        "Kịch bản người dùng cung cấp / supplied script: https://docs.google.com/document/d/1VwiCcG2BQKD8-t-Yu5VfgXxJ1qGcWayaaTd4upHu4OI/edit"
+      ],
+      "followUps": [
+        "dx-history",
+        "dx-banner"
+      ],
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do",
+        "an thuc"
+      ],
+      "reviewStatus": "approved",
+      "updatedAt": "2026-10-19T00:00:00Z"
+    }
+  ],
+  "reviewStatus": "approved",
+  "updatedAt": "2026-10-19T00:00:00Z"
+}
