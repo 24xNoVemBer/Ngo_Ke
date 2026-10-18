@@ -28,6 +28,8 @@ import { parseVoiceIntent, resolveFirstOptionReference, type VoiceOptionContext 
 import { lookupVoiceTrack } from '../voice/localizedCatalog';
 import { useLocale } from '../context/LocaleContext';
 import type { TranslationKey } from '../i18n/translator';
+import { ClickableSources } from '../components/ClickableSources';
+import { getScopedCompanion, THREE_LENSES_COLLECTION_ID } from '../data/threeLensesCompanion';
 import { colors, radius, spacing, typography } from '../theme';
 import { motionDurations, motionEasings } from '../theme/motion';
 
@@ -96,6 +98,8 @@ export function QaScreen({
   const [isInputDrawerVisible, setIsInputDrawerVisible] = useState(false);
   const [drawerText, setDrawerText] = useState('');
   const [isTextVisible, setIsTextVisible] = useState(false);
+  const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
+  const [selectedSegment, setSelectedSegment] = useState<'chapter' | 'intro' | 'transition' | 'closing'>('chapter');
   const [dockHeight, setDockHeight] = useState(0);
   const [voiceActionCard, setVoiceActionCard] = useState<VoiceActionCard | null>(null);
   const motion = useMotionState();
@@ -103,7 +107,7 @@ export function QaScreen({
   const answerY = useRef(0);
   const revealAnswer = useRef(false);
   const voiceOptionContext = useRef<VoiceOptionContext | null>(null);
-  const lastTrack = useRef<{ id: string; text: string; kind: 'story' | 'answer'; nodeId: string; revision: string } | null>(null);
+  const lastTrack = useRef<{ id: string; text: string; kind: 'intro' | 'story' | 'answer'; nodeId: string; revision: string } | null>(null);
   const playbackIntent = useRef(0);
   const pendingVoicePlayback = useRef<{ turnId: string; trackId: string; startedAt: number } | null>(null);
 
@@ -114,6 +118,8 @@ export function QaScreen({
     setDrawerText('');
     setIsInputDrawerVisible(false);
     setIsTextVisible(false);
+    setSelectedSegment('chapter');
+    setSelectedChapterId(null);
     setVoiceActionCard(null);
     voiceOptionContext.current = null;
     lastTrack.current = null;
@@ -165,14 +171,99 @@ export function QaScreen({
   useEffect(() => {
     if (isFocused && currentNode?.available) onReadNode(currentNode.id);
   }, [isFocused, currentNode, onReadNode]);
-  const currentPhoto = currentNode ? getNodePhoto(currentNode.id) : HERO_PHOTO;
-  const currentPhotographer = currentNode
-    ? getNodePhotographer(currentNode.id)
-    : 'Dự án Ngõ Kể';
+
+  const actualCollectionId = ('collectionId' in dataset && typeof dataset.collectionId === 'string' && dataset.collectionId)
+    ? dataset.collectionId
+    : (collectionId ?? 'fiction-letter');
+  const isReviewedContent = 'kind' in dataset && dataset.kind === 'reviewed';
+  const isThreeLenses = actualCollectionId === THREE_LENSES_COLLECTION_ID;
+  const intro = dataset.intro;
+
+  const companion = getScopedCompanion({
+    mode,
+    collectionId: actualCollectionId,
+    locale,
+    datasetRevision,
+    dataset,
+  });
+
+  const nodeChapters = companion
+    ? companion.chapters.filter((c) => c.nodeId === currentNode?.id)
+    : [];
+
+  const activeChapter = (companion && nodeChapters.length > 0)
+    ? (nodeChapters.find((c) => c.id === selectedChapterId) ?? nodeChapters[0])
+    : null;
+
+  const nodeTransition = companion?.transitions.find((t) => t.nodeId === currentNode?.id);
+  const nodeClosing = currentNode?.id === 'oldquarter-dong-xuan' ? companion?.closing : undefined;
+
+  const currentSegmentData = (() => {
+    if (selectedSegment === 'intro') {
+      return {
+        title: locale === 'en' ? 'Opening — Three lenses on the Old Quarter' : 'Phần mở đầu — Ba lát cắt phố cổ',
+        text: intro.text,
+        voiceContentId: 'intro',
+        evidence: intro.evidence,
+        nodeId: currentNode?.id ?? 'intro',
+        isStory: false,
+        kind: 'intro' as const,
+      };
+    }
+    if (selectedSegment === 'transition' && nodeTransition) {
+      return {
+        title: nodeTransition.title,
+        text: nodeTransition.text,
+        voiceContentId: nodeTransition.voiceContentId,
+        evidence: nodeTransition.evidence,
+        nodeId: currentNode?.id ?? 'intro',
+        isStory: false,
+        kind: 'story' as const,
+      };
+    }
+    if (selectedSegment === 'closing' && nodeClosing) {
+      return {
+        title: nodeClosing.title,
+        text: nodeClosing.text,
+        voiceContentId: nodeClosing.voiceContentId,
+        evidence: nodeClosing.evidence,
+        nodeId: currentNode?.id ?? 'intro',
+        isStory: false,
+        kind: 'story' as const,
+      };
+    }
+    return {
+      title: activeChapter ? activeChapter.title : (currentNode ? currentNode.name : t('qa.opening_stop')),
+      text: activeChapter ? activeChapter.text : (currentNode ? currentNode.story : intro.text),
+      voiceContentId: activeChapter ? activeChapter.voiceContentId : (currentNode ? `${currentNode.id}-story` : 'intro'),
+      evidence: activeChapter ? activeChapter.evidence : (currentNode?.evidence ?? intro.evidence),
+      nodeId: currentNode?.id ?? 'intro',
+      isStory: true,
+      kind: (activeChapter || currentNode) ? ('story' as const) : ('intro' as const),
+    };
+  })();
+
+  const currentPhoto = activeChapter
+    ? getNodePhoto(currentNode?.id, activeChapter.photoKey)
+    : (currentNode ? getNodePhoto(currentNode.id) : HERO_PHOTO);
+
+  const currentPhotographer = activeChapter
+    ? getNodePhotographer(currentNode?.id, activeChapter.photoKey)
+    : (currentNode ? getNodePhotographer(currentNode.id) : 'Dự án Ngõ Kể');
+
+  const chapterQa = (activeChapter && activeChapter.qaIds && activeChapter.qaIds.length > 0)
+    ? nodeQa.filter((q) => activeChapter.qaIds.includes(q.id))
+    : nodeQa;
+  const displayedQa = chapterQa.length > 0 ? chapterQa : nodeQa;
 
   function handleSelectNode(index: number): void {
     const target = dataset.nodes[index];
     if (target?.available) {
+      if (voiceSession.playback.playing) {
+        void voiceSession.stopPlayback();
+      }
+      setSelectedSegment('chapter');
+      setSelectedChapterId(null);
       setAsked(null);
       setAskedSource(null);
       setMatch(null);
@@ -180,6 +271,31 @@ export function QaScreen({
       setIsInputDrawerVisible(false);
       onSelectNode(target.id);
     }
+  }
+
+  function handleSelectChapter(chapterId: string): void {
+    playbackIntent.current += 1;
+    pendingVoicePlayback.current = null;
+    void voiceSession.stopPlayback();
+    setAsked(null);
+    setAskedSource(null);
+    setMatch(null);
+    setVoiceActionCard(null);
+    setSelectedSegment('chapter');
+    setSelectedChapterId(chapterId);
+    setIsTextVisible(true);
+  }
+
+  function handleSelectSegment(segment: 'chapter' | 'intro' | 'transition' | 'closing'): void {
+    playbackIntent.current += 1;
+    pendingVoicePlayback.current = null;
+    void voiceSession.stopPlayback();
+    setAsked(null);
+    setAskedSource(null);
+    setMatch(null);
+    setVoiceActionCard(null);
+    setSelectedSegment(segment);
+    setIsTextVisible(true);
   }
 
   const previousIndex = dataset.nodes.slice(0, activeIndex).findLastIndex((node) => node.available);
@@ -248,11 +364,6 @@ export function QaScreen({
     }
   }
 
-  const actualCollectionId = ('collectionId' in dataset && typeof dataset.collectionId === 'string' && dataset.collectionId)
-    ? dataset.collectionId
-    : (collectionId ?? 'fiction-letter');
-  const isReviewedContent = 'kind' in dataset && dataset.kind === 'reviewed';
-  const intro = dataset.intro;
   const entry = match?.status === 'matched' && match.entry.nodeId === currentNode?.id ? match.entry : null;
   const followUps = entry === null ? [] : followUpEntries(entry, nodeQa);
   const quickQuestions = nodeQa.map((q) => q.question);
@@ -280,7 +391,7 @@ export function QaScreen({
       ? t('voice.notice.audio_unavailable')
       : null
   );
-  const storyTrackId = currentNode ? `${currentNode.id}-story` : 'intro';
+  const storyTrackId = currentSegmentData.voiceContentId;
   const storyTrack = lookupVoiceTrack({
     collectionId: actualCollectionId,
     locale,
@@ -300,7 +411,7 @@ export function QaScreen({
     ? pickPoints(dataset.nodes, voiceActionCard.draft)
     : undefined;
 
-  function requestTrack(id: string, text: string, kind: 'story' | 'answer', nodeId: string, replay = false): void {
+  function requestTrack(id: string, text: string, kind: 'intro' | 'story' | 'answer', nodeId: string, replay = false): void {
     playbackIntent.current += 1;
     lastTrack.current = { id, text, kind, nodeId, revision: datasetRevision };
     if (replay) void voiceSession.replayTrack(id, text, kind, nodeId);
@@ -356,7 +467,7 @@ export function QaScreen({
     } else if (intent.type === 'listen') {
       if (!storyTrack || !currentNode) {
         setVoiceActionCard({ kind: 'notice', message: mode === 'live' ? t('voice.notice.live_no_audio') : t('voice.notice.audio_unavailable') });
-      } else requestTrack(storyTrackId, currentNode.story, 'story', currentNode.id);
+      } else requestTrack(currentSegmentData.voiceContentId, currentSegmentData.text, currentSegmentData.kind, currentSegmentData.nodeId);
     } else if (intent.type === 'replay') {
       const last = lastTrack.current;
       if (last && last.nodeId === currentNode?.id && last.revision === datasetRevision) {
@@ -364,7 +475,7 @@ export function QaScreen({
       } else if (entry && currentNode && answerTrack) {
         requestTrack(answerTrackId, entry.answer, 'answer', currentNode.id, true);
       } else if (currentNode && storyTrack) {
-        requestTrack(storyTrackId, currentNode.story, 'story', currentNode.id, true);
+        requestTrack(currentSegmentData.voiceContentId, currentSegmentData.text, currentSegmentData.kind, currentSegmentData.nodeId, true);
       } else {
         setVoiceActionCard({ kind: 'notice', message: mode === 'live' ? t('voice.notice.live_answer_no_audio') : t('voice.notice.audio_unavailable') });
       }
@@ -449,26 +560,99 @@ export function QaScreen({
                 <View style={styles.narratorHeaderText}>
                   <Text style={styles.phaseTag}>{t('qa.narrator_header')}</Text>
                   <Text accessibilityRole="header" style={styles.nodeMainName}>
-                    {currentNode ? currentNode.name : t('qa.opening_stop')}
+                    {currentSegmentData.title}
                   </Text>
                 </View>
               </View>
+
+              {/* ĐIỀU HƯỚNG CÁC CHƯƠNG KỂ CHUYỆN (MULTI-CHAPTER SELECTOR) */}
+              {nodeChapters.length > 1 && (
+                <View
+                  style={styles.chapterSelectorRow}
+                  accessibilityRole="tablist"
+                  accessibilityLabel={t('qa.chapter_selector_label')}
+                >
+                  {nodeChapters.map((ch, idx) => {
+                    const isSelected = selectedSegment === 'chapter' && (activeChapter?.id === ch.id);
+                    return (
+                      <Pressable
+                        key={ch.id}
+                        accessibilityRole="tab"
+                        accessibilityState={{ selected: isSelected }}
+                        accessibilityLabel={ch.title}
+                        onPress={() => handleSelectChapter(ch.id)}
+                        style={({ pressed }) => [
+                          styles.chapterTabButton,
+                          isSelected && styles.chapterTabButtonActive,
+                          pressed && styles.pressed,
+                        ]}
+                      >
+                        <Text style={[styles.chapterTabText, isSelected && styles.chapterTabTextActive]}>
+                          {`${idx + 1}. ${ch.title}`}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              )}
+
+              {/* NÚT CHUYỂN ĐOẠN / KẾT THÚC / QUAY LẠI CÂU CHUYỆN */}
+              {(nodeTransition || nodeClosing || selectedSegment !== 'chapter') && (
+                <View style={styles.journeySegmentControls}>
+                  {selectedSegment !== 'chapter' && (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={locale === 'en' ? 'Back to chapter story' : 'Quay lại câu chuyện chính'}
+                      onPress={() => handleSelectSegment('chapter')}
+                      style={({ pressed }) => [styles.journeySegmentBtn, styles.journeySegmentBtnActive, pressed && styles.pressed]}
+                    >
+                      <Text style={[styles.journeySegmentText, styles.journeySegmentTextActive]}>
+                        ← {locale === 'en' ? 'Back to story' : 'Quay lại điểm dừng'}
+                      </Text>
+                    </Pressable>
+                  )}
+                  {nodeTransition && selectedSegment !== 'transition' && (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={nodeTransition.title}
+                      onPress={() => handleSelectSegment('transition')}
+                      style={({ pressed }) => [styles.journeySegmentBtn, pressed && styles.pressed]}
+                    >
+                      <Text style={styles.journeySegmentText}>
+                        🛤️ {nodeTransition.title}
+                      </Text>
+                    </Pressable>
+                  )}
+                  {nodeClosing && selectedSegment !== 'closing' && (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={nodeClosing.title}
+                      onPress={() => handleSelectSegment('closing')}
+                      style={({ pressed }) => [styles.journeySegmentBtn, pressed && styles.pressed]}
+                    >
+                      <Text style={styles.journeySegmentText}>
+                        🏁 {nodeClosing.title}
+                      </Text>
+                    </Pressable>
+                  )}
+                </View>
+              )}
 
               <Text style={styles.waveformDuration}>
                 {isReviewedContent
                   ? (mode === 'demo' ? t('qa.waveform_demo_reviewed') : t('qa.waveform_live_reviewed'))
                   : (mode === 'demo' ? t('qa.waveform_demo') : t('qa.waveform_live'))}
               </Text>
-              {storyTrack && currentNode && (
+              {storyTrack && (
                 <VoicePlayerBar
-                  label={`${t('qa.story_label')} · ${currentNode.name}`}
-                  active={voiceSession.activeTrackId === storyTrackId}
+                  label={`${t('qa.story_label')} · ${currentSegmentData.title}`}
+                  active={voiceSession.activeTrackId === currentSegmentData.voiceContentId}
                   playing={voiceSession.playback.playing}
                   currentTime={voiceSession.playback.currentTime}
-                  duration={voiceSession.activeTrackId === storyTrackId ? voiceSession.playback.duration : 0}
+                  duration={voiceSession.activeTrackId === currentSegmentData.voiceContentId ? voiceSession.playback.duration : 0}
                   measuredDuration={storyTrack.durationSeconds}
-                  onPlay={() => requestTrack(storyTrackId, currentNode.story, 'story', currentNode.id)}
-                  onReplay={() => requestTrack(storyTrackId, currentNode.story, 'story', currentNode.id, true)}
+                  onPlay={() => requestTrack(currentSegmentData.voiceContentId, currentSegmentData.text, currentSegmentData.kind, currentSegmentData.nodeId)}
+                  onReplay={() => requestTrack(currentSegmentData.voiceContentId, currentSegmentData.text, currentSegmentData.kind, currentSegmentData.nodeId, true)}
                   onStop={voiceSession.stopPlayback}
                 />
               )}
@@ -485,7 +669,7 @@ export function QaScreen({
                 <Text style={styles.readerToggleText}>{isTextVisible ? t('qa.collapse_text') : t('qa.read_text')}</Text>
               </Pressable>
               {isTextVisible && (
-                <Text style={styles.storyText}>{currentNode ? currentNode.story : intro.text}</Text>
+                <Text style={styles.storyText}>{currentSegmentData.text}</Text>
               )}
 
               {/* Bộ điều hướng chuyển điểm trước/sau trong ngõ */}
@@ -539,18 +723,19 @@ export function QaScreen({
                 </Pressable>
               </View>
 
-              <View style={styles.evidenceRow}>
-                <Text style={styles.evidenceLabel}>{t('qa.story_evidence_label')}:</Text>
-                <Text style={styles.evidenceValue}>
-                  {intro.evidence.join(' · ')}
-                </Text>
-              </View>
+              <ClickableSources
+                evidence={currentSegmentData.evidence}
+                label={t('qa.story_evidence_label')}
+                isThreeLenses={isThreeLenses}
+              />
 
               <View style={styles.disclaimerPill}>
                 <Text style={styles.disclaimerPillText}>
-                  {t('qa.photo_note')} · {isReviewedContent
-                    ? (mode === 'demo' ? t('qa.disclaimer_demo_reviewed') : t('qa.disclaimer_live_reviewed'))
-                    : (mode === 'demo' ? t('qa.disclaimer_fiction') : t('qa.disclaimer_live_simulated'))}
+                  {isThreeLenses
+                    ? t('qa.disclaimer_three_lenses')
+                    : `${t('qa.photo_note')} · ${isReviewedContent
+                        ? (mode === 'demo' ? t('qa.disclaimer_demo_reviewed') : t('qa.disclaimer_live_reviewed'))
+                        : (mode === 'demo' ? t('qa.disclaimer_fiction') : t('qa.disclaimer_live_simulated'))}`}
                 </Text>
               </View>
             </View>
@@ -751,7 +936,9 @@ export function QaScreen({
                   <View style={styles.verifiedBox}>
                     <View style={styles.verifiedTag}>
                       <Text style={styles.verifiedTagText}>
-                        {isReviewedContent ? t('qa.verified_source_title') : t('qa.verified_story_title')}
+                        {isThreeLenses
+                          ? t('qa.tag_sourced_only')
+                          : (isReviewedContent ? t('qa.verified_source_title') : t('qa.verified_story_title'))}
                       </Text>
                     </View>
                     {isTextVisible && <Text style={styles.answerText}>{entry.answer}</Text>}
@@ -779,10 +966,11 @@ export function QaScreen({
                       <AppIcon name="text" size={18} color="#2D5748" />
                       <Text style={styles.readerToggleText}>{isTextVisible ? t('qa.collapse_answer_btn') : t('qa.read_answer_btn')}</Text>
                     </Pressable>
-                    <View style={styles.evidenceRow}>
-                      <Text style={styles.evidenceLabel}>{t('qa.answer_evidence_label')}:</Text>
-                      <Text style={styles.evidenceValue}>{entry.evidence.join(' · ')}</Text>
-                    </View>
+                    <ClickableSources
+                      evidence={entry.evidence}
+                      label={t('qa.answer_evidence_label')}
+                      isThreeLenses={isThreeLenses}
+                    />
                   </View>
                 )}
 
@@ -826,11 +1014,11 @@ export function QaScreen({
             )}
 
             {/* CÁC CÂU HỎI GỢI Ý CHẠM NHANH BAN ĐẦU */}
-            {entry === null && nodeQa.length > 0 && (
+            {entry === null && displayedQa.length > 0 && (
               <View style={styles.chipsSection}>
                 <Text style={styles.chipsSectionTitle}>{t('qa.suggested_questions_title')}</Text>
                 <View style={styles.chipsContainer}>
-                  {nodeQa.slice(0, CHIP_COUNT).map((item) => (
+                  {displayedQa.slice(0, CHIP_COUNT).map((item) => (
                     <Pressable
                       key={item.id}
                       accessibilityRole="button"
@@ -1280,6 +1468,65 @@ const styles = StyleSheet.create({
   voicePickDuration: { color: '#8C5A40', fontSize: 13, fontWeight: '800' },
   voiceReferenceRow: { minHeight: 48, justifyContent: 'center', paddingVertical: 7, borderBottomColor: '#DED2BE', borderBottomWidth: StyleSheet.hairlineWidth },
   voiceReferenceText: { color: '#34483B', fontSize: 14, fontWeight: '600', lineHeight: 20 },
+  chapterSelectorRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginVertical: spacing.xs,
+  },
+  chapterTabButton: {
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(45, 87, 72, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(45, 87, 72, 0.2)',
+  },
+  chapterTabButtonActive: {
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
+  },
+  chapterTabText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  chapterTabTextActive: {
+    color: '#FFFDF7',
+  },
+  journeySegmentControls: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: spacing.xs,
+  },
+  journeySegmentBtn: {
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(196, 92, 59, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(196, 92, 59, 0.3)',
+  },
+  journeySegmentBtnActive: {
+    backgroundColor: colors.terracotta,
+    borderColor: colors.terracotta,
+  },
+  journeySegmentText: {
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: colors.terracotta,
+  },
+  journeySegmentTextActive: {
+    color: '#FFFDF7',
+  },
   spacer: {
     height: 40,
   },

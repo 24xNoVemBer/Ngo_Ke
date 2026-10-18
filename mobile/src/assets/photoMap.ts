@@ -19,9 +19,26 @@ export interface AlleyMeta {
   coverPhoto: ImageSourcePropType;
   photographer: string;
   theme: 'Ẩm thực' | 'Di sản' | 'Bình yên' | 'Chuyện xưa';
-  distanceMeters: number;
-  moodSound: string;
+  distanceMeters?: number;
+  moodSound?: string;
   isPopular?: boolean;
+  isFeatured?: boolean;
+  structureLabel?: string;
+}
+
+export const THREE_LENSES_PHOTOS = {
+  'bach-ma': require('../../assets/photos/three-lenses/bach-ma.jpg'),
+  'ma-may': require('../../assets/photos/three-lenses/ma-may.jpg'),
+  'dong-xuan-timeline': require('../../assets/photos/three-lenses/dong-xuan-timeline.jpg'),
+  'dong-xuan-fire': require('../../assets/photos/three-lenses/dong-xuan-fire.jpg'),
+  'dong-xuan-street': require('../../assets/photos/three-lenses/dong-xuan-street.jpg'),
+} as const;
+
+export function getThreeLensesPhoto(photoKey?: string): ImageSourcePropType | undefined {
+  if (photoKey && photoKey in THREE_LENSES_PHOTOS) {
+    return THREE_LENSES_PHOTOS[photoKey as keyof typeof THREE_LENSES_PHOTOS];
+  }
+  return undefined;
 }
 
 export const NODE_PHOTO_MAP: Record<string, NodePhotoMeta> = {
@@ -54,6 +71,21 @@ export const NODE_PHOTO_MAP: Record<string, NodePhotoMeta> = {
     source: require('../../assets/photos/pexels_demo_06.jpg'),
     photographer: 'HONG SON (Pexels)',
     locationNote: 'Chiều sâu con ngõ lát gạch cờ hoa',
+  },
+  'oldquarter-bach-ma': {
+    source: require('../../assets/photos/three-lenses/bach-ma.jpg'),
+    photographer: 'Tài liệu người dùng cung cấp (quyền chưa kiểm chứng)',
+    locationNote: 'Đền Bạch Mã — Hàng Buồm',
+  },
+  'oldquarter-ma-may': {
+    source: require('../../assets/photos/three-lenses/ma-may.jpg'),
+    photographer: 'Tài liệu người dùng cung cấp (quyền chưa kiểm chứng)',
+    locationNote: 'Nhà di sản 87 Mã Mây',
+  },
+  'oldquarter-dong-xuan': {
+    source: require('../../assets/photos/three-lenses/dong-xuan-timeline.jpg'),
+    photographer: 'Tài liệu người dùng cung cấp (quyền chưa kiểm chứng)',
+    locationNote: 'Chợ Đồng Xuân — Băng-rôn năm 2026',
   },
 };
 
@@ -125,16 +157,35 @@ export const ALLEY_LIST: AlleyMeta[] = [
     distanceMeters: 420,
     moodSound: 'Tiếng chim hót trên hiên',
   },
+  {
+    id: 'old-quarter-three-lenses',
+    name: 'Ba lát cắt phố cổ',
+    tagline: 'Từ tín ngưỡng, nếp nhà đến nhịp chợ',
+    district: 'Hoàn Kiếm, Hà Nội',
+    storyCount: 3,
+    estTimeMinutes: 50,
+    coverPhoto: require('../../assets/photos/three-lenses/bach-ma.jpg'),
+    photographer: 'Tài liệu người dùng cung cấp (quyền chưa kiểm chứng)',
+    theme: 'Chuyện xưa',
+    isFeatured: true,
+    structureLabel: '3 điểm · 5 chương',
+  },
 ];
 
-export function getNodePhoto(nodeId?: string): ImageSourcePropType {
+export function getNodePhoto(nodeId?: string, photoKey?: string): ImageSourcePropType {
+  if (photoKey && photoKey in THREE_LENSES_PHOTOS) {
+    return THREE_LENSES_PHOTOS[photoKey as keyof typeof THREE_LENSES_PHOTOS];
+  }
   if (nodeId && NODE_PHOTO_MAP[nodeId]) {
     return NODE_PHOTO_MAP[nodeId].source;
   }
   return HERO_PHOTO;
 }
 
-export function getNodePhotographer(nodeId?: string): string {
+export function getNodePhotographer(nodeId?: string, photoKey?: string): string {
+  if (photoKey && photoKey in THREE_LENSES_PHOTOS) {
+    return 'Tài liệu người dùng cung cấp (quyền chưa kiểm chứng)';
+  }
   if (nodeId && NODE_PHOTO_MAP[nodeId]) {
     return NODE_PHOTO_MAP[nodeId].photographer;
   }

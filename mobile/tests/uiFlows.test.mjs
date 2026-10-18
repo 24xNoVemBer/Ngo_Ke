@@ -264,6 +264,16 @@ function mount(file, props = {}, overrides = {}, exportName) {
     '../data/locale': {
       isLocale: (v) => v === 'vi' || v === 'en',
     },
+    './src/data/threeLensesCompanion': {
+      getScopedCompanion: () => null,
+      verifyCompanionIntegritySync: () => ({ valid: true, error: null }),
+      THREE_LENSES_COLLECTION_ID: 'old-quarter-three-lenses',
+    },
+    '../data/threeLensesCompanion': {
+      getScopedCompanion: () => null,
+      verifyCompanionIntegritySync: () => ({ valid: true, error: null }),
+      THREE_LENSES_COLLECTION_ID: 'old-quarter-three-lenses',
+    },
     '../hooks/useMotion': {
       usePulseLoop: () => ({ scaleAnim: 1, opacityAnim: 1 }),
       usePressSpring: () => ({ scaleAnim: 1, handlePressIn() {}, handlePressOut() {} }),

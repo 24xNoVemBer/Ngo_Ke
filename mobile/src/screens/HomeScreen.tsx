@@ -132,12 +132,10 @@ export function HomeScreen({
 
   const currentNode: DemoNode | undefined = nodes[selectedIndex] ?? nodes[0];
   const visitedCount = nodes.filter((n) => readNodeIds.has(n.id)).length;
-  const pins = [...nodes]
-    .sort((a, b) => a.id.localeCompare(b.id))
-    .flatMap((node, index) => {
-      const layout = PIN_CONFIG[index];
-      return layout ? [{ ...layout, id: node.id }] : [];
-    });
+  const pins = nodes.flatMap((node, index) => {
+    const layout = PIN_CONFIG[index];
+    return layout ? [{ ...layout, id: node.id }] : [];
+  });
   const collectionCover = activeCollection?.coverPhoto ?? alleyMeta.coverPhoto;
   const currentPhoto = currentNode ? getNodePhoto(currentNode.id) : collectionCover;
   const currentPhotographer = currentNode ? getNodePhotographer(currentNode.id) : alleyMeta.photographer;
@@ -703,7 +701,9 @@ export function HomeScreen({
                           : (locale === 'en' ? 'LIVE · simulated data (unverified)' : 'LIVE · dữ liệu mô phỏng (chưa xác minh)')
                         : (locale === 'en' ? 'LIVE · no data' : 'LIVE · chưa có dữ liệu')
                     : collectionKind === 'reviewed'
-                      ? (locale === 'en' ? 'DEMO · reviewed heritage' : 'DEMO · di sản đã duyệt')
+                      ? (activeCollection?.id === 'old-quarter-three-lenses'
+                          ? (locale === 'en' ? 'DEMO · SOURCED_ONLY' : 'DEMO · Có nguồn tham khảo (SOURCED_ONLY)')
+                          : (locale === 'en' ? 'DEMO · reviewed heritage' : 'DEMO · di sản đã duyệt'))
                       : (locale === 'en' ? 'DEMO · simulated content' : 'DEMO · nội dung mô phỏng')}
                 </Text>
                 <Text style={styles.sourceTitle}>

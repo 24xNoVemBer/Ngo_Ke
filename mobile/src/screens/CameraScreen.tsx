@@ -18,8 +18,10 @@ type Props = {
   collectionId?: string;
 };
 
-export function CameraScreen({ nodes, onConfirmNode, collectionKind }: Props): ReactElement {
-  const { t, locale } = useLocale();
+export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionId }: Props): ReactElement {
+  const { t, locale, collectionId: ctxCollectionId } = useLocale();
+  const effectiveCollectionId = collectionId ?? ctxCollectionId;
+  const isThreeLenses = effectiveCollectionId === 'old-quarter-three-lenses';
   const isReviewed = collectionKind === 'reviewed';
   const { foreground } = useMotionState();
   const isFocused = useIsFocused() && foreground;
@@ -275,7 +277,9 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind }: Props): R
               />
               <View style={styles.disclaimerBadge}>
                 <Text style={styles.disclaimerText}>
-                  {t(isReviewed ? 'common.photo_disclaimer_reviewed' : 'common.photo_disclaimer')}
+                  {isThreeLenses
+                    ? (locale === 'en' ? 'Supplied photo (SOURCED_ONLY) · unverified rights' : 'Ảnh người dùng cung cấp (SOURCED_ONLY) · chưa kiểm chứng bản quyền')
+                    : t(isReviewed ? 'common.photo_disclaimer_reviewed' : 'common.photo_disclaimer')}
                 </Text>
               </View>
               <View style={styles.creditBadge}>
@@ -349,7 +353,11 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind }: Props): R
 
         <View style={styles.disclaimerBox}>
           <Text style={styles.note}>
-            {isReviewed ? t('camera.disclaimer_reviewed') : t('camera.disclaimer_simulated')}
+            {isThreeLenses
+              ? (locale === 'en'
+                  ? 'DEMO · Sourced reference only (SOURCED_ONLY) · Not officially approved by site managers · Supplied photos have unverified rights'
+                  : 'DEMO · Có nguồn tham khảo (SOURCED_ONLY) · Chưa được đơn vị di tích duyệt chính thức · Ảnh người dùng chưa kiểm chứng bản quyền')
+              : (isReviewed ? t('camera.disclaimer_reviewed') : t('camera.disclaimer_simulated'))}
           </Text>
         </View>
       </ScrollView>

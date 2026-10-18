@@ -139,6 +139,16 @@ export type TranslationKey =
   | 'collection.old_quarter_pilot.tagline'
   | 'collection.old_quarter_pilot.theme'
   | 'collection.old_quarter_pilot.district'
+  | 'collection.old_quarter_three_lenses.name'
+  | 'collection.old_quarter_three_lenses.tagline'
+  | 'collection.old_quarter_three_lenses.theme'
+  | 'collection.old_quarter_three_lenses.district'
+  | 'qa.disclaimer_three_lenses'
+  | 'qa.tag_sourced_only'
+  | 'qa.chapter_selector_label'
+  | 'qa.journey_intro_title'
+  | 'qa.journey_transition_title'
+  | 'qa.journey_closing_title'
   // Landing
   | 'landing.soundscape_banner'
   | 'landing.featured_section_pre'
@@ -506,6 +516,16 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'collection.old_quarter_pilot.tagline': '3 điểm dừng lịch sử có tư liệu',
     'collection.old_quarter_pilot.theme': 'Di sản',
     'collection.old_quarter_pilot.district': 'Phố Cổ, Hoàn Kiếm',
+    'collection.old_quarter_three_lenses.name': 'Ba lát cắt phố cổ',
+    'collection.old_quarter_three_lenses.tagline': 'Từ tín ngưỡng, nếp nhà đến nhịp chợ',
+    'collection.old_quarter_three_lenses.theme': 'Chuyện xưa',
+    'collection.old_quarter_three_lenses.district': 'Hoàn Kiếm, Hà Nội',
+    'qa.disclaimer_three_lenses': 'DEMO · Có nguồn tham khảo (SOURCED_ONLY) · Chưa duyệt chính thức',
+    'qa.tag_sourced_only': 'SOURCED_ONLY · CÓ NGUỒN THAM KHẢO',
+    'qa.chapter_selector_label': 'Chọn chương khám phá',
+    'qa.journey_intro_title': 'Phần mở đầu — Ba lát cắt phố cổ',
+    'qa.journey_transition_title': 'Chuyển đoạn câu chuyện',
+    'qa.journey_closing_title': 'Phần kết thúc — Những câu chuyện vẫn tiếp diễn',
 
     'landing.soundscape_banner': 'Lời kể bằng chữ · nội dung mô phỏng · {mode}',
     'landing.featured_section_pre': 'HÀNH TRÌNH NỔI BẬT',
@@ -872,6 +892,16 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'collection.old_quarter_pilot.tagline': '3 historical stops with verified sources',
     'collection.old_quarter_pilot.theme': 'Heritage',
     'collection.old_quarter_pilot.district': 'Old Quarter, Hoan Kiem',
+    'collection.old_quarter_three_lenses.name': 'Three lenses on the Old Quarter',
+    'collection.old_quarter_three_lenses.tagline': 'From sacred roots and ancient living to market life',
+    'collection.old_quarter_three_lenses.theme': 'Living History',
+    'collection.old_quarter_three_lenses.district': 'Hoan Kiem, Hanoi',
+    'qa.disclaimer_three_lenses': 'DEMO · Sourced reference only (SOURCED_ONLY) · Not officially approved',
+    'qa.tag_sourced_only': 'SOURCED_ONLY · SOURCED REFERENCE',
+    'qa.chapter_selector_label': 'Select story chapter',
+    'qa.journey_intro_title': 'Opening — Three lenses on the Old Quarter',
+    'qa.journey_transition_title': 'Narrative transition',
+    'qa.journey_closing_title': 'Closing — The stories continue',
 
     'landing.soundscape_banner': 'Text stories · simulated content · {mode}',
     'landing.featured_section_pre': 'FEATURED JOURNEYS',

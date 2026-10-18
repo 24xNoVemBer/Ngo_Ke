@@ -8,8 +8,11 @@ import demoDataVi from '../../../data/demo.json';
 import fictionEnData from '../../../data/localized/fiction.en.json';
 import oldQuarterViData from '../../../data/localized/old-quarter.vi.json';
 import oldQuarterEnData from '../../../data/localized/old-quarter.en.json';
+import threeLensesViData from '../../../data/localized/three-lenses.vi.json';
+import threeLensesEnData from '../../../data/localized/three-lenses.en.json';
+import { getThreeLensesDatasetRevision, THREE_LENSES_COLLECTION_ID } from './threeLensesCompanion.ts';
 
-export type CollectionId = 'fiction-letter' | 'old-quarter-pilot';
+export type CollectionId = 'fiction-letter' | 'old-quarter-pilot' | 'old-quarter-three-lenses';
 
 export const DEFAULT_COLLECTION_ID: CollectionId = 'fiction-letter';
 
@@ -21,6 +24,14 @@ export const COLLECTION_REVISIONS: Record<CollectionId, Record<Locale, string>> 
   'old-quarter-pilot': {
     vi: '358209bc5bf8f14e47a3598b93644d168219d919dcb66d9eb1f7cbb7dbd2c94a',
     en: 'd75fcc183863f7ea2ec3b24bba1c4664b762c6332f0eb768a3493d9e74089b83',
+  },
+  'old-quarter-three-lenses': {
+    get vi() {
+      return getThreeLensesDatasetRevision('vi');
+    },
+    get en() {
+      return getThreeLensesDatasetRevision('en');
+    },
   },
 };
 
@@ -57,10 +68,24 @@ export const AVAILABLE_COLLECTIONS: readonly CollectionMeta[] = [
     coverPhoto: require('../../assets/photos/ngophatloc_01.jpg'),
     kind: 'reviewed',
   },
+  {
+    id: 'old-quarter-three-lenses',
+    nameKey: 'collection.old_quarter_three_lenses.name',
+    taglineKey: 'collection.old_quarter_three_lenses.tagline',
+    themeKey: 'collection.old_quarter_three_lenses.theme',
+    districtKey: 'collection.old_quarter_three_lenses.district',
+    nodeCount: 3,
+    coverPhoto: require('../../assets/photos/three-lenses/bach-ma.jpg'),
+    kind: 'reviewed',
+  },
 ] as const;
 
 export function isCollectionId(value: unknown): value is CollectionId {
-  return value === 'fiction-letter' || value === 'old-quarter-pilot';
+  return (
+    value === 'fiction-letter' ||
+    value === 'old-quarter-pilot' ||
+    value === THREE_LENSES_COLLECTION_ID
+  );
 }
 
 /**
@@ -70,6 +95,9 @@ export function getBundledDataset(
   collectionId: string = DEFAULT_COLLECTION_ID,
   locale: Locale = 'vi',
 ): AnyDemoDataset {
+  if (collectionId === THREE_LENSES_COLLECTION_ID) {
+    return (locale === 'en' ? threeLensesEnData : threeLensesViData) as unknown as DemoDatasetV2;
+  }
   if (collectionId === 'old-quarter-pilot') {
     return (locale === 'en' ? oldQuarterEnData : oldQuarterViData) as unknown as DemoDatasetV2;
   }
