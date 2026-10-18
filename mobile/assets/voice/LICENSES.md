@@ -8,3 +8,9 @@ The bundled MP3s are generated from the fictional Ngõ Kể dataset with the loc
 - MP3 encoding: local FFmpeg `libmp3lame`; FFmpeg is a build-time tool and is not bundled in the app.
 
 The pinned repository revisions and output hashes are recorded in `manifest.json`. Keep this notice when redistributing the generated catalogue. The model license does not describe unrelated VieNeu Studio/API voices or services.
+
+## Three Lenses collection additions
+
+- English TTS package: [`kokoro==0.9.4`](https://pypi.org/project/kokoro/), Apache-2.0; cached model [`hexgrad/Kokoro-82M`](https://huggingface.co/hexgrad/Kokoro-82M), revision `f3ff3571791e39611d31c381e3a41a3af07b4987`, Apache-2.0, preset **af_heart**.
+- Vietnamese TTS uses the VieNeu package, model, codec, and **Đoan Trang** preset listed above.
+- The 56 MP3s use the frozen, source-only `old-quarter-three-lenses` datasets. Their manifests mark `humanApproved=false`; this records provenance and does not claim human pronunciation review.

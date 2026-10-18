@@ -55,13 +55,14 @@ class Post8ProbeTests(unittest.TestCase):
     def test_synthetic_sentence_covers_pronunciation_inputs(self):
         for token in (
             "Bạch Mã", "Long Đỗ", "87 Mã Mây", "Đồng Xuân", "bún chả", "bún ốc",
-            "bánh tôm", "An", "Lâm", "Hương", "Nhi", "feel a little more like home",
+            "bánh tôm", "An", "Lâm", "Hương", "Nhi", "Lý Thái Tổ", "Ngõ Kể", "feel a little more like home",
         ):
             self.assertIn(token, PRONUNCIATION_CHECK)
 
     def test_tts_map_is_finite_and_does_not_rewrite_english_substrings(self):
-        source = ", ".join(source for source, _ in PRONUNCIATION_MAP)
-        expected = ", ".join(spoken for _, spoken in PRONUNCIATION_MAP)
+        ordered = sorted(PRONUNCIATION_MAP, key=lambda pair: len(pair[0]), reverse=True)
+        source = ", ".join(source for source, _ in ordered)
+        expected = ", ".join(spoken for _, spoken in ordered)
         self.assertEqual(to_spoken_text(source), expected)
         self.assertEqual(
             to_spoken_text("Cô, bà; bún đậu; bánh đậu xanh; chè; nộm; bún, bánh, đậu; Bún ốc."),

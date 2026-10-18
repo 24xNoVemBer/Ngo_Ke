@@ -44,6 +44,8 @@ PRONUNCIATION_MAP = (
     ("Lâm", "Lahm"),
     ("Hương", "Hwung"),
     ("Nhi", "Nee"),
+    ("Lý Thái Tổ", "Lee Thai Toh"),
+    ("Ngõ Kể", "Ngaw Keh"),
 )
 VOICES = (("af_heart", "a"), ("bf_emma", "b"))
 PRONUNCIATION_CHECK = (
@@ -51,7 +53,8 @@ PRONUNCIATION_CHECK = (
     "the story of Long Đỗ, 87 Mã Mây, and the busy paths around Đồng Xuân Market, "
     "An, Lâm, Hương, and Nhi found a small table, shared steaming bowls of bún chả "
     "and bún ốc with crisp bánh tôm, and promised to meet again whenever they wanted "
-    "to trade stories, laugh about the day, and make the old streets feel a little more like home."
+    "to trade stories, laugh about the day, and make the old streets feel a little more like home. "
+    "Lý Thái Tổ and Ngõ Kể are names, not English words to translate."
 )
 
 

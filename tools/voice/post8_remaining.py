@@ -272,7 +272,7 @@ def _question_entry(stage: Path, sample: dict[str, Any], path: Path, spoken_text
 
 
 def _generate_english(stage: Path, rows: list[tuple[str, Path, bytes, dict[str, str]]],
-                      questions: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+                      questions: list[dict[str, Any]], progress: Any = None) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     preflight_english_spoken_text(rows, questions)
     cache_root = TOOLS / ".cache" / "post8-hf"
     os.environ["HF_HOME"] = str(cache_root)
@@ -319,6 +319,8 @@ def _generate_english(stage: Path, rows: list[tuple[str, Path, bytes, dict[str, 
                                "license": "Apache-2.0", "speed": speed},
                               {"id": EN_PRESET, "locale": "en-US", "provisional": True}, EN_PRESET))
         print(f"en/{collection}/{row['id']} {entries[-1]['durationSeconds']:.3f}s {entries[-1]['audioSha256']}", flush=True)
+        if progress:
+            progress(len(entries), len(rows), entries[-1])
     question_entries: list[dict[str, Any]] = []
     for sample in questions:
         spoken = to_spoken_text(sample["text"])
@@ -340,7 +342,7 @@ def _generate_english(stage: Path, rows: list[tuple[str, Path, bytes, dict[str, 
 
 
 def _generate_vietnamese(stage: Path, rows: list[tuple[str, Path, bytes, dict[str, str]]],
-                         questions: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+                         questions: list[dict[str, Any]], progress: Any = None) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     from post8_firstpoint import write_wav
     from tts_local import load_tts
 
@@ -365,6 +367,8 @@ def _generate_vietnamese(stage: Path, rows: list[tuple[str, Path, bytes, dict[st
                                "license": "See mobile/assets/voice/LICENSES.md"},
                               {"id": VI_VOICE, "locale": "vi-VN", "provisional": True}, VI_VOICE))
         print(f"vi/{collection}/{row['id']} {entries[-1]['durationSeconds']:.3f}s {entries[-1]['audioSha256']}", flush=True)
+        if progress:
+            progress(len(entries), len(rows), entries[-1])
     question_entries: list[dict[str, Any]] = []
     for sample in questions:
         path = stage / "qa" / sample["collectionId"] / sample["nodeId"] / f"{sample['role']}-{sample['expectedId']}.wav"
