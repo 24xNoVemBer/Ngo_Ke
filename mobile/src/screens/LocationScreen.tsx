@@ -17,6 +17,7 @@ type Props = {
   currentNodeId?: string;
   onConfirmNode: (nodeId: string) => void;
   collectionKind?: 'simulated' | 'reviewed';
+  collectionId?: string;
 };
 
 const meters = (value: number): string =>
@@ -42,10 +43,12 @@ export function LocationScreen({
   currentNodeId,
   onConfirmNode,
   collectionKind = 'simulated',
+  collectionId,
 }: Props): ReactElement {
   const isReviewed = collectionKind === 'reviewed';
-  const { t, locale, collectionId } = useLocale();
-  const isThreeLenses = collectionId === 'old-quarter-three-lenses' && isReviewed;
+  const { t, locale, collectionId: ctxCollectionId } = useLocale();
+  const effectiveCollectionId = collectionId ?? ctxCollectionId;
+  const isThreeLenses = effectiveCollectionId === 'old-quarter-three-lenses' && isReviewed;
   const focused = useIsFocused();
   const request = useRef(0);
   const waiting = useRef(false);
