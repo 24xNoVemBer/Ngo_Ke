@@ -4,4 +4,6 @@ data/**/*.json text eol=crlf
 mobile/assets/voice/** text=auto eol=crlf
 mobile/src/voice/catalog.ts text eol=crlf
 mobile/src/voice/*Catalog.ts text eol=crlf
+# The accepted 56-track catalogue was hashed as LF; preserve that existing anchor.
+mobile/src/voice/threeLensesCatalog.ts text eol=lf
 *.mp3 -text
