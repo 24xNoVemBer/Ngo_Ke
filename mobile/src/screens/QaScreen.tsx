@@ -276,6 +276,7 @@ export function QaScreen({
   function handleSelectChapter(chapterId: string): void {
     playbackIntent.current += 1;
     pendingVoicePlayback.current = null;
+    lastTrack.current = null;
     void voiceSession.stopPlayback();
     setAsked(null);
     setAskedSource(null);
@@ -289,6 +290,7 @@ export function QaScreen({
   function handleSelectSegment(segment: 'chapter' | 'intro' | 'transition' | 'closing'): void {
     playbackIntent.current += 1;
     pendingVoicePlayback.current = null;
+    lastTrack.current = null;
     void voiceSession.stopPlayback();
     setAsked(null);
     setAskedSource(null);

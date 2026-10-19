@@ -4178,6 +4178,7 @@ test('QaScreen Three Lenses multi-chapter journey mounts chapter tabs, updates s
   const dongXuanNode = threeLensesViCore.nodes.find((n) => n.id === 'oldquarter-dong-xuan');
   const dongXuanQa = threeLensesViCore.qa.filter((q) => q.nodeId === 'oldquarter-dong-xuan');
 
+  let transcript;
   const playedTracks = [];
   let stoppedPlaybackCount = 0;
   const voiceSession = {
@@ -4217,7 +4218,10 @@ test('QaScreen Three Lenses multi-chapter journey mounts chapter tabs, updates s
     '../data/threeLensesCompanion': threeLensesModule,
     './src/data/threeLensesCompanion': threeLensesModule,
     '../voice/useVoiceSession': {
-      useVoiceSession: () => voiceSession,
+      useVoiceSession: (options) => {
+        transcript = options?.onTranscript;
+        return voiceSession;
+      },
     },
     '../voice/localizedCatalog': {
       voiceCatalogueRevision: '32e1553d10078b5e6e3c0f4df21921c5fa624aef6d2671ae818a77a94413e117',
@@ -4287,6 +4291,13 @@ test('QaScreen Three Lenses multi-chapter journey mounts chapter tabs, updates s
   const fireQuestions = fireChips.map((c) => c.props.accessibilityLabel);
   assert.ok(fireQuestions.some((q) => q.includes('cháy')), 'Fire QA chips include fire question');
 
+  // Play Fire chapter audio to establish lastTrack.current
+  const playerBarFire = elements(tree, 'VoicePlayerBar')[0];
+  assert.ok(playerBarFire, 'VoicePlayerBar is present for Fire chapter');
+  playerBarFire.props.onPlay();
+  const firePlay = playedTracks[playedTracks.length - 1];
+  assert.equal(firePlay.id, 'oldquarter-dong-xuan-fire-story');
+
   // 3. Select a suggestion in Chapter 2, reveal answer, set playing = true, then switch to Chapter 3
   const fireQa = dongXuanQa.find((q) => q.id === 'dx-fire');
   assert.ok(fireQa, 'dx-fire question exists');
@@ -4314,6 +4325,26 @@ test('QaScreen Three Lenses multi-chapter journey mounts chapter tabs, updates s
   assert.equal(JSON.stringify(tree).includes(fireQa.answer), false, 'Old answer from previous chapter is cleared');
   assert.equal(selectedNodeId, dongXuanNode.id, 'Node remains unchanged');
   assert.ok(JSON.stringify(tree).includes('bên hông chợ') || JSON.stringify(tree).includes('nhịp sống'), 'Story updates to street life chapter');
+
+  // Issue replay intent after changing chapter on same node:
+  // Since handleSelectChapter cleared lastTrack.current, replay plays the NEW chapter 3 story instead of old chapter 2 / answer
+  assert.ok(typeof transcript === 'function', 'Voice transcript handler was registered');
+  transcript('nghe lại', {
+    turnId: 'turn-replay-dx',
+    scope: `demo:${viRev}:${dongXuanNode.id}`,
+    nodeId: dongXuanNode.id,
+    mode: 'demo',
+    datasetRevision: viRev,
+  });
+  tree = view.render();
+
+  const replayPlay = playedTracks[playedTracks.length - 1];
+  assert.equal(replayPlay.type, 'replay', 'Replay intent triggers replayTrack');
+  assert.equal(replayPlay.id, 'oldquarter-dong-xuan-street-story', 'Replay receives new selected chapter contentId');
+  assert.equal(replayPlay.nodeId, dongXuanNode.id, 'Replay preserves physical nodeId');
+  const streetChapter = threeLensesModule.getThreeLensesCompanion('vi').chapters.find((c) => c.id === 'dong-xuan-street');
+  assert.ok(streetChapter, 'Street life chapter exists in companion');
+  assert.equal(replayPlay.text, streetChapter.text, 'Replay receives new selected chapter text');
 
   // 4. Test closing requesting kind: 'story' on final node
   const closingBtn = elements(tree, 'Pressable').find((p) => p.props.accessibilityLabel === 'Những câu chuyện vẫn tiếp diễn');
@@ -4345,6 +4376,8 @@ test('QaScreen Three Lenses multi-chapter journey mounts chapter tabs, updates s
   const openingPlay = playedTracks[playedTracks.length - 1];
   assert.equal(openingPlay.id, 'intro');
   assert.equal(openingPlay.kind, 'intro', 'Opening audio play requests kind: intro');
+  assert.equal(openingPlay.text, threeLensesViCore.intro.text, 'Opening audio play text matches core intro.text');
+  assert.equal(openingPlay.nodeId, dongXuanNode.id, 'Opening audio play nodeId matches current physical node');
 
   view.unmount();
 
