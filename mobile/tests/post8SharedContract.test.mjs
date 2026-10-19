@@ -455,7 +455,7 @@ test('live.ts - loadLiveSourceV2 URL, error, and timeout handling', async () => 
   assert.equal(res404Oversized.status, 'error');
   assert.equal(res404Oversized.reason, 'shape');
 
-  // 9. 503 response -> shape error, never empty
+  // 9. 503 response with DATASET_INVALID -> shape error, never empty
   const mock503Fetch = async () => ({
     status: 503,
     ok: false,
@@ -469,6 +469,21 @@ test('live.ts - loadLiveSourceV2 URL, error, and timeout handling', async () => 
   });
   assert.equal(res503.status, 'error');
   assert.equal(res503.reason, 'shape');
+
+  // Regression R12: 503 response with DATABASE_UNAVAILABLE -> http error, never shape or empty
+  const mock503DbFetch = async () => ({
+    status: 503,
+    ok: false,
+    headers: { get: () => null },
+    text: async () => JSON.stringify({ error: { code: 'DATABASE_UNAVAILABLE' } }),
+  });
+  const res503Db = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    fetchImpl: mock503DbFetch,
+  });
+  assert.equal(res503Db.status, 'error');
+  assert.equal(res503Db.reason, 'http');
 
   // 10. Repro 1: 200 with valid body but MISSING Content-Language header -> must be error!
   const mockMissingLangFetch = async () => ({
