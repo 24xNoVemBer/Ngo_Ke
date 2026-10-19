@@ -1,0 +1,7 @@
+# Voice provenance hashes pin these existing CRLF checkout bytes on every host.
+# Git blobs remain LF; do not regenerate revisions or audio to change line endings.
+data/**/*.json text eol=crlf
+mobile/assets/voice/** text=auto eol=crlf
+mobile/src/voice/catalog.ts text eol=crlf
+mobile/src/voice/*Catalog.ts text eol=crlf
+*.mp3 -text

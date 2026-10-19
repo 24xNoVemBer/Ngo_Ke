@@ -1,6 +1,6 @@
 # Voice gateway API contract
 
-This contract is for the local Voice-only gateway. It accepts a microphone clip, returns a Vietnamese transcript from the pinned local Whisper worker, and does not call a hosted ASR service or an LLM.
+This contract is for the local Voice-only gateway. It accepts a microphone clip, returns a Vietnamese or English transcript from the pinned local Whisper worker, and does not call a hosted ASR service or an LLM.
 
 ## Health
 
@@ -14,7 +14,7 @@ This contract is for the local Voice-only gateway. It accepts a microphone clip,
 | --- | --- | --- |
 | `audio` | Yes | One audio file. Native app sends M4A/AAC as `audio/mp4`; WAV/PCM is accepted for local tests. The server verifies the file signature and probes the actual stream. |
 | `turnId` | Yes | 8–80 ASCII letters, digits, or hyphens. Echoed in the response. |
-| `locale` | Yes | Must be `vi`. |
+| `locale` | Yes | `vi` or `en`. The worker decodes using the requested language. |
 | `nodeId` | Yes | 1–80 ASCII letters, digits, `_`, or `-`. It is context only; the server never chooses an answer. |
 | `mode` | Yes | `demo` or `live`, echoed unchanged. |
 | `datasetRevision` | Yes | 1–128 characters, echoed unchanged for client-side stale-turn checks. |
@@ -29,11 +29,12 @@ Successful response (`200`):
   "nodeId": "demo-02",
   "datasetRevision": "<active-revision>",
   "durationSeconds": 4.2,
+  "decoderLanguage": "vi",
   "text": "Câu vừa được nhận dạng"
 }
 ```
 
-The app requires every context field to equal the active turn before using `text`. It then looks up only the active node's fixed Q&A and aliases through the existing matcher. An unknown transcript is not fuzzy-matched to another question or chapter.
+The gateway requires the worker's language to equal the requested locale; a mismatch returns HTTP `502` with `ASR_LANGUAGE_MISMATCH`. The app requires every context field to equal the active turn before using `text`; an English turn also requires `decoderLanguage === 'en'`. It then looks up only the active node's fixed Q&A and aliases through the existing matcher. An unknown transcript is not fuzzy-matched to another question or chapter.
 
 ## Validation and service limits
 
@@ -45,7 +46,7 @@ The app requires every context field to equal the active turn before using `text
 - Temporary probe files are deleted in `finally`; the Python worker deletes its temporary clip after transcription. The model cache remains local for reuse.
 - Logs contain status, error code, and elapsed time only. They do not contain audio, transcript, filename, or request fields.
 
-Errors are JSON `{ "turnId": "…", "code": "…" }` with these codes: `INVALID_REQUEST`, `UNSUPPORTED_CONTENT_TYPE`, `INVALID_MULTIPART`, `MISSING_AUDIO`, `PAYLOAD_TOO_LARGE`, `AUDIO_SIZE_LIMIT`, `UNSUPPORTED_AUDIO_FORMAT`, `INVALID_AUDIO`, `AUDIO_TOO_SHORT`, `AUDIO_TOO_LONG`, `RATE_LIMITED`, `ASR_BUSY`, `ASR_TIMEOUT`, `ASR_UNAVAILABLE`, `NO_SPEECH`, and `INVALID_ASR_RESPONSE`. The client retries only after the user starts another voice turn.
+Errors are JSON `{ "turnId": "…", "code": "…" }` with these codes: `INVALID_REQUEST`, `UNSUPPORTED_CONTENT_TYPE`, `INVALID_MULTIPART`, `MISSING_AUDIO`, `PAYLOAD_TOO_LARGE`, `AUDIO_SIZE_LIMIT`, `UNSUPPORTED_AUDIO_FORMAT`, `INVALID_AUDIO`, `AUDIO_TOO_SHORT`, `AUDIO_TOO_LONG`, `RATE_LIMITED`, `ASR_BUSY`, `ASR_TIMEOUT`, `ASR_UNAVAILABLE`, `NO_SPEECH`, `INVALID_ASR_RESPONSE`, and `ASR_LANGUAGE_MISMATCH`. The client retries only after the user starts another voice turn.
 
 ## Runtime and network boundary
 
@@ -55,4 +56,4 @@ This development gateway has no account authentication and uses HTTP on localhos
 
 ## Model and license
 
-The default worker profile uses `Systran/faster-whisper-small` revision `536b0662742c02347bc0e980a01041f333bce120`, CPU `int8`, and Vietnamese locale. An explicit Windows-only `large-v3-cuda` profile uses `Systran/faster-whisper-large-v3` revision `edaa852ec7e145841d8ffdb056a99866b5f0a478`, CUDA `float16`, and hash-pinned optional runtime packages from `tools/voice/requirements-stt-cuda-win.txt`. The worker reports its active profile/device/model from `/health`; selecting a profile never falls back silently. Both model repositories declare MIT; `faster-whisper==1.2.1` is pinned separately in `tools/voice/requirements-stt.txt`. No paid key or cloud quota is used.
+The default worker profile uses `Systran/faster-whisper-small` revision `536b0662742c02347bc0e980a01041f333bce120`, CPU `int8`, and the requested Vietnamese or English locale. An explicit Windows-only `large-v3-cuda` profile uses `Systran/faster-whisper-large-v3` revision `edaa852ec7e145841d8ffdb056a99866b5f0a478`, CUDA `float16`, and hash-pinned optional runtime packages from `tools/voice/requirements-stt-cuda-win.txt`. The worker reports its active profile/device/model from `/health`; selecting a profile never falls back silently. Both model repositories declare MIT; `faster-whisper==1.2.1` is pinned separately in `tools/voice/requirements-stt.txt`. No paid key or cloud quota is used.
