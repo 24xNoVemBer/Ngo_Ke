@@ -1,5 +1,10 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-20 — Claude chỉ review độc lập khi user chủ động yêu cầu
+
+- User: “chia cho claude vai trò người rv độc lập toàn bộ, chỉ gọi khi t yêu cầu còn kh thì kh baoh được gọi”. Đã ghi quy tắc ưu tiên ở đầu AGENTS.md: Claude reviewer độc lập toàn dự án, mặc định read-only; tuyệt đối không tự launch/spawn/message/task/resume/retry hay gọi qua workflow/hook/automation/dự phòng. Full access, quyền end-to-end hoặc yêu cầu review chung không tự mở quyền gọi Claude.
+- Chỉ yêu cầu rõ ràng gọi Claude của user mới mở đợt review tương ứng; xong thì dừng, không có quyền gọi thường trực. Không gọi Claude trong lượt phân vai này. Giữ ownership W1/W2/W3 và QA W4. Cần user quyết/tự làm: không có việc phát sinh.
+
 ## 2026-10-20 — đã chỉnh bố cục Prologue và cập nhật preview iOS
 
 - **HOÀN TẤT:** W2actualGemini3.8Flash/high giữnguyên. Reviewed781fdcf→candidatee322e53; W1tscbắtAPIabsoluteFillObjectremovedRN0.86, followupTasktask_fc3ae2886a7c/ctx_c1e88eea77a7 sửa1dòngb549222→cd9ff28; nativeVI375dpbắtquoteorphan“giấc,”do\n, Tasktask_9b68d82b35a7/ctx_ea512cc696cd sửa1dòngrenderwhitespaceb37fa3b→0874963. Sourceproductcuối087496359309a1fb6390feaf602916256c5038c9. W1fullcandidate287/287app+tsc+lintPASS saufixcuối. OnlyPrologue+onelocalebehaviorregression; nostylemirrortest/newdeps/feature. Allhandler/timer/animationbeforeRenderunchanged;data/sounds/voiceassets/voicesourcetreesexactbaseline.312MP3/156active+cuesunchanged.
