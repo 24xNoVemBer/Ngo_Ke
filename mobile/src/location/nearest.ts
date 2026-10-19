@@ -37,10 +37,17 @@ export function pickCandidate(
   position: Position | undefined,
   limits: Limits,
 ): Candidate {
-  if (position === undefined) {
+  if (
+    position === undefined
+    || !Number.isFinite(position.latitude)
+    || !Number.isFinite(position.longitude)
+  ) {
     return { kind: 'needs-position' };
   }
-  const accuracy = position.accuracy ?? 0;
+  const accuracy = position.accuracy;
+  if (accuracy === undefined || !Number.isFinite(accuracy) || accuracy <= 0) {
+    return { kind: 'needs-position' };
+  }
   if (accuracy > limits.maxAccuracyMeters) {
     return { kind: 'poor-accuracy', accuracy };
   }

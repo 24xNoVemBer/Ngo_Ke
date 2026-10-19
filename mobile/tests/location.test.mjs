@@ -53,6 +53,15 @@ test('no reading and no coordinates are refused', () => {
   assert.equal(pickCandidate(withoutCoordinates, at(nodes[0]), LIMITS).kind, 'no-coordinates');
 });
 
+test('GPS accuracy missing, NaN, Infinity, negative, or zero fails closed without candidate', () => {
+  const base = at(nodes[0]);
+  assert.equal(pickCandidate(nodes, { ...base, accuracy: undefined }, LIMITS).kind, 'needs-position');
+  assert.equal(pickCandidate(nodes, { ...base, accuracy: NaN }, LIMITS).kind, 'needs-position');
+  assert.equal(pickCandidate(nodes, { ...base, accuracy: Infinity }, LIMITS).kind, 'needs-position');
+  assert.equal(pickCandidate(nodes, { ...base, accuracy: -5 }, LIMITS).kind, 'needs-position');
+  assert.equal(pickCandidate(nodes, { ...base, accuracy: 0 }, LIMITS).kind, 'needs-position');
+});
+
 test('a closed point is never suggested', () => {
   const closed = nodes.map((node) => (node.id === nodes[2].id ? { ...node, available: false } : node));
   const result = pickCandidate(closed, at(nodes[2]), LIMITS);
