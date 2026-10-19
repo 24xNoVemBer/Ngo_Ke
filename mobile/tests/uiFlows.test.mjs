@@ -2410,6 +2410,29 @@ test('LocationScreen branches manual accessibility label and visit minutes on co
   const textSimulatedEn = JSON.stringify(treeSimulatedEn);
   assert.ok(textSimulatedEn.includes('10 min simulated'), 'simulated row in EN shows 10 min simulated');
   viewSimulatedEn.unmount();
+
+  // 6. Regression R08: LocationScreen takes collectionId from props/dataset and does not borrow three-lenses from context
+  const viewPilotWithThreeLensesContext = mount('../src/screens/LocationScreen.tsx', {
+    nodes: actualReviewedPilotVi.nodes,
+    currentNodeId: actualReviewedPilotVi.nodes[0].id,
+    onConfirmNode() {},
+    collectionKind: 'reviewed',
+    collectionId: 'old-quarter-pilot',
+  }, {
+    ...locationMocks('vi'),
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        t: (key, params) => translator.t('vi', key, params),
+        collectionId: 'old-quarter-three-lenses',
+      }),
+    },
+  });
+  const treePilot = viewPilotWithThreeLensesContext.render();
+  const textPilot = JSON.stringify(treePilot);
+  assert.equal(textPilot.includes('Có nguồn · chưa duyệt chính thức'), false, 'LocationScreen with old-quarter-pilot prop must not use three-lenses metadata even if context has three-lenses');
+  assert.ok(textPilot.includes('Gợi ý tham quan: 10 phút (chưa đo)'), 'LocationScreen with old-quarter-pilot prop shows standard reviewed visit time');
+  viewPilotWithThreeLensesContext.unmount();
 });
 
 test('AlleySelectScreen translates filter chips to All and Food in EN while preserving internal filter logic and removes one-line limit from gpsLocationName', () => {
