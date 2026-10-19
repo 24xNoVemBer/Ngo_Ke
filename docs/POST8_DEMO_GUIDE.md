@@ -1,6 +1,14 @@
 # Mở demo Việt/Anh — bản tích hợp local
 
-## Expo.dev mới nhất — đủ156 audio, 19/10/2026
+## Expo.dev mới nhất — chỉnh bố cục màn mở đầu, 20/10/2026
+
+[Mở preview và QR mới](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/02936a78-2e15-413b-b1da-5a37e3269a33). Trong Expo Go iOS mở `exp://u.expo.dev/update/01a1553f-c32e-7747-9653-e9bc732bc684`; dùng tài khoản thuộc team như trước, không cần cùng Wi-Fi/Metro.
+
+Màn logo đã gom lời dẫn/thương hiệu thành cụm, ngôn ngữ48dp phía trên, CTA phía dưới; phụ đề giảm giãn chữ, quote tự xuống dòng, scrim rõ hơn và có cuộn cho màn thấp/chữ lớn. Giữ156audio nguyên vẹn. Source `0874963`, branch `ios-preview`, runtime `exposdk:57.0.0`; published17:40:04.526UTC19/10 (=00:40 ngày20/10 local). W1 **287/287 tests, tsc/lint đạt**; đã kiểm native Android emulator nhiều cỡ màn và cỡ chữ, thao tác bắt đầu bình thường/animator0. Export156/156MP3SHAkhớp, readback và remoteassetmapexact đã đạt. [Báo cáo/ảnh native](POST8_FIRST_SCREEN_REVIEW.md).
+
+**Việc cần anh quyết:** không có. **Việc anh tự làm:** mở link mới và xem trên iPhone thật; chưa có bằng chứng iPhone/VoiceOver/TalkBack, cảm nhận âm hoặc FPS. Live/mic online vẫn chưa có public server. Bản này chỉ update preview iOS, không có APK/IPA/TestFlight mới.
+
+## Mốc Expo.dev đủ156 audio — 19/10/2026
 
 Đã publish theo yêu cầu mới của người dùng “deploy bản mới lên expo dev đi”. [Mở trang preview và QR](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/b72cf59b-4557-49af-b545-fb94283a26c9). Trong Expo Go iOS, mở `exp://u.expo.dev/update/01a15516-93e6-7500-949d-ff985d809d08`; không cần cùng Wi-Fi hoặc Metro chạy. Đăng nhập Expo Go bằng tài khoản thuộc tổ chức `valentino241s-team` như preview trước.
 
