@@ -3,6 +3,7 @@ import io
 import json
 import re
 import sys
+import tempfile
 import unittest
 from collections import Counter
 from pathlib import Path
@@ -58,6 +59,40 @@ class ElevenLabsPost8RemainingTests(unittest.TestCase):
         self.assertEqual(len(dry_run["protectedAssetHashes"]), dry_run["protectedAudioCount"])
         self.assertEqual(len(dry_run["protectedVoiceAndSourceFileHashes"]), dry_run["protectedVoiceAndSourceFileCount"])
         self.assertEqual(dry_run["unchangedCatalogueHashes"], renderer._unchanged_catalogue_hashes())
+
+    def test_protected_audio_inventory_ignores_generated_build_copies(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            voice = root / "mobile" / "assets" / "voice"
+            output = voice / "post8" / "remaining-elevenlabs"
+            fixture = root / "tools" / "voice" / "gateway" / "test-fixtures" / "ios-aac-smoke.m4a"
+            cue = root / "mobile" / "assets" / "sounds" / "prologue_door.wav"
+            source = voice / "intro.mp3"
+            generated = output / "en" / "generated.mp3"
+            source.parent.mkdir(parents=True)
+            output.mkdir(parents=True)
+            fixture.parent.mkdir(parents=True)
+            cue.parent.mkdir(parents=True)
+            source.write_bytes(b"protected source audio")
+            fixture.write_bytes(b"permitted AAC fixture")
+            cue.write_bytes(b"app sound cue")
+            generated.parent.mkdir(parents=True)
+            generated.write_bytes(b"current generator output")
+
+            with patch.object(renderer.engine, "ROOT", root), patch.object(renderer.engine, "OUTPUT", output):
+                expected = renderer.engine.protected_asset_hashes()
+
+                build = root / "mobile" / "android" / "app" / "build" / "generated" / "res" / "raw"
+                build.mkdir(parents=True)
+                for index in range(200):
+                    (build / f"copy-{index}.mp3").write_bytes(source.read_bytes())
+
+                self.assertEqual(renderer.engine.protected_asset_hashes(), expected)
+                self.assertIn("mobile/assets/voice/intro.mp3", expected)
+                self.assertIn("tools/voice/gateway/test-fixtures/ios-aac-smoke.m4a", expected)
+                self.assertNotIn("mobile/assets/sounds/prologue_door.wav", expected)
+                self.assertNotIn("mobile/assets/voice/post8/remaining-elevenlabs/en/generated.mp3", expected)
+                self.assertEqual(cue.read_bytes(), b"app sound cue")
 
     def test_dry_run_is_network_free_and_keeps_the_previous_renderer_isolated(self):
         output = io.StringIO()

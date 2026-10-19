@@ -169,13 +169,18 @@ export function importLocalizedPair(db, input, { replace = false } = {}) {
   assertMigrated(db);
   db.exec('BEGIN IMMEDIATE');
   try {
-    const current = readLocalizedPairInTransaction(db);
+    let current;
+    try {
+      current = readLocalizedPairInTransaction(db);
+    } catch (error) {
+      if (!replace || !(error instanceof DatasetInvalidError)) throw error;
+    }
     if (current && current.vi.sha256 === pair.viSha256 && current.en.sha256 === pair.enSha256) {
       db.exec('COMMIT');
       return false;
     }
     if (current && !replace) throw new Error('Localized dataset already exists; use --replace after backup');
-    if (!current && db.prepare('SELECT count(*) AS n FROM publication_v2').get().n) {
+    if (!replace && !current && db.prepare('SELECT count(*) AS n FROM publication_v2').get().n) {
       throw new DatasetInvalidError('Published dataset pair is incomplete');
     }
     db.exec('DELETE FROM publication_v2');
@@ -198,6 +203,15 @@ function withReview(record, reviewStatus, updatedAt) {
 function assertBodyLimit(dataset) {
   if (Buffer.byteLength(JSON.stringify(dataset), 'utf8') > MAX_BODY_BYTES) {
     throw new Error('Dataset exceeds the 512 KiB body limit');
+  }
+}
+
+export function assertDatasetV1Storage(dataset) {
+  if (dataset.nodes.some((node) => node.evidence !== undefined)) {
+    throw new Error('V1 storage cannot preserve node evidence');
+  }
+  if (dataset.reviewStatus !== undefined || dataset.updatedAt !== undefined) {
+    throw new Error('V1 storage cannot preserve dataset-level review metadata');
   }
 }
 
@@ -245,6 +259,7 @@ export function readDataset(db) {
 export function importDataset(db, value, { replace = false } = {}) {
   const dataset = parseDataset(value, { mode: 'live' });
   if (!dataset) throw new Error('Invalid dataset: schema, evidence or references');
+  assertDatasetV1Storage(dataset);
   assertBodyLimit(dataset);
   assertMigrated(db);
   db.exec('BEGIN IMMEDIATE');

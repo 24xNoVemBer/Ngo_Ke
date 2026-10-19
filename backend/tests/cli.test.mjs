@@ -123,6 +123,26 @@ test('reviewed import requires acknowledgement and validates metadata', (t) => {
   }
 });
 
+test('V1 replacement rejects fields absent from SQLite before creating a backup', (t) => {
+  const { path, dir, run } = fixture(t);
+  assert.equal(run('setup').status, 0);
+  const unsupported = structuredClone(sample);
+  unsupported.nodes[0].evidence = ['source-1'];
+  const input = join(dir, 'unsupported.json');
+  writeFileSync(input, JSON.stringify(unsupported));
+
+  const result = run('import', input, '--replace');
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /cannot preserve.*node evidence/i);
+  assert.equal(readdirSync(dir).some((name) => name.startsWith('db.sqlite.backup-')), false);
+  const db = openDatabase(path);
+  try {
+    assert.deepEqual(readDataset(db), sample);
+  } finally {
+    db.close();
+  }
+});
+
 test('localized import validates before mutation and never seeds the independent V1 dataset', (t) => {
   const { dir, path, run } = fixture(t);
   assert.equal(run('migrate').status, 0);
@@ -212,6 +232,52 @@ test('import-localized backs up and restores both canonical locale rows before r
     assert.deepEqual(readDataset(restored), sample);
   } finally {
     restored.close();
+  }
+});
+
+test('import-localized --replace backs up and repairs corrupt publication; no-replace leaves it untouched', (t) => {
+  const { path, dir, run } = fixture(t);
+  const vi = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.vi.json', import.meta.url), 'utf8'));
+  const en = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.en.json', import.meta.url), 'utf8'));
+  const viPath = join(dir, 'old-quarter.vi.json');
+  const enPath = join(dir, 'old-quarter.en.json');
+  writeFileSync(viPath, JSON.stringify(vi));
+  writeFileSync(enPath, JSON.stringify(en));
+  assert.equal(run('setup').status, 0);
+  assert.equal(run('import-localized', '--vi', viPath, '--en', enPath).status, 0);
+
+  const changedEn = structuredClone(en);
+  changedEn.intro.text += ' Recovered revision.';
+  writeFileSync(enPath, JSON.stringify(changedEn));
+  const corruptHash = '0'.repeat(64);
+  let db = openDatabase(path);
+  db.prepare("UPDATE publication_v2 SET payload_sha256 = ? WHERE locale = 'en'").run(corruptHash);
+  db.close();
+
+  const backupsBefore = readdirSync(dir).filter((name) => name.startsWith('db.sqlite.backup-')).length;
+  const refused = run('import-localized', '--vi', viPath, '--en', enPath);
+  assert.equal(refused.status, 1);
+  assert.match(refused.stderr, /digest or payload is invalid/);
+  assert.equal(readdirSync(dir).filter((name) => name.startsWith('db.sqlite.backup-')).length, backupsBefore);
+
+  const repaired = run('import-localized', '--vi', viPath, '--en', enPath, '--replace');
+  assert.equal(repaired.status, 0, repaired.stderr);
+  assert.match(repaired.stdout, /Backup created:/);
+  const backups = readdirSync(dir).filter((name) => name.startsWith('db.sqlite.backup-')).sort();
+  const backupDb = openDatabase(join(dir, backups.at(-1)));
+  try {
+    assert.equal(backupDb.prepare("SELECT payload_sha256 FROM publication_v2 WHERE locale = 'en'").get().payload_sha256, corruptHash);
+    assert.deepEqual(readDataset(backupDb), sample);
+  } finally {
+    backupDb.close();
+  }
+
+  db = openDatabase(path);
+  try {
+    assert.deepEqual(readLocalizedPair(db).en.dataset, changedEn);
+    assert.deepEqual(readDataset(db), sample);
+  } finally {
+    db.close();
   }
 });
 

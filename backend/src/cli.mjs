@@ -4,8 +4,9 @@ import { backup } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
 import { readConfig } from './config.mjs';
 import {
-  openDatabase, migrate, importDataset, hasContent, hasAnyContent, needsMigration,
+  openDatabase, migrate, importDataset, assertDatasetV1Storage, hasContent, hasAnyContent, needsMigration,
   prepareLocalizedPair, readLocalizedPair, importLocalizedPair,
+  DatasetInvalidError,
 } from './database.mjs';
 import { MAX_BODY_BYTES, parseDataset } from '../../mobile/src/data/sourceState.ts';
 
@@ -69,12 +70,14 @@ try {
   if (command !== 'migrate' && command !== 'import-localized') {
     const input = command === 'import' ? resolve(args[0]) : new URL('../../data/demo.json', import.meta.url);
     const value = JSON.parse(readFileSync(input, 'utf8'));
-    if (!parseDataset(value, { mode: 'live' })) throw new Error('Invalid dataset: schema, evidence or references');
+    const dataset = parseDataset(value, { mode: 'live' });
+    if (!dataset) throw new Error('Invalid dataset: schema, evidence or references');
+    assertDatasetV1Storage(dataset);
     const flags = new Set(args.slice(1));
-    if (command === 'import' && value.kind === 'reviewed' && !flags.has('--reviewed')) {
+    if (command === 'import' && dataset.kind === 'reviewed' && !flags.has('--reviewed')) {
       throw new Error('Reviewed data requires the --reviewed acknowledgement');
     }
-    if (command === 'import' && value.kind !== 'reviewed' && flags.has('--reviewed')) {
+    if (command === 'import' && dataset.kind !== 'reviewed' && flags.has('--reviewed')) {
       throw new Error('--reviewed is only valid for a reviewed dataset');
     }
     const replace = command === 'import' && flags.has('--replace');
@@ -85,12 +88,17 @@ try {
       await backup(db, backupPath(config.dbPath));
       console.log('Backup created');
     }
-    const changed = importDataset(db, value, { replace });
-    console.log(changed ? 'Dataset imported: ' + value.kind : 'Dataset already exists; left unchanged');
+    const changed = importDataset(db, dataset, { replace });
+    console.log(changed ? 'Dataset imported: ' + dataset.kind : 'Dataset already exists; left unchanged');
   }
   if (command === 'import-localized') {
     const pair = prepareLocalizedPair(readLocalizedInput(localized.vi), readLocalizedInput(localized.en));
-    const current = readLocalizedPair(db);
+    let current;
+    try {
+      current = readLocalizedPair(db);
+    } catch (error) {
+      if (!localized.replace || !(error instanceof DatasetInvalidError)) throw error;
+    }
     const unchanged = current && current.vi.sha256 === pair.viSha256 && current.en.sha256 === pair.enSha256;
     if (!unchanged && current && !localized.replace) {
       throw new Error('Localized dataset already exists; use --replace to back up before replacing');

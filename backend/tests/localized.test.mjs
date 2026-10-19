@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { once } from 'node:events';
 import { backup } from 'node:sqlite';
 import { canonicalDatasetJson } from '../../mobile/src/data/canonicalJson.ts';
+import { loadLiveSourceV2 } from '../../mobile/src/data/live.ts';
 import { MAX_BODY_BYTES } from '../../mobile/src/data/sourceState.ts';
 import { createApp } from '../src/app.mjs';
 import {
@@ -46,7 +47,7 @@ async function running(t, { db, simulated = false } = {}) {
     const response = await fetch(base + path, init);
     return { status: response.status, body: await response.json(), headers: response.headers };
   }
-  return { request };
+  return { base, request };
 }
 
 test('one canonical VI/EN pilot pair publishes atomically and preserves the V1 dataset', (t) => {
@@ -126,6 +127,29 @@ test('replacement requires opt-in and a failed two-row transaction keeps both ol
 
   assert.equal(importLocalizedPair(db, changed, { replace: true }), true);
   assert.equal(readLocalizedPair(db).en.dataset.intro.text, changedEn.intro.text);
+});
+
+test('replace recovers a corrupt publication transactionally and keeps no-replace fail-closed', (t) => {
+  const { db } = database(t, { seedV1: true });
+  importLocalizedPair(db, prepareLocalizedPair(pilotVi, pilotEn));
+  const corruptHash = '0'.repeat(64);
+  db.prepare("UPDATE publication_v2 SET payload_sha256 = ? WHERE locale = 'en'").run(corruptHash);
+
+  const changedEn = structuredClone(pilotEn);
+  changedEn.intro.text += ' Recovered revision.';
+  const changed = prepareLocalizedPair(pilotVi, changedEn);
+  assert.throws(() => importLocalizedPair(db, changed), /digest or payload is invalid/);
+  assert.equal(db.prepare("SELECT payload_sha256 FROM publication_v2 WHERE locale = 'en'").get().payload_sha256, corruptHash);
+
+  db.exec("CREATE TRIGGER reject_english BEFORE INSERT ON publication_v2 WHEN NEW.locale = 'en' BEGIN SELECT RAISE(ABORT, 'test write failure'); END");
+  assert.throws(() => importLocalizedPair(db, changed, { replace: true }), /test write failure/);
+  db.exec('DROP TRIGGER reject_english');
+  assert.equal(db.prepare("SELECT payload_sha256 FROM publication_v2 WHERE locale = 'en'").get().payload_sha256, corruptHash);
+  assert.deepEqual(readDataset(db), demo);
+
+  assert.equal(importLocalizedPair(db, changed, { replace: true }), true);
+  assert.deepEqual(readLocalizedPair(db).en.dataset, changedEn);
+  assert.deepEqual(readDataset(db), demo);
 });
 
 test('migration 001 to 002 is atomic, repeatable, and refuses future schema versions', (t) => {
@@ -208,6 +232,36 @@ test('simulated localized data follows the existing opt-in policy', async (t) =>
     status: 'ready', database: 'ok', dataset: 'simulated', locale: 'en',
     collectionId: 'old-quarter-pilot', schemaVersion: 2,
   });
+});
+
+test('V2 live loader consumes VI/EN HTTP with real SHA-256 and never falls back to V1', async (t) => {
+  const { db } = database(t, { seedV1: true });
+  const pair = prepareLocalizedPair(pilotVi, pilotEn);
+  importLocalizedPair(db, pair);
+  const { base } = await running(t, { db, simulated: true });
+
+  for (const locale of ['vi', 'en']) {
+    const dataset = locale === 'vi' ? pilotVi : pilotEn;
+    const source = await loadLiveSourceV2({
+      baseUrl: base,
+      locale,
+      digestImpl: async (canonicalJson) => createHash('sha256').update(canonicalJson, 'utf8').digest('hex'),
+    });
+    assert.equal(source.status, 'ready', locale);
+    assert.deepEqual(source.dataset, dataset);
+    const revision = createHash('sha256').update(canonicalDatasetJson(dataset), 'utf8').digest('hex');
+    assert.equal(source.revision, revision);
+    assert.equal(source.revision, locale === 'vi' ? pair.viSha256 : pair.enSha256);
+  }
+
+  db.exec('DELETE FROM publication_v2');
+  const missing = await loadLiveSourceV2({
+    baseUrl: base,
+    locale: 'en',
+    digestImpl: async (canonicalJson) => createHash('sha256').update(canonicalJson, 'utf8').digest('hex'),
+  });
+  assert.equal(missing.status, 'empty');
+  assert.equal('dataset' in missing, false);
 });
 
 test('localized reads reject empty, partial, mismatched, corrupt, and hash-invalid publication states', async (t) => {

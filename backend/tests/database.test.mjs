@@ -96,6 +96,28 @@ test('import rejects an aggregate body over the shared budget before replacing d
   assert.deepEqual(readDataset(db), sample);
 });
 
+test('V1 import rejects node evidence and dataset review metadata that SQLite cannot retain', (t) => {
+  const { db } = database(t);
+  migrate(db);
+  importDataset(db, sample);
+
+  const withNodeEvidence = structuredClone(sample);
+  withNodeEvidence.nodes[0].evidence = ['source-1'];
+  assert.throws(() => importDataset(db, withNodeEvidence, { replace: true }), /cannot preserve.*node evidence/i);
+  assert.deepEqual(readDataset(db), sample);
+
+  const withDatasetReview = structuredClone(sample);
+  withDatasetReview.kind = 'reviewed';
+  withDatasetReview.reviewStatus = 'approved';
+  withDatasetReview.updatedAt = '2026-10-16T00:00:00.000Z';
+  withDatasetReview.intro.reviewStatus = 'approved';
+  withDatasetReview.intro.updatedAt = withDatasetReview.updatedAt;
+  withDatasetReview.nodes.forEach((node) => Object.assign(node, { reviewStatus: 'approved', updatedAt: withDatasetReview.updatedAt }));
+  withDatasetReview.qa.forEach((entry) => Object.assign(entry, { reviewStatus: 'approved', updatedAt: withDatasetReview.updatedAt }));
+  assert.throws(() => importDataset(db, withDatasetReview, { replace: true }), /cannot preserve.*dataset-level review metadata/i);
+  assert.deepEqual(readDataset(db), sample);
+});
+
 test('review metadata survives the SQLite roundtrip without changing its values', (t) => {
   const { db } = database(t);
   migrate(db);

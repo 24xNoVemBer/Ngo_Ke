@@ -42,7 +42,7 @@ TIMEOUT = 90
 ACCOUNT_SETTLEMENT_TIMEOUT = 60
 MAX_MODEL_CHARACTERS = 10_000
 AUDIO_SUFFIXES = {".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac", ".caf", ".aiff", ".aif", ".opus", ".wma"}
-IGNORED_AUDIO_DIRS = {".git", "node_modules", ".cache", ".venv", "__pycache__", ".runs"}
+PROTECTED_AUDIO_DIRS = (Path("mobile/assets/voice"), Path("tools/voice/gateway/test-fixtures"))
 
 
 class _NoRedirect(HTTPRedirectHandler):
@@ -100,11 +100,9 @@ def run_config(revisions: dict[str, str]) -> dict[str, Any]:
 
 def protected_asset_hashes() -> dict[str, str]:
     protected = {}
-    for directory, subdirectories, filenames in os.walk(ROOT):
-        subdirectories[:] = [name for name in subdirectories if name not in IGNORED_AUDIO_DIRS]
-        for filename in filenames:
-            path = Path(directory) / filename
-            if path.suffix.lower() not in AUDIO_SUFFIXES or OUTPUT in path.parents:
+    for relative_root in PROTECTED_AUDIO_DIRS:
+        for path in (ROOT / relative_root).rglob("*"):
+            if not path.is_file() or path.suffix.lower() not in AUDIO_SUFFIXES or path == OUTPUT or OUTPUT in path.parents:
                 continue
             protected[path.relative_to(ROOT).as_posix()] = sha256(path.read_bytes())
     if not protected:
