@@ -377,7 +377,7 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
             </Text>
             <Text style={styles.subtitle}>{t('prologue.subtitle')}</Text>
             <View style={styles.rule} />
-            <Text style={styles.quote}>{t('prologue.quote')}</Text>
+            <Text style={styles.quote}>{t('prologue.quote').replace(/\n/g, ' ')}</Text>
           </Animated.View>
 
           {/* 3. Action Region: CTA and hint with ample breathing room and 28dp flank clearance */}
