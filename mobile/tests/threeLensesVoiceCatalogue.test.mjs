@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { URL } from 'node:url';
 import test from 'node:test';
 
-const manifest = JSON.parse(readFileSync(new URL('../assets/voice/three-lenses/manifest.json', import.meta.url), 'utf8'));
+const manifest = JSON.parse(readFileSync(new URL('../assets/voice/three-lenses-elevenlabs/manifest.json', import.meta.url), 'utf8'));
 
 test('Three Lenses lookup resolves exactly its frozen locale catalogue and node-less intro', async () => {
   const previousRequire = globalThis.require;
@@ -22,6 +22,9 @@ test('Three Lenses lookup resolves exactly its frozen locale catalogue and node-
   assert.equal(THREE_LENSES_VOICE_COLLECTION, 'old-quarter-three-lenses');
   assert.equal(manifest.scope, THREE_LENSES_VOICE_COLLECTION);
   assert.equal(manifest.humanApproved, false);
+  assert.equal(manifest.model, 'eleven_v4');
+  assert.equal(manifest.outputFormat, 'mp3_44100_128');
+  assert.equal(manifest.observedCredits, manifest.closingAccount.characterCount - manifest.initialAccountCharacterCount);
 
   for (const locale of ['en', 'vi']) {
     const source = manifest.catalogues[locale];
@@ -40,8 +43,11 @@ test('Three Lenses lookup resolves exactly its frozen locale catalogue and node-
       const track = catalog.lookupVoiceTrack(query);
       assert.equal(track?.source, 42, `${locale}/${entry.id} should resolve through the app catalogue`);
       assert.equal(track?.kind, entry.kind);
-      assert.equal(track?.nodeId, entry.nodeId);
+      assert.equal(track?.nodeId ?? null, entry.nodeId);
       assert.equal(track?.textHash, entry.textHash);
+      assert.equal(entry.model, manifest.model);
+      assert.equal(entry.outputFormat, manifest.outputFormat);
+      assert.equal(entry.humanApproved, false);
       assert.equal(catalog.lookupVoiceTrack({ ...query, datasetRevision: 'stale' }), undefined);
       assert.equal(catalog.lookupVoiceTrack({ ...query, collectionId: 'other' }), undefined);
     }
