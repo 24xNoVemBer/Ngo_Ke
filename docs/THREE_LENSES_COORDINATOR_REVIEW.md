@@ -1,6 +1,6 @@
 # Ba lát cắt phố cổ — coordinator review
 
-Date19/10/2026. **In progress: content frozen v2; app integration and56-track render not yet accepted.** Do not read the content checks below as final device/audio acceptance.
+Date19/10/2026. **Technical integration complete; current results and demo instructions: [THREE_LENSES_FINAL_REVIEW.md](THREE_LENSES_FINAL_REVIEW.md).** Content,56-track audio and app fixes accepted by coordinator with285/285 app tests, TypeScript/lint and native-platform bundle checks. Human listening and native device acceptance remain pending. The earlier review checkpoints below are retained for provenance.
 
 ## Authority and scope
 
@@ -26,26 +26,35 @@ W1 ran Node against realcandidateproduction`parseDatasetV2`, `canonicalDatasetJs
 - **96canonical+aliasutterances** returnedexpectedanswerIDs (32canonical+64aliases). **32wrongnodecanonicalqueries** remainedunknown. Allfollowups resolveinsidephysicalnode; anunsupportedqueryremainsunknown. This is textmatcher evidence, notSTTaccuracy.
 - Human-readableVIpreview:`docs/content/three-lenses/STORY_PREVIEW_VI.md`.
 
-## Reviews returned to W2 (pending verified fix)
+## Reviews returned to W2 (resolved; see final verification report)
 
 1. Guard initially allowedmissingmode/locale/revision/coremetadata; requirefailclosedscoping andintegritythatactuallygatesUI, withnegativeandtamperingtests. Live mustneverreceivebundledcompanionfallback.
 2. Newrealcard had fabricated250mdistance/popularity/moodmetadata; omit/relabelwithoutclaimingGPSorfieldaudio.
 3. Introplayback mustrequestkindintro. Everychapter/segmentselection mustcancelpendingplaybackevenifnotyetplaying; clearoldanswerwhereappropriatetoalignreadtext/audio/source. Requiredeferredpromise regression.
 
-No W1 edits to worker-ownedappsource. Findings sentdurablyviaOrca; deliveryalone isnot proof offix.
+No W1 edits to worker-ownedappsource. Fixes committed by W2 and reviewed/cherry-picked narrowly; W1 independently checked the final candidate. Pending audio cancellation, replay after chapter selection, source-kind precedence, photo scoping, companion payload and localization findings are resolved. Historical delivery alone was not treated as proof of a fix.
 
 ## Audio target and current evidence
 
 Exactly28tracks/locale,56newMP3: intro1+fullchapterstory5+corecaption3+transitionstory2+closingstory1+answer16. VIEneu3.7.1existingĐoanTrang / Kokoro0.9.4existingaf_heart; source/displaytext andspokenmappertrackedseparately. Newassetpath`mobile/assets/voice/three-lenses/`, staticcatalog`mobile/src/voice/threeLensesCatalog.ts`, lookupadditionownedW3.
 
-W3preflightverifiedcachedpinnedmodels andactualPython3.12.13environment (READMErecipe3.11isnotactualruntime). Generator/tests reuseexistingpipeline; initial11Pythonpreflighttests passedaccordingtoW3. First2ENMP3s exist: intro62.875s, BạchMãchapter96.325s, fromv2revision. **Full56decode/manifest/hash/old100preservation remainspending.** Do notadvertiseoriginalGoogleDoc5–7minuteestimateasmeasuredfinalduration.
+W3 final voice commit`5460567`→candidate`c18fcc3`; scoped intro hook/test`cceb211`→`7209771`. Models remain pinned: VieNeu3.7.1 Đoan Trang, Kokoro0.9.4 af_heart; actual Python3.12.13. Manifest SHA256`e9a7d38dffa5fc90c9e8b7cc2fdf9d7e91d4bd28657716170c2dfcab985c3d1e`. Full worker measurements and per-track provenance: `tools/voice/THREE_LENSES_VOICE_REPORT.md` and `mobile/assets/voice/three-lenses/manifest.json`.
+
+W1 independently ran on candidate,19/10/2026:
+
+- `three_lenses.py audit`: **56/56** full MP3 decode, metadata/revision/text/asset hash checks passed.
+- `python -B -m unittest test_three_lenses test_post8_probe test_post8_remaining`: **16/16** passed using the existing backend worker virtualenv; no dependency installation or model change.
+- All**100 old MP3** Git blob hashes equal baseline`5d1984e`; `mobile/assets/sounds/prologue_door.wav` also unchanged.
+- Production voice hook lifecycle tests**9/9** passed after scoped intro integration, including kind/current physical node guard, native error latch and deferred scope cancellation.
+
+All 28 clips together total VI777.450s and EN804.401s, including the16optional Q&A answers in each language. These totals are not a continuous walking itinerary. VI render stopwatch530.8s; EN observed file timestamp span626.316s, not a stopwatch. No clipped samples in worker audit; EN RMS approximately−26.77…−26.07dBFS, VI−20.91…−19.12dBFS. Human pronunciation, loudness preference and new-corpus ASR accuracy remain untested; tracks are provisional, `humanApproved:false`, not selected for shipping. Do not advertise the source document's5–7minute estimate as measured final duration.
 
 ## QA and environment limits
 
 - W4 OpenCodecannotproviderequiredMuseSpark1.3Free: currentproviderlistlacksit; configuredsessionwasDeepSeekV4.1FlashFree. Noquotaexhaustionwasobserved, soAGENTSautomaticquota-fallbackauthoritydoesnotapply. Workerperformedzeroreview/edits, reportedfailed andwasreleased; noMuseQAclaimed.
 - W1continuescoordinatorreview andindependentchecks; thisdoesnotbecomeanindependentMuseaudit.
 - No native rerun inthisscope. Previousemulatorlaunchwasrejected`blocked by policy`; noattemptthroughanotherworker/tool. Phone/iPhone/FPS/humanlisten remainpendingunlessnewactualevidenceisrecorded.
-- Metro8081 notrunningatinitial19/10check. WiFiIPv4192.168.100.36retained; demo mustberestartedfromacceptedcandidateafterintegration, notWIP. ExistingExpo.devpreviewisolderandnotupdatedbythiswork.
+- Metro8081 restarted from integrated candidate; terminal`term_f7d36695-fc79-47b8-af23-099bcd2ed28b`. WiFiIPv4192.168.100.36 verified again. Android/iOS bundles and7sample assets HTTP200; details in final report. ExistingExpo.devpreviewisolderandnotupdatedbythiswork.
 
 ## Việc cần người dùng quyết / tự làm
 

@@ -1,5 +1,20 @@
 # Mở demo Việt/Anh — bản tích hợp local
 
+## Ba lát cắt phố cổ — nội dung và voice mới, 19/10/2026
+
+Đây là bản mới nhất đang chạy qua **Metro LAN**; các APK và link Expo.dev ở các mục lịch sử bên dưới chưa có collection này.
+
+1. Mở Expo Go cùng Wi-Fi với máy tính. QR: `C:/Users/LEGION/AppData/Local/Temp/ngoke-demo-qr.png`; URL `exp://192.168.100.36:8081`. Reload nếu đang mở bản cũ.
+2. Vào **Demo → Ba lát cắt phố cổ**. Có Bạch Mã, nhà87 Mã Mây và Đồng Xuân, tổng5 chương/16 Q&A mỗi ngôn ngữ. Ba chương Đồng Xuân cùng một điểm, chọn bằng tab.
+3. Chọn Việt/Anh; nghe riêng mở đầu, từng chương, đoạn nối, kết hoặc câu trả lời. Có56 MP3 mới và5 ảnh từ tài liệu người dùng. Lời kể đã thêm nhịp dẫn dắt; sự kiện và truyền thuyết vẫn được phân biệt.
+4. Chọn chương dừng audio đang chờ/đang phát và xóa câu trả lời cũ. Ra lệnh phát lại sau đổi chương nghe đúng phần mới.
+
+W1: **285/285 app tests**, TypeScript và lint đạt; bundle iOS/Android HTTP200, cả5 ảnh và2 intro MP3 qua HTTP khớp source. 56/56 MP3 đạt audit giải mã/hash/metadata;100 MP3 cũ và cue giữ nguyên bytes. Báo cáo đầy đủ: `THREE_LENSES_FINAL_REVIEW.md`; bản đọc lời kể: `content/three-lenses/STORY_PREVIEW_VI.md`.
+
+Metro hiện tại `term_f7d36695-fc79-47b8-af23-099bcd2ed28b`; gateway mic `term_807f8164-67db-4155-bbe1-d63320150fe6`, `http://192.168.100.36:18787`, `/health`200ready small-cpu. API18886 chưa bật; collection mới chỉ có trong Demo. Mic cần gateway, câu hỏi chọn tay và asset voice không cần máy chủ TTS. Chưa build APK hoặc publish mới.
+
+**Cần người dùng quyết:** không có quyết định chặn bản demo đã giao. **Cần người dùng tự làm:** quét QR, thử trên điện thoại và nghe phản hồi phát âm/cảm nhận; chưa có máy ADB kết nối trong kiểm mới, không thay kết quả tạo bundle bằng bằng chứng native. Nội dung/giọng và quyền ảnh chưa được duyệt chính thức để phát hành rộng.
+
 ## Bản bố cục và sóng vàng mới — 17/10/2026
 
 - Candidate product source `4d98f3b`, test/docs cuối `76ac81a`: Landing ưu tiên chọn ngõ, bỏ footer lặp; Home có preview điểm chọn và một CTA; Q&A/công cụ nhẹ hơn; Prologue hai cung mỗi sườn, khung28dp, hiệu ứng620ms. Cue asset giữ bytes, đoạn phát fade trước chuyển màn.

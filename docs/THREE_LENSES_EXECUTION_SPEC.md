@@ -43,3 +43,7 @@ W1 generated and checked actual existing `parseDatasetV2` and `canonicalDatasetJ
 - Source factchecks19/10: primaryarchives article supports1890/1917, corporationpage1996; DSVH2004 and HoanKiem1999 supportnewMMdetails; VnExpress/HoanKiemfire1994/rebuild1995 crosschecked. `SOURCED_ONLY` never means officialapproval. BạchMã GPSnull; other2inheritpriorOSMgeometrywithcredit, notnewfieldverification.5originalphotos visually reviewed byW1 with correctmapping.
 
 Human content/voice/photo-rights acceptance remains pending as stated in source doc; it does not block implementing the specifically requested private demo. No publicpublish/store or factualapproval claim.
+
+## Narrow integration correction — opening playback kind
+
+W1 source review found the existing `useVoiceSession.playTrack/replayTrack` only accepts `story|answer`, despite catalogue already supporting `intro`. To make the requested opening audible through the safe sharedplayer, W3 additionally owns a minimal extension in `mobile/src/voice/useVoiceSession.ts` and itsvoice-tests: accept `intro`, require catalogueintro.nodeId undefined, retaincurrentphysicalnode as session/activePlaybackRef scope, preserveallcollection/locale/revision/textHash/generation/cancel/error guards. Nonintro nodevalidation unchanged. No newplayer/engine. Make this an early separatecommit for W2 to cherry-pick/typecheck; W2mustnoteditthisfileorcastintroasstory. This correctionchangesneitherfrozencontentnor56-trackinventory.
