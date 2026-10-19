@@ -4112,6 +4112,65 @@ test('PrologueScreen handles stale interval callbacks without cancelling newer a
   assert.equal(intervals.size, 0, 'all intervals cleared on unmount');
 });
 
+test('PrologueScreen locale switch updates selection, accessible labels, and localized text dynamically', () => {
+  let currentLocale = 'vi';
+  const setLocaleCalls = [];
+
+  const view = mount('../src/screens/PrologueScreen.tsx', {
+    navigation: { replace() {} },
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: currentLocale,
+        setLocale: (loc) => {
+          setLocaleCalls.push(loc);
+          currentLocale = loc;
+        },
+        t: (key, params) => translator.t(currentLocale, key, params),
+      }),
+    },
+    '../hooks/MotionPreferences': {
+      useMotionState: () => ({ active: true, reducedMotion: false, foreground: true }),
+    },
+  });
+
+  // 1. Initial VI state
+  let tree = view.render();
+  let langButtons = elements(tree, 'Pressable').filter((item) => item.props.testID === 'locale-switch');
+  const viBtn = langButtons.find((b) => b.props.accessibilityLabel === 'Chọn Tiếng Việt');
+  const enBtn = langButtons.find((b) => b.props.accessibilityLabel === 'Select English');
+  assert.ok(viBtn && enBtn, 'Both language buttons present');
+  assert.equal(viBtn.props.accessibilityState.selected, true, 'VI selected initially');
+  assert.equal(enBtn.props.accessibilityState.selected, false, 'EN not selected initially');
+
+  // Verify VI localized texts using translator.t
+  const viEyebrow = elements(tree, 'Text').find((t) => t.props.children === translator.t('vi', 'prologue.eyebrow'));
+  assert.ok(viEyebrow, 'VI eyebrow rendered matching translator.t');
+  const viCtaText = elements(tree, 'Text').find((t) => t.props.children === translator.t('vi', 'prologue.start_button'));
+  assert.ok(viCtaText, 'VI CTA text rendered matching translator.t');
+
+  // 2. Switch to English
+  enBtn.props.onPress();
+  assert.deepEqual(setLocaleCalls, ['en'], 'setLocale called with en');
+
+  tree = view.render();
+  langButtons = elements(tree, 'Pressable').filter((item) => item.props.testID === 'locale-switch');
+  const viBtnAfter = langButtons.find((b) => b.props.accessibilityLabel === 'Chọn Tiếng Việt');
+  const enBtnAfter = langButtons.find((b) => b.props.accessibilityLabel === 'Select English');
+  assert.equal(viBtnAfter.props.accessibilityState.selected, false, 'VI not selected after switch');
+  assert.equal(enBtnAfter.props.accessibilityState.selected, true, 'EN selected after switch');
+
+  // Verify EN localized texts using translator.t
+  const enEyebrow = elements(tree, 'Text').find((t) => t.props.children === translator.t('en', 'prologue.eyebrow'));
+  assert.ok(enEyebrow, 'EN eyebrow rendered matching translator.t');
+  const enCtaText = elements(tree, 'Text').find((t) => t.props.children === translator.t('en', 'prologue.start_button'));
+  assert.ok(enCtaText, 'EN CTA text rendered matching translator.t');
+  const enCtaBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === translator.t('en', 'prologue.start_label'));
+  assert.ok(enCtaBtn, 'EN CTA button has localized accessibilityLabel matching translator.t');
+
+  view.unmount();
+});
+
 test('QaScreen drawer uses short input placeholder while preserving rich contextual accessibility label and lighter reader toggle', () => {
   const qaProps = {
     currentNode: fixture.nodes[0],

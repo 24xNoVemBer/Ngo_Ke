@@ -311,230 +311,247 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
     <ImageBackground source={HERO_PHOTO} style={styles.root} resizeMode="cover">
       <View style={styles.scrim} />
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={[
-          styles.page,
+          styles.scrollContent,
           {
             minHeight: height,
-            paddingTop: insets.top + 16,
-            paddingBottom: insets.bottom + 24,
+            paddingTop: Math.max(insets.top, 16) + 8,
+            paddingBottom: Math.max(insets.bottom, 24) + 16,
+            paddingLeft: Math.max(insets.left, spacing.md),
+            paddingRight: Math.max(insets.right, spacing.md),
           },
         ]}
+        showsVerticalScrollIndicator={false}
       >
-        {/* Language switch on first page */}
-        <View style={styles.langSelectorRow}>
-          <Pressable
-            testID="locale-switch"
-            accessibilityRole="button"
-            accessibilityLabel="Chọn Tiếng Việt"
-            accessibilityState={{ selected: locale === 'vi' }}
-            onPress={() => setLocale('vi')}
-            style={[styles.langPill, locale === 'vi' && styles.langPillActive]}
-          >
-            <Text style={[styles.langPillText, locale === 'vi' && styles.langPillTextActive]}>
-              Tiếng Việt
-            </Text>
-          </Pressable>
-          <Pressable
-            testID="locale-switch"
-            accessibilityRole="button"
-            accessibilityLabel="Select English"
-            accessibilityState={{ selected: locale === 'en' }}
-            onPress={() => setLocale('en')}
-            style={[styles.langPill, locale === 'en' && styles.langPillActive]}
-          >
-            <Text style={[styles.langPillText, locale === 'en' && styles.langPillTextActive]}>
-              English
-            </Text>
-          </Pressable>
-        </View>
-
-        <Text style={styles.eyebrow}>{t('prologue.eyebrow')}</Text>
-
-        <Animated.View
-          style={[
-            styles.brand,
-            { opacity: entering.opacity, transform: [{ translateY: entering.translateY }] },
-          ]}
-        >
-          <NgoKeLogo size="hero" variant="iconOnly" />
-          <Text accessibilityRole="header" style={styles.title}>
-            {t('prologue.title')}
-          </Text>
-          <Text style={styles.subtitle}>{t('prologue.subtitle')}</Text>
-          <View style={styles.rule} />
-          <Text style={styles.quote}>{t('prologue.quote')}</Text>
-        </Animated.View>
-
-        <View style={styles.action}>
-          <Animated.View style={[styles.buttonWrapper, { transform: [{ scale: press.scaleAnim }] }]}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t('prologue.start_label')}
-              onPressIn={press.handlePressIn}
-              onPressOut={press.handlePressOut}
-              onPress={handleStartJourney}
-              onLayout={(e) => {
-                const { width, height } = e.nativeEvent.layout;
-                buttonLayout.current = { width, height };
-                setButtonSize({ width, height });
-              }}
-              style={({ pressed }) => [styles.button, pressed && { opacity: 0.85 }]}
-            >
-              <Text style={styles.buttonText}>{t('prologue.start_button')}</Text>
-              <AppIcon name="arrow" />
-            </Pressable>
-
-            {/* Semicircular golden water ripple arcs radiating outside each button flank ((( button ))) */}
-            {rippleActive && (
-              <View
-                testID="prologue-ripple-overlay"
-                pointerEvents="none"
-                accessible={false}
-                importantForAccessibility="no"
-                aria-hidden={true}
-                style={[
-                  styles.rippleOverlay,
-                  {
-                    width: buttonSize.width,
-                    height: buttonSize.height,
-                  },
+        <View style={styles.innerContainer}>
+          {/* 1. Header Region: Language controls with >=48dp touch target and responsive wrap */}
+          <View style={styles.headerRegion}>
+            <View style={styles.langSelectorRow}>
+              <Pressable
+                testID="locale-switch"
+                accessibilityRole="button"
+                accessibilityLabel="Chọn Tiếng Việt"
+                accessibilityState={{ selected: locale === 'vi' }}
+                onPress={() => setLocale('vi')}
+                style={({ pressed }) => [
+                  styles.langPill,
+                  locale === 'vi' && styles.langPillActive,
+                  pressed && styles.langPillPressed,
                 ]}
               >
-                {/* Left flank ripple waves ((( */}
-                <View testID="prologue-ripple-left-flank" style={styles.leftFlank}>
-                  <Animated.View
-                    testID="prologue-ripple-wave-left-1"
-                    style={[
-                      styles.waveContainer,
-                      {
-                        transform: [{ translateX: leftWave1TranslateX }, { scale: wave1Scale }],
-                        opacity: wave1Opacity,
-                      },
-                    ]}
-                  >
-                    <Svg width={FLANK_WIDTH} height={FLANK_HEIGHT} viewBox={`0 0 ${FLANK_WIDTH} ${FLANK_HEIGHT}`}>
-                      <Defs>
-                        <LinearGradient id="glow-l1" x1="0" y1="0" x2="0" y2="1">
-                          <Stop offset="0" stopColor="#E8BA5A" stopOpacity="0" />
-                          <Stop offset="0.25" stopColor="#E8BA5A" stopOpacity="0.25" />
-                          <Stop offset="0.5" stopColor="#E8BA5A" stopOpacity="0.30" />
-                          <Stop offset="0.75" stopColor="#E8BA5A" stopOpacity="0.25" />
-                          <Stop offset="1" stopColor="#E8BA5A" stopOpacity="0" />
-                        </LinearGradient>
-                        <LinearGradient id="core-l1" x1="0" y1="0" x2="0" y2="1">
-                          <Stop offset="0" stopColor="#F4D086" stopOpacity="0" />
-                          <Stop offset="0.25" stopColor="#F4D086" stopOpacity="0.85" />
-                          <Stop offset="0.5" stopColor="#F4D086" stopOpacity="1" />
-                          <Stop offset="0.75" stopColor="#F4D086" stopOpacity="0.85" />
-                          <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
-                        </LinearGradient>
-                      </Defs>
-                      <Path d={LEFT_ARC_1} stroke="url(#glow-l1)" strokeWidth={3.4} strokeLinecap="round" fill="none" />
-                      <Path d={LEFT_ARC_1} stroke="url(#core-l1)" strokeWidth={1.6} strokeLinecap="round" fill="none" />
-                    </Svg>
-                  </Animated.View>
-                  <Animated.View
-                    testID="prologue-ripple-wave-left-2"
-                    style={[
-                      styles.waveContainer,
-                      {
-                        transform: [{ translateX: leftWave2TranslateX }, { scale: wave2Scale }],
-                        opacity: wave2Opacity,
-                      },
-                    ]}
-                  >
-                    <Svg width={FLANK_WIDTH} height={FLANK_HEIGHT} viewBox={`0 0 ${FLANK_WIDTH} ${FLANK_HEIGHT}`}>
-                      <Defs>
-                        <LinearGradient id="glow-l2" x1="0" y1="0" x2="0" y2="1">
-                          <Stop offset="0" stopColor="#E8BA5A" stopOpacity="0" />
-                          <Stop offset="0.25" stopColor="#E8BA5A" stopOpacity="0.20" />
-                          <Stop offset="0.5" stopColor="#E8BA5A" stopOpacity="0.25" />
-                          <Stop offset="0.75" stopColor="#E8BA5A" stopOpacity="0.20" />
-                          <Stop offset="1" stopColor="#E8BA5A" stopOpacity="0" />
-                        </LinearGradient>
-                        <LinearGradient id="core-l2" x1="0" y1="0" x2="0" y2="1">
-                          <Stop offset="0" stopColor="#F4D086" stopOpacity="0" />
-                          <Stop offset="0.25" stopColor="#F4D086" stopOpacity="0.75" />
-                          <Stop offset="0.5" stopColor="#F4D086" stopOpacity="0.9" />
-                          <Stop offset="0.75" stopColor="#F4D086" stopOpacity="0.75" />
-                          <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
-                        </LinearGradient>
-                      </Defs>
-                      <Path d={LEFT_ARC_2} stroke="url(#glow-l2)" strokeWidth={2.8} strokeLinecap="round" fill="none" />
-                      <Path d={LEFT_ARC_2} stroke="url(#core-l2)" strokeWidth={1.2} strokeLinecap="round" fill="none" />
-                    </Svg>
-                  </Animated.View>
-                </View>
+                <Text style={[styles.langPillText, locale === 'vi' && styles.langPillTextActive]}>
+                  Tiếng Việt
+                </Text>
+              </Pressable>
+              <Pressable
+                testID="locale-switch"
+                accessibilityRole="button"
+                accessibilityLabel="Select English"
+                accessibilityState={{ selected: locale === 'en' }}
+                onPress={() => setLocale('en')}
+                style={({ pressed }) => [
+                  styles.langPill,
+                  locale === 'en' && styles.langPillActive,
+                  pressed && styles.langPillPressed,
+                ]}
+              >
+                <Text style={[styles.langPillText, locale === 'en' && styles.langPillTextActive]}>
+                  English
+                </Text>
+              </Pressable>
+            </View>
+          </View>
 
-                {/* Right flank ripple waves ))) */}
-                <View testID="prologue-ripple-right-flank" style={styles.rightFlank}>
-                  <Animated.View
-                    testID="prologue-ripple-wave-right-1"
-                    style={[
-                      styles.waveContainer,
-                      {
-                        transform: [{ translateX: rightWave1TranslateX }, { scale: wave1Scale }],
-                        opacity: wave1Opacity,
-                      },
-                    ]}
-                  >
-                    <Svg width={FLANK_WIDTH} height={FLANK_HEIGHT} viewBox={`0 0 ${FLANK_WIDTH} ${FLANK_HEIGHT}`}>
-                      <Defs>
-                        <LinearGradient id="glow-r1" x1="0" y1="0" x2="0" y2="1">
-                          <Stop offset="0" stopColor="#E8BA5A" stopOpacity="0" />
-                          <Stop offset="0.25" stopColor="#E8BA5A" stopOpacity="0.25" />
-                          <Stop offset="0.5" stopColor="#E8BA5A" stopOpacity="0.30" />
-                          <Stop offset="0.75" stopColor="#E8BA5A" stopOpacity="0.25" />
-                          <Stop offset="1" stopColor="#E8BA5A" stopOpacity="0" />
-                        </LinearGradient>
-                        <LinearGradient id="core-r1" x1="0" y1="0" x2="0" y2="1">
-                          <Stop offset="0" stopColor="#F4D086" stopOpacity="0" />
-                          <Stop offset="0.25" stopColor="#F4D086" stopOpacity="0.85" />
-                          <Stop offset="0.5" stopColor="#F4D086" stopOpacity="1" />
-                          <Stop offset="0.75" stopColor="#F4D086" stopOpacity="0.85" />
-                          <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
-                        </LinearGradient>
-                      </Defs>
-                      <Path d={RIGHT_ARC_1} stroke="url(#glow-r1)" strokeWidth={3.4} strokeLinecap="round" fill="none" />
-                      <Path d={RIGHT_ARC_1} stroke="url(#core-r1)" strokeWidth={1.6} strokeLinecap="round" fill="none" />
-                    </Svg>
-                  </Animated.View>
-                  <Animated.View
-                    testID="prologue-ripple-wave-right-2"
-                    style={[
-                      styles.waveContainer,
-                      {
-                        transform: [{ translateX: rightWave2TranslateX }, { scale: wave2Scale }],
-                        opacity: wave2Opacity,
-                      },
-                    ]}
-                  >
-                    <Svg width={FLANK_WIDTH} height={FLANK_HEIGHT} viewBox={`0 0 ${FLANK_WIDTH} ${FLANK_HEIGHT}`}>
-                      <Defs>
-                        <LinearGradient id="glow-r2" x1="0" y1="0" x2="0" y2="1">
-                          <Stop offset="0" stopColor="#E8BA5A" stopOpacity="0" />
-                          <Stop offset="0.25" stopColor="#E8BA5A" stopOpacity="0.20" />
-                          <Stop offset="0.5" stopColor="#E8BA5A" stopOpacity="0.25" />
-                          <Stop offset="0.75" stopColor="#E8BA5A" stopOpacity="0.20" />
-                          <Stop offset="1" stopColor="#E8BA5A" stopOpacity="0" />
-                        </LinearGradient>
-                        <LinearGradient id="core-r2" x1="0" y1="0" x2="0" y2="1">
-                          <Stop offset="0" stopColor="#F4D086" stopOpacity="0" />
-                          <Stop offset="0.25" stopColor="#F4D086" stopOpacity="0.75" />
-                          <Stop offset="0.5" stopColor="#F4D086" stopOpacity="0.9" />
-                          <Stop offset="0.75" stopColor="#F4D086" stopOpacity="0.75" />
-                          <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
-                        </LinearGradient>
-                      </Defs>
-                      <Path d={RIGHT_ARC_2} stroke="url(#glow-r2)" strokeWidth={2.8} strokeLinecap="round" fill="none" />
-                      <Path d={RIGHT_ARC_2} stroke="url(#core-r2)" strokeWidth={1.2} strokeLinecap="round" fill="none" />
-                    </Svg>
-                  </Animated.View>
-                </View>
-              </View>
-            )}
+          {/* 2. Brand Region: Eyebrow, Logo, Title, Subtitle, Divider, and Quote as a coherent cluster */}
+          <Animated.View
+            style={[
+              styles.brandCluster,
+              { opacity: entering.opacity, transform: [{ translateY: entering.translateY }] },
+            ]}
+          >
+            <Text style={styles.eyebrow}>{t('prologue.eyebrow')}</Text>
+            <NgoKeLogo size="hero" variant="iconOnly" />
+            <Text accessibilityRole="header" style={styles.title}>
+              {t('prologue.title')}
+            </Text>
+            <Text style={styles.subtitle}>{t('prologue.subtitle')}</Text>
+            <View style={styles.rule} />
+            <Text style={styles.quote}>{t('prologue.quote')}</Text>
           </Animated.View>
-          <Text style={styles.hint}>{t('prologue.hint')}</Text>
+
+          {/* 3. Action Region: CTA and hint with ample breathing room and 28dp flank clearance */}
+          <View style={styles.actionRegion}>
+            <Animated.View style={[styles.buttonWrapper, { transform: [{ scale: press.scaleAnim }] }]}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('prologue.start_label')}
+                onPressIn={press.handlePressIn}
+                onPressOut={press.handlePressOut}
+                onPress={handleStartJourney}
+                onLayout={(e) => {
+                  const { width, height: btnHeight } = e.nativeEvent.layout;
+                  buttonLayout.current = { width, height: btnHeight };
+                  setButtonSize({ width, height: btnHeight });
+                }}
+                style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+              >
+                <Text style={styles.buttonText}>{t('prologue.start_button')}</Text>
+                <AppIcon name="arrow" />
+              </Pressable>
+
+              {/* Semicircular golden water ripple arcs radiating outside each button flank ((( button ))) */}
+              {rippleActive && (
+                <View
+                  testID="prologue-ripple-overlay"
+                  pointerEvents="none"
+                  accessible={false}
+                  importantForAccessibility="no"
+                  aria-hidden={true}
+                  style={[
+                    styles.rippleOverlay,
+                    {
+                      width: buttonSize.width,
+                      height: buttonSize.height,
+                    },
+                  ]}
+                >
+                  {/* Left flank ripple waves ((( */}
+                  <View testID="prologue-ripple-left-flank" style={styles.leftFlank}>
+                    <Animated.View
+                      testID="prologue-ripple-wave-left-1"
+                      style={[
+                        styles.waveContainer,
+                        {
+                          transform: [{ translateX: leftWave1TranslateX }, { scale: wave1Scale }],
+                          opacity: wave1Opacity,
+                        },
+                      ]}
+                    >
+                      <Svg width={FLANK_WIDTH} height={FLANK_HEIGHT} viewBox={`0 0 ${FLANK_WIDTH} ${FLANK_HEIGHT}`}>
+                        <Defs>
+                          <LinearGradient id="glow-l1" x1="0" y1="0" x2="0" y2="1">
+                            <Stop offset="0" stopColor="#E8BA5A" stopOpacity="0" />
+                            <Stop offset="0.25" stopColor="#E8BA5A" stopOpacity="0.25" />
+                            <Stop offset="0.5" stopColor="#E8BA5A" stopOpacity="0.30" />
+                            <Stop offset="0.75" stopColor="#E8BA5A" stopOpacity="0.25" />
+                            <Stop offset="1" stopColor="#E8BA5A" stopOpacity="0" />
+                          </LinearGradient>
+                          <LinearGradient id="core-l1" x1="0" y1="0" x2="0" y2="1">
+                            <Stop offset="0" stopColor="#F4D086" stopOpacity="0" />
+                            <Stop offset="0.25" stopColor="#F4D086" stopOpacity="0.85" />
+                            <Stop offset="0.5" stopColor="#F4D086" stopOpacity="1" />
+                            <Stop offset="0.75" stopColor="#F4D086" stopOpacity="0.85" />
+                            <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
+                          </LinearGradient>
+                        </Defs>
+                        <Path d={LEFT_ARC_1} stroke="url(#glow-l1)" strokeWidth={3.4} strokeLinecap="round" fill="none" />
+                        <Path d={LEFT_ARC_1} stroke="url(#core-l1)" strokeWidth={1.6} strokeLinecap="round" fill="none" />
+                      </Svg>
+                    </Animated.View>
+                    <Animated.View
+                      testID="prologue-ripple-wave-left-2"
+                      style={[
+                        styles.waveContainer,
+                        {
+                          transform: [{ translateX: leftWave2TranslateX }, { scale: wave2Scale }],
+                          opacity: wave2Opacity,
+                        },
+                      ]}
+                    >
+                      <Svg width={FLANK_WIDTH} height={FLANK_HEIGHT} viewBox={`0 0 ${FLANK_WIDTH} ${FLANK_HEIGHT}`}>
+                        <Defs>
+                          <LinearGradient id="glow-l2" x1="0" y1="0" x2="0" y2="1">
+                            <Stop offset="0" stopColor="#E8BA5A" stopOpacity="0" />
+                            <Stop offset="0.25" stopColor="#E8BA5A" stopOpacity="0.20" />
+                            <Stop offset="0.5" stopColor="#E8BA5A" stopOpacity="0.25" />
+                            <Stop offset="0.75" stopColor="#E8BA5A" stopOpacity="0.20" />
+                            <Stop offset="1" stopColor="#E8BA5A" stopOpacity="0" />
+                          </LinearGradient>
+                          <LinearGradient id="core-l2" x1="0" y1="0" x2="0" y2="1">
+                            <Stop offset="0" stopColor="#F4D086" stopOpacity="0" />
+                            <Stop offset="0.25" stopColor="#F4D086" stopOpacity="0.75" />
+                            <Stop offset="0.5" stopColor="#F4D086" stopOpacity="0.9" />
+                            <Stop offset="0.75" stopColor="#F4D086" stopOpacity="0.75" />
+                            <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
+                          </LinearGradient>
+                        </Defs>
+                        <Path d={LEFT_ARC_2} stroke="url(#glow-l2)" strokeWidth={2.8} strokeLinecap="round" fill="none" />
+                        <Path d={LEFT_ARC_2} stroke="url(#core-l2)" strokeWidth={1.2} strokeLinecap="round" fill="none" />
+                      </Svg>
+                    </Animated.View>
+                  </View>
+
+                  {/* Right flank ripple waves ))) */}
+                  <View testID="prologue-ripple-right-flank" style={styles.rightFlank}>
+                    <Animated.View
+                      testID="prologue-ripple-wave-right-1"
+                      style={[
+                        styles.waveContainer,
+                        {
+                          transform: [{ translateX: rightWave1TranslateX }, { scale: wave1Scale }],
+                          opacity: wave1Opacity,
+                        },
+                      ]}
+                    >
+                      <Svg width={FLANK_WIDTH} height={FLANK_HEIGHT} viewBox={`0 0 ${FLANK_WIDTH} ${FLANK_HEIGHT}`}>
+                        <Defs>
+                          <LinearGradient id="glow-r1" x1="0" y1="0" x2="0" y2="1">
+                            <Stop offset="0" stopColor="#E8BA5A" stopOpacity="0" />
+                            <Stop offset="0.25" stopColor="#E8BA5A" stopOpacity="0.25" />
+                            <Stop offset="0.5" stopColor="#E8BA5A" stopOpacity="0.30" />
+                            <Stop offset="0.75" stopColor="#E8BA5A" stopOpacity="0.25" />
+                            <Stop offset="1" stopColor="#E8BA5A" stopOpacity="0" />
+                          </LinearGradient>
+                          <LinearGradient id="core-r1" x1="0" y1="0" x2="0" y2="1">
+                            <Stop offset="0" stopColor="#F4D086" stopOpacity="0" />
+                            <Stop offset="0.25" stopColor="#F4D086" stopOpacity="0.85" />
+                            <Stop offset="0.5" stopColor="#F4D086" stopOpacity="1" />
+                            <Stop offset="0.75" stopColor="#F4D086" stopOpacity="0.85" />
+                            <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
+                          </LinearGradient>
+                        </Defs>
+                        <Path d={RIGHT_ARC_1} stroke="url(#glow-r1)" strokeWidth={3.4} strokeLinecap="round" fill="none" />
+                        <Path d={RIGHT_ARC_1} stroke="url(#core-r1)" strokeWidth={1.6} strokeLinecap="round" fill="none" />
+                      </Svg>
+                    </Animated.View>
+                    <Animated.View
+                      testID="prologue-ripple-wave-right-2"
+                      style={[
+                        styles.waveContainer,
+                        {
+                          transform: [{ translateX: rightWave2TranslateX }, { scale: wave2Scale }],
+                          opacity: wave2Opacity,
+                        },
+                      ]}
+                    >
+                      <Svg width={FLANK_WIDTH} height={FLANK_HEIGHT} viewBox={`0 0 ${FLANK_WIDTH} ${FLANK_HEIGHT}`}>
+                        <Defs>
+                          <LinearGradient id="glow-r2" x1="0" y1="0" x2="0" y2="1">
+                            <Stop offset="0" stopColor="#E8BA5A" stopOpacity="0" />
+                            <Stop offset="0.25" stopColor="#E8BA5A" stopOpacity="0.20" />
+                            <Stop offset="0.5" stopColor="#E8BA5A" stopOpacity="0.25" />
+                            <Stop offset="0.75" stopColor="#E8BA5A" stopOpacity="0.20" />
+                            <Stop offset="1" stopColor="#E8BA5A" stopOpacity="0" />
+                          </LinearGradient>
+                          <LinearGradient id="core-r2" x1="0" y1="0" x2="0" y2="1">
+                            <Stop offset="0" stopColor="#F4D086" stopOpacity="0" />
+                            <Stop offset="0.25" stopColor="#F4D086" stopOpacity="0.75" />
+                            <Stop offset="0.5" stopColor="#F4D086" stopOpacity="0.9" />
+                            <Stop offset="0.75" stopColor="#F4D086" stopOpacity="0.75" />
+                            <Stop offset="1" stopColor="#F4D086" stopOpacity="0" />
+                          </LinearGradient>
+                        </Defs>
+                        <Path d={RIGHT_ARC_2} stroke="url(#glow-r2)" strokeWidth={2.8} strokeLinecap="round" fill="none" />
+                        <Path d={RIGHT_ARC_2} stroke="url(#core-r2)" strokeWidth={1.2} strokeLinecap="round" fill="none" />
+                      </Svg>
+                    </Animated.View>
+                  </View>
+                </View>
+              )}
+            </Animated.View>
+            <Text style={styles.hint}>{t('prologue.hint')}</Text>
+          </View>
         </View>
       </ScrollView>
     </ImageBackground>
@@ -542,65 +559,163 @@ export function PrologueScreen({ navigation }: Props): ReactElement {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#161814' },
-  scrim: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(20,24,19,0.67)' },
-  page: { flexGrow: 1, justifyContent: 'space-between', paddingHorizontal: spacing.lg, gap: 20 },
+  root: {
+    flex: 1,
+    backgroundColor: '#161814',
+  },
+  scrim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(20, 24, 19, 0.72)',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  innerContainer: {
+    width: '100%',
+    maxWidth: 520,
+    alignSelf: 'center',
+    flexGrow: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerRegion: {
+    width: '100%',
+    alignItems: 'center',
+  },
   langSelectorRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'center',
+    alignItems: 'center',
     gap: 12,
     alignSelf: 'center',
+    maxWidth: '100%',
   },
   langPill: {
+    minHeight: 48,
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: 'rgba(28, 20, 16, 0.65)',
+    paddingVertical: 10,
+    borderRadius: 24,
+    backgroundColor: 'rgba(28, 20, 16, 0.70)',
     borderWidth: 1,
     borderColor: 'rgba(255, 245, 230, 0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   langPillActive: {
     backgroundColor: '#2D5748',
     borderColor: '#B9A589',
   },
+  langPillPressed: {
+    opacity: 0.8,
+  },
   langPillText: {
     color: '#E8D5BC',
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
+    textAlign: 'center',
   },
   langPillTextActive: {
     color: '#FFFDF7',
     fontWeight: '700',
   },
-  eyebrow: { color: '#E8D5BC', fontSize: 12, letterSpacing: 1.5, textAlign: 'center' },
-  brand: { alignItems: 'center', gap: 12, paddingVertical: 16 },
-  title: { fontSize: 42, fontWeight: '900', color: '#FFFDF7', letterSpacing: 3, textAlign: 'center' },
-  subtitle: { fontSize: 13, fontWeight: '600', color: '#E8D5BC', letterSpacing: 2, textAlign: 'center' },
-  rule: { height: 1, width: 100, backgroundColor: '#B9A589', marginVertical: 12 },
-  quote: { fontSize: 16, lineHeight: 26, fontStyle: 'italic', color: '#FFF8EB', textAlign: 'center', maxWidth: 420 },
-  action: { alignItems: 'center', gap: 14 },
+  brandCluster: {
+    alignItems: 'center',
+    width: '100%',
+    paddingVertical: 16,
+    marginVertical: 16,
+    gap: 8,
+  },
+  eyebrow: {
+    color: '#E8D5BC',
+    fontSize: 12,
+    letterSpacing: 1.5,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  title: {
+    fontSize: 42,
+    fontWeight: '900',
+    color: '#FFFDF7',
+    letterSpacing: 3,
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  subtitle: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#E8D5BC',
+    letterSpacing: 0.5,
+    lineHeight: 22,
+    textAlign: 'center',
+    maxWidth: 380,
+    marginTop: 4,
+  },
+  rule: {
+    height: 1,
+    width: 80,
+    backgroundColor: '#B9A589',
+    marginVertical: 12,
+  },
+  quote: {
+    fontSize: 15,
+    lineHeight: 24,
+    fontStyle: 'italic',
+    color: '#FFF8EB',
+    textAlign: 'center',
+    maxWidth: 400,
+  },
+  actionRegion: {
+    width: '100%',
+    alignItems: 'center',
+    gap: 16,
+    paddingTop: 16,
+    paddingHorizontal: 32, // Guarantees >= 28dp bilateral flank clearance from screen edges
+  },
   buttonWrapper: {
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'visible',
+    maxWidth: '100%',
   },
   button: {
     minHeight: 56,
     paddingVertical: 16,
-    paddingHorizontal: 24,
+    paddingHorizontal: 28,
     borderRadius: 28,
     backgroundColor: '#2D5748',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 16,
     borderWidth: 1,
     borderColor: '#B9A589',
     overflow: 'hidden',
     position: 'relative',
+    maxWidth: '100%',
   },
-  buttonText: { flexShrink: 1, color: '#FFFDF7', fontSize: 15, fontWeight: '800', letterSpacing: 1 },
-  hint: { color: '#E8D5BC', fontSize: 13, textAlign: 'center' },
+  buttonPressed: {
+    opacity: 0.85,
+  },
+  buttonText: {
+    flexShrink: 1,
+    color: '#FFFDF7',
+    fontSize: 16,
+    fontWeight: '800',
+    letterSpacing: 1,
+    textAlign: 'center',
+  },
+  hint: {
+    color: '#E8D5BC',
+    fontSize: 13,
+    lineHeight: 18,
+    textAlign: 'center',
+    maxWidth: 360,
+  },
   rippleOverlay: {
     position: 'absolute',
     top: 0,
