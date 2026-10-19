@@ -1,5 +1,12 @@
 # AGENTS.md — Ngõ Kể
 
+## Claude — reviewer độc lập, chỉ gọi theo yêu cầu người dùng (20/10/2026)
+
+- Claude được phân vai **reviewer độc lập toàn bộ dự án**: kiến trúc, app/UI/UX, backend, dữ liệu, voice, kiểm thử và tài liệu. Khi được gọi, kiểm chứng độc lập và báo phát hiện kèm bằng chứng, mức độ ảnh hưởng, giới hạn đã kiểm; mặc định chỉ đọc/review, không tự sửa code hoặc triển khai.
+- **Tuyệt đối không gọi Claude nếu người dùng chưa yêu cầu rõ ràng gọi Claude.** Không tự launch/spawn, gửi task/message, resume/retry, thêm vào workflow/hook/automation hoặc dùng Claude làm reviewer dự phòng. Yêu cầu chung như “review”, “chạy end-to-end” hoặc quyền full access không thay thế yêu cầu gọi Claude.
+- Mỗi yêu cầu gọi chỉ áp dụng cho đợt review người dùng giao; hoàn tất thì dừng. Không biến một lần gọi thành quyền tự gọi cho những đợt sau. Nếu cần gọi thêm, chờ người dùng chủ động yêu cầu, không tự tạo cửa hỏi duyệt thường xuyên.
+- Việc phân vai này **không khởi chạy review ngay** và không thay đổi ownership triển khai W1/W2/W3 hoặc công việc E2E/QA của W4. Quy tắc này ưu tiên hơn mọi chỉ dẫn điều phối cũ có thể được hiểu là tự gọi Claude.
+
 ## Quyền hiện hành — 16/10/2026 (ưu tiên hơn trạng thái lịch sử bên dưới)
 
 - **Trạng thái mới nhất:** Phase8 đã được coordinator chốt theo bằng chứng trong môi trường hiện có ở baseline`91ddfbd`; đang thực hiện Việt/Anh theo `docs/POST8_EXECUTION_SPEC.md` (đã phản biện W2/W3), inventory`docs/content/POST8_CONTENT_INVENTORY.md`. Các mốc9a39318/Phase7.1/8 dưới đây là nguồn gốc đợt trước. Giữ34audioVI nguyênbytes. Trong post8 không git merge/push/publish/store; candidate`post8-integration` chỉ nhận cherry-pick từng commit đã review. Voice V0–V7 cũ vẫn tạm dừng, quyền mới chỉ cho phần cần cho VI/EN.
