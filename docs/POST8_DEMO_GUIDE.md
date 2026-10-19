@@ -1,5 +1,16 @@
 # Mở demo Việt/Anh — bản tích hợp local
 
+## Expo.dev mới nhất — đủ156 audio, 19/10/2026
+
+Đã publish theo yêu cầu mới của người dùng “deploy bản mới lên expo dev đi”. [Mở trang preview và QR](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/b72cf59b-4557-49af-b545-fb94283a26c9). Trong Expo Go iOS, mở `exp://u.expo.dev/update/01a15516-93e6-7500-949d-ff985d809d08`; không cần cùng Wi-Fi hoặc Metro chạy. Đăng nhập Expo Go bằng tài khoản thuộc tổ chức `valentino241s-team` như preview trước.
+
+- Branch `ios-preview`, runtime `exposdk:57.0.0`, source `0bc4b3b6323a3ccea2db286c8738190e9cb80c5b`; published `2026-10-19T16:55:05.446Z`. Update group `b72cf59b-4557-49af-b545-fb94283a26c9`, update `01a15516-93e6-7500-949d-ff985d809d08`.
+- Đủ156MP3 ElevenLabs (Thắm Việt/Talia Anh); export156/156audio SHA256 khớp manifest. Bundle Hermes2757013bytes, SHA256 `bd2f54479eb5ed91e074920425299d0b5f056e6155cc86158d4a32496addc1ad`, không chứa IP LAN hoặc tên biến API key. Không chạy thêm synthesis hoặc tốn thêm credit ElevenLabs.
+- Cached EAS CLI24.14.0 upload1bundle và161assets mới, dùng lại31assets; dịch vụ Published, `eas update:view` xác nhận đúng group/platform/runtime/source. Remote assetmap HTTP200 bằng chính xác export local,180entries/156MP3. Dashboard và update endpoint đều HTTP200.
+- Export với `EXPO_NO_DOTENV=1`, `CI=1`, API/voice baseURL rỗng; môi trường EAS preview không có biến Plain text/Sensitive. Demo/Q&A và audio bundle dùng được; LiveAPI và nhận giọng nói ngoài mạng LAN chưa có server public. Đây là preview iOS, chưa có update Android/APK/IPA/TestFlight mới.
+
+**Việc cần anh quyết:** không có. **Việc anh tự làm:** mở link bằng Expo Go và nghe thử trên iPhone; nếu chia sẻ cho tester, tester cần tài khoản thuộc tổ chức hiện tại. Chưa xác minh khởi chạy/nghe trên iPhone thật, không coi service readback là bằng chứng thiết bị. Lỗi helper audit candidate ghi tại báo cáo audio vẫn chưa được sửa; không ảnh hưởng kết quả export156audio đã kiểm.
+
 ## Bản hiện tại — đủ156 audio ElevenLabs, 19/10/2026
 
 Mở Expo Go cùng Wi-Fi với máy tính bằng `exp://192.168.12.116:8081`, rồi reload. QR mới: `C:/Users/LEGION/AppData/Local/Temp/ngoke-demo-qr-current-lan.svg`. Các IP/QR và APK ở mục lịch sử bên dưới không đại diện bản hiện tại.

@@ -1,5 +1,12 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-19 — đã publish preview iOS mới lên Expo.dev theo yêu cầu user
+
+- Quyền mới rõ ràng: “deploy bản mới lên expo dev đi”, mở quyền publish riêng lần này so với mặc định post8. Không hỏi duyệt lại; khôngmerge/push/store/mainworkspacewrite. Dùng candidateclean `0bc4b3b6323a3ccea2db286c8738190e9cb80c5b`, cached EASCLI24.14.0, tài khoản Owner của projectteamhiệncó. Giữ branchios-preview/runtimeexposdk:57.0.0 như bản trước; chỉiOS, khôngAndroid/APK/IPA/TestFlight.
+- Export `mobile/dist/expo-preview-20261019` với EXPO_NO_DOTENV1/CI1/API+voiceURLrỗng.156/156MP3exportSHAkhớpmanifest; HBC2757013bytes/SHA256bd2f54479eb5ed91e074920425299d0b5f056e6155cc86158d4a32496addc1ad,0privateLAN/0APIkeyvariablename. EASpreview khôngcóPlaintext/Sensitivevars. KhônggọiTTS/thêmcreditElevenLabs.
+- Publish16:55:05.446UTC: groupb72cf59b-4557-49af-b545-fb94283a26c9/update01a15516-93e6-7500-949d-ff985d809d08. Upload1bundle+161assets/reuse31,total192iOSassets. Publishedexit0; W1independentupdate:viewexit0đúngcommit/platform/runtime/branch; remoteassetmapHTTP200bằngexportexact180entries/156MP3; dashboard+updateendpointHTTP200.
+- Link https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/b72cf59b-4557-49af-b545-fb94283a26c9 ; ExpoGo exp://u.expo.dev/update/01a15516-93e6-7500-949d-ff985d809d08 . KhôngcầnLAN/Metro; tài khoảnExpoGocầnthuộcteam nhưpreviewtrước. Live/gatewaypublicchưa có, chỉDemo/Q&A/audioofflinebundle. Chưathửmở/nghetrêniPhonethật. Cầnanhquyết:không; cầnanhtựlàm:mởpreview/nghetrêniPhone, testerđăngnhậptàikhoảnteam. Hướngdẫnmớiởđầudocs/POST8_DEMO_GUIDE.md. Lỗihelperauditcandidatevẫngiữnguyên báo cáo, khôngclaimđãsửa.
+
 ## 2026-10-19 — đã tích hợp100 bản còn lại, tổng156ElevenLabs
 
 - **Chốt bàn giao:** W3 `532436a` đã review/cherry candidate `c4b339b`; fix notice canonical LF `173609b` → `3f78dc9`. Candidate286/286app+tsc+lint PASS. W1 nguyên auditor offline tạiW3 (ledgerkhôngtồn tại, key/network/cachethrow)100/100decode/catalogue/source/accountPASS; W3Python26/26PASS. Candidate100newSHA+226protectedFileHashes0mismatch,212oldMP3đãđốichiếuGit98a9824exact; catalogue56 không đổi nội dung. Phí mới10213, tổng20122/30000, account20122/40000/remain19878/overagefalse; history156IDs=56old+100newexact. Khôngthêmpaidcall.
