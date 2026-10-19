@@ -225,28 +225,32 @@ function mount(file, props = {}, overrides = {}, exportName) {
       DEFAULT_COLLECTION_ID: 'fiction-letter',
       getBundledDataset: () => fixture,
       getCollectionRevision: () => 'fixture-revision',
-      isCollectionId: (v) => v === 'fiction-letter' || v === 'old-quarter-pilot',
+      isCollectionId: (v) => v === 'fiction-letter' || v === 'old-quarter-pilot' || v === 'old-quarter-three-lenses',
       AVAILABLE_COLLECTIONS: [
         { id: 'fiction-letter', nameKey: 'collection.fiction_letter.name', districtKey: 'collection.fiction_letter.district', themeKey: 'collection.fiction_letter.theme', taglineKey: 'collection.fiction_letter.tagline', nodeCount: 6, coverPhoto: 1, kind: 'simulated' },
         { id: 'old-quarter-pilot', nameKey: 'collection.old_quarter_pilot.name', districtKey: 'collection.old_quarter_pilot.district', themeKey: 'collection.old_quarter_pilot.theme', taglineKey: 'collection.old_quarter_pilot.tagline', nodeCount: 3, coverPhoto: 1, kind: 'reviewed' },
+        { id: 'old-quarter-three-lenses', nameKey: 'collection.old_quarter_three_lenses.name', districtKey: 'collection.old_quarter_three_lenses.district', themeKey: 'collection.old_quarter_three_lenses.theme', taglineKey: 'collection.old_quarter_three_lenses.tagline', nodeCount: 3, coverPhoto: 1, kind: 'reviewed' },
       ],
       getLocalizedCollections: (loc = 'vi') => [
-        { id: 'fiction-letter', name: loc === 'en' ? 'Hanoi Letters — Story Alleys' : 'Thư Hà Nội — Ngõ Kể chuyện', coverPhoto: 1, kind: 'simulated', nodeCount: 6 },
-        { id: 'old-quarter-pilot', name: loc === 'en' ? 'Old Quarter Pilot' : 'Thử nghiệm Phố Cổ', coverPhoto: 1, kind: 'reviewed', nodeCount: 3 },
+        { id: 'fiction-letter', name: loc === 'en' ? 'Hanoi Letters — Story Alleys' : 'Thư Hà Nội — Ngõ Kể chuyện', tagline: translator.t(loc, 'collection.fiction_letter.tagline'), theme: translator.t(loc, 'collection.fiction_letter.theme'), district: translator.t(loc, 'collection.fiction_letter.district'), coverPhoto: 1, kind: 'simulated', nodeCount: 6 },
+        { id: 'old-quarter-pilot', name: loc === 'en' ? 'Old Quarter Pilot' : 'Thử nghiệm Phố Cổ', tagline: translator.t(loc, 'collection.old_quarter_pilot.tagline'), theme: translator.t(loc, 'collection.old_quarter_pilot.theme'), district: translator.t(loc, 'collection.old_quarter_pilot.district'), coverPhoto: 1, kind: 'reviewed', nodeCount: 3 },
+        { id: 'old-quarter-three-lenses', name: translator.t(loc, 'collection.old_quarter_three_lenses.name'), tagline: translator.t(loc, 'collection.old_quarter_three_lenses.tagline'), theme: translator.t(loc, 'collection.old_quarter_three_lenses.theme'), district: translator.t(loc, 'collection.old_quarter_three_lenses.district'), coverPhoto: 1, kind: 'reviewed', nodeCount: 3 },
       ],
     },
     '../data/collections': {
       DEFAULT_COLLECTION_ID: 'fiction-letter',
       getBundledDataset: () => fixture,
       getCollectionRevision: () => 'fixture-revision',
-      isCollectionId: (v) => v === 'fiction-letter' || v === 'old-quarter-pilot',
+      isCollectionId: (v) => v === 'fiction-letter' || v === 'old-quarter-pilot' || v === 'old-quarter-three-lenses',
       AVAILABLE_COLLECTIONS: [
         { id: 'fiction-letter', nameKey: 'collection.fiction_letter.name', districtKey: 'collection.fiction_letter.district', themeKey: 'collection.fiction_letter.theme', taglineKey: 'collection.fiction_letter.tagline', nodeCount: 6, coverPhoto: 1, kind: 'simulated' },
         { id: 'old-quarter-pilot', nameKey: 'collection.old_quarter_pilot.name', districtKey: 'collection.old_quarter_pilot.district', themeKey: 'collection.old_quarter_pilot.theme', taglineKey: 'collection.old_quarter_pilot.tagline', nodeCount: 3, coverPhoto: 1, kind: 'reviewed' },
+        { id: 'old-quarter-three-lenses', nameKey: 'collection.old_quarter_three_lenses.name', districtKey: 'collection.old_quarter_three_lenses.district', themeKey: 'collection.old_quarter_three_lenses.theme', taglineKey: 'collection.old_quarter_three_lenses.tagline', nodeCount: 3, coverPhoto: 1, kind: 'reviewed' },
       ],
       getLocalizedCollections: (loc = 'vi') => [
-        { id: 'fiction-letter', name: loc === 'en' ? 'Hanoi Letters — Story Alleys' : 'Thư Hà Nội — Ngõ Kể chuyện', coverPhoto: 1, kind: 'simulated', nodeCount: 6 },
-        { id: 'old-quarter-pilot', name: loc === 'en' ? 'Old Quarter Pilot' : 'Thử nghiệm Phố Cổ', coverPhoto: 1, kind: 'reviewed', nodeCount: 3 },
+        { id: 'fiction-letter', name: loc === 'en' ? 'Hanoi Letters — Story Alleys' : 'Thư Hà Nội — Ngõ Kể chuyện', tagline: translator.t(loc, 'collection.fiction_letter.tagline'), theme: translator.t(loc, 'collection.fiction_letter.theme'), district: translator.t(loc, 'collection.fiction_letter.district'), coverPhoto: 1, kind: 'simulated', nodeCount: 6 },
+        { id: 'old-quarter-pilot', name: loc === 'en' ? 'Old Quarter Pilot' : 'Thử nghiệm Phố Cổ', tagline: translator.t(loc, 'collection.old_quarter_pilot.tagline'), theme: translator.t(loc, 'collection.old_quarter_pilot.theme'), district: translator.t(loc, 'collection.old_quarter_pilot.district'), coverPhoto: 1, kind: 'reviewed', nodeCount: 3 },
+        { id: 'old-quarter-three-lenses', name: translator.t(loc, 'collection.old_quarter_three_lenses.name'), tagline: translator.t(loc, 'collection.old_quarter_three_lenses.tagline'), theme: translator.t(loc, 'collection.old_quarter_three_lenses.theme'), district: translator.t(loc, 'collection.old_quarter_three_lenses.district'), coverPhoto: 1, kind: 'reviewed', nodeCount: 3 },
       ],
     },
     './src/data/localeStorage': {
@@ -2504,10 +2508,10 @@ test('AlleySelectScreen translates filter chips to All and Food in EN while pres
   const treeEn = viewEn.render();
   const pressablesEn = elements(treeEn, 'Pressable');
 
-  // Verify chips in EN
+  // Verify chips in EN - derived dynamically from collections
   const filterChipsEn = pressablesEn.filter((p) => p.props.accessibilityState && 'selected' in p.props.accessibilityState);
   const filterLabelsEn = filterChipsEn.map((p) => p.props.accessibilityLabel);
-  assert.deepEqual(filterLabelsEn, ['All', 'Hàng Buồm', 'Hàng Gai', 'Đồng Xuân', 'Food']);
+  assert.deepEqual(filterLabelsEn, ['All', 'Old Stories', 'Food']);
 
   // Verify gpsLocationName has no numberOfLines constraint (props.numberOfLines is undefined)
   const allTextsEn = elements(treeEn, 'Text');
@@ -2552,8 +2556,39 @@ test('AlleySelectScreen translates filter chips to All and Food in EN while pres
   const pressablesVi = elements(treeVi, 'Pressable');
   const filterChipsVi = pressablesVi.filter((p) => p.props.accessibilityState && 'selected' in p.props.accessibilityState);
   const filterLabelsVi = filterChipsVi.map((p) => p.props.accessibilityLabel);
-  assert.deepEqual(filterLabelsVi, ['Tất cả', 'Hàng Buồm', 'Hàng Gai', 'Đồng Xuân', 'Ẩm thực']);
+  assert.deepEqual(filterLabelsVi, ['Tất cả', 'Chuyện xưa', 'Ẩm thực']);
   viewVi.unmount();
+});
+
+test('AlleySelectScreen with real collections generates no dead chips and every chip returns results (R01)', () => {
+  for (const loc of ['vi', 'en']) {
+    const view = mount('../src/screens/AlleySelectScreen.tsx', {
+      navigation: { navigate() {}, goBack() {} },
+      mode: 'demo',
+      nodeCount: 6,
+    }, {
+      '../context/LocaleContext': {
+        useLocale: () => ({
+          locale: loc,
+          t: (key, params) => translator.t(loc, key, params),
+          setCollectionId: () => {},
+        }),
+      },
+    });
+    const tree = view.render();
+    const pressables = elements(tree, 'Pressable');
+    const filterChips = pressables.filter((p) => p.props.accessibilityState && 'selected' in p.props.accessibilityState);
+    assert.ok(filterChips.length >= 2, `Must have at least All and theme chips in ${loc}`);
+
+    // Verify no dead chip: every chip clicked must yield at least 1 card
+    for (const chip of filterChips) {
+      chip.props.onPress();
+      const updatedTree = view.render();
+      const cards = elements(updatedTree, 'Pressable').filter((p) => p.props.accessibilityLabel?.startsWith(loc === 'en' ? 'Open' : 'Mở'));
+      assert.ok(cards.length >= 1, `Filter chip "${chip.props.accessibilityLabel}" in ${loc} must yield at least 1 collection, got ${cards.length}`);
+    }
+    view.unmount();
+  }
 });
 
 test('AlleyTrailView and PostcardCard branch visit time on collectionKind', () => {

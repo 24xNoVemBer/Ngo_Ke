@@ -34,7 +34,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AlleySelect'> & {
   onRetryLive?: () => void;
 };
 
-type LocationFilter = 'Tất cả' | 'Hàng Buồm' | 'Hàng Gai' | 'Đồng Xuân' | 'Ẩm thực';
+type LocationFilter = string;
 
 
 export function AlleySelectScreen({
@@ -90,7 +90,12 @@ export function AlleySelectScreen({
     ? (liveCollectionItem ? [liveCollectionItem] : [])
     : getLocalizedCollections(locale);
 
-  function getFilterLabel(filter: LocationFilter): string {
+  // Generate filter chips dynamically from actual collections with results (R01)
+  const availableThemes = Array.from(new Set(collections.map((col) => col.theme).filter(Boolean)));
+  const filterChips = ['Tất cả', ...availableThemes];
+  const effectiveFilter = filterChips.includes(selectedFilter) ? selectedFilter : 'Tất cả';
+
+  function getFilterLabel(filter: string): string {
     if (filter === 'Tất cả') return t('alley_select.filter_all');
     if (filter === 'Ẩm thực') return t('alley_select.filter_food');
     return filter;
@@ -107,10 +112,10 @@ export function AlleySelectScreen({
       normalizeQuestion(col.theme).includes(query);
 
     const matchFilter =
-      selectedFilter === 'Tất cả' ||
-      col.district.includes(selectedFilter) ||
-      col.theme === selectedFilter ||
-      (selectedFilter === 'Ẩm thực' && (col.theme === 'Ẩm thực' || col.theme === 'Food'));
+      effectiveFilter === 'Tất cả' ||
+      col.theme === effectiveFilter ||
+      (col.district && col.district.includes(effectiveFilter)) ||
+      (effectiveFilter === 'Ẩm thực' && (col.theme === 'Ẩm thực' || col.theme === 'Food'));
 
     return matchSearch && matchFilter;
   });
@@ -258,10 +263,9 @@ export function AlleySelectScreen({
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filterChipsRow}
           >
-            {(['Tất cả', 'Hàng Buồm', 'Hàng Gai', 'Đồng Xuân', 'Ẩm thực'] as const).map(
-              (filter) => {
-                const isSelected = selectedFilter === filter;
-                const label = getFilterLabel(filter);
+            {filterChips.map((filter) => {
+              const isSelected = effectiveFilter === filter;
+              const label = getFilterLabel(filter);
                 return (
                   <Pressable
                     key={filter}
