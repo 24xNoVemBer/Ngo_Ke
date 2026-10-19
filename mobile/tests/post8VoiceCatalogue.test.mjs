@@ -22,9 +22,11 @@ const en = JSON.parse(enBytes.toString('utf8'));
 const originalManifest = JSON.parse(read('mobile/assets/voice/manifest.json').toString('utf8'));
 const manifest = JSON.parse(read('mobile/assets/voice/post8/old-quarter-pilot/manifest.json').toString('utf8'));
 const remainingManifest = JSON.parse(read('mobile/assets/voice/post8/remaining/manifest.json').toString('utf8'));
+const activeManifest = JSON.parse(read('mobile/assets/voice/post8/remaining-elevenlabs/manifest.json').toString('utf8'));
 const catalogSource = read('mobile/src/voice/post8Catalog.ts').toString('utf8');
 const originalCatalogSource = read('mobile/src/voice/catalog.ts').toString('utf8');
 const remainingCatalogSource = read('mobile/src/voice/post8RemainingCatalog.ts').toString('utf8');
+const threeLensesCatalogSource = read('mobile/src/voice/threeLensesCatalog.ts').toString('utf8');
 
 const datasetTrackRows = (dataset) => [
   { id: 'intro', kind: 'intro', text: dataset.intro.text },
@@ -45,6 +47,62 @@ const trackRows = (dataset) => {
       .map((item) => ({ id: `${item.id}-answer`, kind: 'answer', nodeId: node.id, text: item.answer })),
   ];
 };
+
+const sourceSpecs = {
+  'fiction-letter/en': { dataset: fictionEn, bytes: fictionEnBytes, file: 'data/localized/fiction.en.json' },
+  'fiction-letter/vi': { dataset: original, bytes: originalBytes, file: 'data/demo.json', rawRevision: true },
+  'old-quarter-pilot/en': { dataset: en, bytes: enBytes, file: 'data/localized/old-quarter.en.json' },
+  'old-quarter-pilot/vi': { dataset: vi, bytes: viBytes, file: 'data/localized/old-quarter.vi.json' },
+};
+const activeTrackByKey = new Map(activeManifest.tracks.map((entry) =>
+  [`${entry.collectionId}/${entry.locale}/${entry.id}`, entry]));
+const expectedActiveRevisions = Object.fromEntries(Object.entries(sourceSpecs).map(([key, source]) => {
+  if (source.rawRevision) return [key, sha256(source.bytes)];
+  const locale = key.split('/')[1];
+  const parsed = parseDatasetV2(source.dataset, { mode: 'demo', expectedLocale: locale });
+  assert.ok(parsed, `${key} active dataset parses`);
+  return [key, sha256(Buffer.from(canonicalDatasetJson(parsed), 'utf8'))];
+}));
+
+const activeSourceFor = (entry) => {
+  if (entry.collectionId === 'fiction-letter' && entry.locale === 'vi') return originalCatalogSource;
+  if (entry.collectionId === 'old-quarter-pilot'
+      && (entry.kind === 'intro' || entry.nodeId === 'oldquarter-bach-ma')) return catalogSource;
+  return remainingCatalogSource;
+};
+
+function assertActiveMapping(entry, expectedTextSha256, archivedRequire) {
+  const key = `${entry.collectionId}/${entry.locale}/${entry.id}`;
+  const active = activeTrackByKey.get(key);
+  assert.ok(active, `${key} active ElevenLabs manifest record`);
+  assert.equal(active.source, sourceSpecs[`${entry.collectionId}/${entry.locale}`].file, `${key} active source file`);
+  assert.equal(active.sourceDataSha256, sha256(sourceSpecs[`${entry.collectionId}/${entry.locale}`].bytes), `${key} source bytes`);
+  assert.equal(active.datasetRevision, expectedActiveRevisions[`${entry.collectionId}/${entry.locale}`], `${key} dataset revision`);
+  assert.equal(active.sourceTextSha256, expectedTextSha256, `${key} source text hash`);
+  assert.equal(active.spokenTextSha256, expectedTextSha256, `${key} spoken text hash`);
+  assert.equal(active.textHash, expectedTextSha256, `${key} active catalogue text hash`);
+  assert.equal(active.voiceId, activeManifest.voiceIds[entry.locale], `${key} active voice`);
+  assert.equal(active.model, activeManifest.model, `${key} active model`);
+  assert.equal(active.locale, entry.locale);
+  assert.equal(active.collectionId, entry.collectionId);
+  assert.equal(active.durationSeconds, active.format.durationSeconds, `${key} decoded duration`);
+  assert.equal(active.format.codec, 'mp3', `${key} active codec`);
+  assert.equal(active.format.sampleRateHz, 44_100, `${key} active sample rate`);
+  assert.equal(active.format.bitrateKbps, 128, `${key} active bitrate`);
+  const expectedPath = `mobile/assets/voice/post8/remaining-elevenlabs/${entry.collectionId}/${entry.locale}/${entry.id}.mp3`;
+  assert.equal(active.path, expectedPath, `${key} active asset path`);
+  assert.equal(active.audioSha256, sha256(read(expectedPath)), `${key} active audio hash`);
+  assert.equal(active.humanApproved, false);
+  const activeRequire = `../../assets/voice/post8/remaining-elevenlabs/${entry.collectionId}/${entry.locale}/${entry.id}.mp3`;
+  const activeLine = activeSourceFor(active).split('\n')
+    .find((line) => line.includes(`"${entry.id}": {`) && line.includes(activeRequire));
+  assert.ok(activeLine, `${key} active static catalogue entry`);
+  assert.ok(activeLine.includes(`require("${activeRequire}")`) || activeLine.includes(`require('${activeRequire}')`),
+    `${key} ElevenLabs Metro require`);
+  assert.ok(activeLine.includes(`textHash: "${active.textHash}"`), `${key} active hash mapping`);
+  assert.ok(activeLine.includes(`durationSeconds: ${active.durationSeconds}`), `${key} active duration mapping`);
+  assert.ok(!activeLine.includes(archivedRequire), `${key} no archived active require`);
+}
 
 test('the provisional firstpoint pair uses the shared parser and exact locale revisions', () => {
   const parsedVi = parseDatasetV2(vi, { mode: 'demo', expectedLocale: 'vi' });
@@ -86,7 +144,8 @@ test('all twelve locale tracks match source text, manifest hashes and static Met
         assert.ok(entry.durationSeconds >= 60 && entry.durationSeconds <= 90);
       }
       assert.equal(entry.humanApproved, false);
-      assert.ok(catalogSource.includes(`require("../../assets/voice/post8/${manifest.collectionId}/${locale}/${row.id}.mp3")`));
+      assertActiveMapping(entry, entry.sourceTextSha256,
+        `../../assets/voice/post8/${manifest.collectionId}/${locale}/${row.id}.mp3`);
     }
   }
 });
@@ -99,6 +158,36 @@ test('the 54 new tracks complete the 100-track inventory without changing the 34
   assert.equal(remainingManifest.scope, 'post8-remaining');
   assert.equal(remainingManifest.humanApproved, false);
   assert.equal(remainingManifest.selectedForShipping, false);
+  assert.equal(activeManifest.scope, 'fiction-letter+old-quarter-pilot');
+  assert.equal(activeManifest.status, 'provisional');
+  assert.equal(activeManifest.sourceStatus, 'source-only');
+  assert.equal(activeManifest.humanApproved, false);
+  assert.equal(activeManifest.selectedForShipping, false);
+  assert.equal(activeManifest.model, 'eleven_v4');
+  assert.deepEqual(activeManifest.licenseProvenance, {
+    provider: 'ElevenLabs',
+    service: 'Text-to-Speech API',
+    model: 'eleven_v4',
+    termsUrl: 'https://elevenlabs.io/terms-of-use',
+    termsLastUpdated: '2026-10-09',
+    regionApplicability: 'not independently verified',
+    observedAccountTier: 'starter',
+    redistributionLicenseAsserted: false,
+    rightsClearance: 'not independently verified',
+    noticePath: 'mobile/assets/voice/post8/remaining-elevenlabs/LICENSES.md',
+    noticeSha256: 'bdc1f2dcf9050d37b9bdf0cf967320b7dab8a41ad48bf9b8520783741849cf7b',
+  });
+  assert.equal(sha256(read(activeManifest.licenseProvenance.noticePath)), activeManifest.licenseProvenance.noticeSha256);
+  assert.deepEqual(activeManifest.counts, {
+    en: 50,
+    vi: 50,
+    total: 100,
+    collections: {
+      'fiction-letter': { en: 34, vi: 34 },
+      'old-quarter-pilot': { en: 16, vi: 16 },
+    },
+  });
+  assert.equal(activeTrackByKey.size, 100);
 
   const originalRows = new Map(datasetTrackRows(original).map((row) => [row.id, row]));
   assert.equal(originalRows.size, 34);
@@ -107,18 +196,14 @@ test('the 54 new tracks complete the 100-track inventory without changing the 34
     assert.ok(row, `unknown original VI track: ${entry.id}`);
     assert.equal(entry.textSha256, sha256(Buffer.from(row.text, 'utf8')));
     assert.equal(entry.audioSha256, sha256(read(entry.path)));
-    assert.ok(originalCatalogSource.includes(`require('../../assets/voice/${entry.id}.mp3')`));
+    assertActiveMapping({ collectionId: 'fiction-letter', locale: 'vi', ...entry }, entry.textSha256,
+      `../../assets/voice/${entry.id}.mp3`);
   }
 
-  const sources = {
-    'fiction-letter/en': { dataset: fictionEn, bytes: fictionEnBytes, file: 'data/localized/fiction.en.json' },
-    'old-quarter-pilot/en': { dataset: en, bytes: enBytes, file: 'data/localized/old-quarter.en.json' },
-    'old-quarter-pilot/vi': { dataset: vi, bytes: viBytes, file: 'data/localized/old-quarter.vi.json' },
-  };
   let added = 0;
   for (const [collectionId, locales] of Object.entries(remainingManifest.catalogues)) {
     for (const [locale, catalogue] of Object.entries(locales)) {
-      const source = sources[`${collectionId}/${locale}`];
+      const source = sourceSpecs[`${collectionId}/${locale}`];
       assert.ok(source, `unexpected catalogue: ${collectionId}/${locale}`);
       const expectedRows = datasetTrackRows(source.dataset).filter((row) =>
         collectionId !== 'old-quarter-pilot' || (row.id !== 'intro' && row.nodeId !== 'oldquarter-bach-ma'));
@@ -155,7 +240,8 @@ test('the 54 new tracks complete the 100-track inventory without changing the 34
           assert.equal(entry.tts.speed, locale === 'en' ? 0.75 : 1.0);
           assert.equal(entry.tts.speedMethod, locale === 'vi' ? 'none' : undefined);
         }
-        assert.ok(remainingCatalogSource.includes(`require("../../assets/voice/post8/remaining/${collectionId}/${locale}/${entry.id}.mp3")`));
+        assertActiveMapping({ collectionId, locale, ...entry }, textHash,
+          `../../assets/voice/post8/remaining/${collectionId}/${locale}/${entry.id}.mp3`);
         added += 1;
       }
       assert.equal(expectedById.size, 0);
@@ -166,37 +252,59 @@ test('the 54 new tracks complete the 100-track inventory without changing the 34
     + manifest.catalogues.vi.entries.length + added, 100);
 });
 
-test('catalogue lookup is exact by collection, locale and dataset revision with no cross-locale fallback', async () => {
+test('production lookup resolves all 100 active and the unchanged 56 Three Lenses tracks', async () => {
   const previousRequire = globalThis.require;
-  globalThis.require = () => 42;
-  const { lookupVoiceTrack, voiceCatalogueRevision } = await import('../src/voice/localizedCatalog.ts');
-  if (previousRequire === undefined) delete globalThis.require;
-  else globalThis.require = previousRequire;
+  globalThis.require = (assetPath) => assetPath;
+  let lookupVoiceTrack;
+  let voiceCatalogueRevision;
+  let THREE_LENSES_VOICE_COLLECTION;
+  let threeLensesVoiceCatalogues;
+  try {
+    ({ lookupVoiceTrack, voiceCatalogueRevision } = await import('../src/voice/localizedCatalog.ts'));
+    ({ THREE_LENSES_VOICE_COLLECTION, threeLensesVoiceCatalogues } = await import('../src/voice/threeLensesCatalog.ts'));
+  } finally {
+    if (previousRequire === undefined) delete globalThis.require;
+    else globalThis.require = previousRequire;
+  }
 
-  for (const locale of ['en', 'vi']) {
-    const revision = manifest.catalogues[locale].datasetRevision;
-    const entry = manifest.catalogues[locale].entries[0];
-    const query = { collectionId: manifest.collectionId, locale, contentId: entry.id, datasetRevision: revision };
+  for (const entry of activeManifest.tracks) {
+    const query = { collectionId: entry.collectionId, locale: entry.locale,
+      contentId: entry.id, datasetRevision: entry.datasetRevision };
     const track = lookupVoiceTrack(query);
-    assert.equal(track?.textHash, manifest.catalogues[locale].entries[0].textHash);
-    assert.equal(track?.source, 42);
+    assert.equal(track?.textHash, entry.textHash, `${entry.collectionId}/${entry.locale}/${entry.id} text`);
+    assert.equal(track?.durationSeconds, entry.durationSeconds, `${entry.collectionId}/${entry.locale}/${entry.id} duration`);
+    assert.equal(track?.source,
+      `../../assets/voice/post8/remaining-elevenlabs/${entry.collectionId}/${entry.locale}/${entry.id}.mp3`,
+      `${entry.collectionId}/${entry.locale}/${entry.id} Metro asset`);
     assert.equal(lookupVoiceTrack({ ...query, contentId: 'unknown' }), undefined);
     assert.equal(lookupVoiceTrack({ ...query, datasetRevision: 'stale' }), undefined);
   }
+
   const originalIntro = originalManifest.entries[0];
   const legacyVi = { collectionId: 'fiction-letter', locale: 'vi', contentId: originalIntro.id,
     datasetRevision: voiceCatalogueRevision };
-  assert.equal(lookupVoiceTrack(legacyVi)?.source, 42);
+  assert.equal(lookupVoiceTrack(legacyVi)?.source,
+    `../../assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/${originalIntro.id}.mp3`);
   assert.equal(lookupVoiceTrack({ ...legacyVi, locale: 'en' }), undefined);
   assert.equal(lookupVoiceTrack({ ...legacyVi, collectionId: 'other' }), undefined);
 
-  for (const [collectionId, locales] of Object.entries(remainingManifest.catalogues)) {
-    for (const [locale, catalogue] of Object.entries(locales)) {
-      for (const entry of catalogue.entries) {
-        const track = lookupVoiceTrack({ collectionId, locale, contentId: entry.id,
-          datasetRevision: catalogue.datasetRevision });
-        assert.equal(track?.source, 42, `unresolved bundle track: ${collectionId}/${locale}/${entry.id}`);
-      }
+  let threeLensesTracks = 0;
+  for (const locale of ['en', 'vi']) {
+    const catalogue = threeLensesVoiceCatalogues[locale];
+    assert.equal(Object.keys(catalogue.tracks).length, 28, `${locale} unchanged catalogue size`);
+    for (const entry of Object.values(catalogue.tracks)) {
+      const track = lookupVoiceTrack({ collectionId: THREE_LENSES_VOICE_COLLECTION, locale,
+        contentId: entry.id, datasetRevision: catalogue.datasetRevision });
+      assert.equal(track?.textHash, entry.textHash, `${locale}/${entry.id} unchanged text hash`);
+      assert.equal(track?.durationSeconds, entry.durationSeconds, `${locale}/${entry.id} unchanged duration`);
+      assert.equal(track?.source, `../../assets/voice/three-lenses-elevenlabs/${locale}/${entry.id}.mp3`,
+        `${locale}/${entry.id} unchanged Metro asset`);
+      threeLensesTracks += 1;
     }
   }
+  assert.equal(threeLensesTracks, 56);
+  const staticRequires = [originalCatalogSource, catalogSource, remainingCatalogSource, threeLensesCatalogSource]
+    .map((source) => (source.match(/source: require\(/g) ?? []).length);
+  assert.deepEqual(staticRequires, [34, 12, 54, 56]);
+  assert.equal(staticRequires.reduce((sum, count) => sum + count, 0), 156);
 });

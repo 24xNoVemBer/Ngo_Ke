@@ -10,6 +10,7 @@ const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const datasetBytes = readFileSync(path.join(repo, 'data/demo.json'));
 const dataset = JSON.parse(datasetBytes.toString('utf8'));
 const manifest = JSON.parse(readFileSync(path.join(repo, 'mobile/assets/voice/manifest.json'), 'utf8'));
+const activeManifest = JSON.parse(readFileSync(path.join(repo, 'mobile/assets/voice/post8/remaining-elevenlabs/manifest.json'), 'utf8'));
 const catalogue = readFileSync(path.join(repo, 'mobile/src/voice/catalog.ts'), 'utf8');
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
@@ -36,7 +37,8 @@ test('native voice catalogue covers the canonical 34 spoken passages', () => {
   });
 });
 
-test('each bundled clip matches its text hash, node ID, audio hash, and static require map', () => {
+test('archived clips keep their hashes while all 34 active Vietnamese tracks use audited ElevenLabs assets', () => {
+  const activeTracks = new Map(activeManifest.tracks.map((entry) => [`${entry.collectionId}/${entry.locale}/${entry.id}`, entry]));
   for (const [index, row] of expected.entries()) {
     const entry = manifest.entries[index];
     assert.equal(entry.nodeId, row.nodeId, `${row.id} node ID`);
@@ -48,6 +50,28 @@ test('each bundled clip matches its text hash, node ID, audio hash, and static r
     const bytes = readFileSync(filePath);
     assert.ok(bytes.length > 2048, `${row.id} is not an empty/tiny file`);
     assert.equal(sha256(bytes), entry.audioSha256, `${row.id} audio hash`);
-    assert.ok(catalogue.includes(`require('../../assets/voice/${row.id}.mp3')`), `${row.id} static asset require`);
+
+    const active = activeTracks.get(`fiction-letter/vi/${row.id}`);
+    assert.ok(active, `${row.id} active ElevenLabs manifest record`);
+    assert.equal(active.sourceDataSha256, manifest.sourceDataSha256, `${row.id} source bytes`);
+    assert.equal(active.sourceTextSha256, entry.textSha256, `${row.id} source text`);
+    assert.equal(active.textHash, entry.textSha256, `${row.id} catalogue text hash`);
+    assert.equal(active.voiceId, activeManifest.voiceIds.vi, `${row.id} active voice`);
+    assert.equal(active.model, activeManifest.model, `${row.id} active model`);
+    assert.equal(active.format.codec, 'mp3', `${row.id} active codec`);
+    assert.equal(active.format.sampleRateHz, 44_100, `${row.id} active sample rate`);
+    assert.equal(active.format.bitrateKbps, 128, `${row.id} active bitrate`);
+    assert.equal(active.durationSeconds, active.format.durationSeconds, `${row.id} decoded duration`);
+    const activeBytes = readFileSync(path.join(repo, active.path));
+    assert.equal(sha256(activeBytes), active.audioSha256, `${row.id} active audio hash`);
+    const line = catalogue.split('\n').find((line) => line.includes(`"${row.id}": {`));
+    assert.ok(line, `${row.id} active catalogue entry`);
+    assert.ok(line.includes(`require('../../assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/${row.id}.mp3')`),
+      `${row.id} ElevenLabs Metro require`);
+    assert.ok(line.includes(`textHash: "${active.textHash}"`), `${row.id} active text hash mapping`);
+    assert.ok(line.includes(`durationSeconds: ${active.durationSeconds}`), `${row.id} active duration mapping`);
+    assert.ok(!line.includes(`require('../../assets/voice/${row.id}.mp3')`), `${row.id} no archived active require`);
   }
+  assert.equal(activeTracks.size, 100);
+  assert.equal([...activeTracks.keys()].filter((key) => key.startsWith('fiction-letter/vi/')).length, 34);
 });
