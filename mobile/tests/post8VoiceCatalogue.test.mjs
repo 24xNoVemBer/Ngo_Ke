@@ -11,6 +11,7 @@ import { parseDatasetV2, validateDatasetV2Pair } from '../src/data/sourceState.t
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (name) => readFileSync(path.join(root, name));
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const noticeSha256 = (bytes) => sha256(Buffer.from(bytes.toString('utf8').replace(/\r\n?/g, '\n'), 'utf8'));
 const originalBytes = read('data/demo.json');
 const fictionEnBytes = read('data/localized/fiction.en.json');
 const viBytes = read('data/localized/old-quarter.vi.json');
@@ -104,6 +105,12 @@ function assertActiveMapping(entry, expectedTextSha256, archivedRequire) {
   assert.ok(!activeLine.includes(archivedRequire), `${key} no archived active require`);
 }
 
+test('ElevenLabs notice hash uses canonical UTF-8 LF line endings', () => {
+  const lf = Buffer.from('Terms\nAttribution\n', 'utf8');
+  const crlf = Buffer.from('Terms\r\nAttribution\r\n', 'utf8');
+  assert.equal(noticeSha256(lf), noticeSha256(crlf));
+});
+
 test('the provisional firstpoint pair uses the shared parser and exact locale revisions', () => {
   const parsedVi = parseDatasetV2(vi, { mode: 'demo', expectedLocale: 'vi' });
   const parsedEn = parseDatasetV2(en, { mode: 'demo', expectedLocale: 'en' });
@@ -177,7 +184,7 @@ test('the 54 new tracks complete the 100-track inventory without changing the 34
     noticePath: 'mobile/assets/voice/post8/remaining-elevenlabs/LICENSES.md',
     noticeSha256: 'bdc1f2dcf9050d37b9bdf0cf967320b7dab8a41ad48bf9b8520783741849cf7b',
   });
-  assert.equal(sha256(read(activeManifest.licenseProvenance.noticePath)), activeManifest.licenseProvenance.noticeSha256);
+  assert.equal(noticeSha256(read(activeManifest.licenseProvenance.noticePath)), activeManifest.licenseProvenance.noticeSha256);
   assert.deepEqual(activeManifest.counts, {
     en: 50,
     vi: 50,

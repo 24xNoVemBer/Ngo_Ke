@@ -20,7 +20,7 @@ W1 corrected the interpretation of the provider history responses: list/detail r
 
 ## Provenance and license status
 
-The output manifest and [LICENSES.md](../../mobile/assets/voice/post8/remaining-elevenlabs/LICENSES.md) record provider, model, voice IDs, settings, source hashes, request/cost evidence, and the applicable Terms reference. The [ElevenLabs Terms of Service](https://elevenlabs.io/terms-of-use) page showed last updated 2026-10-09 when checked; the observed API tier was `starter`, which does not independently establish the applicable regional agreement or paid-subscription status. No redistribution license is asserted; confirm the account agreement, rights to source text, and any attribution terms before distribution.
+The output manifest and [LICENSES.md](../../mobile/assets/voice/post8/remaining-elevenlabs/LICENSES.md) record provider, model, voice IDs, settings, source hashes, request/cost evidence, and the applicable Terms reference. `noticeSha256` is SHA-256 of UTF-8 notice text normalized to LF line endings; audio, source, and catalogue hashes remain byte-exact. The [ElevenLabs Terms of Service](https://elevenlabs.io/terms-of-use) page showed last updated 2026-10-09 when checked; the observed API tier was `starter`, which does not independently establish the applicable regional agreement or paid-subscription status. No redistribution license is asserted; confirm the account agreement, rights to source text, and any attribution terms before distribution.
 
 ## Verification
 

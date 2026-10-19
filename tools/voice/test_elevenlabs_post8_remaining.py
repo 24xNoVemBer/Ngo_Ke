@@ -25,6 +25,13 @@ def _legacy_catalogue_text(path, tracks):
 
 
 class ElevenLabsPost8RemainingTests(unittest.TestCase):
+    def test_notice_hash_uses_canonical_utf8_lf_line_endings(self):
+        notice = "Terms\nAttribution\n"
+        self.assertEqual(
+            renderer._canonical_notice_sha256(notice),
+            renderer._canonical_notice_sha256(notice.replace("\n", "\r\n")),
+        )
+
     def test_inventory_is_100_raw_source_tracks_and_reports_full_reserve_deficit(self):
         tracks, revisions = renderer.track_specs()
         self.assertEqual(Counter((row["collectionId"], row["locale"]) for row in tracks), {

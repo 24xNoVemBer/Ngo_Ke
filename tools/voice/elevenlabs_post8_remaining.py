@@ -118,6 +118,11 @@ LICENSE_PROVENANCE = {
 }
 
 
+def _canonical_notice_sha256(text: str) -> str:
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+    return engine.sha256(normalized.encode("utf-8"))
+
+
 def _file_hash(path: Path) -> str:
     return engine.sha256(path.read_bytes())
 
@@ -764,7 +769,8 @@ def audit() -> None:
                 for collection in ("fiction-letter", "old-quarter-pilot")}}):
         raise ValueError("Installed Post-8 manifest has invalid scope, settings, or counts")
     license_notice = ROOT / LICENSE_PROVENANCE["noticePath"]
-    if not license_notice.is_file() or engine.sha256(license_notice.read_bytes()) != LICENSE_PROVENANCE["noticeSha256"]:
+    if (not license_notice.is_file()
+            or _canonical_notice_sha256(license_notice.read_text(encoding="utf-8")) != LICENSE_PROVENANCE["noticeSha256"]):
         raise ValueError("ElevenLabs license provenance notice is missing or changed")
     protected_assets = manifest.get("protectedAssetHashes")
     actual_assets = engine.protected_asset_hashes()
