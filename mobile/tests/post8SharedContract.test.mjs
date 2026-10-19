@@ -334,6 +334,12 @@ test('i18n translator.ts - 100% key parity and parameter substitution', () => {
   const enSub = translate('en', 'voice.notice.quota_exceeded', { seconds: 15 });
   assert.equal(enSub, 'Maximum 15 seconds reached. Tap Send to continue or Cancel to record again.');
 
+  // Regression R07: parameter substitution preserves literals with $, $&, $1, $', $`
+  const specialSub = translate('en', 'camera.choose_manual', { name: 'A$&B' });
+  assert.equal(specialSub, 'Select A$&B manually');
+  const dollarSub = translate('en', 'camera.choose_manual', { name: '$100 $` $\' $$' });
+  assert.equal(dollarSub, 'Select $100 $` $\' $$ manually');
+
   // 4. Shorthand helper t
   assert.equal(t('vi', 'common.close'), 'Đóng');
   assert.equal(t('en', 'common.close'), 'Close');

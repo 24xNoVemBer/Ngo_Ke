@@ -1148,7 +1148,7 @@ export function translate(
   }
   if (params) {
     for (const [pKey, pVal] of Object.entries(params)) {
-      text = text.replace(new RegExp(`\\{${pKey}\\}`, 'g'), String(pVal));
+      text = text.replace(new RegExp(`\\{${pKey}\\}`, 'g'), () => String(pVal));
     }
   }
   return text;
