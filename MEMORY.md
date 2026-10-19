@@ -1,5 +1,12 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-19 — đang hoàn thiện100 bản ElevenLabs còn lại
+
+- User yêu cầu “hoàn thiện nốt đủ các bản ghi còn lại”, nhắc không hỏi lại và đã chuyển phiên Full access/approval never. Scope100activefiction-letter+old-quarter-pilot, giữ nguyên56ElevenLabs đã đạt, toàn212MP3/cue/source cũ. Spec `docs/REMAINING_ELEVENLABS_SPEC.md`; tổng cap30000, đãchi9909, mới tốiđa20091.
+- W3 Task `task_38fbf903f878`, firstattempt `ctx_c656b0fb8e72` failed hookreview trước task, retry `ctx_82d244d10d6e`/terminal `term_ff0a7051-ef72-4fe3-9899-0a5a338d3517` đãobservedturn đúngLuna/xhigh. Khônglaunchduplicate. Firstterminal đãđược retry cleanup. Hookreviewponyail đãxửlý; quyền Orcaterminal/orchestration được lưu rồi Fullaccess cóhiệulực.
+- W3 dryrun100/25553chars (VI12097/EN13456), read-only Starter count9909/limit40000/overagefalse;23renderer+233app/tsc/lint workerPASS. Chưapaid tại review. W1 phát hiện duration map keykhônglocale khiến VI overrideEN, yêu cầu fix+regression `msg_f708a67cf6fc`. Replyask `msg_e4df9e61c26b` cho2captionreserve158 rồi guardedbatch, điều kiệnfix/testtrướcpaid; mỗi requestreserve1credit/char theo actualcostđãbiết, cap20091, periodicexactreconcile/noPOSTretry. Khôngtựnângcap dù conservativefullreserve vượt5462. Workerđanglive; coordinator phải tiếpkiểm checkpoint/code/test rồi audit100/tíchhợpcandidate.
+- Cầnuserquyết:khôngcógate lúc này. Cầnuserself `[ngoài plan]`:nghetrênđiệnthoạisautíchhợp; chưaclaimhuman/nativeapproval. Khôngmerge/push/publish/store/mainworkspacewrite.
+
 ## 2026-10-19 — lựa chọn giọng ElevenLabs sau bản demo
 
 - **ĐÃ HOÀN TẤT kỹ thuật:** W3done `msg_b443daf9f93f`, commit `70620bc` review/cherrycandidate`5e9ad87`. W1 fullcandidate285app/22Python(17new+5old)/tsc/lint PASS, portable56auditPASS thực khôngkey/cache/network;157baselineMP3+cue exactGitblob8b2fa8c. NativeJSbundleHTTPAndroid6021158/iOS6020544bytes200,168newassetrefs/0oldarchive refs/khôngAPIkeyvariablename.56/56assetHTTP200quaLANSHAexact,26574974bytes. Phí9909,closingremaining30091/overagefalse; khôngthêmTTSsau56. W3releasedexactctx_cf8244bea077, delivery_b0b3a2784b85ACK, mailboxempty. Metroexp://192.168.100.36:8081 đangnewcatalogue; QRTemp/ngoke-demo-qr.pnggiữnguyênURI. Khôngdeploy/publish/merge/push/store/mainworkspacewrite. Humanlistening/realdevice/iPhoneGPSphysicalQR vẫnchưakiểm, khôngcoi bundlelànativeproof. Cầnuserquyết:khôngcógate. Cầnuserself:ReloadExpoGocùngLANvàngheThắm/Talia. Finalreviewdocs cậpnhậtđầyđủ docs/THREE_LENSES_ELEVENLABS_REVIEW.md, ownfinaldocscommit/cherry đanghoàntất.
