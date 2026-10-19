@@ -704,7 +704,7 @@ export function HomeScreen({
                         : (locale === 'en' ? 'LIVE · no data' : 'LIVE · chưa có dữ liệu')
                     : collectionKind === 'reviewed'
                       ? (activeCollection?.id === 'old-quarter-three-lenses'
-                          ? (locale === 'en' ? 'DEMO · SOURCED_ONLY' : 'DEMO · Có nguồn tham khảo (SOURCED_ONLY)')
+                          ? (locale === 'en' ? 'DEMO · Sourced · not officially approved' : 'DEMO · Có nguồn · chưa duyệt chính thức')
                           : (locale === 'en' ? 'DEMO · reviewed heritage' : 'DEMO · di sản đã duyệt'))
                       : (locale === 'en' ? 'DEMO · simulated content' : 'DEMO · nội dung mô phỏng')}
                 </Text>

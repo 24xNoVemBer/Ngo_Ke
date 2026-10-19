@@ -355,8 +355,8 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
           <Text style={styles.note}>
             {isThreeLenses
               ? (locale === 'en'
-                  ? 'DEMO · Sourced reference only (SOURCED_ONLY) · Not officially approved by site managers · Supplied photos have unverified rights'
-                  : 'DEMO · Có nguồn tham khảo (SOURCED_ONLY) · Chưa được đơn vị di tích duyệt chính thức · Ảnh người dùng chưa kiểm chứng bản quyền')
+                  ? 'DEMO · Sourced · not officially approved · Supplied photos have unverified rights'
+                  : 'DEMO · Có nguồn · chưa duyệt chính thức · Ảnh người dùng chưa kiểm chứng bản quyền')
               : (isReviewed ? t('camera.disclaimer_reviewed') : t('camera.disclaimer_simulated'))}
           </Text>
         </View>
