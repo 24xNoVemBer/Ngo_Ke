@@ -1,8 +1,18 @@
 # Mở demo Việt/Anh — bản tích hợp local
 
+## Bản hiện tại — đủ156 audio ElevenLabs, 19/10/2026
+
+Mở Expo Go cùng Wi-Fi với máy tính bằng `exp://192.168.12.116:8081`, rồi reload. QR mới: `C:/Users/LEGION/AppData/Local/Temp/ngoke-demo-qr-current-lan.svg`. Các IP/QR và APK ở mục lịch sử bên dưới không đại diện bản hiện tại.
+
+Đã thay đủ100 audio còn lại: fiction-letter34VI+34EN và old-quarter-pilot16VI+16EN; cùng56 audio Ba lát cắt phố cổ đã có, tổng156 bản dùng Thắm cho Việt và Talia cho Anh. 212MP3 cũ vẫn giữ nguyên. Candidate product `3f78dc9`:286/286 app tests, TypeScript/lint đạt; Android/iOS bundle200,156/156 asset qua HTTP khớp SHA256. Tổng phí hai đợt20122/30000credit. Chi tiết và lỗi tiện ích audit candidate: [báo cáo](REMAINING_ELEVENLABS_REVIEW.md).
+
+Metro8081 và gateway18787 đang chạy trênIP mới; gateway `/health`200ready, small-cpu. LiveAPI18886 chưa bật. Chọn câu hỏi bằng tay và phát audio trong Demo không cần gateway. Không có APK hoặc bản publish mới.
+
+**Việc cần anh quyết:** không có. **Việc anh tự làm `[ngoài plan]`:** nghe thử trên điện thoại để đánh giá phát âm/cảm nhận của đợt đổi giọng đã giao. Chưa kiểm nghe trên máy thật/iPhone; bundle và hash không thay thế nghiệm thu đó.
+
 ## Ba lát cắt phố cổ — nội dung và voice mới, 19/10/2026
 
-Đây là bản mới nhất đang chạy qua **Metro LAN**; các APK và link Expo.dev ở các mục lịch sử bên dưới chưa có collection này.
+Đây là mốc lịch sử trước khi hoàn tất100 bản còn lại; dùng hướng dẫn bản hiện tại ở đầu tài liệu. Các APK và link Expo.dev ở các mục lịch sử bên dưới chưa có collection này.
 
 1. Mở Expo Go cùng Wi-Fi với máy tính. QR: `C:/Users/LEGION/AppData/Local/Temp/ngoke-demo-qr.png`; URL `exp://192.168.100.36:8081`. Reload nếu đang mở bản cũ.
 2. Vào **Demo → Ba lát cắt phố cổ**. Có Bạch Mã, nhà87 Mã Mây và Đồng Xuân, tổng5 chương/16 Q&A mỗi ngôn ngữ. Ba chương Đồng Xuân cùng một điểm, chọn bằng tab.
