@@ -94,7 +94,7 @@ export function PlanScreen({
   }
 
   function applyTimeText(): void {
-    const parsed = parseTimeBudget(timeInput);
+    const parsed = parseTimeBudget(timeInput, locale);
     if (parsed !== undefined) {
       onDraftChange({ ...draft, budgetMinutes: parsed });
       setTimeInput('');
@@ -106,7 +106,7 @@ export function PlanScreen({
   const typedTopicUnknown = topicInput.trim().length > 0
     && !hasTopicNegation(topicInput)
     && parseTopic(topicInput) === undefined;
-  const typedTimeUnknown = timeInput.trim().length > 0 && parseTimeBudget(timeInput) === undefined;
+  const typedTimeUnknown = timeInput.trim().length > 0 && parseTimeBudget(timeInput, locale) === undefined;
 
   return (
     <SafeAreaView style={styles.screen} edges={['left', 'right', 'bottom']}>

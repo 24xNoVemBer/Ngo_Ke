@@ -1236,6 +1236,44 @@ test('negated manual Plan input clears the previous topic and recommendations', 
   view.unmount();
 });
 
+test('PlanScreen applies English manual time budget text using current locale (R09)', () => {
+  let draft = {};
+  const props = () => ({
+    nodes: fixture.nodes,
+    draft,
+    onDraftChange: (next) => { draft = next; },
+    onSelectNode() {},
+  });
+  const viewEn = mount('../src/screens/PlanScreen.tsx', props(), {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        t: (key, params) => translator.t('en', key, params),
+        setCollectionId: () => {},
+      }),
+    },
+  }, 'PlanScreen');
+  let tree = viewEn.render();
+  const toggleBtn = elements(tree, 'Pressable').find((item) =>
+    elements(item, 'Text').some((text) => [].concat(text.props.children).join('').includes(translator.t('en', 'plan.toggle_manual'))),
+  );
+  assert.ok(toggleBtn, 'toggle manual input button must exist in EN');
+  toggleBtn.props.onPress();
+  tree = viewEn.render(props());
+
+  const timeInput = elements(tree, 'TextInput').find((item) => item.props.accessibilityLabel === 'Duration input');
+  assert.ok(timeInput, 'Duration input TextInput must exist in EN');
+  timeInput.props.onChangeText('about 30 minutes');
+  tree = viewEn.render(props());
+
+  const applyBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Apply duration');
+  assert.ok(applyBtn, 'Apply duration button must exist in EN');
+  applyBtn.props.onPress();
+
+  assert.equal(draft.budgetMinutes, 30, 'draft.budgetMinutes must be 30 after parsing about 30 minutes with en locale');
+  viewEn.unmount();
+});
+
 test('Plan draft is owned by App and survives the notebook route', () => {
   const app = mount('../App.tsx');
   let tree = app.render();
