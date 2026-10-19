@@ -366,7 +366,36 @@ export async function loadLiveSourceV2(options: LiveOptionsV2): Promise<SourceSt
 
     if (response.status !== 200) {
       if (response.status === 503) {
-        return liveError<DemoDatasetV2>('shape', locale);
+        let isDatasetInvalid = false;
+        try {
+          const text = await Promise.race([readBodyTextSafe(response), deadlinePromise, externalAbortPromise]);
+          if (getUtf8ByteLength(text) <= MAX_BODY_BYTES) {
+            const body = JSON.parse(text);
+            if (
+              typeof body === 'object' &&
+              body !== null &&
+              !Array.isArray(body) &&
+              typeof (body as Record<string, unknown>).error === 'object' &&
+              (body as Record<string, unknown>).error !== null &&
+              ((body as Record<string, unknown>).error as Record<string, unknown>).code === 'DATASET_INVALID'
+            ) {
+              isDatasetInvalid = true;
+            }
+          }
+        } catch {
+          // ignore read/parse error; defaults to http
+        }
+
+        if (options.signal?.aborted || externalAborted) {
+          return liveError<DemoDatasetV2>('network', locale);
+        }
+        if (timedOut || Date.now() - startTime >= timeoutMs) {
+          return liveError<DemoDatasetV2>('timeout', locale);
+        }
+
+        return isDatasetInvalid
+          ? liveError<DemoDatasetV2>('shape', locale)
+          : liveError<DemoDatasetV2>('http', locale);
       }
       return liveError<DemoDatasetV2>('http', locale);
     }
