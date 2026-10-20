@@ -45,7 +45,7 @@ export function pickCandidate(
     return { kind: 'needs-position' };
   }
   const accuracy = position.accuracy;
-  if (accuracy === undefined || !Number.isFinite(accuracy) || accuracy <= 0) {
+  if (accuracy === undefined || !Number.isFinite(accuracy) || accuracy < 0) {
     return { kind: 'needs-position' };
   }
   if (accuracy > limits.maxAccuracyMeters) {

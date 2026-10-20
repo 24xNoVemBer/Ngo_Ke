@@ -53,13 +53,21 @@ test('no reading and no coordinates are refused', () => {
   assert.equal(pickCandidate(withoutCoordinates, at(nodes[0]), LIMITS).kind, 'no-coordinates');
 });
 
-test('GPS accuracy missing, NaN, Infinity, negative, or zero fails closed without candidate', () => {
+test('GPS accuracy: finite >= 0 permits candidate, missing, NaN, +/-Infinity, negative fail closed (R06)', () => {
   const base = at(nodes[0]);
+  // Invalid accuracy values return none (needs-position)
   assert.equal(pickCandidate(nodes, { ...base, accuracy: undefined }, LIMITS).kind, 'needs-position');
   assert.equal(pickCandidate(nodes, { ...base, accuracy: NaN }, LIMITS).kind, 'needs-position');
   assert.equal(pickCandidate(nodes, { ...base, accuracy: Infinity }, LIMITS).kind, 'needs-position');
+  assert.equal(pickCandidate(nodes, { ...base, accuracy: -Infinity }, LIMITS).kind, 'needs-position');
+  assert.equal(pickCandidate(nodes, { ...base, accuracy: -0.001 }, LIMITS).kind, 'needs-position');
   assert.equal(pickCandidate(nodes, { ...base, accuracy: -5 }, LIMITS).kind, 'needs-position');
-  assert.equal(pickCandidate(nodes, { ...base, accuracy: 0 }, LIMITS).kind, 'needs-position');
+
+  // Zero accuracy is valid: permits a candidate when node coordinates are valid
+  const zeroAccuracyResult = pickCandidate(nodes, { ...base, accuracy: 0 }, LIMITS);
+  assert.equal(zeroAccuracyResult.kind, 'candidate');
+  assert.equal(zeroAccuracyResult.node.id, nodes[0].id);
+  assert.equal(zeroAccuracyResult.accuracy, 0);
 });
 
 test('a closed point is never suggested', () => {

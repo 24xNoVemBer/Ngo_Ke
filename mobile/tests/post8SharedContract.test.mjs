@@ -485,6 +485,41 @@ test('live.ts - loadLiveSourceV2 URL, error, and timeout handling', async () => 
   assert.equal(res503Db.status, 'error');
   assert.equal(res503Db.reason, 'http');
 
+  // Regression R12: 503 with finite Content-Length > MAX_BODY_BYTES returns shape without calling response.text()
+  let textCalled503 = false;
+  const mock503OversizedHeaderFetch = async () => ({
+    status: 503,
+    ok: false,
+    headers: { get: (h) => (h.toLowerCase() === 'content-length' ? String(MAX_BODY_BYTES + 1) : null) },
+    text: async () => {
+      textCalled503 = true;
+      throw new Error('response.text() should not be called when Content-Length exceeds MAX_BODY_BYTES');
+    },
+  });
+  const res503OversizedHeader = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    fetchImpl: mock503OversizedHeaderFetch,
+  });
+  assert.equal(res503OversizedHeader.status, 'error');
+  assert.equal(res503OversizedHeader.reason, 'shape');
+  assert.equal(textCalled503, false, 'response.text() must not be called when finite Content-Length exceeds MAX_BODY_BYTES');
+
+  // Regression R12: 503 without Content-Length but body > MAX_BODY_BYTES returns shape via post-read check
+  const mock503OversizedBodyFetch = async () => ({
+    status: 503,
+    ok: false,
+    headers: { get: () => null },
+    text: async () => 'x'.repeat(MAX_BODY_BYTES + 1),
+  });
+  const res503OversizedBody = await loadLiveSourceV2({
+    baseUrl: 'http://127.0.0.1:8788',
+    locale: 'en',
+    fetchImpl: mock503OversizedBodyFetch,
+  });
+  assert.equal(res503OversizedBody.status, 'error');
+  assert.equal(res503OversizedBody.reason, 'shape');
+
   // 10. Repro 1: 200 with valid body but MISSING Content-Language header -> must be error!
   const mockMissingLangFetch = async () => ({
     status: 200,
