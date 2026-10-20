@@ -17,6 +17,26 @@ import * as voiceAppState from '../src/voice/appState.ts';
 import * as translator from '../src/i18n/translator.ts';
 import * as threeLensesModule from '../src/data/threeLensesCompanion.ts';
 
+const actualCollectionsCode = ts.transpileModule(readFileSync(new URL('../src/data/collections.ts', import.meta.url), 'utf8'), {
+  compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true },
+}).outputText;
+const actualCollectionsMod = { exports: {} };
+runInNewContext('(function(require,module,exports){' + actualCollectionsCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+  if (id === 'react-native') return {};
+  if (id === './locale') return { isLocale: (v) => v === 'vi' || v === 'en' };
+  if (id === './sourceState') return sources;
+  if (id === '../assets/photoMap') return { HERO_PHOTO: 1 };
+  if (id === '../i18n/translator' || id === './src/i18n/translator') return translator;
+  if (id === './threeLensesCompanion.ts' || id === './threeLensesCompanion') return threeLensesModule;
+  if (id.endsWith('.json')) {
+    const fileUrl = new URL(id, new URL('../src/data/collections.ts', import.meta.url));
+    return JSON.parse(readFileSync(fileUrl, 'utf8'));
+  }
+  if (/\.(png|jpe?g|gif|webp|wav|mp3)$/i.test(id)) return 1;
+  throw new Error('Unexpected import in collections.ts: ' + id);
+}, actualCollectionsMod, actualCollectionsMod.exports);
+const actualCollections = actualCollectionsMod.exports;
+
 const fixture = JSON.parse(readFileSync(new URL('../../data/demo.json', import.meta.url), 'utf8'));
 
 // Execute screen handlers and state transitions without a native renderer.
@@ -2562,6 +2582,11 @@ test('AlleySelectScreen translates filter chips to All and Food in EN while pres
 
 test('AlleySelectScreen with real collections generates no dead chips and every chip returns results (R01)', () => {
   for (const loc of ['vi', 'en']) {
+    const realCollections = actualCollections.getLocalizedCollections(loc);
+    const realThemes = new Set(realCollections.map((c) => c.theme).filter(Boolean));
+    assert.equal(realCollections.length, actualCollections.AVAILABLE_COLLECTIONS.length);
+    assert.ok(realCollections.length >= 3, `Expected at least 3 real collections in ${loc}`);
+
     const view = mount('../src/screens/AlleySelectScreen.tsx', {
       navigation: { navigate() {}, goBack() {} },
       mode: 'demo',
@@ -2574,18 +2599,50 @@ test('AlleySelectScreen with real collections generates no dead chips and every 
           setCollectionId: () => {},
         }),
       },
+      '../data/collections': actualCollections,
     });
     const tree = view.render();
     const pressables = elements(tree, 'Pressable');
     const filterChips = pressables.filter((p) => p.props.accessibilityState && 'selected' in p.props.accessibilityState);
-    assert.ok(filterChips.length >= 2, `Must have at least All and theme chips in ${loc}`);
+    const filterLabels = filterChips.map((p) => p.props.accessibilityLabel);
 
-    // Verify no dead chip: every chip clicked must yield at least 1 card
-    for (const chip of filterChips) {
+    // Stale/dead chips from old mock or fixed lists must no longer render
+    const staleDeadChips = loc === 'en'
+      ? ['Food', 'Hàng Buồm', 'Hàng Gai', 'Đồng Xuân', 'Ẩm thực']
+      : ['Ẩm thực', 'Food', 'Hàng Buồm', 'Hàng Gai', 'Đồng Xuân'];
+    for (const dead of staleDeadChips) {
+      assert.equal(filterLabels.includes(dead), false, `Stale/dead chip "${dead}" must no longer render in ${loc}`);
+    }
+
+    const allLabel = translator.t(loc, 'alley_select.filter_all');
+    assert.equal(filterLabels[0], allLabel, `First chip must be All (${allLabel})`);
+
+    // Verify initial render contains the actual collections (not the mount mocked names)
+    const initialCards = elements(tree, 'Pressable').filter((p) => p.props.accessibilityLabel?.startsWith(loc === 'en' ? 'Open' : 'Mở'));
+    assert.equal(initialCards.length, realCollections.length, `Initial render must show all ${realCollections.length} real collections in ${loc}`);
+    for (const col of realCollections) {
+      const match = initialCards.find((c) => c.props.accessibilityLabel?.includes(col.name));
+      assert.ok(match, `Rendered cards must contain actual collection "${col.name}" from getLocalizedCollections in ${loc}`);
+    }
+
+    // Assert every rendered theme chip (other than All) matches at least one actual collection
+    const themeChips = filterChips.slice(1);
+    assert.ok(themeChips.length >= 1, `Must have at least one theme chip in ${loc}`);
+    for (const chip of themeChips) {
+      const chipLabel = chip.props.accessibilityLabel;
+      assert.ok(realThemes.has(chipLabel), `Rendered theme chip "${chipLabel}" must match an actual collection theme in ${loc}`);
+
+      // And clicking every chip must yield at least one real collection result matching that theme
       chip.props.onPress();
       const updatedTree = view.render();
-      const cards = elements(updatedTree, 'Pressable').filter((p) => p.props.accessibilityLabel?.startsWith(loc === 'en' ? 'Open' : 'Mở'));
-      assert.ok(cards.length >= 1, `Filter chip "${chip.props.accessibilityLabel}" in ${loc} must yield at least 1 collection, got ${cards.length}`);
+      const cards = elements(updatedTree, 'Pressable').filter((p) =>
+        p.props.accessibilityLabel?.startsWith(loc === 'en' ? 'Open' : 'Mở'),
+      );
+      assert.ok(cards.length >= 1, `Filter chip "${chipLabel}" in ${loc} must yield at least 1 collection, got ${cards.length}`);
+
+      // Every returned card must match the selected theme
+      const matchingReal = realCollections.filter((c) => c.theme === chipLabel);
+      assert.equal(cards.length, matchingReal.length, `Card count for chip "${chipLabel}" must match actual collections with that theme`);
     }
     view.unmount();
   }

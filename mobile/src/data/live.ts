@@ -366,10 +366,21 @@ export async function loadLiveSourceV2(options: LiveOptionsV2): Promise<SourceSt
 
     if (response.status !== 200) {
       if (response.status === 503) {
+        const contentLengthHeader = response.headers?.get?.('content-length');
+        if (contentLengthHeader !== null && contentLengthHeader !== undefined) {
+          const parsedLength = parseInt(contentLengthHeader, 10);
+          if (Number.isFinite(parsedLength) && parsedLength > MAX_BODY_BYTES) {
+            return liveError<DemoDatasetV2>('shape', locale);
+          }
+        }
+
         let isDatasetInvalid = false;
+        let isOversized = false;
         try {
           const text = await Promise.race([readBodyTextSafe(response), deadlinePromise, externalAbortPromise]);
-          if (getUtf8ByteLength(text) <= MAX_BODY_BYTES) {
+          if (getUtf8ByteLength(text) > MAX_BODY_BYTES) {
+            isOversized = true;
+          } else {
             const body = JSON.parse(text);
             if (
               typeof body === 'object' &&
@@ -391,6 +402,10 @@ export async function loadLiveSourceV2(options: LiveOptionsV2): Promise<SourceSt
         }
         if (timedOut || Date.now() - startTime >= timeoutMs) {
           return liveError<DemoDatasetV2>('timeout', locale);
+        }
+
+        if (isOversized) {
+          return liveError<DemoDatasetV2>('shape', locale);
         }
 
         return isDatasetInvalid
