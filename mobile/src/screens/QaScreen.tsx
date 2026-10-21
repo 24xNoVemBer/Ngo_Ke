@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState, type ReactElement } from 'react';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation';
+import { NotebookDrawerModal } from '../components/NotebookDrawerModal';
+import { getSourceState, type SourceState } from '../data/sourceState';
 import {
   Animated,
   ImageBackground,
@@ -37,6 +41,10 @@ const CHIP_COUNT = 4;
 
 type Props = {
   mode?: Mode;
+  source?: SourceState;
+  onModeChange?: (mode: Mode) => void;
+  liveBusy?: boolean;
+  onRetryLive?: () => void;
   dataset: AnyDemoDataset;
   datasetRevision: string;
   voiceApiBaseUrl?: string;
@@ -53,7 +61,7 @@ type Props = {
 };
 
 type VoiceActionCard =
-  | { kind: 'plan'; draft: PlanDraft; message?: string }
+  | { kind: 'plan'; draft: PlanDraft; message?: string; missingSlot?: 'topic' | 'budget' | 'both' }
   | { kind: 'qr' | 'gps' }
   | { kind: 'reference'; message: string }
   | { kind: 'mixed'; message: string; questionText: string; actionText: string; action: 'next' | 'plan' | 'open-qr' | 'open-gps'; context: VoiceTurnContext }
@@ -75,6 +83,10 @@ function getTopicLabel(topic: Topic, tFunc: (k: TranslationKey) => string): stri
 
 export function QaScreen({
   mode = 'demo',
+  source,
+  onModeChange,
+  liveBusy = false,
+  onRetryLive,
   dataset,
   datasetRevision,
   voiceApiBaseUrl,
@@ -91,7 +103,12 @@ export function QaScreen({
 }: Props): ReactElement {
   const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const [notebookVisible, setNotebookVisible] = useState(false);
   const { locale, collectionId, t } = useLocale();
+  const effectiveCollectionId = collectionId;
+  const effectiveSource = source ?? getSourceState(mode, dataset, locale);
+
   const [asked, setAsked] = useState<string | null>(null);
   const [askedSource, setAskedSource] = useState<'voice' | 'text' | 'chip' | null>(null);
   const [match, setMatch] = useState<QaMatch | null>(null);
@@ -422,7 +439,15 @@ export function QaScreen({
 
   function showPlanCard(draft: PlanDraft, message?: string): void {
     onPlanDraftChange(draft);
-    setVoiceActionCard({ kind: 'plan', draft, message });
+    const missingSlot: 'topic' | 'budget' | 'both' | undefined =
+      !draft.topic && !draft.budgetMinutes
+        ? 'both'
+        : !draft.topic
+        ? 'topic'
+        : !draft.budgetMinutes
+        ? 'budget'
+        : undefined;
+    setVoiceActionCard({ kind: 'plan', draft, message, missingSlot });
   }
 
   function executeAction(action: 'next' | 'plan' | 'open-qr' | 'open-gps', actionText: string): void {
@@ -768,7 +793,7 @@ export function QaScreen({
                         {voiceActionCard.draft.budgetMinutes ? ` · ${voiceActionCard.draft.budgetMinutes} ${t('qa.minutes')}` : ''}
                       </Text>
                     )}
-                    {(!voiceActionCard.draft.topic || voiceActionCard.message?.includes('chủ đề') || voiceActionCard.message?.includes('topic')) && (
+                    {(!voiceActionCard.draft.topic || voiceActionCard.missingSlot === 'topic' || voiceActionCard.missingSlot === 'both') && (
                       <View style={styles.voiceActionChoices}>
                         {TOPICS.map((topic) => (
                           <Pressable
@@ -783,7 +808,7 @@ export function QaScreen({
                         ))}
                       </View>
                     )}
-                    {(!voiceActionCard.draft.budgetMinutes || voiceActionCard.message?.includes('thời lượng') || voiceActionCard.message?.includes('duration') || voiceActionCard.message?.includes('khoảng thời gian')) && (
+                    {(!voiceActionCard.draft.budgetMinutes || voiceActionCard.missingSlot === 'budget' || voiceActionCard.missingSlot === 'both') && (
                       <View style={styles.voiceActionChoices}>
                         {[15, 30, 45, 60].map((minutes) => (
                           <Pressable
@@ -1000,6 +1025,7 @@ export function QaScreen({
                     setAsked(null);
                     setAskedSource(null);
                   }}
+                  hitSlop={8}
                   style={({ pressed }) => [styles.resetButton, pressed && styles.pressed]}
                 >
                   <Text style={styles.resetButtonText}>← {t('qa.ask_another')}</Text>
@@ -1073,7 +1099,7 @@ export function QaScreen({
             onCancel={voiceSession.cancel}
             onOpenInput={() => setIsInputDrawerVisible(true)}
             onOpenSettings={voiceSession.permissionBlocked ? () => { void Linking.openSettings().catch(() => undefined); } : undefined}
-            onQuickAction={onOpenNotebook}
+            onQuickAction={() => setNotebookVisible(true)}
             quickActionLabel={t('home.notebook_label')}
           />
         </View>
@@ -1090,6 +1116,21 @@ export function QaScreen({
         title={t('qa.ask_placeholder', { name: currentNode ? currentNode.name : t('qa.this_point') })}
         suggestedQuestions={quickQuestions}
         onSelectSuggestion={(q) => ask(q)}
+      />
+
+      {/* Shared Notebook Drawer Modal (F2) */}
+      <NotebookDrawerModal
+        visible={notebookVisible}
+        onClose={() => setNotebookVisible(false)}
+        navigation={navigation}
+        mode={mode}
+        onModeChange={(next) => {
+          if (onModeChange) onModeChange(next);
+        }}
+        source={effectiveSource}
+        collectionId={effectiveCollectionId}
+        liveBusy={liveBusy}
+        onRetryLive={onRetryLive}
       />
     </View>
   );
@@ -1391,11 +1432,16 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   resetButton: {
+    minHeight: 48,
+    minWidth: 48,
+    justifyContent: 'center',
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
     alignSelf: 'flex-start',
     marginTop: 4,
   },
   resetButtonText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '700',
     color: '#2A6F50',
   },

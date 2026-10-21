@@ -236,26 +236,16 @@ export function AlleySelectScreen({
             )}
           </View>
 
-          {/* Hàng 3: Gợi ý ngõ gần nhất theo GPS */}
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t('alley_select.hint', { mode: isLive ? t('common.live') : t('common.demo') })}
-            onPress={() => {
-              if (isLive) {
-                if (liveCollectionItem) handleSelectAlley(liveCollectionItem.id);
-                else if (onRetryLive) onRetryLive();
-              } else {
-                handleSelectAlley('old-quarter-pilot');
-              }
-            }}
-            style={({ pressed }) => [styles.nearestAlleyPill, pressed && styles.pressed]}
+          {/* Hàng 3: Hướng dẫn chọn ngõ */}
+          <View
+            accessibilityRole="text"
+            style={styles.nearestAlleyPill}
           >
-            <Text style={styles.nearestSparkle}>✨</Text>
+            <Text style={styles.nearestSparkle}>ℹ️</Text>
             <Text style={styles.nearestAlleyLabel}>
               {t('alley_select.hint', { mode: isLive ? t('common.live') : t('common.demo') })}
             </Text>
-            <Text style={styles.nearestChevron}>›</Text>
-          </Pressable>
+          </View>
 
           {/* Hàng 4: Các chip lọc địa bàn & chủ đề nhanh */}
           <ScrollView
@@ -328,8 +318,14 @@ export function AlleySelectScreen({
               <Text style={styles.emptyStateDetail}>{liveSource.detail}</Text>
             ) : null}
             {onRetryLive ? (
-              <Pressable accessibilityRole="button" accessibilityLabel={t('alley_select.live_retry')} onPress={onRetryLive}>
-                <Text style={styles.emptyStateReset}>{t('alley_select.live_retry')} ›</Text>
+              <Pressable
+                testID="alley-retry-live-btn"
+                accessibilityRole="button"
+                accessibilityLabel={t('alley_select.live_retry')}
+                onPress={onRetryLive}
+                style={({ pressed }) => [styles.retryLiveBtn, pressed && styles.pressed]}
+              >
+                <Text style={styles.retryLiveBtnText}>{t('alley_select.live_retry')} ›</Text>
               </Pressable>
             ) : null}
           </View>
@@ -597,15 +593,6 @@ const styles = StyleSheet.create({
     fontSize: 11.5,
     color: '#5C483D',
   },
-  nearestAlleyBold: {
-    fontWeight: '800',
-    color: '#2C221E',
-  },
-  nearestChevron: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#8C5A40',
-  },
   filterChipsRow: {
     gap: 8,
     paddingTop: 2,
@@ -665,6 +652,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: spacing.lg,
     lineHeight: 18,
+  },
+  retryLiveBtn: {
+    minHeight: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: 10,
+    borderRadius: radius.md,
+    backgroundColor: 'rgba(30, 107, 74, 0.12)',
+    borderWidth: 1,
+    borderColor: '#1E6B4A',
+    marginTop: spacing.sm,
+  },
+  retryLiveBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1E6B4A',
   },
   emptyStateReset: {
     fontSize: 12.5,

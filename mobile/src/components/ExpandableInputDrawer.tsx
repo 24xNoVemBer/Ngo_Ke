@@ -107,7 +107,6 @@ export function ExpandableInputDrawer({
         >
           <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: spacing.md }}>
           {/* Header */}
-          <View style={styles.handleBar} />
           <View style={styles.headerRow}>
             <Text style={styles.drawerTitle} accessibilityRole="header">
               {resolvedTitle}
@@ -207,14 +206,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 12,
     elevation: 16,
-  },
-  handleBar: {
-    width: 44,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.borderStrong,
-    alignSelf: 'center',
-    marginBottom: spacing.xs,
   },
   headerRow: {
     flexDirection: 'row',

@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useAudioPlayer } from 'expo-audio';
 import { loadLiveSourceV2, readLiveConfig } from './src/data/live';
 import { getSourceState, type Mode, type SourceState } from './src/data/sourceState';
 import * as Crypto from 'expo-crypto';
@@ -61,8 +62,12 @@ const voiceApiBaseUrl = readVoiceApiBaseUrl(
   appConfig.expo.extra as Record<string, unknown> | undefined,
 );
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- Metro statically analyzable sound asset
+const PROLOGUE_WATERDROP_SOUND = require('./assets/sounds/prologue_waterdrop.wav');
+
 export default function App(): ReactElement {
   const motion = useMotionPreferences();
+  const startSoundPlayer = useAudioPlayer(PROLOGUE_WATERDROP_SOUND, { downloadFirst: true });
   const [routeName, setRouteName] = useState('Prologue');
   const [locale, setLocaleState] = useState<Locale>(() => resolveEffectiveLocale(undefined));
   const [isLocaleReady, setIsLocaleReady] = useState(false);
@@ -254,7 +259,7 @@ export default function App(): ReactElement {
             name="Prologue"
             options={{ headerShown: false, animation: motion.reducedMotion ? 'none' : 'fade' }}
           >
-            {(props) => <PrologueScreen {...props} />}
+            {(props) => <PrologueScreen {...props} player={startSoundPlayer} />}
           </Stack.Screen>
 
           {/* TẦNG 1: LANDING PAGE CHÍNH MỞ LỐI */}
@@ -262,7 +267,17 @@ export default function App(): ReactElement {
             name="Landing"
             options={{ headerShown: false, animation: motion.reducedMotion ? 'none' : 'fade' }}
           >
-            {(props) => <LandingScreen {...props} mode={mode} nodeCount={source.status === 'ready' ? source.dataset.nodes.length : 0} />}
+            {(props) => (
+              <LandingScreen
+                {...props}
+                mode={mode}
+                source={source}
+                onModeChange={changeMode}
+                nodeCount={source.status === 'ready' ? source.dataset.nodes.length : 0}
+                liveBusy={liveBusy}
+                onRetryLive={retryLive}
+              />
+            )}
           </Stack.Screen>
 
           {/* TẦNG 2: PAGE CHỌN VỊ TRÍ / CHỌN CON NGÕ */}
@@ -314,6 +329,10 @@ export default function App(): ReactElement {
                 <QaScreen
                   key={`${mode}:${liveRevision}:${activeNodeId}`}
                   mode={mode}
+                  source={source}
+                  onModeChange={changeMode}
+                  liveBusy={liveBusy}
+                  onRetryLive={retryLive}
                   dataset={source.dataset}
                   datasetRevision={
                     mode === 'demo'
@@ -338,7 +357,7 @@ export default function App(): ReactElement {
                   onBack={() => props.navigation.goBack()}
                 />
               ) : (
-                <UnavailableScreen detail={source.detail} onBack={() => props.navigation.goBack()} onSwitchToDemo={() => { changeMode('demo'); props.navigation.goBack(); }} />
+                <UnavailableScreen detail={source.detail} onBack={() => props.navigation.goBack()} onSwitchToDemo={() => { changeMode('demo'); props.navigation.goBack(); }} onRetry={mode === 'live' ? retryLive : undefined} busy={liveBusy} />
               )
             }
           </Stack.Screen>
@@ -358,12 +377,18 @@ export default function App(): ReactElement {
                   }}
                 />
               ) : (
-                <UnavailableScreen detail={source.detail} />
+                <UnavailableScreen
+                  detail={source.detail}
+                  onBack={() => props.navigation.goBack()}
+                  onSwitchToDemo={() => { changeMode('demo'); props.navigation.goBack(); }}
+                  onRetry={mode === 'live' ? retryLive : undefined}
+                  busy={liveBusy}
+                />
               )
             }
           </Stack.Screen>
           <Stack.Screen name="Camera" options={{ title: t(locale, 'camera.title') }}>
-            {() =>
+            {(props) =>
               source.status === 'ready' ? (
                 <CameraScreen
                   nodes={source.dataset.nodes}
@@ -372,12 +397,18 @@ export default function App(): ReactElement {
                   collectionId={'collectionId' in source.dataset && typeof source.dataset.collectionId === 'string' ? source.dataset.collectionId : undefined}
                 />
               ) : (
-                <UnavailableScreen detail={source.detail} />
+                <UnavailableScreen
+                  detail={source.detail}
+                  onBack={() => props.navigation.goBack()}
+                  onSwitchToDemo={() => { changeMode('demo'); props.navigation.goBack(); }}
+                  onRetry={mode === 'live' ? retryLive : undefined}
+                  busy={liveBusy}
+                />
               )
             }
           </Stack.Screen>
           <Stack.Screen name="Location" options={{ title: t(locale, 'location.title') }}>
-            {() =>
+            {(props) =>
               source.status === 'ready' && activeNodeId !== undefined ? (
                 <LocationScreen
                   nodes={source.dataset.nodes}
@@ -387,7 +418,13 @@ export default function App(): ReactElement {
                   collectionId={'collectionId' in source.dataset && typeof source.dataset.collectionId === 'string' ? source.dataset.collectionId : undefined}
                 />
               ) : (
-                <UnavailableScreen detail={source.detail} />
+                <UnavailableScreen
+                  detail={source.detail}
+                  onBack={() => props.navigation.goBack()}
+                  onSwitchToDemo={() => { changeMode('demo'); props.navigation.goBack(); }}
+                  onRetry={mode === 'live' ? retryLive : undefined}
+                  busy={liveBusy}
+                />
               )
             }
           </Stack.Screen>

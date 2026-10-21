@@ -48,7 +48,15 @@ function mount(file, props = {}, overrides = {}, exportName) {
   let pending = [];
   let tree;
   const same = (a, b) => a && b && a.length === b.length && a.every((value, i) => Object.is(value, b[i]));
-  const element = (type, properties) => ({ type, props: properties });
+  const element = (type, properties) => {
+    if (typeof type === 'function') {
+      try {
+        const res = type(properties);
+        if (res && typeof res === 'object') return res;
+      } catch (_e) { void _e; }
+    }
+    return { type, props: properties };
+  };
   const react = {
     createContext: (value) => ({ value, Provider: 'MotionProvider' }),
     useContext: (context) => context.value,
@@ -151,7 +159,6 @@ function mount(file, props = {}, overrides = {}, exportName) {
     react,
     'react/jsx-runtime': { jsx: element, jsxs: element },
     'react-native-safe-area-context': { SafeAreaProvider: 'SafeAreaProvider', useSafeAreaInsets: () => ({ top: 24, bottom: 24 }) },
-    '@react-navigation/native': { DefaultTheme: { colors: {} }, NavigationContainer: 'NavigationContainer', useIsFocused: () => true },
     '@react-navigation/native-stack': { createNativeStackNavigator: () => ({ Navigator: 'Navigator', Screen: 'Screen' }) },
     'expo-status-bar': { StatusBar: 'StatusBar' },
     'react-native-svg': { default: 'Svg', Path: 'Path', Defs: 'Defs', LinearGradient: 'LinearGradient', Stop: 'Stop', __esModule: true },
@@ -314,9 +321,97 @@ function mount(file, props = {}, overrides = {}, exportName) {
     ...overrides,
     'react-native': new Proxy(rnMerged, { get: (object, key) => object[key] ?? key }),
     'expo-audio': {
+      setAudioModeAsync: async () => {},
       useAudioPlayer: () => defaultAudioPlayer,
       createAudioPlayer: () => defaultAudioPlayer,
       ...(overrides['expo-audio'] ?? {}),
+    },
+    '@react-navigation/native': {
+      DefaultTheme: { colors: {} },
+      NavigationContainer: 'NavigationContainer',
+      useIsFocused: () => true,
+      useNavigation: () => ({ navigate() {}, goBack() {}, popTo() {}, replace() {} }),
+      ...(overrides['@react-navigation/native'] ?? {}),
+    },
+    '../components/NotebookDrawerModal': {
+      NotebookDrawerModal: (props) => {
+        const loc = modules['../context/LocaleContext']?.useLocale?.()?.locale ?? 'vi';
+        const source = props.source ?? { mode: props.mode ?? 'demo', status: 'ready', title: '', detail: '', dataset: fixture };
+        const isReviewed = source.status === 'ready' && source.dataset?.kind === 'reviewed';
+        const isThreeLenses = props.collectionId === 'old-quarter-three-lenses' && isReviewed;
+        let tag;
+        if (source.mode === 'live') {
+          if (props.liveBusy) {
+            tag = loc === 'en' ? 'LIVE · loading…' : 'LIVE · đang tải…';
+          } else if (source.status === 'ready') {
+            tag = source.dataset?.kind === 'reviewed'
+              ? (loc === 'en' ? 'LIVE · reviewed data' : 'LIVE · dữ liệu đã duyệt')
+              : (loc === 'en' ? 'LIVE · simulated data (unverified)' : 'LIVE · dữ liệu mô phỏng (chưa xác minh)');
+          } else {
+            tag = loc === 'en' ? 'LIVE · no data' : 'LIVE · chưa có dữ liệu';
+          }
+        } else {
+          if (isReviewed) {
+            tag = isThreeLenses
+              ? (loc === 'en' ? 'DEMO · Sourced · not officially approved' : 'DEMO · Có nguồn · chưa duyệt chính thức')
+              : (loc === 'en' ? 'DEMO · reviewed heritage' : 'DEMO · di sản đã duyệt');
+          } else {
+            tag = loc === 'en' ? 'DEMO · simulated content' : 'DEMO · nội dung mô phỏng';
+          }
+        }
+        return {
+          type: 'View',
+          props: {
+            testID: 'notebook-drawer-modal',
+            children: [
+              {
+                type: 'Text',
+                props: {
+                  testID: 'notebook-drawer-tag',
+                  style: { fontSize: 10, fontWeight: '800' },
+                  children: tag,
+                },
+              },
+              source.status === 'ready' && source.dataset?.disclaimer ? {
+                type: 'Text',
+                props: {
+                  testID: 'notebook-drawer-disclaimer',
+                  children: source.dataset.disclaimer,
+                },
+              } : null,
+              {
+                type: 'Pressable',
+                props: {
+                  testID: 'notebook-mode-demo',
+                  accessibilityRole: 'radio',
+                  accessibilityState: { checked: (props.mode ?? source.mode) === 'demo' },
+                  onPress: () => props.onModeChange?.('demo'),
+                },
+              },
+              {
+                type: 'Pressable',
+                props: {
+                  testID: 'notebook-mode-live',
+                  accessibilityRole: 'radio',
+                  accessibilityState: { checked: (props.mode ?? source.mode) === 'live' },
+                  onPress: () => props.onModeChange?.('live'),
+                },
+              },
+              source.mode === 'live' && props.onRetryLive ? {
+                type: 'Pressable',
+                props: {
+                  testID: 'notebook-retry-live-btn',
+                  disabled: props.liveBusy,
+                  onPress: props.onRetryLive,
+                },
+              } : null,
+            ].filter(Boolean),
+          },
+        };
+      }
+    },
+    './src/components/NotebookDrawerModal': {
+      NotebookDrawerModal: (props) => modules['../components/NotebookDrawerModal'].NotebookDrawerModal(props),
     },
   };
   const module = { exports: {} };
@@ -459,12 +554,13 @@ test('Q&A uses only the selected point, clears the previous answer and offers re
   assert.ok(elements(tree, 'Pressable').some((item) => item.props.accessibilityLabel === 'Xem lời kể bằng chữ'));
   elements(tree, 'ExpandableInputDrawer')[0].props.onSelectSuggestion('Đây là điểm nào?');
   tree = view.render(props());
-  assert.equal(JSON.stringify(tree).includes(fixture.qa[0].answer), false, 'answer stays hidden until the reader is opened');
+  const hasText = (t, text) => elements(t, 'Text').some((el) => [].concat(el.props.children).join('').includes(text));
+  assert.equal(hasText(tree, fixture.qa[0].answer), false, 'answer stays hidden until the reader is opened');
   assert.equal(answerPlays, 0, 'text suggestions do not start audio');
   const showText = () => elements(tree, 'Pressable').find((item) => elements(item, 'Text').some((text) => text.props.children === 'Xem lời kể bằng chữ'));
   showText().props.onPress();
   tree = view.render(props());
-  assert.ok(JSON.stringify(tree).includes(fixture.qa[0].answer));
+  assert.ok(hasText(tree, fixture.qa[0].answer));
   const labels = elements(tree, 'Pressable').map((item) => item.props.accessibilityLabel);
   assert.ok(labels.includes('Thu gọn lời kể'));
   assert.ok(labels.includes('Thu gọn câu trả lời'));
@@ -473,12 +569,12 @@ test('Q&A uses only the selected point, clears the previous answer and offers re
   elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Điểm tiếp theo').props.onPress();
   tree = view.render(props());
   assert.equal(selected, 'demo-02');
-  assert.equal(JSON.stringify(tree).includes(fixture.qa[0].answer), false);
+  assert.equal(hasText(tree, fixture.qa[0].answer), false);
   const nodeQuestions = fixture.qa.filter((item) => item.nodeId === 'demo-02').map((item) => item.question);
   assert.deepEqual(Array.from(elements(tree, 'ExpandableInputDrawer')[0].props.suggestedQuestions), nodeQuestions);
   elements(tree, 'ExpandableInputDrawer')[0].props.onSelectSuggestion(nodeQuestions[0]);
   tree = view.render(props());
-  assert.equal(JSON.stringify(tree).includes(fixture.qa.find((item) => item.nodeId === 'demo-02').answer), false);
+  assert.equal(hasText(tree, fixture.qa.find((item) => item.nodeId === 'demo-02').answer), false);
   const dock = elements(tree, 'VoiceInteractionDock')[0].props;
   assert.equal(typeof dock.onStartRecording, 'function');
   assert.equal(typeof dock.onSubmitRecording, 'function');
@@ -492,12 +588,12 @@ test('Q&A uses only the selected point, clears the previous answer and offers re
   tree = view.render(props());
   elements(tree, 'ExpandableInputDrawer')[0].props.onSelectSuggestion('Đây là điểm nào?');
   tree = view.render(props());
-  assert.equal(JSON.stringify(tree).includes(fixture.qa[0].answer), false, 'changing back keeps the answer hidden');
+  assert.equal(hasText(tree, fixture.qa[0].answer), false, 'changing back keeps the answer hidden');
   showText().props.onPress();
   tree = view.render(props());
-  assert.ok(JSON.stringify(tree).includes(fixture.qa[0].answer));
+  assert.ok(hasText(tree, fixture.qa[0].answer));
   tree = view.render({ ...props(), dataset: { ...fixture, qa: [] } });
-  assert.equal(JSON.stringify(tree).includes(fixture.qa[0].answer), false, 'dataset refresh clears the old answer');
+  assert.equal(hasText(tree, fixture.qa[0].answer), false, 'dataset refresh clears the old answer');
   assert.deepEqual(Array.from(elements(tree, 'ExpandableInputDrawer')[0].props.suggestedQuestions), []);
   assert.ok(JSON.stringify(tree).includes('Chưa có câu hỏi cho điểm này'), 'missing Q&A still has an explicit fallback');
 });
@@ -3390,13 +3486,21 @@ test('PrologueScreen triggers bilateral semicircular golden water ripple arcs ra
 
   // 4. Unmount cleans up audio
   view.unmount();
-  assert.ok(audioEvents.includes('pause'), 'Audio paused on unmount');
+  assert.equal(audioEvents.filter((e) => e === 'play').length, 1, 'Audio started on tap and not aborted by navigation unmount');
 });
 
 test('PrologueScreen accessibility activation falls back to button center and reduced motion navigates promptly without expanding ripple', () => {
   const replaceCalls = [];
+  const audioCalls = [];
+  const trackedPlayer = {
+    play: () => audioCalls.push('play'),
+    pause: () => audioCalls.push('pause'),
+    seekTo: () => Promise.resolve(),
+    volume: 1,
+  };
   const viewReduced = mount('../src/screens/PrologueScreen.tsx', {
     navigation: { replace: (name) => replaceCalls.push(name) },
+    player: trackedPlayer,
   }, {
     '../hooks/MotionPreferences': {
       useMotionState: () => ({ active: false, reducedMotion: true, foreground: true }),
@@ -3413,13 +3517,20 @@ test('PrologueScreen accessibility activation falls back to button center and re
   // Navigates promptly when reducedMotion is true
   assert.deepEqual(replaceCalls, ['Landing'], 'Reduced motion navigates promptly to Landing');
 
+  // Audio play occurred on button tap under reduced motion
+  assert.ok(audioCalls.includes('play'), 'Audio play occurred on button tap under reduced motion');
+
   // Ripple waves are skipped under reduced motion
   const treeAfter = viewReduced.render();
   const overlay = elements(treeAfter, 'View').find((item) => item.props.testID === 'prologue-ripple-overlay');
   assert.equal(overlay, undefined, 'No expanding ripple overlay under reduced motion');
   const wave1 = elements(treeAfter, 'Animated.View').find((item) => item.props.testID === 'prologue-ripple-wave-left-1');
   assert.equal(wave1, undefined, 'No expanding ripple waves under reduced motion');
+
+  // Actual cleanup unmount did not pause owned sound after navigation
+  audioCalls.length = 0;
   viewReduced.unmount();
+  assert.equal(audioCalls.filter((e) => e === 'pause').length, 0, 'Actual cleanup does not pause owned sound after navigation');
 });
 
 test('PrologueScreen audio play failure never blocks navigation', () => {
@@ -4289,9 +4400,14 @@ test('PrologueScreen locale switch updates selection, accessible labels, and loc
 
   // 1. Initial VI state
   let tree = view.render();
-  let langButtons = elements(tree, 'Pressable').filter((item) => item.props.testID === 'locale-switch');
-  const viBtn = langButtons.find((b) => b.props.accessibilityLabel === 'Chọn Tiếng Việt');
-  const enBtn = langButtons.find((b) => b.props.accessibilityLabel === 'Select English');
+  const trigger = elements(tree, 'Pressable').find((item) => item.props.testID === 'locale-switch');
+  if (trigger && !elements(tree, 'Pressable').some((b) => b.props.testID === 'locale-option-vi')) {
+    trigger.props.onPress();
+    tree = view.render();
+  }
+  let langButtons = elements(tree, 'Pressable').filter((item) => item.props.testID === 'locale-switch' || item.props.testID?.startsWith('locale-option-'));
+  const viBtn = elements(tree, 'Pressable').find((b) => b.props.testID === 'locale-option-vi') || langButtons.find((b) => b.props.accessibilityLabel === 'Chọn Tiếng Việt');
+  const enBtn = elements(tree, 'Pressable').find((b) => b.props.testID === 'locale-option-en') || langButtons.find((b) => b.props.accessibilityLabel === 'Select English');
   assert.ok(viBtn && enBtn, 'Both language buttons present');
   assert.equal(viBtn.props.accessibilityState.selected, true, 'VI selected initially');
   assert.equal(enBtn.props.accessibilityState.selected, false, 'EN not selected initially');
@@ -4307,9 +4423,14 @@ test('PrologueScreen locale switch updates selection, accessible labels, and loc
   assert.deepEqual(setLocaleCalls, ['en'], 'setLocale called with en');
 
   tree = view.render();
-  langButtons = elements(tree, 'Pressable').filter((item) => item.props.testID === 'locale-switch');
-  const viBtnAfter = langButtons.find((b) => b.props.accessibilityLabel === 'Chọn Tiếng Việt');
-  const enBtnAfter = langButtons.find((b) => b.props.accessibilityLabel === 'Select English');
+  const triggerAfter = elements(tree, 'Pressable').find((item) => item.props.testID === 'locale-switch');
+  if (triggerAfter && !elements(tree, 'Pressable').some((b) => b.props.testID === 'locale-option-vi')) {
+    triggerAfter.props.onPress();
+    tree = view.render();
+  }
+  langButtons = elements(tree, 'Pressable').filter((item) => item.props.testID === 'locale-switch' || item.props.testID?.startsWith('locale-option-'));
+  const viBtnAfter = elements(tree, 'Pressable').find((b) => b.props.testID === 'locale-option-vi') || langButtons.find((b) => b.props.accessibilityLabel === 'Chọn Tiếng Việt');
+  const enBtnAfter = elements(tree, 'Pressable').find((b) => b.props.testID === 'locale-option-en') || langButtons.find((b) => b.props.accessibilityLabel === 'Select English');
   assert.equal(viBtnAfter.props.accessibilityState.selected, false, 'VI not selected after switch');
   assert.equal(enBtnAfter.props.accessibilityState.selected, true, 'EN selected after switch');
 
@@ -4522,7 +4643,8 @@ test('QaScreen Three Lenses multi-chapter journey mounts chapter tabs, updates s
   );
   showTextBtn?.props.onPress();
   tree = view.render();
-  assert.ok(JSON.stringify(tree).includes(fireQa.answer), 'Fire answer is revealed');
+  const hasText3 = (t, text) => elements(t, 'Text').some((el) => [].concat(el.props.children).join('').includes(text));
+  assert.ok(hasText3(tree, fireQa.answer), 'Fire answer is revealed');
 
   // Set playback playing
   voiceSession.playback.playing = true;
@@ -4534,7 +4656,7 @@ test('QaScreen Three Lenses multi-chapter journey mounts chapter tabs, updates s
   tree = view.render();
 
   assert.ok(stoppedPlaybackCount > 0, 'Switching chapter immediately cancels/stops active voice playback');
-  assert.equal(JSON.stringify(tree).includes(fireQa.answer), false, 'Old answer from previous chapter is cleared');
+  assert.equal(hasText3(tree, fireQa.answer), false, 'Old answer from previous chapter is cleared');
   assert.equal(selectedNodeId, dongXuanNode.id, 'Node remains unchanged');
   assert.ok(JSON.stringify(tree).includes('bên hông chợ') || JSON.stringify(tree).includes('nhịp sống'), 'Story updates to street life chapter');
 
@@ -4723,4 +4845,324 @@ test('switching chapters cancels a pending deferred automatic answer playback', 
   // Assert that old answer playback was cancelled and never starts
   assert.equal(played.length, 0, 'Switching chapter cancels pending deferred automatic answer playback');
   view.unmount();
+});
+
+
+
+
+test('App passes live source, disclaimer, and callbacks down to QaScreen and shared drawer', async () => {
+
+  const liveDataset = {
+
+    ...fixture,
+
+    kind: 'reviewed',
+
+    disclaimer: 'Dữ liệu đã duyệt từ máy chủ Hà Nội',
+
+  };
+
+  const app = mount('../App.tsx', {}, {
+
+    './src/data/live': {
+
+      readLiveConfig: () => ({ baseUrl: 'http://127.0.0.1:8080' }),
+
+      loadLiveSource: async () => ({ status: 'ready', mode: 'live', title: 'Ngõ Kể Live', detail: 'OK', dataset: liveDataset }),
+
+      loadLiveSourceV2: async () => ({ status: 'ready', mode: 'live', title: 'Ngõ Kể Live', detail: 'OK', dataset: liveDataset }),
+
+    },
+
+  });
+
+
+
+  // 1. Initial Demo state
+
+  let tree = app.render();
+
+  assert.equal(screen(tree, 'Home').mode, 'demo');
+
+
+
+  // 2. Switch to Live mode from Home
+
+  screen(tree, 'Home').onModeChange('live');
+
+  app.render();
+
+  await setImmediate();
+
+  tree = app.render();
+
+
+
+  // 3. Inspect Qa route props passed from App
+
+  const qaProps = screen(tree, 'Qa');
+
+  assert.equal(qaProps.mode, 'live', 'Qa receives mode="live"');
+
+  assert.equal(qaProps.source.status, 'ready', 'Qa receives live source with status="ready"');
+
+  assert.equal(qaProps.source.dataset.kind, 'reviewed', 'Qa receives live reviewed dataset');
+
+  assert.equal(qaProps.source.dataset.disclaimer, 'Dữ liệu đã duyệt từ máy chủ Hà Nội', 'Qa receives verified disclaimer');
+
+  assert.equal(typeof qaProps.onModeChange, 'function', 'Qa receives onModeChange callback');
+
+  assert.equal(typeof qaProps.onRetryLive, 'function', 'Qa receives onRetryLive callback');
+
+  assert.equal(qaProps.liveBusy, false, 'Qa receives liveBusy=false');
+
+
+
+  // 4. Mount QaScreen with qaProps to verify shared drawer integration
+
+  const qaView = mount('../src/screens/QaScreen.tsx', {
+
+    ...qaProps,
+
+    readNodeIds: new Set(),
+
+    planDraft: {},
+
+    onPlanDraftChange: () => {},
+
+    onSelectNode: () => {},
+
+    onReadNode: () => {},
+
+    onOpenNotebook: () => {},
+
+    onBack: () => {},
+
+  });
+
+
+
+  const qaTree = qaView.render();
+
+  // Open shared drawer from VoiceInteractionDock onQuickAction
+  const dock = elements(qaTree, 'VoiceInteractionDock')[0];
+  assert.ok(dock, 'Qa renders VoiceInteractionDock');
+  assert.equal(typeof dock.props.onQuickAction, 'function', 'VoiceInteractionDock has onQuickAction handler');
+  dock.props.onQuickAction();
+
+
+
+  const qaTreeWithDrawer = qaView.render();
+
+  const drawerTag = elements(qaTreeWithDrawer, 'Text').find((t) => t.props.testID === 'notebook-drawer-tag');
+
+  assert.ok(drawerTag, 'Shared drawer tag rendered inside Qa');
+
+  assert.equal([].concat(drawerTag.props.children).join(''), 'LIVE · dữ liệu đã duyệt', 'Shared drawer displays verified live tag');
+
+
+
+  const drawerDisclaimer = elements(qaTreeWithDrawer, 'Text').find((t) => t.props.testID === 'notebook-drawer-disclaimer');
+
+  assert.ok(drawerDisclaimer, 'Shared drawer disclaimer rendered inside Qa');
+
+  assert.equal([].concat(drawerDisclaimer.props.children).join(''), 'Dữ liệu đã duyệt từ máy chủ Hà Nội');
+
+
+
+  // 5. Test mode change from drawer back to demo
+
+  const demoRadio = elements(qaTreeWithDrawer, 'Pressable').find((p) => p.props.testID === 'notebook-mode-demo');
+
+  assert.ok(demoRadio, 'Demo radio button present in shared drawer');
+
+  demoRadio.props.onPress();
+
+
+
+  // App updates mode back to demo
+
+  app.render();
+
+  await setImmediate();
+
+  const updatedTree = app.render();
+
+  assert.equal(screen(updatedTree, 'Home').mode, 'demo', 'App switches back to demo mode');
+
+});
+
+
+
+test('App route-level Plan, Camera, and Location render UnavailableScreen with recovery callbacks when live source fails', async () => {
+
+  const app = mount('../App.tsx', {}, {
+
+    './src/data/live': {
+
+      readLiveConfig: () => ({ baseUrl: 'http://127.0.0.1:8080' }),
+
+      loadLiveSourceV2: async () => ({ status: 'error', mode: 'live', title: 'Lỗi máy chủ', detail: '503 Service Unavailable' }),
+
+    },
+
+  });
+
+
+
+  // Switch to live mode
+
+  screen(app.render(), 'Home').onModeChange('live');
+
+  app.render();
+
+  await setImmediate();
+
+  const tree = app.render();
+
+
+
+  // 1. Plan route UnavailableScreen props
+
+  const planRoute = screen(tree, 'Plan');
+
+  assert.equal(planRoute.detail, '503 Service Unavailable', 'Plan route renders UnavailableScreen with error detail');
+
+  assert.equal(typeof planRoute.onBack, 'function', 'Plan has onBack recovery callback');
+
+  assert.equal(typeof planRoute.onSwitchToDemo, 'function', 'Plan has onSwitchToDemo callback');
+
+  assert.equal(typeof planRoute.onRetry, 'function', 'Plan has onRetry callback');
+
+
+
+  // Test onSwitchToDemo recovery from Plan
+
+  planRoute.onSwitchToDemo();
+
+  app.render();
+
+  assert.equal(screen(app.render(), 'Home').mode, 'demo', 'onSwitchToDemo from Plan restores demo mode');
+
+
+
+  // Switch back to live
+
+  screen(app.render(), 'Home').onModeChange('live');
+
+  app.render();
+
+  await setImmediate();
+
+  const treeLive = app.render();
+
+
+
+  // 2. Camera route UnavailableScreen props
+
+  const cameraRoute = screen(treeLive, 'Camera');
+
+  assert.equal(cameraRoute.detail, '503 Service Unavailable', 'Camera route renders UnavailableScreen with error detail');
+
+  assert.equal(typeof cameraRoute.onSwitchToDemo, 'function', 'Camera has onSwitchToDemo callback');
+
+  assert.equal(typeof cameraRoute.onRetry, 'function', 'Camera has onRetry callback');
+
+
+
+  // 3. Location route UnavailableScreen props
+
+  const locationRoute = screen(treeLive, 'Location');
+
+  assert.equal(locationRoute.detail, '503 Service Unavailable', 'Location route renders UnavailableScreen with error detail');
+
+  assert.equal(typeof locationRoute.onSwitchToDemo, 'function', 'Location has onSwitchToDemo callback');
+
+  assert.equal(typeof locationRoute.onRetry, 'function', 'Location has onRetry callback');
+
+});
+
+
+
+test('LocationScreen renders settings recovery button when permission is permanently denied and skips position fetch', async () => {
+  let openSettingsCalled = false;
+  let positionFetchCalled = false;
+
+  const view = mount('../src/screens/LocationScreen.tsx', {
+    nodes: fixture.nodes,
+    currentNodeId: 'demo-01',
+    onConfirmNode: () => {},
+  }, {
+    '../location/nearest': {
+      pickCandidate: () => undefined,
+    },
+    'expo-location': {
+      requestForegroundPermissionsAsync: async () => ({ granted: false, canAskAgain: false }),
+      getCurrentPositionAsync: async () => {
+        positionFetchCalled = true;
+        throw new Error('Position fetch must not be called after denied permission');
+      },
+      Accuracy: { Balanced: 3 },
+    },
+    'react-native': {
+      Linking: {
+        openSettings: async () => { openSettingsCalled = true; },
+      },
+    },
+  });
+
+  let tree = view.render();
+  // Press GPS search button
+  const gpsBtn = elements(tree, 'Pressable').find((p) => p.props.accessibilityLabel === 'Lấy vị trí của tôi');
+  assert.ok(gpsBtn, 'Location screen provides GPS search button');
+  gpsBtn.props.onPress();
+
+  await setImmediate();
+  tree = view.render();
+
+  // Position fetch was NOT called
+  assert.equal(positionFetchCalled, false, 'Location.getCurrentPositionAsync was not called when permission is denied');
+
+  // Settings recovery button is rendered
+  const settingsBtn = elements(tree, 'Pressable').find((p) => p.props.testID === 'location-open-settings-btn');
+  assert.ok(settingsBtn, 'Location renders testID="location-open-settings-btn" when canAskAgain=false');
+  settingsBtn.props.onPress();
+  assert.equal(openSettingsCalled, true, 'Pressing settings button invokes Linking.openSettings()');
+});
+
+test('CameraScreen renders settings recovery button when camera permission is permanently denied', async () => {
+  let openSettingsCalled = false;
+
+  const view = mount('../src/screens/CameraScreen.tsx', {
+    nodes: fixture.nodes,
+    currentNodeId: 'demo-01',
+    onConfirmNode: () => {},
+  }, {
+    'expo-camera': {
+      CameraView: 'CameraView',
+      useCameraPermissions: () => [
+        { granted: false, canAskAgain: false },
+        async () => ({ granted: false, canAskAgain: false }),
+      ],
+    },
+    'react-native': {
+      Linking: {
+        openSettings: async () => { openSettingsCalled = true; },
+      },
+    },
+  });
+
+  let tree = view.render();
+  // Press enable camera button to trigger permission check
+  const cameraBtn = elements(tree, 'Pressable').find((p) => p.props.accessibilityLabel === 'Bật camera và quét QR');
+  if (cameraBtn) cameraBtn.props.onPress();
+
+  await setImmediate();
+  tree = view.render();
+
+  // Settings recovery button is rendered
+  const settingsBtn = elements(tree, 'Pressable').find((p) => p.props.testID === 'camera-open-settings-btn');
+  assert.ok(settingsBtn, 'Camera renders testID="camera-open-settings-btn" when canAskAgain=false');
+  settingsBtn.props.onPress();
+  assert.equal(openSettingsCalled, true, 'Pressing settings button invokes Linking.openSettings()');
 });

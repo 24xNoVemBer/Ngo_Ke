@@ -1,5 +1,65 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-21 — hoàn thành sửa lỗi UI/UX toàn diện (F1–F16) theo chỉ dẫn Coordinator
+
+- **Nhiệm vụ:** Task `task_74a42e53635c` / Dispatch `ctx_429288d639c9`. Triển khai toàn bộ các hạng mục F1–F16 đã được duyệt theo `UI_UX_REMEDIATION_SPEC_20261021.md` và giải quyết các phản biện từ review độc lập của Claude.
+- **Chi tiết thực hiện:**
+  - **F1 (Phản hồi GPS & Camera):** Thêm thẻ xác nhận điểm có nút rõ "Mở câu chuyện điểm này" trên `LocationScreen`; `CameraScreen` ẩn ID kỹ thuật `{active.id}` và thêm nút mở hỏi đáp sau khi quét thành công. Không tự động ép chuyển màn hình.
+  - **F2 (Thống nhất Sổ tay & Icon):** Dùng chung `NotebookDrawerModal` trên Landing, Home, Qa; thống nhất tên Sổ tay cho drawer công cụ; icon GPS dock và drawer thống nhất `pin`, Plan giữ `compass`; nút Sổ tay trên dock của Qa chỉ mở shared drawer, không gọi `onOpenNotebook` chuyển Plan; giữ nguyên matcher GPS candidate gần nhất khi người dùng chủ động thao tác.
+  - **F3 (Vùng bấm & Picker ngôn ngữ):** Đảm bảo kích thước tối thiểu 44–48dp; DEMO/LIVE pill mở Sổ tay; giữ âm thanh giọt nước tĩnh lặng và timing mượt mà.
+  - **F4 (UnavailableScreen & Live Recovery):** Nối đầy đủ props `onBack`, `onRetry`, `onSwitchToDemo`, `busy` cho `UnavailableScreen` trên Plan, Camera, Location, Qa. Nút Retry được tạo kiểu primary nổi bật, Đổi sang Demo dạng secondary; không fallback ngầm.
+  - **F5–F10 (Quyền bị chặn, a11y, dynamic dataset, disclaimer contrast):** Phát hiện `canAskAgain === false` để hiện nút mở Settings trên Camera/Location; `accessible={false}` trên nhãn pin HomeScreen tránh đọc lặp; tính toán layout pin động khi nodes > 6; độ tương phản cảnh báo mô phỏng đạt > 6:1 (`#5C483D`, 13px); bỏ badge khoảng cách thừa trên Landing carousel; sửa pill hướng dẫn ngõ thành thanh thông tin và mở rộng nút retry 48dp trên AlleySelectScreen.
+  - **F11–F15 (Reduced motion audio, modal a11y, i18n, carousel bounds):** `PrologueScreen` phát âm thanh an toàn ngay khi có reduced motion; thêm `accessibilityViewIsModal={true}` và role button trên modal backdrop; gom và chuẩn hóa từ điển `translator.ts`; tăng minHeight thẻ carousel lên 310 tránh cắt chữ fontScale 2.
+  - **F16 (Header & Theme):** Bảo lưu header native-stack và bảng màu chuẩn để tránh xáo trộn thị giác tùy hứng.
+- **Kiểm tra kỹ thuật hoàn tất:**
+  - Toàn bộ unit/regression test: **295/295 passed** (`node --test mobile/tests/*.mjs`), 0 fail, 0 errors.
+  - TypeScript: **0 lỗi** (`npm run typecheck --prefix mobile`).
+  - ESLint: **0 lỗi, 0 cảnh báo** (`npm run lint --prefix mobile`).
+  - Git whitespace: **Clean** (`git diff --check`, exit code 0).
+  - Metro 8082: Cả bundle iOS và Android đều trả về **HTTP 200 OK**.
+- **Báo cáo chi tiết:** `docs/reviews/2026-10-21-antigravity-ui-ux-remediation.md`.
+- **Cần người dùng quyết:** Không có.
+- **Cần người dùng tự làm:** Kiểm tra trực tiếp trên thiết bị di động (bắt GPS thực địa ngoài trời và quét camera vật lý thực tế).
+
+
+## 2026-10-21 — bổ sung lối tắt GPS và Sổ tay trực tiếp trên Trang chủ Landing
+
+- Người dùng đính chính phạm vi: đưa hai mục GPS và Sổ tay ra ngoài Trang chủ (LandingScreen) để dễ dàng thao tác trực tiếp, thay thế cho hướng tự động lấy GPS và xếp hạng gần bạn (autoGPS/nearby cũ đã được tháo khỏi runtime và sao lưu an toàn ra ngoài production source tại Temp).
+- Đã thiết kế và triển khai khối "Tiện ích trực tiếp" (`testID="landing-quick-actions-section"`) dưới carousel con ngõ trên `LandingScreen`:
+  1. Nút Vị trí GPS (`testID="landing-quick-gps"`): điều hướng trực tiếp sang `LocationScreen`. Không tự ý kích hoạt GPS hay xin quyền khi mount Landing.
+  2. Nút Sổ tay (`testID="landing-quick-notebook"`): mở trực tiếp Sổ tay ngõ phố "Hành trình & Công cụ" trong một lần bấm (`testID="notebook-drawer-modal"`).
+- Đã trích xuất component dùng chung `NotebookDrawerModal` tại `mobile/src/components/NotebookDrawerModal.tsx`:
+  - Tái sử dụng trọn vẹn luồng và giao diện Sổ tay ("Hành trình & Công cụ") từ `HomeScreen`, hỗ trợ điều hướng Plan, Camera, GPS và bộ chuyển Demo/Live.
+  - Xử lý phản biện review của Coordinator (`msg_a29a782aecad`): dùng `useMotionState` từ MotionProvider, tiêu đề header có `flex: 1, flexShrink: 1, minWidth: 0` để fontScale 2x không đẩy nút đóng, `sourceHeaderRow` hỗ trợ wrap khi font lớn, touch targets của ModeOption và RetryLive đạt chuẩn chạm tiếp cận >= 48dp.
+- Kiểm tra toàn diện:
+  - Unit/regression tests: `mobile/tests/landingQuickActions.test.mjs` (5/5 tests pass, không mirror style, kiểm tra hành vi thật và cả Live empty lẫn Live error).
+  - Toàn bộ test suite: `npm test --prefix mobile` đạt 296/296 pass (0 fail, 0 errors).
+  - TypeScript: `npm run typecheck --prefix mobile` (0 errors).
+  - ESLint: `npm run lint --prefix mobile` (0 errors).
+  - Git whitespace: `git diff --check` pass.
+  - Bundler Metro 8082: Cả Android và iOS bundles HTTP 200 OK, chứa đầy đủ markers UI mới `landing-quick-gps` và `landing-quick-notebook`.
+- Cần người dùng quyết: Không có.
+- Cần người dùng tự làm: Mở/reload Expo Go từ cổng 8082 để trải nghiệm 2 nút tiện ích trực tiếp trên điện thoại thật.
+
+## 2026-10-21 — thiết kế lại Prologue và cập nhật âm thanh giọt nước nút bắt đầu
+
+- Người dùng phản hồi thiết kế cũ "quá xấu" và âm thanh thử nghiệm ban đầu "chả có tiếng gì". Đã điều tra và xử lý triệt để:
+  1. Thiết kế lại `PrologueScreen`: chỉ MỘT nút/bộ điều khiển ngôn ngữ ở trạng thái nghỉ; bấm mở bảng chọn in-app (Tiếng Việt và English), cân đối bố cục, rõ thứ bậc thị giác.
+  2. Thay âm thanh nút bắt đầu thành tiếng MỘT giọt nước rơi từ trên cao xuống mặt nước trong không gian tĩnh lặng (tiếng tõm/plop trong, hơi trầm, dư vang nhẹ và tắt tự nhiên, không pop/click UI hay chuông).
+  3. Người dùng cung cấp nguồn Pixabay "water drop" (freesound_community, bản thu 3 giọt nước) và chỉ đạo cụ thể: "lấy cái âm rơi đầu tiên th".
+- Đã trích xuất chính xác âm rơi đầu tiên (Drop 1: từ 482.0ms đến 1002.0ms, thời lượng 520ms, micro-fade đầu 1.5ms và cosine fade đuôi 35ms, chuẩn hóa -2.1 dBFS, RMS -18.4 dBFS) từ bản thu gốc được cache cục bộ (`f_01bc59`). File lưu tại `mobile/assets/sounds/prologue_waterdrop.wav` (45,908 bytes, 44.1 kHz, 16-bit mono PCM).
+- **Nguyên nhân và cách xử lý lỗi "chả có tiếng gì" trên điện thoại:**
+  - *Lỗi chunk header WAV:* File trích xuất ban đầu bị lỗi chunk tag tại byte 36 ghi nhãn `LIST` thay vì `data` (do metadata từ ffmpeg decode). Native audio decoder (Apple AVPlayer/CoreAudio trên iOS và ExoPlayer/MediaPlayer trên Android) không tìm thấy tag `data` nên báo lỗi `no 'data' tag found`, khiến `useAudioPlayer` không nạp được frame âm thanh nào. Đã sửa chuẩn FourCC tag tại byte 36 thành `data` (45,864 bytes payload PCM), ffmpeg và mobile decoder đã nhận diện chuẩn PCM 44.1kHz mono 16-bit.
+  - *Chế độ im lặng (Silent mode) trên điện thoại:* iOS mặc định chặn âm thanh nếu máy bật nút gạt rung/im lặng mà không có `playsInSilentMode: true`. Đã gọi `setAudioModeAsync({ playsInSilentMode: true })` ngay khi Prologue mount và khi nhấn nút.
+  - *Tải trước cache:* Bổ sung `{ downloadFirst: true }` vào `useAudioPlayer` để Expo Audio tải sẵn asset về bộ nhớ tạm thiết bị, loại bỏ độ trễ stream mạng khi bấm.
+- Thời lượng 520ms hoàn toàn nằm gọn trong khoảng chờ điều hướng 620ms và kết thúc trước chu kỳ fade âm lượng 460ms của `PrologueScreen.tsx`, bảo đảm dư vang không bị ngắt cụt khi chuyển màn hình.
+- Đã cập nhật `PrologueScreen.tsx`: import `PROLOGUE_WATERDROP_SOUND` từ `mobile/assets/sounds/prologue_waterdrop.wav`. Giữ nguyên toàn bộ logic player, handleStartJourney, async seek reset với attemptToken, hiệu ứng sóng nước 620ms, fade âm lượng, điều hướng replace Landing, hủy phát/reentry và narration/âm thanh khác.
+- Đã hoàn tất redesign bộ chọn ngôn ngữ: nút viên thuốc kính mờ căn giữa (top-center, minHeight 48dp), bảng chọn in-app (Bottom Sheet Modal) chuẩn "Sổ tay ngõ phố" (nền #1E241D, viền #B9A589, huy hiệu dấu tích SVG vàng).
+- Đã nghe thử bằng Windows SoundPlayer API và kiểm tra decoder qua ffmpeg: xác nhận âm plop/tõm trong trẻo, êm, dư vang tự nhiên trong tĩnh lặng, không tiếng ồn nền hay tiếng rơi huýt sáo giả.
+- Kiểm tra: 291/291 ca pass (`npm test --prefix mobile`); `npm run typecheck` 0 lỗi; `npm run lint` 0 lỗi; `git diff --check` pass. Metro 8082 đang chạy cục bộ trả về HTTP 200 OK cho cả Android và iOS bundles.
+- Cần người dùng quyết: Không có.
+- Cần người dùng tự làm: Mở/refresh Expo Go trên thiết bị để nghe âm thanh giọt nước mới và trải nghiệm giao diện; chưa nghe trực tiếp trên loa điện thoại thật.
+
 ## 2026-10-20 — Claude chỉ review độc lập khi user chủ động yêu cầu
 
 - User: “chia cho claude vai trò người rv độc lập toàn bộ, chỉ gọi khi t yêu cầu còn kh thì kh baoh được gọi”. Đã ghi quy tắc ưu tiên ở đầu AGENTS.md: Claude reviewer độc lập toàn dự án, mặc định read-only; tuyệt đối không tự launch/spawn/message/task/resume/retry hay gọi qua workflow/hook/automation/dự phòng. Full access, quyền end-to-end hoặc yêu cầu review chung không tự mở quyền gọi Claude.

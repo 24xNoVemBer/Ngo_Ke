@@ -1,7 +1,9 @@
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
-import { useIsFocused } from '@react-navigation/native';
-import { Animated, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation';
+import { Animated, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { DemoNode } from '../data/sourceState';
 import { confirmByQr, selectManually } from '../qr/confirmPoint';
@@ -27,6 +29,8 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
   const isFocused = useIsFocused() && foreground;
   const cameraRequest = useRef(0);
   const scanAccepted = useRef(false);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const [permissionBlocked, setPermissionBlocked] = useState(false);
   const [, requestPermission] = useCameraPermissions();
   const [cameraOn, setCameraOn] = useState(false);
   const [scanning, setScanning] = useState(false);
@@ -51,12 +55,16 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
     const result = await requestPermission();
     if (request !== cameraRequest.current) return;
     if (result.granted) {
+      setPermissionBlocked(false);
       scanAccepted.current = false;
       setCameraOn(true);
       setScanning(true);
       return;
     }
     setCameraOn(false);
+    if (!result.canAskAgain) {
+      setPermissionBlocked(true);
+    }
     setScanNote(
       result.canAskAgain
         ? t('camera.permission_denied')
@@ -178,7 +186,22 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
               </Text>
             </Pressable>
           )}
-          {scanNote !== undefined && <Text style={styles.hint}>{scanNote}</Text>}
+          {scanNote !== undefined && (
+            <View style={styles.hintBox} accessibilityLiveRegion="polite">
+              <Text style={styles.hint}>{scanNote}</Text>
+              {permissionBlocked && (
+                <Pressable
+                  testID="camera-open-settings-btn"
+                  accessibilityRole="button"
+                  accessibilityLabel={t('common.open_settings')}
+                  onPress={() => void Linking.openSettings()}
+                  style={({ pressed }) => [styles.secondaryButton, { marginTop: 8 }, pressed && styles.pressed]}
+                >
+                  <Text style={styles.secondaryText}>⚙️ {t('common.open_settings')}</Text>
+                </Pressable>
+              )}
+            </View>
+          )}
         </View>
 
         {/* Preview khung ngắm camera */}
@@ -289,7 +312,7 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
 
             <View style={styles.activeContent}>
               <View style={styles.activeTagRow}>
-                <Text style={styles.phase}>{active.id} · {locale === 'en' ? 'CONFIRMED STOP' : 'ĐIỂM ĐÃ XÁC NHẬN'}</Text>
+                <Text style={styles.phase}>{locale === 'en' ? 'CONFIRMED STOP' : 'ĐIỂM ĐÃ XÁC NHẬN'}</Text>
               </View>
               <Text accessibilityRole="header" style={styles.activeTitle}>
                 {active.name}
@@ -302,6 +325,15 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
                     : 'Bạn đang xem chế độ sổ tay đọc chữ. Bật camera ở trên nếu muốn trải nghiệm người kể trên nền không gian thực.'}
                 </Text>
               )}
+              <Pressable
+                testID="camera-open-qa-btn"
+                accessibilityRole="button"
+                accessibilityLabel={t('camera.open_qa')}
+                onPress={() => navigation.navigate('Qa')}
+                style={({ pressed }) => [styles.primaryButton, { backgroundColor: '#2A6F50', marginBottom: 8 }, pressed && styles.pressed]}
+              >
+                <Text style={styles.primaryText}>💬 {t('camera.open_qa')}</Text>
+              </Pressable>
               <Pressable
                 accessibilityRole="button"
                 onPress={reset}
@@ -422,6 +454,12 @@ const styles = StyleSheet.create({
     ...typography.bodyLarge,
     lineHeight: 26,
     color: colors.text,
+  },
+  hintBox: {
+    padding: spacing.sm,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceWarm,
+    gap: spacing.xs,
   },
   hint: {
     ...typography.bodySmall,

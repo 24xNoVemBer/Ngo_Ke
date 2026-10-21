@@ -48,6 +48,15 @@ Tiếp tục preview cùng project/branch theo yêu cầu deploy rõ ràng đã 
 
 [Mở preview và QR](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/02936a78-2e15-413b-b1da-5a37e3269a33). Expo Go iOS: `exp://u.expo.dev/update/01a1553f-c32e-7747-9653-e9bc732bc684`; đăng nhập tài khoản trong team như preview trước. Không cần cùng Wi-Fi/Metro. Demo và156audio bundle có trong preview; Live và mic online chưa có public server.
 
+## Cập nhật 2026-10-21 — thiết kế lại Prologue và cập nhật âm thanh giọt nước nút bắt đầu
+
+- Người dùng phản hồi thiết kế cũ "quá xấu" và yêu cầu thay âm thanh nút bắt đầu thành tiếng giọt nước. Antigravity đã thực hiện:
+  - **Bộ chọn ngôn ngữ:** Nút viên thuốc kính mờ (glassmorphism pill) tinh tế, cân đối ở trục giữa trên cùng (top-center): nền `rgba(28, 32, 25, 0.65)`, viền mảnh `rgba(232, 213, 188, 0.35)`, icon SVG địa cầu + tên ngôn ngữ hiện tại + icon SVG chevron. Vùng chạm chuẩn 48dp Android / 44pt iOS.
+  - **Bảng chọn in-app:** Khi bấm mở bảng chọn in-app (Bottom Sheet / Modal) theo phong cách "Sổ tay ngõ phố" (nền sẫm `#1E241D`, viền vàng đồng `#B9A589`, tay nắm kéo, nút đóng 44x44pt, hai thẻ chọn minHeight 58dp với huy hiệu dấu tích vàng). Dấu chọn không chỉ dựa vào màu sắc. Tách bạch thứ bậc thị giác với nút CTA chính.
+  - **Âm thanh giọt nước:** Đã thay thế âm thanh `prologue_door.wav` (tiếng cửa gỗ mở cũ). Theo chỉ đạo của người dùng và nguồn Pixabay ("water drop" by freesound_community), đã trích xuất chính xác âm rơi đầu tiên ("lấy cái âm rơi đầu tiên th") từ bản thu gốc: file PCM WAV `mobile/assets/sounds/prologue_waterdrop.wav` (45,908 bytes, 44.1 kHz 16-bit mono, thời lượng 520ms từ 482.0ms đến 1002.0ms, âm plop/tõm trong trẻo, hơi trầm, dư vang tắt dần tự nhiên trong không gian tĩnh lặng, không click/pop UI hay tiếng chuông).
+  - **Sửa lỗi không phát tiếng trên điện thoại thật:** Đã điều tra và khắc phục lỗi tag chunk header tại byte 36 bị ghi nhãn `LIST` thay vì `data`, khiến trình giải mã native mobile (AVPlayer iOS / ExoPlayer Android) báo lỗi `no 'data' tag found` và không nạp được frame âm thanh. Đã chuẩn hóa tag `data` (45,864 bytes PCM), cấu hình `playsInSilentMode: true` qua `setAudioModeAsync` để đảm bảo nghe được cả khi điện thoại bật công tắc rung/im lặng, và thêm `{ downloadFirst: true }` để cache sẵn âm thanh trên thiết bị trước khi nhấn. Đã cập nhật import và hook trong `PrologueScreen.tsx`. Khung thời gian 520ms vừa vặn trong 620ms navigation delay, bảo toàn trọn vẹn đuôi vang khi chuyển sang Landing.
+  - **Kiểm thử:** 291/291 pass (`npm test --prefix mobile`), `tsc --noEmit` đạt, ESLint đạt. Metro 8082 đang chạy cục bộ phục vụ cả Android và iOS bundles đạt HTTP 200 OK.
+
 ## Việc cần anh quyết / việc anh tự làm
 
 - Cần quyết: không có cửa duyệt bổ sung cho chỉnh bố cục đã giao.

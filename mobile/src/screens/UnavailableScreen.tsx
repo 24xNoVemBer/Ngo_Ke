@@ -21,9 +21,37 @@ export function UnavailableScreen({ detail, onBack, onSwitchToDemo, onRetry, bus
           <View style={styles.disclaimerBox}>
             <Text style={styles.note}>{t('unavailable.note')}</Text>
           </View>
-          {onBack && <Pressable accessibilityRole="button" onPress={onBack} style={styles.action}><Text style={styles.body}>{t('common.back')}</Text></Pressable>}
-          {onRetry && <Pressable accessibilityRole="button" disabled={busy} onPress={onRetry} style={styles.action}><Text style={styles.body}>{busy ? t('common.loading') : t('common.retry')}</Text></Pressable>}
-          {onSwitchToDemo && <Pressable accessibilityRole="button" onPress={onSwitchToDemo} style={styles.action}><Text style={styles.body}>{t('common.switch_to_demo')}</Text></Pressable>}
+          {onRetry && (
+            <Pressable
+              accessibilityRole="button"
+              disabled={busy}
+              onPress={onRetry}
+              style={[styles.primaryAction, busy && styles.disabled]}
+              testID="unavailable-retry-btn"
+            >
+              <Text style={styles.primaryActionText}>{busy ? t('common.loading') : t('common.retry')}</Text>
+            </Pressable>
+          )}
+          {onSwitchToDemo && (
+            <Pressable
+              accessibilityRole="button"
+              onPress={onSwitchToDemo}
+              style={styles.secondaryAction}
+              testID="unavailable-switch-demo-btn"
+            >
+              <Text style={styles.secondaryActionText}>{t('common.switch_to_demo')}</Text>
+            </Pressable>
+          )}
+          {onBack && (
+            <Pressable
+              accessibilityRole="button"
+              onPress={onBack}
+              style={styles.secondaryAction}
+              testID="unavailable-back-btn"
+            >
+              <Text style={styles.secondaryActionText}>{t('common.back')}</Text>
+            </Pressable>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -31,7 +59,42 @@ export function UnavailableScreen({ detail, onBack, onSwitchToDemo, onRetry, bus
 }
 
 const styles = StyleSheet.create({
-  action: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing.md, backgroundColor: colors.surfaceWarm, borderRadius: radius.md },
+  primaryAction: {
+    minHeight: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    backgroundColor: '#2A6F50',
+    borderRadius: radius.md,
+    shadowColor: '#2A6F50',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  primaryActionText: {
+    color: '#FFFDF7',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  secondaryAction: {
+    minHeight: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.surfaceWarm,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  secondaryActionText: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  disabled: {
+    opacity: 0.6,
+  },
   screen: { flex: 1, backgroundColor: colors.background },
   content: {
     padding: spacing.md,

@@ -161,6 +161,14 @@ export type TranslationKey =
   | 'landing.passport_guide'
   | 'landing.passport_phase'
   | 'landing.badge_sample'
+  | 'landing.quick_section_pre'
+  | 'landing.quick_section_title'
+  | 'landing.quick_gps_title'
+  | 'landing.quick_gps_desc'
+  | 'landing.quick_gps_label'
+  | 'landing.quick_notebook_title'
+  | 'landing.quick_notebook_desc'
+  | 'landing.quick_notebook_label'
   // Alley select
   | 'alley_select.title'
   | 'alley_select.subtitle'
@@ -372,6 +380,11 @@ export type TranslationKey =
   | 'location.select_manual'
   | 'location.select_manual_simulated'
   | 'location.suggested_visit_minutes'
+  | 'location.open_story'
+  | 'location.confirmed_banner'
+  | 'location.permission_blocked'
+  | 'camera.open_qa'
+  | 'common.open_settings'
   // Unavailable
   | 'unavailable.phase'
   | 'unavailable.title'
@@ -538,6 +551,14 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'landing.passport_guide': 'Đây là mẫu trình bày sổ tay. Demo chưa lưu lịch sử ghé thăm; các trang bên dưới chưa có dấu xác nhận.',
     'landing.passport_phase': 'BỘ SƯU TẬP DI SẢN',
     'landing.badge_sample': 'MẪU',
+    'landing.quick_section_pre': 'TIỆN ÍCH',
+    'landing.quick_section_title': 'Công cụ ngõ phố',
+    'landing.quick_gps_title': 'Vị trí GPS',
+    'landing.quick_gps_desc': 'Định vị điểm ngõ bạn đang đứng',
+    'landing.quick_gps_label': 'Mở màn hình vị trí GPS',
+    'landing.quick_notebook_title': 'Sổ tay',
+    'landing.quick_notebook_desc': 'Hành trình & Công cụ',
+    'landing.quick_notebook_label': 'Mở sổ tay ngõ phố và công cụ',
 
     'alley_select.title': 'Bộ sưu tập con ngõ',
     'alley_select.subtitle': 'Chọn một hành trình để bắt đầu khám phá',
@@ -678,9 +699,9 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'home.tool_qr_label': 'Quét mã QR tại điểm',
     'home.tool_qr_title': 'Quét mã QR',
     'home.tool_qr_desc': 'Xác nhận điểm chạm và kích hoạt người kể',
-    'home.tool_gps_label': 'Tìm điểm bằng GPS',
-    'home.tool_gps_title': 'Tìm bằng GPS',
-    'home.tool_gps_desc': 'Gợi ý điểm ngõ gần nhất theo tọa độ thiết bị',
+    'home.tool_gps_label': 'Xác nhận điểm bằng GPS',
+    'home.tool_gps_title': 'Xác nhận bằng GPS',
+    'home.tool_gps_desc': 'Xác nhận điểm ngõ bằng GPS theo vị trí thiết bị',
     'home.data_source': 'Nguồn dữ liệu',
     'home.mode_demo': 'Chế độ demo',
     'home.mode_live': 'Chế độ live',
@@ -735,7 +756,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'camera.disclaimer_reviewed': 'Nội dung điểm dừng và lời kể dựa trên dữ liệu di sản đã duyệt kèm nguồn kiểm chứng. Người kể 2D là hình minh hoạ không gian.',
 
     'location.title': 'Xác nhận điểm GPS',
-    'location.find_button': 'Tìm điểm gần nhất qua GPS',
+    'location.find_button': 'Xác nhận điểm bằng GPS',
     'location.waiting': 'Đang đọc tọa độ GPS…',
     'location.stop_waiting': 'Dừng tìm',
     'location.confirm_button': 'Xác nhận điểm này',
@@ -749,6 +770,11 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'location.select_manual': 'Chọn điểm {name} bằng tay',
     'location.select_manual_simulated': 'Chọn điểm {name} bằng tay, mô phỏng',
     'location.suggested_visit_minutes': 'Gợi ý tham quan: {minutes} phút (chưa đo)',
+    'location.open_story': 'Mở câu chuyện điểm này',
+    'location.confirmed_banner': 'Đã xác nhận: {name}',
+    'location.permission_blocked': 'Quyền vị trí đã bị từ chối. Hãy mở Cài đặt thiết bị để cấp quyền hoặc chọn điểm bằng tay bên dưới.',
+    'camera.open_qa': 'Mở hỏi đáp điểm này',
+    'common.open_settings': 'Mở Cài đặt',
 
     'unavailable.phase': 'Thông báo dữ liệu',
     'unavailable.title': 'Chưa có dữ liệu hỏi đáp',
@@ -914,6 +940,14 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'landing.passport_guide': 'This is a sample notebook. Demo does not yet save visit history; stops below are unconfirmed.',
     'landing.passport_phase': 'HERITAGE COLLECTION',
     'landing.badge_sample': 'SAMPLE',
+    'landing.quick_section_pre': 'UTILITIES',
+    'landing.quick_section_title': 'Alley Tools',
+    'landing.quick_gps_title': 'GPS Location',
+    'landing.quick_gps_desc': 'Locate the alley stop you are visiting',
+    'landing.quick_gps_label': 'Open GPS location screen',
+    'landing.quick_notebook_title': 'Notebook',
+    'landing.quick_notebook_desc': 'Journey & Tools',
+    'landing.quick_notebook_label': 'Open alley notebook and tools',
 
     'alley_select.title': 'Alley Collection',
     'alley_select.subtitle': 'Choose a journey to start exploring',
@@ -1054,9 +1088,9 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'home.tool_qr_label': 'Scan QR code at stop',
     'home.tool_qr_title': 'Scan QR Code',
     'home.tool_qr_desc': 'Confirm stop and activate storyteller',
-    'home.tool_gps_label': 'Find stop with GPS',
-    'home.tool_gps_title': 'Find with GPS',
-    'home.tool_gps_desc': 'Suggest nearest alley stop from device coordinates',
+    'home.tool_gps_label': 'Confirm stop with GPS',
+    'home.tool_gps_title': 'Confirm with GPS',
+    'home.tool_gps_desc': 'Confirm alley stop with device GPS location',
     'home.data_source': 'Data Source',
     'home.mode_demo': 'Demo mode',
     'home.mode_live': 'Live mode',
@@ -1111,7 +1145,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'camera.disclaimer_reviewed': 'Stop content and stories are based on reviewed heritage data with verified sources. 2D narrator is a spatial illustration placeholder.',
 
     'location.title': 'Confirm GPS stop',
-    'location.find_button': 'Find nearest stop via GPS',
+    'location.find_button': 'Confirm stop with GPS',
     'location.waiting': 'Reading GPS coordinates…',
     'location.stop_waiting': 'Stop searching',
     'location.confirm_button': 'Confirm this stop',
@@ -1125,6 +1159,11 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'location.select_manual': 'Select {name} manually',
     'location.select_manual_simulated': 'Select {name} manually, simulated',
     'location.suggested_visit_minutes': 'Suggested visit: {minutes} min (unmeasured)',
+    'location.open_story': 'Open story for this stop',
+    'location.confirmed_banner': 'Confirmed: {name}',
+    'location.permission_blocked': 'Location permission is blocked. Please enable it in Settings or select a stop manually below.',
+    'camera.open_qa': 'Open Q&A for this stop',
+    'common.open_settings': 'Open Settings',
 
     'unavailable.phase': 'Data notice',
     'unavailable.title': 'Q&A data not available',

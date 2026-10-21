@@ -3,7 +3,6 @@ import { useEffect, useRef, useState, type ReactElement } from 'react';
 import {
   Animated,
   ImageBackground,
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -16,12 +15,13 @@ import Svg, { Path } from 'react-native-svg';
 import type { DemoNode, Mode, SourceState } from '../data/sourceState';
 import type { RootStackParamList } from '../navigation';
 import { getNodePhoto, getNodePhotographer, getAlleyMeta } from '../assets/photoMap';
-import { AVAILABLE_COLLECTIONS, DEFAULT_COLLECTION_ID, getLocalizedCollections } from '../data/collections';
+import { AVAILABLE_COLLECTIONS, DEFAULT_COLLECTION_ID, getLocalizedCollections, isCollectionId, type CollectionId } from '../data/collections';
 import { UnavailableScreen } from './UnavailableScreen';
 import { useMotionState } from '../hooks/MotionPreferences';
 import { CrossfadePhoto } from '../components/CrossfadePhoto';
 import { AlleyTrailView } from '../components/AlleyTrailView';
 import { AppIcon } from '../components/AppIcon';
+import { NotebookDrawerModal } from '../components/NotebookDrawerModal';
 import { usePressSpring, usePulseLoop } from '../hooks/useMotion';
 import { useLocale } from '../context/LocaleContext';
 import { radius, spacing } from '../theme';
@@ -106,7 +106,7 @@ export function HomeScreen({
   const motion = useMotionState();
   const { locale, setLocale, t } = useLocale();
   const collections = getLocalizedCollections(locale);
-  const activeCollectionId = mode === 'live'
+  const rawCollectionId = mode === 'live'
     ? (source.status === 'ready' && 'collectionId' in source.dataset && typeof source.dataset.collectionId === 'string'
         ? source.dataset.collectionId
         : DEFAULT_COLLECTION_ID)
@@ -114,6 +114,7 @@ export function HomeScreen({
         || (source.status === 'ready' && 'collectionId' in source.dataset && typeof source.dataset.collectionId === 'string'
             ? source.dataset.collectionId
             : DEFAULT_COLLECTION_ID));
+  const activeCollectionId: CollectionId = isCollectionId(rawCollectionId) ? rawCollectionId : DEFAULT_COLLECTION_ID;
   const activeCollection = collections.find((c) => c.id === activeCollectionId) ?? collections[0];
   const knownMeta = AVAILABLE_COLLECTIONS.find((c) => c.id === activeCollectionId);
   const collectionKind: 'simulated' | 'reviewed' =
@@ -251,6 +252,7 @@ export function HomeScreen({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t('common.back')}
+            hitSlop={12}
             onPress={() => navigation.goBack()}
             style={({ pressed }) => [styles.backArrowButton, pressed && styles.pressed]}
           >
@@ -305,19 +307,20 @@ export function HomeScreen({
           <Pressable
             testID="locale-switch"
             accessibilityRole="button"
-            accessibilityLabel={locale === 'vi' ? 'Switch to English' : 'Chuyển sang Tiếng Việt'}
+            accessibilityLabel={locale === 'vi' ? 'Ngôn ngữ: Tiếng Việt. Chạm để đổi sang English' : 'Language: English. Tap to switch to Tiếng Việt'}
+            hitSlop={8}
             onPress={() => setLocale(locale === 'vi' ? 'en' : 'vi')}
             style={({ pressed }) => [styles.moodHeaderButton, pressed && styles.pressed, { marginLeft: 6 }]}
           >
             <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFDF7' }}>
-              {locale === 'vi' ? 'EN' : 'VI'}
+              {locale.toUpperCase()}
             </Text>
           </Pressable>
         </View>
 
         {/* 3. KHÔNG GIAN BẢN ĐỒ NGÕ: DẢI ĐƯỜNG MÒN PHÁT SÁNG & THẺ BƯU ẢNH SỔ TAY */}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }}>
-        {fontScale > 1.3 ? (
+        {fontScale > 1.3 || nodes.length > 6 ? (
           <AlleyTrailView
             nodes={nodes}
             currentNodeId={currentNode?.id}
@@ -435,6 +438,7 @@ export function HomeScreen({
                 {/* Nhãn tên điểm bên phải */}
                 {pinMeta.side === 'right' && (
                   <Pressable
+                    accessible={false}
                     disabled={!node.available}
                     onPress={() => handleSelectPin(node.id)}
                     style={[
@@ -458,6 +462,7 @@ export function HomeScreen({
                 {/* Nhãn tên điểm bên trái */}
                 {pinMeta.side === 'left' && (
                   <Pressable
+                    accessible={false}
                     disabled={!node.available}
                     onPress={() => handleSelectPin(node.id)}
                     style={[
@@ -564,7 +569,7 @@ export function HomeScreen({
               onPress={() => navigation.navigate('Location')}
               style={({ pressed }) => [styles.dockSideCircle, pressed && styles.pressed]}
             >
-              <AppIcon name="compass" />
+              <AppIcon name="pin" />
               <Text style={styles.dockLabel}>GPS</Text>
             </Pressable>
 
@@ -583,162 +588,17 @@ export function HomeScreen({
       </ImageBackground>
 
       {/* 6. MODAL SỔ TAY NGÕ PHỐ (PLAN, CAMERA, GPS, DEMO/LIVE) */}
-      <Modal
+      <NotebookDrawerModal
         visible={drawerVisible}
-        animationType={motion.reducedMotion ? 'none' : 'slide'}
-        transparent
-        onRequestClose={() => setDrawerVisible(false)}
-      >
-        <View style={styles.modalBackdrop}>
-          <Pressable
-            style={styles.modalDismissArea}
-            onPress={() => setDrawerVisible(false)}
-            accessibilityLabel={t('home.close_notebook')}
-          />
-
-          <View style={styles.journalDrawerSheet}>
-            <View style={styles.sheetHandle} />
-
-            <View style={styles.drawerHeaderRow}>
-              <View>
-                <Text style={styles.drawerPhase}>{t('home.notebook_phase')}</Text>
-                <Text accessibilityRole="header" style={styles.drawerTitle}>
-                  {t('home.notebook_title')}
-                </Text>
-              </View>
-              <Pressable
-                onPress={() => setDrawerVisible(false)}
-                accessibilityRole="button"
-                accessibilityLabel={t('home.close_notebook')}
-                style={styles.closeDrawerButton}
-              >
-                <Text style={styles.closeDrawerText}>✕</Text>
-              </Pressable>
-            </View>
-
-            <ScrollView contentContainerStyle={styles.drawerScrollContent}>
-              {/* Lối tắt các tính năng chính */}
-              <View style={styles.toolsGrid}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={t('home.tool_plan_label')}
-                  onPress={() => {
-                    setDrawerVisible(false);
-                    navigation.navigate('Plan');
-                  }}
-                  style={({ pressed }) => [styles.toolGridCard, pressed && styles.pressed]}
-                >
-                  <AppIcon name="compass" color="#2D5748" />
-                  <Text style={styles.toolGridTitle}>{t('home.tool_plan_title')}</Text>
-                  <Text style={styles.toolGridDesc}>{t('home.tool_plan_desc')}</Text>
-                </Pressable>
-
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={t('home.tool_qr_label')}
-                  onPress={() => {
-                    setDrawerVisible(false);
-                    navigation.navigate('Camera');
-                  }}
-                  style={({ pressed }) => [styles.toolGridCard, pressed && styles.pressed]}
-                >
-                  <AppIcon name="qr" color="#2D5748" />
-                  <Text style={styles.toolGridTitle}>{t('home.tool_qr_title')}</Text>
-                  <Text style={styles.toolGridDesc}>{t('home.tool_qr_desc')}</Text>
-                </Pressable>
-
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={t('home.tool_gps_label')}
-                  onPress={() => {
-                    setDrawerVisible(false);
-                    navigation.navigate('Location');
-                  }}
-                  style={({ pressed }) => [styles.toolGridCard, pressed && styles.pressed]}
-                >
-                  <AppIcon name="pin" color="#2D5748" />
-                  <Text style={styles.toolGridTitle}>{t('home.tool_gps_title')}</Text>
-                  <Text style={styles.toolGridDesc}>{t('home.tool_gps_desc')}</Text>
-                </Pressable>
-              </View>
-
-              {/* Quản lý nguồn dữ liệu Demo / Live */}
-              <View style={styles.sourceBox} accessibilityLiveRegion="polite">
-                <View style={styles.sourceHeaderRow}>
-                  <Text style={styles.sourceSectionTitle}>{t('home.data_source')}</Text>
-                  <View style={styles.modeToggleGroup}>
-                    {(['demo', 'live'] as const).map((val) => (
-                      <Pressable
-                        key={val}
-                        accessibilityRole="radio"
-                        accessibilityLabel={val === 'demo' ? t('home.mode_demo') : t('home.mode_live')}
-                        accessibilityState={{ checked: mode === val }}
-                        onPress={() => onModeChange(val)}
-                        style={({ pressed }) => [
-                          styles.modeOption,
-                          mode === val && styles.modeOptionActive,
-                          pressed && styles.pressed,
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            styles.modeOptionText,
-                            mode === val && styles.modeOptionTextActive,
-                          ]}
-                        >
-                          {val === 'demo' ? 'Demo' : 'Live'}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                </View>
-
-                <Text style={styles.sourceStateTag}>
-                  {source.mode === 'live'
-                    ? liveBusy
-                      ? (locale === 'en' ? 'LIVE · loading…' : 'LIVE · đang tải…')
-                      : source.status === 'ready'
-                        ? source.dataset.kind === 'reviewed'
-                          ? (locale === 'en' ? 'LIVE · reviewed data' : 'LIVE · dữ liệu đã duyệt')
-                          : (locale === 'en' ? 'LIVE · simulated data (unverified)' : 'LIVE · dữ liệu mô phỏng (chưa xác minh)')
-                        : (locale === 'en' ? 'LIVE · no data' : 'LIVE · chưa có dữ liệu')
-                    : collectionKind === 'reviewed'
-                      ? (activeCollection?.id === 'old-quarter-three-lenses'
-                          ? (locale === 'en' ? 'DEMO · Sourced · not officially approved' : 'DEMO · Có nguồn · chưa duyệt chính thức')
-                          : (locale === 'en' ? 'DEMO · reviewed heritage' : 'DEMO · di sản đã duyệt'))
-                      : (locale === 'en' ? 'DEMO · simulated content' : 'DEMO · nội dung mô phỏng')}
-                </Text>
-                <Text style={styles.sourceTitle}>
-                  {liveBusy ? (locale === 'en' ? 'Fetching live data…' : 'Đang lấy dữ liệu live…') : source.title}
-                </Text>
-                <Text style={styles.sourceBody}>
-                  {liveBusy
-                    ? (locale === 'en' ? 'Connecting for live content…' : 'Đang kết nối để tải dữ liệu trực tiếp…')
-                    : source.mode === 'demo'
-                      ? (locale === 'en' ? 'Offline demo content is ready to explore.' : 'Dữ liệu ngoại tuyến sẵn sàng để khám phá.')
-                      : source.detail}
-                </Text>
-
-                {source.mode === 'live' && onRetryLive !== undefined && (
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={t('home.retry_live_label')}
-                    onPress={onRetryLive}
-                    disabled={liveBusy}
-                    style={({ pressed }) => [styles.retryBtn, pressed && styles.pressed]}
-                  >
-                    <Text style={styles.retryBtnText}>{t('home.retry_live')}</Text>
-                  </Pressable>
-                )}
-
-                {source.status === 'ready' && (
-                  <Text style={styles.disclaimerNote}>{source.dataset.disclaimer}</Text>
-                )}
-              </View>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setDrawerVisible(false)}
+        navigation={navigation}
+        mode={mode}
+        onModeChange={onModeChange}
+        source={source}
+        collectionId={activeCollectionId}
+        liveBusy={liveBusy}
+        onRetryLive={onRetryLive}
+      />
     </View>
   );
 }
@@ -1205,163 +1065,6 @@ const styles = StyleSheet.create({
     flex: 1, minHeight: 54, borderRadius: 20, paddingVertical: 8, paddingHorizontal: 6,
     backgroundColor: '#F5ECE0',
     alignItems: 'center', justifyContent: 'center', gap: 4,
-  },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(15, 12, 10, 0.72)',
-    justifyContent: 'flex-end',
-  },
-  modalDismissArea: {
-    flex: 1,
-  },
-  journalDrawerSheet: {
-    backgroundColor: '#FFFDF8',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    maxHeight: '82%',
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl + 12,
-    borderTopWidth: 1,
-    borderColor: '#EFE5D4',
-  },
-  sheetHandle: {
-    width: 44,
-    height: 4.5,
-    backgroundColor: '#D6C9B4',
-    borderRadius: 3,
-    alignSelf: 'center',
-    marginTop: 10,
-    marginBottom: 12,
-  },
-  drawerHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  drawerPhase: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#8C5A40',
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-  drawerTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#2C221E',
-  },
-  closeDrawerButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#EFE8DA',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  closeDrawerText: {
-    fontSize: 14,
-    color: '#4A3B32',
-    fontWeight: '700',
-  },
-  drawerScrollContent: {
-    gap: spacing.md,
-  },
-  toolsGrid: {
-    gap: spacing.sm,
-  },
-  toolGridCard: {
-    backgroundColor: '#F8F3E9',
-    borderRadius: radius.md,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: '#E8DEC9',
-    gap: 3,
-  },
-  toolGridTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#2C221E',
-  },
-  toolGridDesc: {
-    fontSize: 11.5,
-    color: '#6E5D4F',
-    lineHeight: 16,
-  },
-  sourceBox: {
-    backgroundColor: '#F5ECE0',
-    borderRadius: radius.md,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: '#E6D7C2',
-    gap: 6,
-  },
-  sourceHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  sourceSectionTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#5C483D',
-  },
-  modeToggleGroup: {
-    flexDirection: 'row',
-    backgroundColor: '#EADBC8',
-    borderRadius: radius.pill,
-    padding: 2,
-  },
-  modeOption: {
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: radius.pill,
-  },
-  modeOptionActive: {
-    backgroundColor: '#2A6F50',
-  },
-  modeOptionText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#5C483D',
-  },
-  modeOptionTextActive: {
-    color: '#FFFFFF',
-  },
-  sourceStateTag: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#8C5A40',
-    letterSpacing: 0.5,
-  },
-  sourceTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#2C221E',
-  },
-  sourceBody: {
-    fontSize: 11,
-    color: '#6E5D4F',
-    lineHeight: 15,
-  },
-  retryBtn: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#2A6F50',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radius.sm,
-    marginTop: 4,
-  },
-  retryBtnText: {
-    color: '#FFFFFF',
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  disclaimerNote: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#8C7D70',
-    marginTop: 2,
   },
   pressed: {
     opacity: 0.82,

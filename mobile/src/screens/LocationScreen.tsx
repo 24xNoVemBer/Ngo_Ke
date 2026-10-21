@@ -1,13 +1,16 @@
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation';
 import * as Location from 'expo-location';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { DemoNode } from '../data/sourceState';
 import { pickCandidate, type Candidate } from '../location/nearest';
 import { getNodePhoto, getNodePhotographer } from '../assets/photoMap';
 import { colors, radius, spacing, typography } from '../theme';
 import { useLocale } from '../context/LocaleContext';
+import { useMotionState } from '../hooks/MotionPreferences';
 import type { TranslationKey } from '../i18n/translator';
 
 const LIMITS = { maxAccuracyMeters: 50, maxDistanceMeters: 300 };
@@ -46,9 +49,14 @@ export function LocationScreen({
   collectionId,
 }: Props): ReactElement {
   const isReviewed = collectionKind === 'reviewed';
+  const motion = useMotionState();
+  const scrollRef = useRef<ScrollView>(null);
   const { t, locale, collectionId: ctxCollectionId } = useLocale();
   const effectiveCollectionId = collectionId ?? ctxCollectionId;
   const isThreeLenses = effectiveCollectionId === 'old-quarter-three-lenses' && isReviewed;
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const [permissionBlocked, setPermissionBlocked] = useState(false);
+  const [confirmedJustNow, setConfirmedJustNow] = useState<DemoNode | undefined>();
   const focused = useIsFocused();
   const request = useRef(0);
   const waiting = useRef(false);
@@ -73,9 +81,13 @@ export function LocationScreen({
       const permission = await Location.requestForegroundPermissionsAsync();
       if (id !== request.current) return;
       if (!permission.granted) {
+        if (permission.canAskAgain === false) {
+          setPermissionBlocked(true);
+        }
         setResult({ kind: 'needs-position' });
         return;
       }
+      setPermissionBlocked(false);
       const position = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
       });
@@ -109,11 +121,13 @@ export function LocationScreen({
     if (!node.available) return;
     stopWaiting();
     onConfirmNode(node.id);
+    setConfirmedJustNow(node);
+    scrollRef.current?.scrollTo({ y: 0, animated: !motion.reducedMotion });
   }
 
   return (
     <SafeAreaView style={styles.screen} edges={['left', 'right', 'bottom']}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView ref={scrollRef} contentContainerStyle={styles.content}>
         <View style={styles.headerBox}>
           <Text style={styles.phase}>
             {locale === 'en' ? 'Alley Positioning · GPS Suggestion' : 'Định vị ngõ phố · Gợi ý GPS'}
@@ -127,6 +141,38 @@ export function LocationScreen({
               : 'App chỉ đọc GPS một lần khi bạn chạm nút để ước lượng con ngõ gần nhất, hoàn toàn không theo dõi vị trí nền.'}
           </Text>
         </View>
+
+        {/* Banner xác nhận thành công và nút vào câu chuyện (F1) */}
+        {confirmedJustNow && (
+          <View
+            testID="location-confirmed-card"
+            accessibilityLiveRegion="polite"
+            style={styles.confirmedCard}
+          >
+            <View style={styles.confirmedHeaderRow}>
+              <Text style={styles.confirmedIcon}>✓</Text>
+              <View style={styles.confirmedTextGroup}>
+                <Text style={styles.confirmedTitle}>
+                  {t('location.confirmed_banner', { name: confirmedJustNow.name })}
+                </Text>
+                <Text style={styles.confirmedSubtitle}>
+                  {locale === 'en'
+                    ? 'Passport stop has been confirmed. Tap below to begin exploring stories.'
+                    : 'Điểm trạm trên sổ tay đã được xác nhận. Chạm nút bên dưới để bắt đầu nghe kể chuyện.'}
+                </Text>
+              </View>
+            </View>
+            <Pressable
+              testID="location-open-story-btn"
+              accessibilityRole="button"
+              accessibilityLabel={t('location.open_story')}
+              onPress={() => navigation.navigate('Qa')}
+              style={({ pressed }) => [styles.primaryButton, styles.openStoryButton, pressed && styles.pressed]}
+            >
+              <Text style={styles.primaryText}>📖 {t('location.open_story')}</Text>
+            </Pressable>
+          </View>
+        )}
 
         {/* Thẻ điểm hiện tại */}
         <View style={styles.currentCard}>
@@ -220,17 +266,34 @@ export function LocationScreen({
               </Text>
 
               <View style={styles.buttonRow}>
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={() => confirm(result.node)}
-                  style={({ pressed }) => [
-                    styles.primaryButton,
-                    styles.flex1,
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <Text style={styles.primaryText}>{t('location.confirm_button')}</Text>
-                </Pressable>
+                {confirmedJustNow?.id === result.node.id ? (
+                  <Pressable
+                    testID="location-candidate-open-story-btn"
+                    accessibilityRole="button"
+                    accessibilityLabel={t('location.open_story')}
+                    onPress={() => navigation.navigate('Qa')}
+                    style={({ pressed }) => [
+                      styles.primaryButton,
+                      styles.flex1,
+                      { backgroundColor: '#2A6F50' },
+                      pressed && styles.pressed,
+                    ]}
+                  >
+                    <Text style={styles.primaryText}>📖 {t('location.open_story')}</Text>
+                  </Pressable>
+                ) : (
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() => confirm(result.node)}
+                    style={({ pressed }) => [
+                      styles.primaryButton,
+                      styles.flex1,
+                      pressed && styles.pressed,
+                    ]}
+                  >
+                    <Text style={styles.primaryText}>{t('location.confirm_button')}</Text>
+                  </Pressable>
+                )}
                 <Pressable
                   accessibilityRole="button"
                   onPress={() => setResult(undefined)}
@@ -249,6 +312,21 @@ export function LocationScreen({
           {result !== undefined && result.kind !== 'candidate' && (
             <View style={styles.hintBox}>
               <Text style={styles.hint}>{explain(result, t)}</Text>
+            </View>
+          )}
+
+          {permissionBlocked && (
+            <View testID="location-permission-blocked-box" style={styles.blockedBox} accessibilityLiveRegion="polite">
+              <Text style={styles.blockedText}>{t('location.permission_blocked')}</Text>
+              <Pressable
+                testID="location-open-settings-btn"
+                accessibilityRole="button"
+                accessibilityLabel={t('common.open_settings')}
+                onPress={() => void Linking.openSettings()}
+                style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+              >
+                <Text style={styles.secondaryText}>⚙️ {t('common.open_settings')}</Text>
+              </Pressable>
             </View>
           )}
         </View>
@@ -490,6 +568,61 @@ const styles = StyleSheet.create({
   candidateAccuracy: {
     ...typography.micro,
     color: colors.muted,
+  },
+  confirmedCard: {
+    backgroundColor: '#E8F2EC',
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    borderWidth: 1.5,
+    borderColor: '#2A6F50',
+    gap: spacing.sm,
+    shadowColor: '#2A6F50',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  confirmedHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  confirmedIcon: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#2A6F50',
+  },
+  confirmedTextGroup: {
+    flex: 1,
+    gap: 2,
+  },
+  confirmedTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#1E2019',
+  },
+  confirmedSubtitle: {
+    fontSize: 12,
+    color: '#4A5B50',
+    lineHeight: 16,
+  },
+  openStoryButton: {
+    backgroundColor: '#2A6F50',
+    marginTop: 4,
+  },
+  blockedBox: {
+    backgroundColor: '#FBEBE8',
+    borderRadius: radius.md,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: '#E8B4AC',
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  blockedText: {
+    fontSize: 13,
+    color: '#8C2E24',
+    lineHeight: 18,
   },
   candidateNotice: {
     ...typography.micro,
