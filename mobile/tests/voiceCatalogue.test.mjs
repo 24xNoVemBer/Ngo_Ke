@@ -56,8 +56,8 @@ test('archived clips keep their hashes while all 34 active Vietnamese tracks use
     assert.equal(active.sourceDataSha256, manifest.sourceDataSha256, `${row.id} source bytes`);
     assert.equal(active.sourceTextSha256, entry.textSha256, `${row.id} source text`);
     assert.equal(active.textHash, entry.textSha256, `${row.id} catalogue text hash`);
-    assert.equal(active.voiceId, activeManifest.voiceIds.vi, `${row.id} active voice`);
-    assert.equal(active.model, activeManifest.model, `${row.id} active model`);
+    assert.equal(active.voiceId, activeManifest.nhatPhongMigration.voiceId, `${row.id} active voice`);
+    assert.equal(active.model, activeManifest.nhatPhongMigration.model, `${row.id} active model`);
     assert.equal(active.format.codec, 'mp3', `${row.id} active codec`);
     assert.equal(active.format.sampleRateHz, 44_100, `${row.id} active sample rate`);
     assert.equal(active.format.bitrateKbps, 128, `${row.id} active bitrate`);
