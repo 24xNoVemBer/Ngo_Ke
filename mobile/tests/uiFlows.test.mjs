@@ -338,30 +338,7 @@ function mount(file, props = {}, overrides = {}, exportName) {
     },
     '../components/NotebookDrawerModal': {
       NotebookDrawerModal: (props) => {
-        const loc = modules['../context/LocaleContext']?.useLocale?.()?.locale ?? 'vi';
         const source = props.source ?? { mode: props.mode ?? 'demo', status: 'ready', title: '', detail: '', dataset: fixture };
-        const isReviewed = source.status === 'ready' && source.dataset?.kind === 'reviewed';
-        const isThreeLenses = props.collectionId === 'old-quarter-three-lenses' && isReviewed;
-        let tag;
-        if (source.mode === 'live') {
-          if (props.liveBusy) {
-            tag = loc === 'en' ? 'LIVE · loading…' : 'LIVE · đang tải…';
-          } else if (source.status === 'ready') {
-            tag = source.dataset?.kind === 'reviewed'
-              ? (loc === 'en' ? 'LIVE · reviewed data' : 'LIVE · dữ liệu đã duyệt')
-              : (loc === 'en' ? 'LIVE · simulated data (unverified)' : 'LIVE · dữ liệu mô phỏng (chưa xác minh)');
-          } else {
-            tag = loc === 'en' ? 'LIVE · no data' : 'LIVE · chưa có dữ liệu';
-          }
-        } else {
-          if (isReviewed) {
-            tag = isThreeLenses
-              ? (loc === 'en' ? 'DEMO · Sourced · not officially approved' : 'DEMO · Có nguồn · chưa duyệt chính thức')
-              : (loc === 'en' ? 'DEMO · reviewed heritage' : 'DEMO · di sản đã duyệt');
-          } else {
-            tag = loc === 'en' ? 'DEMO · simulated content' : 'DEMO · nội dung mô phỏng';
-          }
-        }
         return {
           type: 'View',
           props: {
@@ -370,18 +347,10 @@ function mount(file, props = {}, overrides = {}, exportName) {
               {
                 type: 'Text',
                 props: {
-                  testID: 'notebook-drawer-tag',
-                  style: { fontSize: 10, fontWeight: '800' },
-                  children: tag,
+                  testID: 'notebook-drawer-title',
+                  children: source.title,
                 },
               },
-              source.status === 'ready' && source.dataset?.disclaimer ? {
-                type: 'Text',
-                props: {
-                  testID: 'notebook-drawer-disclaimer',
-                  children: source.dataset.disclaimer,
-                },
-              } : null,
               {
                 type: 'Pressable',
                 props: {
@@ -1931,8 +1900,8 @@ test('AlleySelectScreen in live mode shows only actual server collection with ac
   assert.equal(readyCards.length, 1, 'in live mode only one actual server collection is shown, never bundle picker');
   readyCards[0].props.onPress();
   assert.equal(selectedCollection, 'old-quarter-pilot');
-  assert.ok(JSON.stringify(treeReady).includes('Nguồn máy chủ Live · 3 điểm'));
-  assert.ok(JSON.stringify(treeReady).includes('Phố Cổ, Hoàn Kiếm · Nguồn máy chủ Live'));
+  assert.ok(JSON.stringify(treeReady).includes('3 điểm · Live'));
+  assert.ok(JSON.stringify(treeReady).includes('Phố Cổ, Hoàn Kiếm'));
   assert.equal(JSON.stringify(treeReady).includes('Phố Hàng Bút'), false, 'bundled fiction collection is not shown in live');
   assert.equal(JSON.stringify(treeReady).includes('Lá thư Hà Nội'), false);
   viewReady.unmount();
@@ -1967,7 +1936,8 @@ test('AlleySelectScreen in live mode shows only actual server collection with ac
   const treeArbitrary = viewArbitrary.render();
   const arbitraryCards = elements(treeArbitrary, 'Pressable').filter((p) => p.props.accessibilityLabel?.startsWith('Open'));
   assert.equal(arbitraryCards.length, 1);
-  assert.ok(JSON.stringify(treeArbitrary).includes('Live backend source · 4 stops'));
+  assert.ok(JSON.stringify(treeArbitrary).includes('4 stops · Live'));
+  assert.equal(JSON.stringify(treeArbitrary).includes('Live backend source'), false);
   assert.ok(JSON.stringify(treeArbitrary).includes('custom-heritage-quarter'));
   assert.equal(JSON.stringify(treeArbitrary).includes('Hanoi Old Quarter · simulated content'), false);
   viewArbitrary.unmount();
@@ -2280,9 +2250,10 @@ test('QaScreen and CameraScreen branch semantic content labels on reviewed-pilot
   elements(treeFictionQa, 'ExpandableInputDrawer')[0].props.onSelectSuggestion('Đây là điểm nào?');
   treeFictionQa = viewFictionQa.render(fictionQaProps);
   const textFictionQa = JSON.stringify(treeFictionQa);
-  assert.ok(textFictionQa.includes('Truyện hư cấu'), 'fiction collection shows fictional story disclaimer');
-  assert.ok(textFictionQa.includes('TRUYỆN HƯ CẤU · NGHE NGƯỜI KỂ'), 'waveform note shows fiction label');
-  assert.ok(textFictionQa.includes('LỜI KỂ TRONG TRUYỆN'), 'verified tag shows story passage');
+  assert.equal(textFictionQa.includes('Truyện hư cấu'), false, 'fiction collection removes fictional story disclaimer');
+  assert.equal(textFictionQa.includes('TRUYỆN HƯ CẤU · NGHE NGƯỜI KỂ'), false, 'waveform note provenance removed');
+  assert.equal(textFictionQa.includes('LỜI KỂ TRONG TRUYỆN'), false, 'verified tag removed');
+  assert.ok(textFictionQa.includes(fixture.nodes[0].name), 'stop name rendered faithfully');
   viewFictionQa.unmount();
 
   const viewFictionCamera = mount('../src/screens/CameraScreen.tsx', {
@@ -2301,7 +2272,8 @@ test('QaScreen and CameraScreen branch semantic content labels on reviewed-pilot
     },
   });
   const textFictionCamera = JSON.stringify(viewFictionCamera.render());
-  assert.ok(textFictionCamera.includes('nội dung mô phỏng'), 'camera footer shows simulated disclaimer');
+  assert.equal(textFictionCamera.includes('nội dung mô phỏng'), false, 'camera footer disclaimer removed');
+  assert.ok(textFictionCamera.includes(fixture.nodes[0].name), 'camera renders stop name');
   viewFictionCamera.unmount();
 
   // 2. Minimal actual reviewed-pilot collection in Demo mode (reviewed heritage stays sourced)
@@ -2335,12 +2307,12 @@ test('QaScreen and CameraScreen branch semantic content labels on reviewed-pilot
   elements(treePilotQa, 'ExpandableInputDrawer')[0].props.onSelectSuggestion('Vì sao đền có tên Bạch Mã?');
   treePilotQa = viewPilotQa.render(pilotQaProps);
   const textPilotQa = JSON.stringify(treePilotQa);
-  assert.ok(textPilotQa.includes('điểm đã duyệt · nguồn Demo'), 'reviewed pilot shows reviewed demo disclaimer');
-  assert.ok(textPilotQa.includes('DEMO · DI SẢN ĐÃ DUYỆT'), 'waveform note shows reviewed heritage');
-  assert.ok(textPilotQa.includes('NỘI DUNG CÓ NGUỒN'), 'verified tag shows sourced content');
+  assert.equal(textPilotQa.includes('điểm đã duyệt · nguồn Demo'), false, 'reviewed demo disclaimer removed');
+  assert.equal(textPilotQa.includes('DEMO · DI SẢN ĐÃ DUYỆT'), false, 'waveform note provenance removed');
+  assert.equal(textPilotQa.includes('NỘI DUNG CÓ NGUỒN'), false, 'verified tag removed');
   assert.equal(textPilotQa.includes('TRUYỆN HƯ CẤU · NGHE NGƯỜI KỂ'), false, 'must not label reviewed heritage as fictional story');
   assert.equal(textPilotQa.includes('Truyện hư cấu'), false, 'must not label reviewed heritage as fiction');
-  assert.equal(textPilotQa.includes('LIVE · DI SẢN ĐÃ DUYỆT'), false, 'demo transport must not show LIVE');
+  assert.equal(textPilotQa.includes('LIVE ·'), false, 'demo transport must not show LIVE');
   viewPilotQa.unmount();
 
   const viewPilotCamera = mount('../src/screens/CameraScreen.tsx', {
@@ -2359,8 +2331,9 @@ test('QaScreen and CameraScreen branch semantic content labels on reviewed-pilot
     },
   });
   const textPilotCamera = JSON.stringify(viewPilotCamera.render());
-  assert.ok(textPilotCamera.includes('dữ liệu di sản đã duyệt'), 'reviewed camera footer shows reviewed heritage notice');
+  assert.equal(textPilotCamera.includes('dữ liệu di sản đã duyệt'), false, 'reviewed camera footer disclaimer removed');
   assert.equal(textPilotCamera.includes('nội dung mô phỏng'), false, 'reviewed camera footer must not say simulated');
+  assert.ok(textPilotCamera.includes(actualReviewedPilot.nodes[0].name), 'camera renders stop name');
   viewPilotCamera.unmount();
 
   // 3. Simulated copy with SAME IDs (must stay simulated despite old-quarter-pilot ID or oldquarter-/pilot- prefixes)
@@ -2397,12 +2370,12 @@ test('QaScreen and CameraScreen branch semantic content labels on reviewed-pilot
   elements(treeSimPilotQa, 'ExpandableInputDrawer')[0].props.onSelectSuggestion('Vì sao đền có tên Bạch Mã?');
   treeSimPilotQa = viewSimPilotQa.render(simPilotQaProps);
   const textSimPilotQa = JSON.stringify(treeSimPilotQa);
-  assert.ok(textSimPilotQa.includes('Truyện hư cấu'), 'simulated copy with old-quarter-pilot ID must show fictional disclaimer');
-  assert.ok(textSimPilotQa.includes('TRUYỆN HƯ CẤU · NGHE NGƯỜI KỂ'), 'simulated copy must show fiction waveform note');
-  assert.ok(textSimPilotQa.includes('LỜI KỂ TRONG TRUYỆN'), 'simulated copy must show story passage tag');
-  assert.equal(textSimPilotQa.includes('DEMO · DI SẢN ĐÃ DUYỆT'), false, 'simulated copy must not show reviewed heritage');
-  assert.equal(textSimPilotQa.includes('NỘI DUNG CÓ NGUỒN'), false, 'simulated copy must not show sourced content');
-  assert.equal(textSimPilotQa.includes('điểm đã duyệt · nguồn Demo'), false, 'simulated copy must not show reviewed demo disclaimer');
+  assert.equal(textSimPilotQa.includes('Truyện hư cấu'), false, 'fictional disclaimer removed');
+  assert.equal(textSimPilotQa.includes('TRUYỆN HƯ CẤU · NGHE NGƯỜI KỂ'), false, 'waveform note provenance removed');
+  assert.equal(textSimPilotQa.includes('LỜI KỂ TRONG TRUYỆN'), false, 'story passage tag removed');
+  assert.equal(textSimPilotQa.includes('DEMO · DI SẢN ĐÃ DUYỆT'), false, 'must not show reviewed heritage');
+  assert.equal(textSimPilotQa.includes('NỘI DUNG CÓ NGUỒN'), false, 'must not show sourced content');
+  assert.equal(textSimPilotQa.includes('điểm đã duyệt · nguồn Demo'), false, 'must not show reviewed demo disclaimer');
   viewSimPilotQa.unmount();
 
   const viewSimPilotCamera = mount('../src/screens/CameraScreen.tsx', {
@@ -2421,8 +2394,9 @@ test('QaScreen and CameraScreen branch semantic content labels on reviewed-pilot
     },
   });
   const textSimPilotCamera = JSON.stringify(viewSimPilotCamera.render());
-  assert.ok(textSimPilotCamera.includes('nội dung mô phỏng'), 'camera with collectionKind simulated must show simulated notice');
-  assert.equal(textSimPilotCamera.includes('dữ liệu di sản đã duyệt'), false, 'camera with collectionKind simulated must not say reviewed');
+  assert.equal(textSimPilotCamera.includes('nội dung mô phỏng'), false, 'simulated notice removed from camera');
+  assert.equal(textSimPilotCamera.includes('dữ liệu di sản đã duyệt'), false, 'camera must not say reviewed');
+  assert.ok(textSimPilotCamera.includes(simulatedPilotDataset.nodes[0].name), 'camera renders stop name');
   viewSimPilotCamera.unmount();
 
   // 4. CameraScreen with absent collectionKind defaults to simulated
@@ -2441,7 +2415,7 @@ test('QaScreen and CameraScreen branch semantic content labels on reviewed-pilot
     },
   });
   const textAbsentKindCamera = JSON.stringify(viewAbsentKindCamera.render());
-  assert.ok(textAbsentKindCamera.includes('nội dung mô phỏng'), 'camera with absent collectionKind defaults to simulated');
+  assert.equal(textAbsentKindCamera.includes('nội dung mô phỏng'), false, 'simulated notice removed from camera');
   assert.equal(textAbsentKindCamera.includes('dữ liệu di sản đã duyệt'), false, 'camera with absent collectionKind must not say reviewed');
   viewAbsentKindCamera.unmount();
 
@@ -2460,8 +2434,9 @@ test('QaScreen and CameraScreen branch semantic content labels on reviewed-pilot
     },
   });
   const textLivePilotQa = JSON.stringify(viewLivePilotQa.render());
-  assert.ok(textLivePilotQa.includes('LIVE · DI SẢN ĐÃ DUYỆT'), 'live reviewed shows LIVE transport');
-  assert.ok(textLivePilotQa.includes('điểm đã duyệt · nguồn Live'), 'live reviewed disclaimer shows Live transport');
+  assert.ok(textLivePilotQa.includes('chưa có bản ghi âm Live') || textLivePilotQa.includes(actualReviewedPilot.nodes[0].name), 'live reviewed renders stop or live notice');
+  assert.equal(textLivePilotQa.includes('điểm đã duyệt · nguồn Live'), false, 'disclaimer pill removed');
+  assert.equal(textLivePilotQa.includes('LIVE · DI SẢN ĐÃ DUYỆT'), false, 'provenance badge removed');
   assert.equal(textLivePilotQa.includes('DEMO · DI SẢN ĐÃ DUYỆT'), false, 'live transport must not show DEMO');
   viewLivePilotQa.unmount();
 });
@@ -2504,7 +2479,8 @@ test('LocationScreen branches manual accessibility label and visit minutes on co
   const textReviewedVi = JSON.stringify(treeReviewedVi);
   assert.ok(textReviewedVi.includes('Gợi ý tham quan: 10 phút (chưa đo)'), 'reviewed row shows suggested unmeasured visit time');
   assert.equal(textReviewedVi.includes('10 phút mô phỏng'), false, 'reviewed row must not say 10 phút mô phỏng');
-  assert.ok(textReviewedVi.includes('Tọa độ trong bản demo là mô phỏng'), 'fixture disclaimer is preserved');
+  assert.ok(textReviewedVi.includes('App không chỉ đường từng bước và không theo dõi vị trí nền'), 'concise operational safety disclaimer is preserved');
+  assert.equal(textReviewedVi.includes('Tọa độ trong bản demo là mô phỏng'), false, 'provenance clutter removed from safety disclaimer');
   viewReviewedVi.unmount();
 
   // 2. Simulated payload with SAME IDs in VI (kind alone controls labels)
@@ -2516,10 +2492,11 @@ test('LocationScreen branches manual accessibility label and visit minutes on co
   }, locationMocks('vi'));
   const treeSimulatedVi = viewSimulatedVi.render();
   const pressablesSimVi = elements(treeSimulatedVi, 'Pressable');
-  const bachMaSimRowVi = pressablesSimVi.find((p) => p.props.accessibilityLabel === 'Chọn điểm Đền Bạch Mã bằng tay, mô phỏng');
-  assert.ok(bachMaSimRowVi, 'simulated row must include mô phỏng in accessibilityLabel');
+  const bachMaSimRowVi = pressablesSimVi.find((p) => p.props.accessibilityLabel === 'Chọn điểm Đền Bạch Mã bằng tay');
+  assert.ok(bachMaSimRowVi, 'simulated row has clean accessible label');
   const textSimulatedVi = JSON.stringify(treeSimulatedVi);
-  assert.ok(textSimulatedVi.includes('10 phút mô phỏng'), 'simulated row shows 10 phút mô phỏng');
+  assert.equal(textSimulatedVi.includes('10 phút mô phỏng'), false, 'simulated duration removed');
+  assert.ok(textSimulatedVi.includes('Gợi ý tham quan: 10 phút (chưa đo)'), 'standard duration retained');
   viewSimulatedVi.unmount();
 
   // 3. Absent collectionKind defaults to simulated for backwards compatibility
@@ -2530,10 +2507,10 @@ test('LocationScreen branches manual accessibility label and visit minutes on co
   }, locationMocks('vi'));
   const treeAbsentVi = viewAbsentVi.render();
   const pressablesAbsentVi = elements(treeAbsentVi, 'Pressable');
-  const bachMaAbsentRowVi = pressablesAbsentVi.find((p) => p.props.accessibilityLabel === 'Chọn điểm Đền Bạch Mã bằng tay, mô phỏng');
-  assert.ok(bachMaAbsentRowVi, 'absent collectionKind defaults to simulated accessibilityLabel');
+  const bachMaAbsentRowVi = pressablesAbsentVi.find((p) => p.props.accessibilityLabel === 'Chọn điểm Đền Bạch Mã bằng tay');
+  assert.ok(bachMaAbsentRowVi, 'absent collectionKind has clean accessible label');
   const textAbsentVi = JSON.stringify(treeAbsentVi);
-  assert.ok(textAbsentVi.includes('10 phút mô phỏng'), 'absent collectionKind defaults to 10 phút mô phỏng');
+  assert.equal(textAbsentVi.includes('10 phút mô phỏng'), false, 'absent collectionKind has no simulated duration clutter');
   viewAbsentVi.unmount();
 
   // 4. Reviewed pilot in EN
@@ -2554,7 +2531,8 @@ test('LocationScreen branches manual accessibility label and visit minutes on co
   const textReviewedEn = JSON.stringify(treeReviewedEn);
   assert.ok(textReviewedEn.includes('Suggested visit: 10 min (unmeasured)'), 'reviewed row in EN shows suggested unmeasured visit time');
   assert.equal(textReviewedEn.includes('10 min simulated'), false, 'reviewed row in EN must not say 10 min simulated');
-  assert.ok(textReviewedEn.includes('Coordinates in demo are simulated'), 'EN fixture disclaimer is preserved');
+  assert.ok(textReviewedEn.includes('App does not provide turn-by-turn directions or track background location'), 'EN concise operational safety disclaimer is preserved');
+  assert.equal(textReviewedEn.includes('Coordinates in demo are simulated'), false, 'EN provenance clutter removed');
   viewReviewedEn.unmount();
 
   // 5. Simulated payload with SAME IDs in EN
@@ -2566,10 +2544,11 @@ test('LocationScreen branches manual accessibility label and visit minutes on co
   }, locationMocks('en'));
   const treeSimulatedEn = viewSimulatedEn.render();
   const pressablesSimEn = elements(treeSimulatedEn, 'Pressable');
-  const bachMaSimRowEn = pressablesSimEn.find((p) => p.props.accessibilityLabel === `Select ${actualReviewedPilotEn.nodes[0].name} manually, simulated`);
-  assert.ok(bachMaSimRowEn, 'simulated row in EN must include simulated in accessibilityLabel');
+  const bachMaSimRowEn = pressablesSimEn.find((p) => p.props.accessibilityLabel === `Select ${actualReviewedPilotEn.nodes[0].name} manually`);
+  assert.ok(bachMaSimRowEn, 'simulated row in EN has clean accessible label');
   const textSimulatedEn = JSON.stringify(treeSimulatedEn);
-  assert.ok(textSimulatedEn.includes('10 min simulated'), 'simulated row in EN shows 10 min simulated');
+  assert.equal(textSimulatedEn.includes('10 min simulated'), false, 'simulated duration removed');
+  assert.ok(textSimulatedEn.includes('Suggested visit: 10 min (unmeasured)'), 'standard duration retained');
   viewSimulatedEn.unmount();
 
   // 6. Regression R08: LocationScreen takes collectionId from props/dataset and does not borrow three-lenses from context
@@ -2634,7 +2613,7 @@ test('AlleySelectScreen translates filter chips to All and Food in EN while pres
 
   // Verify gpsLocationName has no numberOfLines constraint (props.numberOfLines is undefined)
   const allTextsEn = elements(treeEn, 'Text');
-  const gpsLocationNameNode = allTextsEn.find((t) => [].concat(t.props.children).join('').includes('simulated content'));
+  const gpsLocationNameNode = allTextsEn.find((t) => [].concat(t.props.children).join('').includes(translator.t('en', 'alley_select.demo_subtext')));
   assert.ok(gpsLocationNameNode, 'gpsLocationName text element must exist');
   assert.equal(gpsLocationNameNode.props.numberOfLines, undefined, 'gpsLocationName must not restrict numberOfLines to 1 so full qualifier can wrap at font200');
 
@@ -2797,7 +2776,8 @@ test('AlleyTrailView and PostcardCard branch visit time on collectionKind', () =
   }, trailMocks('en'));
   const treeTrailSimEn = viewTrailSimEn.render();
   const textTrailSimEn = JSON.stringify(treeTrailSimEn);
-  assert.ok(textTrailSimEn.includes('10 simulated min'), 'simulated / default trail in EN displays simulated min');
+  assert.ok(textTrailSimEn.includes('Suggested visit: 10 min (unmeasured)'), 'trail in EN displays visit time');
+  assert.equal(textTrailSimEn.includes('10 simulated min'), false, 'trail in EN does not display simulated min');
   viewTrailSimEn.unmount();
 
   // 4. PostcardCard reviewed in EN
@@ -2809,8 +2789,8 @@ test('AlleyTrailView and PostcardCard branch visit time on collectionKind', () =
   const textCardReviewed = JSON.stringify(treeCardReviewed);
   assert.ok(textCardReviewed.includes('Suggested visit: 10 min (unmeasured)'), 'reviewed PostcardCard displays suggested visit time');
   assert.equal(textCardReviewed.includes('min simulated'), false);
-  assert.ok(textCardReviewed.includes('Illustration photo · reviewed stops'), 'reviewed PostcardCard displays reviewed photo disclaimer');
-  assert.equal(textCardReviewed.includes('simulated point'), false);
+  assert.equal(textCardReviewed.includes('Illustration photo'), false, 'photo disclaimer removed');
+  assert.ok(textCardReviewed.includes('Photo:'), 'photo author credit retained');
   viewCardReviewed.unmount();
 
   // 5. PostcardCard simulated in EN
@@ -2820,9 +2800,10 @@ test('AlleyTrailView and PostcardCard branch visit time on collectionKind', () =
   }, trailMocks('en'));
   const treeCardSim = viewCardSim.render();
   const textCardSim = JSON.stringify(treeCardSim);
-  assert.ok(textCardSim.includes('10 min simulated'), 'simulated PostcardCard displays simulated minutes');
-  assert.ok(textCardSim.includes('Illustration photo · simulated point'), 'simulated PostcardCard displays simulated photo disclaimer');
-  assert.equal(textCardSim.includes('reviewed stops'), false);
+  assert.ok(textCardSim.includes('Suggested visit: 10 min (unmeasured)'), 'simulated PostcardCard displays suggested visit minutes');
+  assert.equal(textCardSim.includes('10 min simulated'), false, 'simulated minutes removed');
+  assert.equal(textCardSim.includes('Illustration photo'), false, 'photo disclaimer removed');
+  assert.ok(textCardSim.includes('Photo:'), 'photo author credit retained');
   viewCardSim.unmount();
 
   // 6. PostcardCard reviewed in VI
@@ -2833,7 +2814,8 @@ test('AlleyTrailView and PostcardCard branch visit time on collectionKind', () =
   const treeCardReviewedVi = viewCardReviewedVi.render();
   const textCardReviewedVi = JSON.stringify(treeCardReviewedVi);
   assert.ok(textCardReviewedVi.includes('Gợi ý tham quan: 10 phút (chưa đo)'));
-  assert.ok(textCardReviewedVi.includes('Ảnh minh họa · điểm đã duyệt'));
+  assert.equal(textCardReviewedVi.includes('Ảnh minh họa'), false, 'photo disclaimer removed');
+  assert.ok(textCardReviewedVi.includes('Tác giả:'), 'photo author credit retained');
   assert.equal(textCardReviewedVi.includes('điểm mô phỏng'), false);
   viewCardReviewedVi.unmount();
 
@@ -2844,9 +2826,10 @@ test('AlleyTrailView and PostcardCard branch visit time on collectionKind', () =
   }, trailMocks('vi'));
   const treeCardSimVi = viewCardSimVi.render();
   const textCardSimVi = JSON.stringify(treeCardSimVi);
-  assert.ok(textCardSimVi.includes('10 phút mô phỏng'));
-  assert.ok(textCardSimVi.includes('Ảnh minh họa · điểm mô phỏng'));
-  assert.equal(textCardSimVi.includes('điểm đã duyệt'), false);
+  assert.ok(textCardSimVi.includes('Gợi ý tham quan: 10 phút (chưa đo)'));
+  assert.equal(textCardSimVi.includes('10 phút mô phỏng'), false, 'simulated label removed');
+  assert.equal(textCardSimVi.includes('Ảnh minh họa'), false, 'photo disclaimer removed');
+  assert.ok(textCardSimVi.includes('Tác giả:'), 'photo author credit retained');
   viewCardSimVi.unmount();
 
   // 8. PostcardCard simulated kind wins over selected new collection (old-quarter-three-lenses)
@@ -2863,10 +2846,11 @@ test('AlleyTrailView and PostcardCard branch visit time on collectionKind', () =
     },
   });
   const textCardSimPrecedence = JSON.stringify(viewCardSimPrecedence.render());
-  assert.ok(textCardSimPrecedence.includes('10 min simulated'), 'simulated kind must win over old-quarter-three-lenses collection');
-  assert.ok(textCardSimPrecedence.includes('Illustration photo · simulated point'), 'simulated photo disclaimer must display when collectionKind is simulated');
-  assert.equal(textCardSimPrecedence.includes('Supplied photo'), false, 'supplied photo disclaimer must NOT display when collectionKind is simulated');
-  assert.equal(textCardSimPrecedence.includes('Sourced · not officially approved'), false, 'sourced disclaimer must NOT display when collectionKind is simulated');
+  assert.ok(textCardSimPrecedence.includes('Suggested visit: 10 min (unmeasured)'), 'duration retained');
+  assert.equal(textCardSimPrecedence.includes('10 min simulated'), false, 'simulated duration removed');
+  assert.equal(textCardSimPrecedence.includes('Illustration photo'), false, 'photo disclaimer removed');
+  assert.equal(textCardSimPrecedence.includes('Supplied photo'), false, 'supplied photo disclaimer removed');
+  assert.equal(textCardSimPrecedence.includes('Sourced · not officially approved'), false, 'sourced disclaimer removed');
   viewCardSimPrecedence.unmount();
 });
 
@@ -2903,8 +2887,8 @@ test('HomeScreen passes source dataset.kind precedence to AlleyTrailView (ready 
   assert.ok(trailSim, 'trail component rendered at fontScale 2');
   assert.equal(trailSim.props.collectionKind, 'simulated', 'dataset.kind simulated must take precedence over activeCollection.kind reviewed');
   const simTexts = elements(treeSim, 'Text').map((t) => [].concat(t.props.children).join(''));
-  assert.ok(simTexts.includes('DEMO · nội dung mô phỏng'), 'Home drawer shows simulated content tag in VI when dataset.kind is simulated');
-  assert.equal(simTexts.includes('DEMO · di sản đã duyệt'), false, 'Home drawer must not upgrade simulated dataset to reviewed in VI');
+  assert.equal(simTexts.includes('DEMO · nội dung mô phỏng'), false, 'Home drawer removes simulated content tag in VI');
+  assert.equal(simTexts.includes('DEMO · di sản đã duyệt'), false, 'Home drawer removes reviewed heritage tag in VI');
   homeViewSim.unmount();
 
   // 2. Ready reviewed payload
@@ -2936,7 +2920,7 @@ test('HomeScreen passes source dataset.kind precedence to AlleyTrailView (ready 
   const trailRev = elements(treeRev, 'AlleyTrailView')[0];
   assert.equal(trailRev.props.collectionKind, 'reviewed', 'dataset.kind reviewed is passed directly');
   const revTexts = elements(treeRev, 'Text').map((t) => [].concat(t.props.children).join(''));
-  assert.ok(revTexts.includes('DEMO · di sản đã duyệt'), 'Home drawer shows reviewed heritage tag in VI when dataset.kind is reviewed');
+  assert.equal(revTexts.includes('DEMO · di sản đã duyệt'), false, 'Home drawer removes reviewed heritage tag in VI');
   assert.equal(revTexts.includes('DEMO · nội dung mô phỏng'), false);
   homeViewRev.unmount();
 
@@ -2969,7 +2953,7 @@ test('HomeScreen passes source dataset.kind precedence to AlleyTrailView (ready 
   const trailUndef = elements(treeUndef, 'AlleyTrailView')[0];
   assert.equal(trailUndef.props.collectionKind, 'simulated', 'undefined dataset.kind defaults to simulated even on pilot collection');
   const undefTexts = elements(treeUndef, 'Text').map((t) => [].concat(t.props.children).join(''));
-  assert.ok(undefTexts.includes('DEMO · nội dung mô phỏng'), 'Home drawer defaults to simulated content in VI when dataset.kind is undefined');
+  assert.equal(undefTexts.includes('DEMO · nội dung mô phỏng'), false, 'Home drawer removes simulated content tag in VI');
   homeViewUndef.unmount();
 
   // 4. EN Demo reviewed payload
@@ -3000,7 +2984,7 @@ test('HomeScreen passes source dataset.kind precedence to AlleyTrailView (ready 
   });
   const treeRevEn = homeViewRevEn.render();
   const revTextsEn = elements(treeRevEn, 'Text').map((t) => [].concat(t.props.children).join(''));
-  assert.ok(revTextsEn.includes('DEMO · reviewed heritage'), 'Home drawer shows reviewed heritage tag in EN when dataset.kind is reviewed');
+  assert.equal(revTextsEn.includes('DEMO · reviewed heritage'), false, 'Home drawer removes reviewed heritage tag in EN');
   assert.equal(revTextsEn.includes('DEMO · simulated content'), false);
   homeViewRevEn.unmount();
 
@@ -3031,8 +3015,8 @@ test('HomeScreen passes source dataset.kind precedence to AlleyTrailView (ready 
   });
   const treeSimEn = homeViewSimEn.render();
   const simTextsEn = elements(treeSimEn, 'Text').map((t) => [].concat(t.props.children).join(''));
-  assert.ok(simTextsEn.includes('DEMO · simulated content'), 'Home drawer shows simulated content tag in EN when dataset.kind is simulated');
-  assert.equal(simTextsEn.includes('DEMO · reviewed heritage'), false, 'Home drawer must not upgrade simulated dataset to reviewed in EN');
+  assert.equal(simTextsEn.includes('DEMO · simulated content'), false, 'Home drawer removes simulated content tag in EN');
+  assert.equal(simTextsEn.includes('DEMO · reviewed heritage'), false);
   homeViewSimEn.unmount();
 });
 
@@ -4011,9 +3995,9 @@ test('LandingScreen layout prioritizes alley carousel ahead of compact quote and
   assert.equal(navigatedRoutes[1].route, 'Home');
   assert.equal(navigatedRoutes[1].params?.alleyId, 'fiction-letter');
 
-  // 3. Compact quote is rendered with proper text
+  // 3. Compact quote removed per Landing redesign spec (Dieter Rams #10)
   const quoteMark = elements(tree, 'Text').find((t) => t.props.children === '“');
-  assert.ok(quoteMark, 'Compact quote rendered below carousel');
+  assert.equal(quoteMark, undefined, 'Compact quote removed from LandingScreen as per Dieter Rams redesign spec');
 
   // 4. No duplicate bottom fixed CTA bar exists
   const oldCtaBtn = elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === 'Khám phá ngõ Hà Nội');
@@ -4060,8 +4044,8 @@ test('HomeScreen positions compact selected node preview directly above bottom d
   const previewTexts = elements(preview, 'Text').map((t) => [].concat(t.props.children).join(''));
   assert.ok(previewTexts.some((text) => text.includes('Cổng ngõ')), 'Preview shows node name');
   assert.ok(previewTexts.some((text) => text.includes('5 phút')), 'Preview shows visit minutes');
-  assert.ok(previewTexts.some((text) => text.includes('mô phỏng')), 'Preview indicates simulated duration');
-  assert.ok(previewTexts.some((text) => text.includes('Ảnh minh họa')), 'Preview retains photo credit attribution');
+  assert.equal(previewTexts.some((text) => text.includes('mô phỏng')), false, 'Preview removes simulated duration clutter');
+  assert.ok(previewTexts.some((text) => text.includes('Ảnh:')), 'Preview retains photo credit attribution');
 
   const titleNode = elements(preview, 'Text').find((t) => [].concat(t.props.children).join('') === 'Cổng ngõ');
   assert.ok(titleNode, 'Title node exists');
@@ -4118,7 +4102,7 @@ test('HomeScreen positions compact selected node preview directly above bottom d
 
   // Verify summary and photo credit are omitted to preserve body scroll room
   const largePreviewTexts = elements(largePreview, 'Text').map((t) => [].concat(t.props.children).join(''));
-  assert.equal(largePreviewTexts.some((text) => text.includes('Ảnh minh họa')), false, 'Photo credit omitted at large font');
+  assert.equal(largePreviewTexts.some((text) => text.includes('Ảnh:')), false, 'Photo credit omitted at large font');
 
   // Verify full title and CTA still present
   assert.ok(largePreviewTexts.some((text) => text.includes('Cổng ngõ')), 'Title remains visible');
@@ -4957,19 +4941,14 @@ test('App passes live source, disclaimer, and callbacks down to QaScreen and sha
 
   const qaTreeWithDrawer = qaView.render();
 
+  const drawerModal = elements(qaTreeWithDrawer, 'View').find((v) => v.props.testID === 'notebook-drawer-modal');
+  assert.ok(drawerModal, 'Shared drawer modal rendered inside Qa');
+
   const drawerTag = elements(qaTreeWithDrawer, 'Text').find((t) => t.props.testID === 'notebook-drawer-tag');
-
-  assert.ok(drawerTag, 'Shared drawer tag rendered inside Qa');
-
-  assert.equal([].concat(drawerTag.props.children).join(''), 'LIVE · dữ liệu đã duyệt', 'Shared drawer displays verified live tag');
-
-
+  assert.equal(drawerTag, undefined, 'Shared drawer tag removed');
 
   const drawerDisclaimer = elements(qaTreeWithDrawer, 'Text').find((t) => t.props.testID === 'notebook-drawer-disclaimer');
-
-  assert.ok(drawerDisclaimer, 'Shared drawer disclaimer rendered inside Qa');
-
-  assert.equal([].concat(drawerDisclaimer.props.children).join(''), 'Dữ liệu đã duyệt từ máy chủ Hà Nội');
+  assert.equal(drawerDisclaimer, undefined, 'Shared drawer disclaimer removed');
 
 
 

@@ -709,7 +709,7 @@ const styles = StyleSheet.create({
   },
   scrim: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(20, 24, 19, 0.72)',
+    backgroundColor: 'rgba(18, 30, 23, 0.70)',
   },
   scrollView: {
     flex: 1,

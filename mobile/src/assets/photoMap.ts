@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import type { ImageSourcePropType } from 'react-native';
 
-export const HERO_PHOTO: ImageSourcePropType = require('../../assets/photos/cover_hero.jpg');
+export const HERO_PHOTO: ImageSourcePropType = require('../../assets/photos/pexels_demo_06.jpg');
 
 export interface NodePhotoMeta {
   source: ImageSourcePropType;
@@ -263,7 +263,7 @@ export function getNodePhotographer(nodeId?: string, photoKey?: string, collecti
   if (nodeId && NODE_PHOTO_MAP[nodeId]) {
     return NODE_PHOTO_MAP[nodeId].photographer;
   }
-  return locale === 'en' ? 'Ngõ Kể Project' : 'Dự án Ngõ Kể';
+  return 'HONG SON (Pexels)';
 }
 
 export function getAlleyMeta(alleyId?: string): AlleyMeta {

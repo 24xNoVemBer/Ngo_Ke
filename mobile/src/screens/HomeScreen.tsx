@@ -107,7 +107,6 @@ export function HomeScreen({
   const isThreeLenses = activeCollectionId === 'old-quarter-three-lenses' && isReviewed;
   const currentPhoto = currentNode ? getNodePhoto(currentNode.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined) : collectionCover;
   const currentPhotographer = currentNode ? getNodePhotographer(currentNode.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined, locale) : alleyMeta.photographer;
-  const isSimulated = collectionKind === 'simulated';
 
   // Tính toán vùng canvas của dải đường mòn tránh thanh trạng thái và đáy
   const topHeaderPadding = Math.max(insets.top, 28) + 8;
@@ -513,7 +512,7 @@ export function HomeScreen({
                   {t('home.stop_prefix')} {String(selectedIndex + 1).padStart(2, '0')}
                 </Text>
                 <Text style={styles.previewDuration}>
-                  ⏱ {currentNode.visitMinutes} {t('home.min')}{isSimulated ? ` · ${t('common.simulated').toLowerCase()}` : ''}
+                  ⏱ {currentNode.visitMinutes} {t('home.min')}
                 </Text>
                 {readNodeIds.has(currentNode.id) && (
                   <View style={styles.previewVisitedTag}>

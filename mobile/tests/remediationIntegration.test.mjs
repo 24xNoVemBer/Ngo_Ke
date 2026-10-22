@@ -3058,7 +3058,9 @@ test('NotebookDrawerModal renders real live SourceState without fallback to no-c
 
 
 
-  assert.ok(allTexts.includes('LIVE'), 'NotebookDrawerModal displays LIVE mode badge');
+  assert.ok(allTexts.includes('Live'), 'NotebookDrawerModal displays Live mode');
+  const liveModeRadio = findElements(tree, 'Pressable').find((p) => p.props?.testID === 'notebook-mode-live');
+  assert.equal(liveModeRadio?.props?.accessibilityState?.checked, true, 'NotebookDrawerModal marks Live checked');
 
 
 
@@ -3091,14 +3093,9 @@ test('NotebookDrawerModal renders real live SourceState without fallback to no-c
 
 
   const disclaimerText = textNodes.find((n) => typeof n.props?.children === 'string' && n.props.children.includes('kiểm chứng từ máy chủ'));
-
-
-
-
-
-
-
-  assert.ok(disclaimerText, 'Reviewed live source presents verified server dataset disclaimer');
+  assert.equal(disclaimerText, undefined, 'Redundant server dataset disclaimer line removed from UI');
+  assert.equal(allTexts.includes(liveReadySource.title), false, 'Redundant source title omitted when ready and not busy');
+  assert.equal(allTexts.includes('đã duyệt'), false, 'no reviewed label');
 
 
 

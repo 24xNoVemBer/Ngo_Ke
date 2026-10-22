@@ -350,7 +350,7 @@ export function LocationScreen({
                   key={node.id}
                   accessibilityRole="button"
                   accessibilityLabel={
-                    t(isReviewed ? 'location.select_manual' : 'location.select_manual_simulated', { name: node.name })
+                    t('location.select_manual', { name: node.name })
                   }
                   disabled={!node.available}
                   onPress={() => confirm(node)}
@@ -368,9 +368,7 @@ export function LocationScreen({
                   <View style={styles.pointInfo}>
                     <Text style={styles.pointName}>{node.name}</Text>
                     <Text style={styles.pointMeta}>
-                      {isThreeLenses
-                        ? (locale === 'en' ? 'Sourced · not officially approved' : 'Có nguồn · chưa duyệt chính thức')
-                        : t(isReviewed ? 'location.suggested_visit_minutes' : 'common.simulated_minutes', { minutes: node.visitMinutes })}
+                      {t('location.suggested_visit_minutes', { minutes: node.visitMinutes })}
                       {isCurrent ? (locale === 'en' ? ' · Currently selected' : ' · Đang là điểm hiện tại') : ''}
                     </Text>
                   </View>
@@ -389,9 +387,7 @@ export function LocationScreen({
 
         <View style={styles.disclaimerBox}>
           <Text style={styles.note}>
-            {locale === 'en'
-              ? 'Coordinates in demo are simulated, not for outdoor navigation. App does not provide turn-by-turn routing or track background location.'
-              : 'Tọa độ trong bản demo là mô phỏng, không dùng để đi bộ ngoài thực địa. App không chỉ đường và không theo dõi vị trí nền.'}
+            {locale === 'en' ? 'App does not provide turn-by-turn directions or track background location.' : 'App không chỉ đường từng bước và không theo dõi vị trí nền.'}
           </Text>
         </View>
       </ScrollView>

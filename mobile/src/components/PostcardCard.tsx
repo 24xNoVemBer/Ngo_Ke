@@ -42,14 +42,6 @@ export function PostcardCard({
       {/* Khung ảnh chụp chân thực */}
       <View style={[styles.imageContainer, isThreeLenses && { backgroundColor: '#1E1E1E' }]}>
         <Image source={photo} style={styles.image} resizeMode={isThreeLenses ? 'contain' : 'cover'} />
-        {/* Nhãn minh bạch */}
-        <View style={styles.disclaimerBadge}>
-          <Text style={styles.disclaimerText}>
-            {isThreeLenses
-              ? (locale === 'en' ? 'Supplied photo (Sourced · not officially approved) · unverified rights' : 'Ảnh người dùng cung cấp (Có nguồn · chưa duyệt chính thức) · chưa kiểm chứng bản quyền')
-              : t(isReviewed ? 'common.photo_disclaimer_reviewed' : 'common.photo_disclaimer')}
-          </Text>
-        </View>
 
         {/* Dấu mộc son gạch nung */}
         {node.visited && (
@@ -67,7 +59,7 @@ export function PostcardCard({
           </Text>
           <View style={[styles.durationBadge, fontScale > 1.3 && styles.durationBadgeStacked]}>
             <Text style={styles.durationText}>
-              {t(isReviewed ? 'location.suggested_visit_minutes' : 'common.simulated_minutes', {
+              {t('location.suggested_visit_minutes', {
                 minutes: node.visitMinutes,
               })}
             </Text>
@@ -125,19 +117,6 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-  },
-  disclaimerBadge: {
-    position: 'absolute',
-    bottom: spacing.sm,
-    left: spacing.sm,
-    backgroundColor: 'rgba(46, 48, 40, 0.75)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-    borderRadius: radius.sm,
-  },
-  disclaimerText: {
-    ...typography.micro,
-    color: colors.surface,
   },
   visitedStamp: {
     position: 'absolute',

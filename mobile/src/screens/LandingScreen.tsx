@@ -4,7 +4,6 @@ import {
   Animated,
   Image,
   ImageBackground,
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -17,14 +16,13 @@ import type { Mode } from '../data/sourceState';
 import { getSourceState, type SourceState } from '../data/sourceState';
 import type { RootStackParamList } from '../navigation';
 import { HERO_PHOTO } from '../assets/photoMap';
-import { useMotionState } from '../hooks/MotionPreferences';
 import { AppIcon } from '../components/AppIcon';
 import { NgoKeLogo } from '../components/NgoKeLogo';
 import { NotebookDrawerModal } from '../components/NotebookDrawerModal';
 import { useEntranceFadeSlide } from '../hooks/useMotion';
 import { useLocale } from '../context/LocaleContext';
 import { getBundledDataset, getLocalizedCollections, isCollectionId } from '../data/collections';
-import { colors, radius, spacing } from '../theme';
+import { radius, spacing } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Landing'> & {
   nodeCount: number;
@@ -48,8 +46,6 @@ export function LandingScreen({
   const { locale, setLocale, collectionId, setCollectionId, t } = useLocale();
   const collections = getLocalizedCollections(locale);
 
-  const motion = useMotionState();
-  const [passportVisible, setPassportVisible] = useState(false);
   const [notebookVisible, setNotebookVisible] = useState(false);
 
   const topPadding = Math.max(insets.top, 28) + 12;
@@ -63,18 +59,16 @@ export function LandingScreen({
   const headerEntrance = useEntranceFadeSlide({ delay: 40, duration: 360, offsetY: 14 });
   const carouselEntrance = useEntranceFadeSlide({ delay: 130, duration: 380, offsetY: 16 });
   const quickActionsEntrance = useEntranceFadeSlide({ delay: 200, duration: 380, offsetY: 16 });
-  const quoteEntrance = useEntranceFadeSlide({ delay: 280, duration: 380, offsetY: 18 });
-  const teaserEntrance = useEntranceFadeSlide({ delay: 350, duration: 380, offsetY: 18 });
 
   return (
     <View style={styles.rootContainer}>
-      {/* 1. NỀN ẢNH ĐIỆN ẢNH PHỐ CỔ TRÀN VIỀN */}
+      {/* 1. NỀN ẢNH ĐIỆN ẢNH PHỐ CỔ LÀM MỜ VỚI SCRIM RÊU ĐỒNG NHẤT */}
       <ImageBackground
         source={HERO_PHOTO}
+        blurRadius={14}
         style={StyleSheet.absoluteFill}
         resizeMode="cover"
       >
-        {/* Lớp phủ phim màu hoài niệm ấm áp theo thời gian trong ngày */}
         <View style={styles.scrimOverlay} />
 
         <ScrollView
@@ -85,7 +79,7 @@ export function LandingScreen({
           ]}
           showsVerticalScrollIndicator={false}
         >
-          {/* 2. THANH THƯƠNG HIỆU & ÂM THANH KHÔNG GIAN (SOUNDSCAPE) */}
+          {/* 2. THANH THƯƠNG HIỆU: LOGO, NÚT NGÔN NGỮ PHÂN ĐOẠN VI|EN & NÚT SỔ TAY */}
           <Animated.View
             style={[
               styles.headerBar,
@@ -99,32 +93,61 @@ export function LandingScreen({
             <NgoKeLogo size="md" variant="horizontal" theme="light" style={styles.logoWrapper} />
 
             <View style={styles.headerControls}>
-              <Pressable
+              {/* Nút ngôn ngữ phân đoạn VI | EN */}
+              <View
                 testID="locale-switch"
-                accessibilityRole="button"
-                accessibilityLabel={locale === 'vi' ? 'Ngôn ngữ: Tiếng Việt. Chạm để đổi sang English' : 'Language: English. Tap to switch to Tiếng Việt'}
-                hitSlop={8}
-                onPress={() => setLocale(locale === 'vi' ? 'en' : 'vi')}
-                style={styles.soundscapePill}
+                accessibilityRole="radiogroup"
+                accessibilityLabel={locale === 'vi' ? 'Ngôn ngữ: Tiếng Việt' : 'Language: English'}
+                style={styles.segmentedControl}
               >
-                <Text style={styles.soundscapeIcon}>{locale.toUpperCase()}</Text>
-              </Pressable>
+                <Pressable
+                  testID="locale-option-vi"
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: locale === 'vi' }}
+                  accessibilityLabel={locale === 'vi' ? 'Tiếng Việt, đang chọn' : 'Chọn Tiếng Việt'}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 4 }}
+                  onPress={() => setLocale('vi')}
+                  style={[styles.segmentBtn, locale === 'vi' && styles.segmentBtnActive]}
+                >
+                  <Text style={[styles.segmentBtnText, locale === 'vi' && styles.segmentBtnTextActive]}>
+                    VI
+                  </Text>
+                </Pressable>
+                <View style={styles.segmentDivider} />
+                <Pressable
+                  testID="locale-option-en"
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: locale === 'en' }}
+                  accessibilityLabel={locale === 'en' ? 'English, currently selected' : 'Select English'}
+                  hitSlop={{ top: 8, bottom: 8, left: 4, right: 8 }}
+                  onPress={() => setLocale('en')}
+                  style={[styles.segmentBtn, locale === 'en' && styles.segmentBtnActive]}
+                >
+                  <Text style={[styles.segmentBtnText, locale === 'en' && styles.segmentBtnTextActive]}>
+                    EN
+                  </Text>
+                </Pressable>
+              </View>
+
+              {/* Nút Sổ tay mở NotebookDrawerModal */}
               <Pressable
+                testID="landing-header-notebook"
                 accessibilityRole="button"
-                accessibilityLabel={mode === 'demo' ? t('home.mode_demo') : t('home.mode_live')}
-                hitSlop={8}
+                accessibilityLabel={t('landing.header_notebook_label')}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 onPress={() => setNotebookVisible(true)}
-                style={styles.soundscapePill}
+                style={styles.headerNotebookBtn}
               >
-                <Text style={styles.soundscapeIcon}>{mode.toUpperCase()}</Text>
+                <AppIcon name="book" size={16} color="#FFFDF7" />
+                <Text style={styles.headerNotebookText}>{t('landing.header_notebook')}</Text>
               </Pressable>
             </View>
           </Animated.View>
 
-          {/* Banner thông báo âm thanh không gian khi bật */}
-          <View style={styles.soundscapeBanner}>
-            <Text style={styles.soundscapeBannerText}>
-              {t('landing.soundscape_banner', { mode: mode === 'demo' ? t('common.demo') : t('common.live') })}
+          {/* Dòng trạng thái nội dung văn bản dưới header */}
+          <View style={styles.statusLineContainer}>
+            <Text style={styles.statusLineText}>
+              {t('landing.mode_status', { mode: mode === 'demo' ? t('common.demo') : t('common.live') })}
             </Text>
           </View>
 
@@ -136,13 +159,11 @@ export function LandingScreen({
             }}
           >
             <View style={[styles.sectionHeaderRow, fontScale > 1.2 && styles.sectionHeaderStacked]}>
-              <View>
-                <Text style={styles.sectionPreTitle}>{t('landing.featured_section_pre')}</Text>
-                <Text style={styles.sectionMainTitle}>{t('landing.featured_section_title')}</Text>
-              </View>
+              <Text style={styles.sectionMainTitle}>{t('landing.featured_section_title')}</Text>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={t('landing.see_all_label')}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 onPress={() => navigation.navigate('AlleySelect')}
                 style={[styles.seeAllLink, fontScale > 1.2 && styles.seeAllLinkStacked]}
               >
@@ -214,29 +235,25 @@ export function LandingScreen({
                       pressed && styles.pressed,
                     ]}
                   >
+                    {/* Ảnh nét riêng của con ngõ, không phủ scrim toàn thẻ */}
                     <Image source={col.coverPhoto} style={styles.alleyCardImage} />
-                    <View style={styles.alleyCardScrim} />
 
                     {/* Badge chủ đề */}
                     <View style={styles.cardThemeTag}>
                       <Text style={styles.cardThemeTagText}>{col.theme}</Text>
                     </View>
 
-                    <View style={styles.alleyCardContent}>
+                    {/* Dải đáy thẻ nền đặc chứa thông tin & chữ vàng */}
+                    <View style={styles.alleyCardFooter}>
                       <Text style={styles.alleyCardDistrict}>{col.district}</Text>
-                      <Text style={styles.alleyCardName}>{col.name}</Text>
-                      <Text style={styles.alleyCardTagline}>
+                      <Text style={styles.alleyCardName} numberOfLines={1}>{col.name}</Text>
+                      <Text style={styles.alleyCardTagline} numberOfLines={2}>
                         {col.tagline}
                       </Text>
 
                       <View style={styles.alleyCardMetaRow}>
                         <Text style={styles.cardStoryCount}>
-                          {t('common.stop_count', { count: col.nodeCount })} · {mode === 'demo' ? t('common.demo') : t('common.live')}
-                        </Text>
-                        <Text style={styles.cardDuration}>
-                          {col.id === 'old-quarter-three-lenses'
-                            ? (locale === 'en' ? 'Sourced · not officially approved' : 'Có nguồn · chưa duyệt chính thức')
-                            : (col.kind === 'reviewed' ? t('common.reviewed') : t('common.simulated'))}
+                          {t('common.stop_count', { count: col.nodeCount })}
                         </Text>
                       </View>
                     </View>
@@ -246,7 +263,7 @@ export function LandingScreen({
             )}
           </Animated.View>
 
-          {/* 4. TIỆN ÍCH TRỰC TIẾP: VỊ TRÍ GPS & SỔ TAY HÀNH TRÌNH */}
+          {/* 4. TIỆN ÍCH TRỰC TIẾP: VỊ TRÍ GPS & SỔ TAY HÀNH TRÌNH (CÙNG CHIỀU CAO VÀ GIỚI HẠN DÒNG) */}
           <Animated.View
             testID="landing-quick-actions-section"
             style={[
@@ -258,10 +275,7 @@ export function LandingScreen({
             ]}
           >
             <View style={[styles.sectionHeaderRow, fontScale > 1.2 && styles.sectionHeaderStacked]}>
-              <View>
-                <Text style={styles.sectionPreTitle}>{t('landing.quick_section_pre')}</Text>
-                <Text style={styles.sectionMainTitle}>{t('landing.quick_section_title')}</Text>
-              </View>
+              <Text style={styles.sectionMainTitle}>{t('landing.quick_section_title')}</Text>
             </View>
 
             <View
@@ -282,8 +296,8 @@ export function LandingScreen({
                   <AppIcon name="pin" size={20} color="#2D5748" />
                 </View>
                 <View style={styles.quickActionTextGroup}>
-                  <Text style={styles.quickActionTitle}>{t('landing.quick_gps_title')}</Text>
-                  <Text style={styles.quickActionDesc}>
+                  <Text style={styles.quickActionTitle} numberOfLines={1}>{t('landing.quick_gps_title')}</Text>
+                  <Text style={styles.quickActionDesc} numberOfLines={2}>
                     {t('landing.quick_gps_desc')}
                   </Text>
                 </View>
@@ -302,8 +316,8 @@ export function LandingScreen({
                   <AppIcon name="write" size={20} color="#2D5748" />
                 </View>
                 <View style={styles.quickActionTextGroup}>
-                  <Text style={styles.quickActionTitle}>{t('landing.quick_notebook_title')}</Text>
-                  <Text style={styles.quickActionDesc}>
+                  <Text style={styles.quickActionTitle} numberOfLines={1}>{t('landing.quick_notebook_title')}</Text>
+                  <Text style={styles.quickActionDesc} numberOfLines={2}>
                     {t('landing.quick_notebook_desc')}
                   </Text>
                 </View>
@@ -311,58 +325,10 @@ export function LandingScreen({
               </Pressable>
             </View>
           </Animated.View>
-
-          {/* 5. KHỐI LỜI DẪN TỰ SỰ GỌN (COMPACT LEAD QUOTE) */}
-          <Animated.View
-            style={[
-              styles.compactQuoteCard,
-              {
-                opacity: quoteEntrance.opacity,
-                transform: [{ translateY: quoteEntrance.translateY }],
-              },
-            ]}
-          >
-            <View style={styles.quoteDecorStrip} />
-            <View style={styles.compactQuoteRow}>
-              <Text style={styles.compactQuoteMark}>“</Text>
-              <View style={styles.compactQuoteTextGroup}>
-                <Text style={styles.compactQuoteText}>
-                  {t('landing.quote_text')}
-                </Text>
-                <Text style={styles.compactQuoteAuthor}>{t('landing.quote_author')}</Text>
-              </View>
-            </View>
-          </Animated.View>
-
-          {/* 6. LỐI TẮT HỘ CHIẾU NGÕ PHỐ (ALLEY PASSPORT) */}
-          <Animated.View
-            style={{
-              opacity: teaserEntrance.opacity,
-              transform: [{ translateY: teaserEntrance.translateY }],
-            }}
-          >
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t('landing.passport_open_label')}
-              onPress={() => setPassportVisible(true)}
-              style={({ pressed }) => [styles.passportTeaserCard, pressed && styles.pressed]}
-            >
-              <View style={styles.passportIconCircle}>
-                <AppIcon name="book" color={colors.terracotta} />
-              </View>
-              <View style={styles.passportTextGroup}>
-                <Text style={styles.passportTitle}>{t('landing.passport_title')}</Text>
-                <Text style={styles.passportDesc}>
-                  {t('landing.passport_desc')}
-                </Text>
-              </View>
-              <Text style={styles.passportChevron}>›</Text>
-            </Pressable>
-          </Animated.View>
         </ScrollView>
       </ImageBackground>
 
-      {/* 7. MODAL SỔ TAY NGÕ PHỐ (HÀNH TRÌNH & CÔNG CỤ: PLAN, CAMERA, GPS, DEMO/LIVE) */}
+      {/* 5. MODAL SỔ TAY NGÕ PHỐ (CHỨA HÀNH TRÌNH, CÔNG CỤ, HỘ CHIẾU & DEMO/LIVE TOGGLE) */}
       <NotebookDrawerModal
         visible={notebookVisible}
         onClose={() => setNotebookVisible(false)}
@@ -376,75 +342,6 @@ export function LandingScreen({
         liveBusy={liveBusy}
         onRetryLive={onRetryLive}
       />
-
-      {/* 8. MODAL HỘ CHIẾU NGÕ PHỐ (STAMP PASSPORT MODAL) */}
-      <Modal
-        visible={passportVisible}
-        animationType={motion.reducedMotion ? 'none' : 'slide'}
-        transparent
-        onRequestClose={() => setPassportVisible(false)}
-        accessibilityViewIsModal
-      >
-        <View style={styles.modalBackdrop}>
-          <Pressable
-            accessibilityRole="button"
-            style={styles.modalDismissArea}
-            onPress={() => setPassportVisible(false)}
-            accessibilityLabel={t('common.close')}
-          />
-
-          <View style={styles.passportSheet}>
-
-            <View style={styles.passportHeaderRow}>
-              <View>
-                <Text style={styles.passportPhase}>{t('landing.passport_phase')}</Text>
-                <Text accessibilityRole="header" style={styles.passportModalTitle}>
-                  {t('landing.passport_title')}
-                </Text>
-              </View>
-              <Pressable
-                onPress={() => setPassportVisible(false)}
-                accessibilityRole="button"
-                accessibilityLabel={t('common.close')}
-                style={styles.closePassportButton}
-              >
-                <Text style={styles.closePassportText}>✕</Text>
-              </Pressable>
-            </View>
-
-            <ScrollView contentContainerStyle={styles.passportScrollContent}>
-              <Text style={styles.passportGuideText}>
-                {t('landing.passport_guide')}
-              </Text>
-
-              {collections.map((col) => (
-                <View key={col.id} style={styles.passportAlleySection}>
-                  <View style={styles.passportAlleyHeader}>
-                    <Text style={styles.passportAlleyName}>{col.name}</Text>
-                    <View style={styles.badgeSamplePill}>
-                      <Text style={styles.badgeSampleText}>{t('landing.badge_sample')}</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.passportAlleyDistrict}>{col.district}</Text>
-
-                  <View style={styles.passportStopsRow}>
-                    {Array.from({ length: Math.min(col.nodeCount, 6) }).map((_, i) => (
-                      <View key={i} style={styles.passportStampSlot}>
-                        <View style={styles.stampDottedCircle}>
-                          <Text style={styles.stampNumberText}>{i + 1}</Text>
-                        </View>
-                        <Text style={styles.stampSlotLabel}>
-                          {`${t('home.stop_prefix')} ${i + 1}`}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -523,7 +420,7 @@ const styles = StyleSheet.create({
   },
   scrimOverlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(22, 24, 18, 0.40)',
+    backgroundColor: 'rgba(18, 30, 23, 0.68)',
   },
   scrollView: {
     flex: 1,
@@ -537,7 +434,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.sm,
+    paddingBottom: spacing.xs,
   },
   headerBarStacked: {
     flexDirection: 'column',
@@ -554,39 +451,68 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  soundscapePill: {
+  segmentedControl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(30, 32, 25, 0.70)',
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 253, 247, 0.22)',
+    padding: 2,
+  },
+  segmentBtn: {
+    minHeight: 44,
+    minWidth: 44,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.pill,
+  },
+  segmentBtnActive: {
+    backgroundColor: '#2A6F50',
+  },
+  segmentBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: 'rgba(255, 253, 247, 0.65)',
+    letterSpacing: 0.5,
+  },
+  segmentBtnTextActive: {
+    color: '#FFFDF7',
+  },
+  segmentDivider: {
+    width: 1,
+    height: 18,
+    backgroundColor: 'rgba(255, 253, 247, 0.20)',
+  },
+  headerNotebookBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 44,
     minWidth: 44,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     borderRadius: radius.pill,
-    backgroundColor: 'rgba(30, 32, 25, 0.65)',
+    backgroundColor: 'rgba(30, 32, 25, 0.70)',
     borderWidth: 1,
     borderColor: 'rgba(255, 253, 247, 0.22)',
+    gap: 6,
   },
-  soundscapeIcon: {
-    fontSize: 11,
+  headerNotebookText: {
+    fontSize: 12,
     fontWeight: '700',
     color: '#FFFDF7',
-    letterSpacing: 0.5,
+    letterSpacing: 0.2,
   },
-  soundscapeBanner: {
-    marginHorizontal: spacing.lg,
+  statusLineContainer: {
+    paddingHorizontal: spacing.lg,
     marginBottom: spacing.md,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: radius.pill,
-    backgroundColor: 'rgba(42, 111, 80, 0.45)',
-    borderWidth: 1,
-    borderColor: 'rgba(42, 111, 80, 0.65)',
-    alignSelf: 'flex-start',
+    marginTop: 2,
   },
-  soundscapeBannerText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#E8F5E9',
+  statusLineText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: 'rgba(255, 253, 247, 0.85)',
     letterSpacing: 0.2,
   },
   sectionHeaderRow: {
@@ -601,21 +527,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 4,
   },
-  sectionPreTitle: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: 'rgba(255, 253, 247, 0.70)',
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-  },
   sectionMainTitle: {
     fontSize: 20,
     fontWeight: '800',
     color: '#FFFDF7',
-    marginTop: 2,
     letterSpacing: 0.3,
   },
   seeAllLink: {
+    minHeight: 44,
+    justifyContent: 'center',
     paddingVertical: 4,
     paddingHorizontal: 8,
     borderRadius: radius.sm,
@@ -627,7 +547,7 @@ const styles = StyleSheet.create({
   seeAllText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#D4AF37',
+    color: 'rgba(255, 253, 247, 0.90)',
   },
   horizontalAlleyScroll: {
     paddingHorizontal: spacing.lg,
@@ -652,10 +572,6 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'absolute',
   },
-  alleyCardScrim: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(20, 22, 16, 0.45)',
-  },
   cardThemeTag: {
     position: 'absolute',
     top: 12,
@@ -663,40 +579,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: radius.sm,
-    backgroundColor: 'rgba(20, 22, 16, 0.65)',
+    backgroundColor: 'rgba(20, 22, 16, 0.70)',
     borderWidth: 1,
     borderColor: 'rgba(255, 253, 247, 0.2)',
   },
   cardThemeTagText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '700',
     color: '#FFFDF7',
     letterSpacing: 0.4,
+    textTransform: 'uppercase',
   },
-  cardDistanceBadge: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: radius.sm,
-    backgroundColor: 'rgba(42, 111, 80, 0.75)',
-  },
-  cardDistanceText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#FFFDF7',
-    letterSpacing: 0.6,
-  },
-  alleyCardContent: {
-    flex: 1,
-    justifyContent: 'flex-end',
+  alleyCardFooter: {
+    marginTop: 'auto',
+    backgroundColor: 'rgba(20, 22, 16, 0.78)',
     padding: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 253, 247, 0.12)',
     gap: 4,
   },
   alleyCardDistrict: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
     color: '#D4AF37',
     letterSpacing: 0.5,
   },
@@ -719,14 +623,14 @@ const styles = StyleSheet.create({
     marginTop: 4,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 253, 247, 0.15)',
+    borderTopColor: 'rgba(255, 253, 247, 0.12)',
   },
   cardStoryCount: {
-    fontSize: 11,
-    color: 'rgba(255, 253, 247, 0.7)',
+    fontSize: 12,
+    color: 'rgba(255, 253, 247, 0.75)',
   },
   cardDuration: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '600',
     color: '#E8F5E9',
   },
@@ -738,6 +642,7 @@ const styles = StyleSheet.create({
   quickActionsGrid: {
     flexDirection: 'row',
     gap: spacing.md,
+    alignItems: 'stretch',
   },
   quickActionsGridStacked: {
     flexDirection: 'column',
@@ -752,7 +657,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderWidth: 1,
     borderColor: '#E8DEC9',
-    minHeight: 56,
+    minHeight: 72,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -778,220 +683,15 @@ const styles = StyleSheet.create({
     color: '#2C221E',
   },
   quickActionDesc: {
-    fontSize: 11.5,
+    fontSize: 12,
     color: '#6E5D4F',
-    lineHeight: 15,
+    lineHeight: 16,
   },
   quickActionChevron: {
     fontSize: 18,
     color: '#A89989',
     fontWeight: '600',
     marginRight: 2,
-  },
-  compactQuoteCard: {
-    marginHorizontal: spacing.lg,
-    marginTop: spacing.lg,
-    backgroundColor: 'rgba(255, 253, 247, 0.92)',
-    borderRadius: radius.md,
-    padding: spacing.md,
-    flexDirection: 'row',
-    gap: spacing.sm,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 253, 247, 0.35)',
-  },
-  quoteDecorStrip: {
-    width: 3,
-    backgroundColor: '#8C5A40',
-    borderRadius: 1.5,
-  },
-  compactQuoteRow: {
-    flex: 1,
-    flexDirection: 'row',
-    gap: spacing.xs,
-  },
-  compactQuoteMark: {
-    fontSize: 24,
-    lineHeight: 24,
-    fontWeight: '800',
-    color: '#8C5A40',
-    fontFamily: 'serif',
-  },
-  compactQuoteTextGroup: {
-    flex: 1,
-    gap: 4,
-  },
-  compactQuoteText: {
-    fontSize: 12,
-    fontStyle: 'italic',
-    color: '#4A3B32',
-    lineHeight: 18,
-  },
-  compactQuoteAuthor: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#8C5A40',
-    letterSpacing: 0.4,
-  },
-  passportTeaserCard: {
-    marginHorizontal: spacing.lg,
-    marginTop: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 253, 247, 0.92)',
-    borderRadius: radius.md,
-    padding: spacing.md,
-    gap: spacing.md,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 253, 247, 0.4)',
-  },
-  passportIconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#F5ECE0',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  passportTextGroup: {
-    flex: 1,
-    gap: 2,
-  },
-  passportTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#2C221E',
-  },
-  passportDesc: {
-    fontSize: 11,
-    color: '#6E5D4F',
-  },
-  passportChevron: {
-    fontSize: 16,
-    color: '#8C5A40',
-    fontWeight: '700',
-  },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(15, 12, 10, 0.72)',
-    justifyContent: 'flex-end',
-  },
-  modalDismissArea: {
-    flex: 1,
-  },
-  passportSheet: {
-    backgroundColor: '#FFFDF8',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    maxHeight: '82%',
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl + 12,
-    borderTopWidth: 1,
-    borderColor: '#EFE5D4',
-  },
-  passportHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  passportPhase: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#8C5A40',
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-  passportModalTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#2C221E',
-  },
-  closePassportButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#EFE8DA',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  closePassportText: {
-    fontSize: 14,
-    color: '#4A3B32',
-    fontWeight: '700',
-  },
-  passportScrollContent: {
-    gap: spacing.lg,
-  },
-  passportGuideText: {
-    fontSize: 12,
-    color: '#6E5D4F',
-    lineHeight: 18,
-    backgroundColor: '#F5ECE0',
-    padding: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: '#E6D7C2',
-  },
-  passportAlleySection: {
-    gap: spacing.xs,
-  },
-  passportAlleyHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  passportAlleyName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#2C221E',
-  },
-  badgeSamplePill: {
-    backgroundColor: '#8C5A40',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: radius.pill,
-  },
-  badgeSampleText: {
-    fontSize: 9,
-    fontWeight: '800',
-    color: '#FFFDF7',
-    letterSpacing: 0.5,
-  },
-  passportAlleyDistrict: {
-    fontSize: 11,
-    color: '#8C7D70',
-  },
-  passportStopsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginTop: 6,
-  },
-  passportStampSlot: {
-    width: 48,
-    alignItems: 'center',
-    gap: 4,
-  },
-  stampDottedCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 1.5,
-    borderColor: '#C4B5A0',
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FDFBF7',
-  },
-  stampNumberText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#A0907C',
-  },
-  stampSlotLabel: {
-    fontSize: 9.5,
-    color: '#8C7D70',
-    textAlign: 'center',
   },
   pressed: {
     opacity: 0.82,

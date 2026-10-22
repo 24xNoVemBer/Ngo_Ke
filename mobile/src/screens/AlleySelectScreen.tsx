@@ -77,7 +77,7 @@ export function AlleySelectScreen({
     liveCollectionItem = {
       id: rawCollectionId,
       name: known ? t(known.nameKey) : rawCollectionId,
-      tagline: known ? t(known.taglineKey) : (locale === 'en' ? 'Verified live collection' : 'Bộ sưu tập máy chủ xác minh'),
+      tagline: known ? t(known.taglineKey) : (locale === 'en' ? 'Live collection' : 'Bộ sưu tập Live'),
       theme: known ? t(known.themeKey) : (locale === 'en' ? 'Live explore' : 'Khám phá Live'),
       district: known ? t(known.districtKey) : (locale === 'en' ? 'Live area' : 'Khu vực Live'),
       nodeCount: dataset.nodes.length,
@@ -202,10 +202,12 @@ export function AlleySelectScreen({
               <Text style={styles.gpsLocationName}>
                 {isLive
                   ? (liveCollectionItem
-                      ? `${liveCollectionItem.district} · ${t('alley_select.live_source_badge')}`
+                      ? liveCollectionItem.district
                       : liveBusy
                         ? t('alley_select.live_loading')
-                        : (liveSource?.title || t('alley_select.live_source_badge')))
+                        : (liveSource?.status === 'error'
+                            ? t('alley_select.live_error')
+                            : t('alley_select.live_empty')))
                   : t('alley_select.demo_subtext')}
               </Text>
             </View>

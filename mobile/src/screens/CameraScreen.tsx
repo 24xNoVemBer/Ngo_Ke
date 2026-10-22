@@ -298,13 +298,6 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
                 style={styles.activeImage}
                 resizeMode={isThreeLenses ? 'contain' : 'cover'}
               />
-              <View style={styles.disclaimerBadge}>
-                <Text style={styles.disclaimerText}>
-                  {isThreeLenses
-                    ? (locale === 'en' ? 'Supplied photo (Sourced · not officially approved) · unverified rights' : 'Ảnh người dùng cung cấp (Có nguồn · chưa duyệt chính thức) · chưa kiểm chứng bản quyền')
-                    : t(isReviewed ? 'common.photo_disclaimer_reviewed' : 'common.photo_disclaimer')}
-                </Text>
-              </View>
               <View style={styles.creditBadge}>
                 <Text style={styles.creditText}>{t('common.photo_author', { author: getNodePhotographer(active.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined, locale) })}</Text>
               </View>
@@ -370,7 +363,7 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
                   <View style={styles.pointInfo}>
                     <Text style={styles.pointName}>{node.name}</Text>
                     <Text style={styles.pointMeta}>
-                      {t(isReviewed ? 'location.suggested_visit_minutes' : 'common.simulated_minutes', {
+                      {t('location.suggested_visit_minutes', {
                         minutes: node.visitMinutes,
                       })}{' '}
                       · {getNodePhotographer(node.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined, locale)}
@@ -383,15 +376,6 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
           </View>
         )}
 
-        <View style={styles.disclaimerBox}>
-          <Text style={styles.note}>
-            {isThreeLenses
-              ? (locale === 'en'
-                  ? 'DEMO · Sourced · not officially approved · Supplied photos have unverified rights'
-                  : 'DEMO · Có nguồn · chưa duyệt chính thức · Ảnh người dùng chưa kiểm chứng bản quyền')
-              : (isReviewed ? t('camera.disclaimer_reviewed') : t('camera.disclaimer_simulated'))}
-          </Text>
-        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -581,19 +565,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  disclaimerBadge: {
-    position: 'absolute',
-    bottom: spacing.sm,
-    left: spacing.sm,
-    backgroundColor: 'rgba(46, 48, 40, 0.75)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-    borderRadius: radius.sm,
-  },
-  disclaimerText: {
-    ...typography.micro,
-    color: colors.surface,
-  },
   creditBadge: {
     position: 'absolute',
     top: spacing.sm,
@@ -656,18 +627,6 @@ const styles = StyleSheet.create({
     ...typography.titleSmall,
     color: colors.accent,
     paddingRight: spacing.xs,
-  },
-  disclaimerBox: {
-    backgroundColor: colors.surfaceWarm,
-    padding: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  note: {
-    ...typography.bodySmall,
-    color: colors.muted,
-    lineHeight: 20,
   },
   viewfinderOverlay: {
     ...StyleSheet.absoluteFill,

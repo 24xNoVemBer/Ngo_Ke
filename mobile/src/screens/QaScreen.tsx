@@ -32,7 +32,6 @@ import { parseVoiceIntent, resolveFirstOptionReference, type VoiceOptionContext 
 import { lookupVoiceTrack } from '../voice/localizedCatalog';
 import { useLocale } from '../context/LocaleContext';
 import type { TranslationKey } from '../i18n/translator';
-import { ClickableSources } from '../components/ClickableSources';
 import { getScopedCompanion, THREE_LENSES_COLLECTION_ID } from '../data/threeLensesCompanion';
 import { colors, radius, spacing, typography } from '../theme';
 import { motionDurations, motionEasings } from '../theme/motion';
@@ -677,11 +676,6 @@ export function QaScreen({
                 </View>
               )}
 
-              <Text style={styles.waveformDuration}>
-                {isReviewedContent
-                  ? (mode === 'demo' ? t('qa.waveform_demo_reviewed') : t('qa.waveform_live_reviewed'))
-                  : (mode === 'demo' ? t('qa.waveform_demo') : t('qa.waveform_live'))}
-              </Text>
               {storyTrack && (
                 <VoicePlayerBar
                   label={`${t('qa.story_label')} · ${currentSegmentData.title}`}
@@ -762,21 +756,6 @@ export function QaScreen({
                 </Pressable>
               </View>
 
-              <ClickableSources
-                evidence={currentSegmentData.evidence}
-                label={t('qa.story_evidence_label')}
-                isThreeLenses={isThreeLenses}
-              />
-
-              <View style={styles.disclaimerPill}>
-                <Text style={styles.disclaimerPillText}>
-                  {isThreeLenses
-                    ? t('qa.disclaimer_three_lenses')
-                    : `${t('qa.photo_note')} · ${isReviewedContent
-                        ? (mode === 'demo' ? t('qa.disclaimer_demo_reviewed') : t('qa.disclaimer_live_reviewed'))
-                        : (mode === 'demo' ? t('qa.disclaimer_fiction') : t('qa.disclaimer_live_simulated'))}`}
-                </Text>
-              </View>
             </View>
 
             {voiceActionCard && (
@@ -973,13 +952,6 @@ export function QaScreen({
                   </View>
                 ) : (
                   <View style={styles.verifiedBox}>
-                    <View style={styles.verifiedTag}>
-                      <Text style={styles.verifiedTagText}>
-                        {isThreeLenses
-                          ? t('qa.tag_sourced_only')
-                          : (isReviewedContent ? t('qa.verified_source_title') : t('qa.verified_story_title'))}
-                      </Text>
-                    </View>
                     {isTextVisible && <Text style={styles.answerText}>{entry.answer}</Text>}
                     {answerTrack && currentNode && (
                       <VoicePlayerBar
@@ -1005,12 +977,7 @@ export function QaScreen({
                       <AppIcon name="text" size={18} color="#2D5748" />
                       <Text style={styles.readerToggleText}>{isTextVisible ? t('qa.collapse_answer_btn') : t('qa.read_answer_btn')}</Text>
                     </Pressable>
-                    <ClickableSources
-                      evidence={entry.evidence}
-                      label={t('qa.answer_evidence_label')}
-                      isThreeLenses={isThreeLenses}
-                    />
-                  </View>
+                    </View>
                 )}
 
                 <Pressable
@@ -1278,11 +1245,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.text,
   },
-  waveformDuration: {
-    fontSize: 11.5,
-    fontWeight: '600',
-    color: '#5C483D',
-  },
   readerToggle: {
     alignSelf: 'flex-start',
     minHeight: 48,
@@ -1357,18 +1319,6 @@ const styles = StyleSheet.create({
     color: colors.text,
     flex: 1,
   },
-  disclaimerPill: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#EFE8DA',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radius.pill,
-  },
-  disclaimerPillText: {
-    fontSize: 9.5,
-    fontStyle: 'italic',
-    color: '#7C6A5A',
-  },
   answerCard: {
     backgroundColor: 'rgba(255, 253, 247, 0.95)',
     borderRadius: 18,
@@ -1397,19 +1347,6 @@ const styles = StyleSheet.create({
   verifiedBox: {
     gap: 6,
     paddingVertical: 4,
-  },
-  verifiedTag: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#2A6F50',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: radius.pill,
-  },
-  verifiedTagText: {
-    fontSize: 9,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: 0.4,
   },
   answerText: {
     fontSize: 17,

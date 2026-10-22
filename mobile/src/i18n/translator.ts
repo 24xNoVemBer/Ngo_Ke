@@ -158,8 +158,9 @@ export type TranslationKey =
   | 'qa.journey_transition_title'
   | 'qa.journey_closing_title'
   // Landing
-  | 'landing.soundscape_banner'
-  | 'landing.featured_section_pre'
+  | 'landing.mode_status'
+  | 'landing.header_notebook'
+  | 'landing.header_notebook_label'
   | 'landing.featured_section_title'
   | 'landing.see_all'
   | 'landing.see_all_label'
@@ -169,7 +170,6 @@ export type TranslationKey =
   | 'landing.passport_guide'
   | 'landing.passport_phase'
   | 'landing.badge_sample'
-  | 'landing.quick_section_pre'
   | 'landing.quick_section_title'
   | 'landing.quick_gps_title'
   | 'landing.quick_gps_desc'
@@ -285,11 +285,8 @@ export type TranslationKey =
   | 'qa.explore_alley'
   | 'qa.photo_credit'
   // Landing additions
-  | 'landing.quote_text'
-  | 'landing.quote_author'
   | 'landing.cta_label'
   | 'landing.cta_button'
-  | 'landing.passport_close_label'
   | 'landing.explore_alley_label'
   // Home additions
   | 'home.change_mood'
@@ -556,8 +553,9 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'qa.journey_transition_title': 'Chuyển đoạn câu chuyện',
     'qa.journey_closing_title': 'Phần kết thúc — Những câu chuyện vẫn tiếp diễn',
 
-    'landing.soundscape_banner': 'Lời kể bằng chữ · nội dung mô phỏng · {mode}',
-    'landing.featured_section_pre': 'HÀNH TRÌNH NỔI BẬT',
+    'landing.mode_status': 'Truyện chữ · {mode}',
+    'landing.header_notebook': 'Sổ tay',
+    'landing.header_notebook_label': 'Mở Sổ tay ngõ phố',
     'landing.featured_section_title': 'Chọn một con ngõ',
     'landing.see_all': 'Xem tất cả ›',
     'landing.see_all_label': 'Xem tất cả con ngõ',
@@ -567,24 +565,23 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'landing.passport_guide': 'Đây là mẫu trình bày sổ tay. Demo chưa lưu lịch sử ghé thăm; các trang bên dưới chưa có dấu xác nhận.',
     'landing.passport_phase': 'BỘ SƯU TẬP DI SẢN',
     'landing.badge_sample': 'MẪU',
-    'landing.quick_section_pre': 'TIỆN ÍCH',
     'landing.quick_section_title': 'Công cụ ngõ phố',
     'landing.quick_gps_title': 'Vị trí GPS',
-    'landing.quick_gps_desc': 'Định vị điểm ngõ bạn đang đứng',
+    'landing.quick_gps_desc': 'Biết mình đang ở điểm nào',
     'landing.quick_gps_label': 'Mở màn hình vị trí GPS',
     'landing.quick_notebook_title': 'Sổ tay',
-    'landing.quick_notebook_desc': 'Hành trình & Công cụ',
+    'landing.quick_notebook_desc': 'Hành trình, tem hộ chiếu và đổi chế độ',
     'landing.quick_notebook_label': 'Mở sổ tay ngõ phố và công cụ',
 
     'alley_select.title': 'Bộ sưu tập con ngõ',
     'alley_select.subtitle': 'Chọn một hành trình để bắt đầu khám phá',
     'alley_select.open_label': 'Mở {name}',
-    'alley_select.meta_info': 'Bìa minh họa · {count} điểm · {mode}',
+    'alley_select.meta_info': '{count} điểm · {mode}',
     'alley_select.demo_area': 'KHU VỰC DEMO',
-    'alley_select.demo_subtext': 'Phố cổ Hà Nội · nội dung mô phỏng',
+    'alley_select.demo_subtext': 'Phố cổ Hà Nội',
     'alley_select.search_placeholder': 'Tìm phố hoặc ngõ',
     'alley_select.clear_search': 'Xóa từ khóa tìm kiếm',
-    'alley_select.hint': 'Chọn bìa ngõ bên dưới để mở bộ điểm từ nguồn {mode}',
+    'alley_select.hint': 'Chọn con ngõ bên dưới để mở các điểm khám phá · {mode}',
     'alley_select.explore_count': 'Các con ngõ khám phá ({count})',
     'alley_select.sample_list': 'Danh sách mẫu · không đo khoảng cách từ bạn',
     'alley_select.empty': 'Không tìm thấy địa chỉ hoặc con ngõ phù hợp',
@@ -592,14 +589,14 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'alley_select.filter_all': 'Tất cả',
     'alley_select.filter_food': 'Ẩm thực',
     'alley_select.live_area': 'KHU VỰC LIVE',
-    'alley_select.live_subtext': '{name} · Nguồn máy chủ Live',
+    'alley_select.live_subtext': '{name} · Live',
     'alley_select.live_loading': 'Đang kết nối máy chủ Live...',
     'alley_select.live_empty': 'Chưa có dữ liệu từ máy chủ Live',
     'alley_select.live_error': 'Lỗi kết nối máy chủ Live',
     'alley_select.live_retry': 'Thử lại',
-    'alley_select.live_source_badge': 'Nguồn máy chủ Live',
-    'alley_select.live_meta_info': 'Nguồn máy chủ Live · {count} điểm',
-    'alley_select.server_catalog': 'Bộ sưu tập máy chủ',
+    'alley_select.live_source_badge': 'Live',
+    'alley_select.live_meta_info': '{count} điểm · Live',
+    'alley_select.server_catalog': 'Bộ sưu tập Live',
 
     'home.open_story': 'Xem {name}',
     'home.stories_opened': 'Đã mở {opened}/{total} câu chuyện · {mode}',
@@ -645,12 +642,12 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'qa.story_evidence_label': 'Nguồn lời kể',
     'qa.voice_plan_title': 'Một lối đi vừa ý',
     'qa.voice_plan_body': 'Gợi ý dựa trên quỹ thời gian và chủ đề anh vừa nói.',
-    'qa.voice_plan_empty': 'Chưa có điểm phù hợp trong dữ liệu mô phỏng. Anh có thể đổi chủ đề hoặc thời gian.',
+    'qa.voice_plan_empty': 'Chưa có điểm phù hợp. Anh có thể đổi chủ đề hoặc thời gian.',
     'qa.voice_plan_open': 'Mở bảng chọn trải nghiệm',
     'qa.voice_qr_title': 'Xác định điểm bằng mã QR',
     'qa.voice_gps_title': 'Xác định điểm bằng GPS',
     'qa.voice_qr_body': 'Máy ảnh chỉ mở sau khi anh chạm nút. Nếu chưa quét được, vẫn có thể chọn điểm bằng tay.',
-    'qa.voice_gps_body': 'Vị trí chỉ được đọc một lần sau khi anh chạm nút Dùng GPS. Điểm mô phỏng chưa xác nhận vị trí thật.',
+    'qa.voice_gps_body': 'Vị trí chỉ được đọc một lần sau khi anh chạm nút Dùng GPS.',
     'qa.voice_qr_btn': 'Mở thẻ quét QR',
     'qa.voice_gps_btn': 'Mở thẻ GPS',
     'qa.listen_answer': 'Nghe câu trả lời',
@@ -681,13 +678,10 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'qa.ask_prefix': 'Hỏi:',
     'qa.minutes': 'phút',
     'qa.explore_alley': 'Khám phá ngõ',
-    'qa.photo_credit': 'Ảnh minh họa',
+    'qa.photo_credit': 'Ảnh',
 
-    'landing.quote_text': 'Mở một trang sổ tay, chậm bước qua ngõ phố và khám phá những lời kể.',
-    'landing.quote_author': '— Dự án Ngõ Kể · Giữ gìn hồn phố cổ',
     'landing.cta_label': 'Chọn con ngõ để bắt đầu chuyến đi',
     'landing.cta_button': 'Khám phá các con ngõ Hà Nội',
-    'landing.passport_close_label': 'Đóng hộ chiếu',
     'landing.explore_alley_label': 'Khám phá',
 
     'home.change_mood': 'Đổi sắc thái ánh sáng ngõ phố',
@@ -698,7 +692,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'home.locked': 'Chưa mở',
     'home.min': 'phút',
     'home.story_opened': 'ĐÃ MỞ LỜI KỂ',
-    'home.photo_credit': 'Ảnh minh họa',
+    'home.photo_credit': 'Ảnh',
     'home.explore_point_label': 'Khám phá điểm',
     'home.explore_this_point': 'Khám phá điểm này',
     'home.gps_dock_label': 'Xác nhận điểm GPS',
@@ -794,7 +788,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
 
     'unavailable.phase': 'Thông báo dữ liệu',
     'unavailable.title': 'Chưa có dữ liệu hỏi đáp',
-    'unavailable.note': 'Vui lòng chuyển về chế độ Demo để trải nghiệm toàn bộ các tính năng được mô phỏng sẵn.',
+    'unavailable.note': 'Vui lòng chuyển về chế độ Demo để tiếp tục trải nghiệm các tính năng.',
   },
   en: {
     'voice.error.MIC_PERMISSION_DENIED': "Ngõ Kể doesn't have permission to use the microphone. You can type your question instead.",
@@ -953,8 +947,9 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'qa.journey_transition_title': 'Narrative transition',
     'qa.journey_closing_title': 'Closing — The stories continue',
 
-    'landing.soundscape_banner': 'Text stories · simulated content · {mode}',
-    'landing.featured_section_pre': 'FEATURED JOURNEYS',
+    'landing.mode_status': 'Text stories · {mode}',
+    'landing.header_notebook': 'Notebook',
+    'landing.header_notebook_label': 'Open alley notebook',
     'landing.featured_section_title': 'Choose an alley',
     'landing.see_all': 'See all ›',
     'landing.see_all_label': 'See all alleys',
@@ -964,24 +959,23 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'landing.passport_guide': 'This is a sample notebook. Demo does not yet save visit history; stops below are unconfirmed.',
     'landing.passport_phase': 'HERITAGE COLLECTION',
     'landing.badge_sample': 'SAMPLE',
-    'landing.quick_section_pre': 'UTILITIES',
     'landing.quick_section_title': 'Alley Tools',
     'landing.quick_gps_title': 'GPS Location',
-    'landing.quick_gps_desc': 'Locate the alley stop you are visiting',
+    'landing.quick_gps_desc': 'Find your current alley stop',
     'landing.quick_gps_label': 'Open GPS location screen',
     'landing.quick_notebook_title': 'Notebook',
-    'landing.quick_notebook_desc': 'Journey & Tools',
+    'landing.quick_notebook_desc': 'Alley passport, tools and mode switch',
     'landing.quick_notebook_label': 'Open alley notebook and tools',
 
     'alley_select.title': 'Alley Collection',
     'alley_select.subtitle': 'Choose a journey to start exploring',
     'alley_select.open_label': 'Open {name}',
-    'alley_select.meta_info': 'Cover photo · {count} stops · {mode}',
+    'alley_select.meta_info': '{count} stops · {mode}',
     'alley_select.demo_area': 'DEMO AREA',
-    'alley_select.demo_subtext': 'Hanoi Old Quarter · simulated content',
+    'alley_select.demo_subtext': 'Hanoi Old Quarter',
     'alley_select.search_placeholder': 'Search street or alley',
     'alley_select.clear_search': 'Clear search',
-    'alley_select.hint': 'Select an alley cover below to open stops from {mode} source',
+    'alley_select.hint': 'Select an alley below to explore stops · {mode}',
     'alley_select.explore_count': 'Explorable alleys ({count})',
     'alley_select.sample_list': 'Sample list · distance not measured from you',
     'alley_select.empty': 'No matching address or alley found',
@@ -989,14 +983,14 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'alley_select.filter_all': 'All',
     'alley_select.filter_food': 'Food',
     'alley_select.live_area': 'LIVE AREA',
-    'alley_select.live_subtext': '{name} · Live API source',
+    'alley_select.live_subtext': '{name} · Live',
     'alley_select.live_loading': 'Connecting to live server...',
     'alley_select.live_empty': 'No data from live server',
     'alley_select.live_error': 'Live server connection error',
     'alley_select.live_retry': 'Retry',
-    'alley_select.live_source_badge': 'Live backend source',
-    'alley_select.live_meta_info': 'Live backend source · {count} stops',
-    'alley_select.server_catalog': 'Server collection',
+    'alley_select.live_source_badge': 'Live',
+    'alley_select.live_meta_info': '{count} stops · Live',
+    'alley_select.server_catalog': 'Live collection',
 
     'home.open_story': 'View {name}',
     'home.stories_opened': 'Opened {opened}/{total} stories · {mode}',
@@ -1042,12 +1036,12 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'qa.story_evidence_label': 'Story source',
     'qa.voice_plan_title': 'A tailored route',
     'qa.voice_plan_body': 'Suggestions based on the duration and topic you mentioned.',
-    'qa.voice_plan_empty': 'No matching stops found in the demo dataset. You can change topic or duration.',
+    'qa.voice_plan_empty': 'No matching stops found. You can change topic or duration.',
     'qa.voice_plan_open': 'Open route planner',
     'qa.voice_qr_title': 'Identify stop with QR code',
     'qa.voice_gps_title': 'Identify stop with GPS',
     'qa.voice_qr_body': 'Camera only opens after tapping the button. If QR scan fails, manual selection is always available.',
-    'qa.voice_gps_body': 'Location is read only once after tapping Use GPS. Simulated stops do not confirm physical location.',
+    'qa.voice_gps_body': 'Location is read only once after tapping Use GPS.',
     'qa.voice_qr_btn': 'Open QR scanner',
     'qa.voice_gps_btn': 'Open GPS card',
     'qa.listen_answer': 'Listen to answer',
@@ -1078,13 +1072,10 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'qa.ask_prefix': 'Ask:',
     'qa.minutes': 'min',
     'qa.explore_alley': 'Explore alley',
-    'qa.photo_credit': 'Illustration photo',
+    'qa.photo_credit': 'Photo',
 
-    'landing.quote_text': 'Open a notebook page, slow your steps through city alleys, and discover their stories.',
-    'landing.quote_author': '— Ngõ Kể Project · Preserving Old Quarter Soul',
     'landing.cta_label': 'Select an alley to begin your journey',
     'landing.cta_button': 'Explore Hanoi Alleys',
-    'landing.passport_close_label': 'Close passport',
     'landing.explore_alley_label': 'Explore',
 
     'home.change_mood': 'Change alley lighting mood',
@@ -1191,7 +1182,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
 
     'unavailable.phase': 'Data notice',
     'unavailable.title': 'Q&A data not available',
-    'unavailable.note': 'Please switch to Demo mode to explore all simulated features.',
+    'unavailable.note': 'Please switch to Demo mode to continue exploring features.',
   },
 };
 

@@ -230,9 +230,9 @@ test('LandingScreen renders direct GPS and Sổ tay quick actions with accessibl
   const section = elements(tree, 'Animated.View').find((item) => item.props.testID === 'landing-quick-actions-section');
   assert.ok(section, 'Quick actions section is rendered');
 
-  // Section titles
+  // Section titles: pre-title removed per Landing redesign spec (Dieter Rams #10)
   const sectionTexts = elements(section, 'Text').map((t) => [].concat(t.props.children).join(''));
-  assert.ok(sectionTexts.some((t) => t.includes(translator.t('vi', 'landing.quick_section_pre'))), 'VI pre-title rendered');
+  assert.equal(sectionTexts.some((t) => t.includes('CÔNG CỤ TIỆN ÍCH')), false, 'VI pre-title removed per redesign spec');
   assert.ok(sectionTexts.some((t) => t.includes(translator.t('vi', 'landing.quick_section_title'))), 'VI main title rendered');
 
   // 2. GPS Button
@@ -429,7 +429,7 @@ test('NotebookDrawerModal component mounted directly: verifies onClose called be
 
   const liveEmptyTree = liveEmptyMount.render();
   const liveEmptyTexts = elements(liveEmptyTree, 'Text').map((t) => [].concat(t.props.children).join(''));
-  assert.ok(liveEmptyTexts.some((t) => t.includes('LIVE · chưa có dữ liệu')), 'Live unready state displays no data tag');
+  assert.ok(liveEmptyTexts.some((t) => t.includes('chưa được cấu hình') || t.includes('chưa có dữ liệu')), 'Live unready state displays meaningful empty feedback');
   assert.equal(liveEmptyTexts.some((t) => t.includes('DEMO')), false, 'Live state does not display DEMO tag');
 
   // 6. Test Live error state isolation
@@ -482,7 +482,7 @@ test('LandingScreen quick-actions render accurately in English locale', () => {
   assert.ok(section, 'Quick actions section rendered in EN');
 
   const sectionTexts = elements(section, 'Text').map((t) => [].concat(t.props.children).join(''));
-  assert.ok(sectionTexts.some((t) => t.includes(translator.t('en', 'landing.quick_section_pre'))), 'EN pre-title rendered');
+  assert.equal(sectionTexts.some((t) => t.includes('DIRECT TOOLS')), false, 'EN pre-title removed per redesign spec');
   assert.ok(sectionTexts.some((t) => t.includes(translator.t('en', 'landing.quick_section_title'))), 'EN main title rendered');
 
   const gpsBtn = elements(tree, 'Pressable').find((item) => item.props.testID === 'landing-quick-gps');

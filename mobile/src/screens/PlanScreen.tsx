@@ -45,7 +45,6 @@ type Props = {
 };
 
 export function PlanScreen({
-  mode = 'demo',
   nodes,
   draft = {},
   onDraftChange = () => {},
@@ -358,17 +357,9 @@ export function PlanScreen({
 
           <View style={styles.disclaimerBox}>
             <Text style={styles.note}>
-              {mode === 'demo'
-                ? (locale === 'en'
-                    ? 'Recommended stops and durations in demo are simulated data for flow review.'
-                    : 'Điểm gợi ý và thời lượng trong bản demo là dữ liệu mô phỏng để review luồng.')
-                : (locale === 'en'
-                    ? 'Live source from server uses simulated data; do not use for actual navigation.'
-                    : 'Nguồn Live từ máy chủ hiện dùng dữ liệu mô phỏng; không dùng thời lượng này để đi thực tế.')}
-              {' '}
               {locale === 'en'
-                ? 'Total duration does not exceed selected budget; walking time not included.'
-                : 'Tổng thời gian dừng không vượt quỹ đã chọn; chưa tính thời gian đi bộ. App chưa chỉ đường từng bước.'}
+                ? 'Total duration does not exceed selected budget; walking time not included. App does not provide turn-by-turn directions.'
+                : 'Tổng thời gian dừng không vượt quỹ đã chọn; chưa tính thời gian đi bộ. App không chỉ đường từng bước.'}
             </Text>
           </View>
         </ScrollView>
