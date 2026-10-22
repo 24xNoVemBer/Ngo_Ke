@@ -15,13 +15,15 @@ import Svg, { Path } from 'react-native-svg';
 import type { DemoNode, Mode, SourceState } from '../data/sourceState';
 import type { RootStackParamList } from '../navigation';
 import { getNodePhoto, getNodePhotographer, getAlleyMeta } from '../assets/photoMap';
-import { AVAILABLE_COLLECTIONS, DEFAULT_COLLECTION_ID, getLocalizedCollections, isCollectionId, type CollectionId } from '../data/collections';
+import { AVAILABLE_COLLECTIONS, DEFAULT_COLLECTION_ID, getBundledDataset, getLocalizedCollections, isCollectionId, VI_ONLY_COLLECTION_IDS, type CollectionId } from '../data/collections';
+import { readAlleyStory } from '../data/alleyGuide';
 import { UnavailableScreen } from './UnavailableScreen';
 import { useMotionState } from '../hooks/MotionPreferences';
 import { CrossfadePhoto } from '../components/CrossfadePhoto';
 import { AlleyTrailView } from '../components/AlleyTrailView';
 import { AppIcon } from '../components/AppIcon';
 import { NotebookDrawerModal } from '../components/NotebookDrawerModal';
+import { AlleyStoryCard } from '../components/AlleyStoryCard';
 import { usePressSpring, usePulseLoop } from '../hooks/useMotion';
 import { useLocale } from '../context/LocaleContext';
 import { radius, spacing } from '../theme';
@@ -84,12 +86,13 @@ export function HomeScreen({
             ? source.dataset.collectionId
             : DEFAULT_COLLECTION_ID));
   const activeCollectionId: CollectionId = isCollectionId(rawCollectionId) ? rawCollectionId : DEFAULT_COLLECTION_ID;
-  const activeCollection = collections.find((c) => c.id === activeCollectionId) ?? collections[0];
+  const isViOnlyInEn = locale === 'en' && Boolean(VI_ONLY_COLLECTION_IDS?.includes(activeCollectionId));
+  const activeCollection = collections.find((c) => c.id === activeCollectionId) ?? (isViOnlyInEn ? undefined : collections[0]);
   const knownMeta = AVAILABLE_COLLECTIONS.find((c) => c.id === activeCollectionId);
   const collectionKind: 'simulated' | 'reviewed' =
     source.status === 'ready'
       ? ('kind' in source.dataset && source.dataset.kind === 'reviewed' ? 'reviewed' : 'simulated')
-      : (activeCollection?.kind === 'reviewed' ? 'reviewed' : 'simulated');
+      : (activeCollection ? (activeCollection.kind === 'reviewed' ? 'reviewed' : 'simulated') : 'simulated');
   const alleyMeta = getAlleyMeta(route.params?.alleyId);
   const [mood, setMood] = useState<'morning' | 'dusk' | 'night'>('morning');
 
@@ -99,10 +102,17 @@ export function HomeScreen({
     : 0;
 
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [storyModalVisible, setStoryModalVisible] = useState(false);
+
+  const activeDataset =
+    source.status === 'ready'
+      ? source.dataset
+      : getBundledDataset(activeCollectionId, locale);
+  const alleyStory = activeDataset ? readAlleyStory(activeDataset) : null;
 
   const currentNode: DemoNode | undefined = nodes[selectedIndex] ?? nodes[0];
   const visitedCount = nodes.filter((n) => readNodeIds.has(n.id)).length;
-  const collectionCover = activeCollection?.coverPhoto ?? alleyMeta.coverPhoto;
+  const collectionCover = activeCollection?.coverPhoto ?? knownMeta?.coverPhoto ?? alleyMeta.coverPhoto;
   const isReviewed = collectionKind === 'reviewed';
   const isThreeLenses = activeCollectionId === 'old-quarter-three-lenses' && isReviewed;
   const currentPhoto = currentNode ? getNodePhoto(currentNode.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined) : collectionCover;
@@ -204,19 +214,26 @@ export function HomeScreen({
     handlePressOut: handleExplorePressOut,
   } = usePressSpring(0.96);
 
-  if (source.status !== 'ready' || !nodes.some((node) => node.available)) {
+  if (isViOnlyInEn || source.status !== 'ready' || !nodes.some((node) => node.available)) {
+    const isUnsupported = isViOnlyInEn;
+    const unavailableDetail = isUnsupported
+      ? (locale === 'en'
+          ? 'This alley collection is available in Vietnamese only. Please choose a supported collection or switch back to Vietnamese.'
+          : source.detail)
+      : (liveBusy
+          ? t('common.loading')
+          : source.status === 'ready'
+            ? (locale === 'en' ? 'No open points in this dataset.' : 'Chưa có điểm đang mở trong dữ liệu này.')
+            : source.detail);
+
     return (
       <UnavailableScreen
-        detail={
-          liveBusy
-            ? t('common.loading')
-            : source.status === 'ready'
-              ? (locale === 'en' ? 'No open points in this dataset.' : 'Chưa có điểm đang mở trong dữ liệu này.')
-              : source.detail
-        }
+        detail={unavailableDetail}
         onBack={() => navigation.goBack()}
-        onSwitchToDemo={() => onModeChange('demo')}
-        onRetry={mode === 'live' ? onRetryLive : undefined}
+        onSwitchToDemo={isUnsupported ? () => setLocale('vi') : () => onModeChange('demo')}
+        onRetry={isUnsupported ? () => navigation.navigate('AlleySelect') : (mode === 'live' ? onRetryLive : undefined)}
+        actionLabel={isUnsupported ? (locale === 'en' ? 'Choose collection' : t('common.retry')) : undefined}
+        secondaryActionLabel={isUnsupported ? (locale === 'en' ? 'Tiếng Việt' : t('common.switch_to_demo')) : undefined}
         busy={liveBusy}
       />
     );
@@ -309,6 +326,22 @@ export function HomeScreen({
             </Text>
           </Pressable>
         </View>
+
+        {alleyStory !== null && (
+          <View style={styles.alleyStoryBar}>
+            <Pressable
+              testID="home-alley-story"
+              accessibilityRole="button"
+              accessibilityLabel={t('home.alley_story_btn')}
+              onPress={() => setStoryModalVisible(true)}
+              style={({ pressed }) => [styles.alleyStoryBtn, pressed && styles.pressed]}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.alleyStoryBtnIcon}>📖</Text>
+              <Text style={styles.alleyStoryBtnText}>{t('home.alley_story_btn')}</Text>
+            </Pressable>
+          </View>
+        )}
 
         {/* 3. KHÔNG GIAN BẢN ĐỒ NGÕ: DẢI ĐƯỜNG MÒN PHÁT SÁNG & THẺ BƯU ẢNH SỔ TAY */}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }}>
@@ -603,6 +636,14 @@ export function HomeScreen({
         liveBusy={liveBusy}
         onRetryLive={onRetryLive}
       />
+
+      {alleyStory !== null && (
+        <AlleyStoryCard
+          story={alleyStory}
+          visible={storyModalVisible}
+          onClose={() => setStoryModalVisible(false)}
+        />
+      )}
     </View>
   );
 }
@@ -628,6 +669,40 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     zIndex: 10,
+  },
+  alleyStoryBar: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: 4,
+    alignItems: 'center',
+    zIndex: 9,
+  },
+  alleyStoryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(28, 20, 16, 0.78)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 226, 154, 0.38)',
+    borderRadius: radius.pill,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    minHeight: 44,
+    minWidth: 44,
+    gap: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  alleyStoryBtnIcon: {
+    fontSize: 15,
+  },
+  alleyStoryBtnText: {
+    fontSize: 13.5,
+    fontWeight: '700',
+    color: '#FFE29A',
+    letterSpacing: 0.3,
   },
   backArrowButton: {
     width: 38,

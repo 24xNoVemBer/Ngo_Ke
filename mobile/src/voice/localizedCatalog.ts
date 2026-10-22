@@ -3,6 +3,7 @@ import { voiceCatalogueRevision, voiceTracks, type VoiceTrack } from './catalog.
 import { POST8_VOICE_COLLECTION, post8VoiceCatalogues } from './post8Catalog.ts';
 import { post8RemainingCatalogues } from './post8RemainingCatalog.ts';
 import { THREE_LENSES_VOICE_COLLECTION, threeLensesVoiceCatalogues } from './threeLensesCatalog.ts';
+import { alleysVoiceCatalogues } from './alleysCatalog.ts';
 
 export const DEFAULT_VOICE_COLLECTION = 'fiction-letter';
 
@@ -31,9 +32,12 @@ export function lookupVoiceTrack({
   const remaining = post8RemainingCatalogues[collectionId]?.[locale];
   if (remaining) catalogues.push(remaining);
   if (collectionId === THREE_LENSES_VOICE_COLLECTION) catalogues.push(threeLensesVoiceCatalogues[locale]);
+  const alley = alleysVoiceCatalogues[collectionId]?.[locale];
+  if (alley) catalogues.push(alley);
 
   for (const catalogue of catalogues) {
     if (catalogue.datasetRevision !== datasetRevision) continue;
+    if (!Object.prototype.hasOwnProperty.call(catalogue.tracks, contentId)) continue;
     const track = catalogue.tracks[contentId];
     if (track) return track;
   }

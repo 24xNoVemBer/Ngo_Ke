@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 2,
+  "locale": "vi",
+  "collectionId": "ngo-tam-thuong",
+  "kind": "simulated",
+  "disclaimer": "Nội dung chuyển từ tài liệu người dùng, chưa thẩm định độc lập hay khảo sát thực địa. Chưa xác định tọa độ và hình dáng các ngõ mới. Thời lượng mỗi điểm là ước tính demo, không lấy từ tài liệu và không dùng làm thời gian đi thực tế. Giờ, địa chỉ và điều kiện tiếp cận cần xác nhận trước khi ghé.",
+  "intro": {
+    "text": "Bạn đã bao giờ tự hỏi vì sao con ngõ nhỏ giữa phố Hàng Bông lại có tên Tạm Thương?\n\nTheo tư liệu lịch sử, tên gọi ấy bắt nguồn từ một kho chứa tạm thóc thuế vào đầu thế kỷ XIX. Kho thóc xưa đã không còn, nhưng tên gọi vẫn được lưu giữ qua nhiều thế hệ.\n\nĐi sâu vào ngõ, bạn có thể tìm thấy đình Yên Thái, nơi thờ Nguyên phi Ỷ Lan, một nhân vật nổi bật của triều Lý.\n\nNgày nay, thay cho hình ảnh kho thóc là những hàng nem chua rán, tiếng trò chuyện và nhịp sống ăn vặt của người Hà Nội.\n\nỞ Tạm Thương, chỉ một tên ngõ thôi cũng có thể mở ra câu chuyện về nhiều lớp đời sống đô thị.",
+    "evidence": [
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Cổng thông tin du lịch Hoàn Kiếm. (n.d.). Đình Yên Thái. https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/dinh-yen-thai.html",
+      "Hanoi Heritage Map. (n.d.). Đền Vọng Tiên. https://heritage-itineraries.com/di-tich/den-vong-tien",
+      "MyHanoi. (n.d.). Đình Yên Thái. https://myhanoi.vn/vi/dinhyenthai",
+      "Ninh Tito. (n.d.). Truy tìm hàng nem chua rán ngon nhất ngõ Tạm Thương. https://ninhtito.squarespace.com/blog/truy-tim-hang-nem-chua-ran-ngon-nhat-ngo-tam-thuong",
+      "VietnamPlus. (2024a, October 9). Còn thương nhau về ngõ Tạm Thương. https://mega.vietnamplus.vn/con-thuong-nhau-ve-ngo-tam-thuong-6639.html"
+    ]
+  },
+  "alleyStory": {
+    "title": "Ngõ Tạm Thương",
+    "paragraphs": [
+      "Tên gọi Tạm Thương bắt nguồn từ hoạt động lưu trữ lương thực thời Nguyễn. Theo sách Từ điển đường phố Hà Nội của Giang Quân, được VietnamPlus (2024a) dẫn lại, đầu thế kỷ XIX, khu vực thôn Yên Thái từng đặt một kho chứa tạm thóc thuế trước khi chuyển vào kho chính. Kho được gọi là “Tạm Thương”, và tên gọi này về sau trở thành tên ngõ.",
+      "Ngõ có cấu trúc gấp khúc, trong đó nổi bật là đình Yên Thái, nơi thờ Nguyên phi Ỷ Lan. Đình còn lưu giữ các hiện vật như bia đá, chuông đồng, sắc phong và đồ thờ truyền thống (Cổng thông tin du lịch Hoàn Kiếm, n.d.).",
+      "Đặc biệt, VietnamPlus (2024a) ghi lại ký ức về một quán rượu rắn từng tồn tại trong ngõ và sự thay đổi của không gian này theo thời gian. Ngày nay, Tạm Thương nổi tiếng với nem chua rán và các hàng ăn vặt.",
+      "Dấu ấn riêng: Tên ngõ lưu giữ chức năng kho thóc xưa, không gian đình làng giữa phố và sự chuyển đổi thành ngõ ẩm thực."
+    ],
+    "evidence": [
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Cổng thông tin du lịch Hoàn Kiếm. (n.d.). Đình Yên Thái. https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/dinh-yen-thai.html",
+      "Hanoi Heritage Map. (n.d.). Đền Vọng Tiên. https://heritage-itineraries.com/di-tich/den-vong-tien",
+      "MyHanoi. (n.d.). Đình Yên Thái. https://myhanoi.vn/vi/dinhyenthai",
+      "Ninh Tito. (n.d.). Truy tìm hàng nem chua rán ngon nhất ngõ Tạm Thương. https://ninhtito.squarespace.com/blog/truy-tim-hang-nem-chua-ran-ngon-nhat-ngo-tam-thuong",
+      "VietnamPlus. (2024a, October 9). Còn thương nhau về ngõ Tạm Thương. https://mega.vietnamplus.vn/con-thuong-nhau-ve-ngo-tam-thuong-6639.html"
+    ]
+  },
+  "guide": {
+    "eat": [
+      {
+        "name": "Nem chua rán 36 Tạm Thương",
+        "address": "36 ngõ Tạm Thương",
+        "dishes": "Nem chua rán, nem phô mai, đồ chiên ăn kèm; không gian quán nhỏ.",
+        "hours": "Giờ tham khảo: 08:30–23:00 theo Foody.",
+        "note": null
+      },
+      {
+        "name": "Nem chua rán Hội Quán",
+        "address": "40 ngõ Tạm Thương",
+        "dishes": "Nem chua rán và các món ăn vặt; có không gian ngồi trong nhà.",
+        "hours": "Giờ tham khảo: 11:00–22:00 theo danh bạ trực tuyến.",
+        "note": null
+      },
+      {
+        "name": "Nem chua rán Quán Ngọc",
+        "address": "Khu vực ngõ Tạm Thương – Hàng Bông",
+        "dishes": "Được Ninh Tito đánh giá cao về chất lượng nem trong bài so sánh các quán.",
+        "hours": null,
+        "note": "Chưa xác minh."
+      },
+      {
+        "name": "Nem chua rán Bà Già",
+        "address": "Khu vực số 38 Hàng Bông",
+        "dishes": "Được đánh giá tốt về nước chấm trong bài so sánh quán ăn.",
+        "hours": "Giờ tham khảo: 08:00–22:00 theo danh bạ tham khảo.",
+        "note": null
+      }
+    ],
+    "visit": [
+      {
+        "name": "Đình Yên Thái",
+        "address": "số 8 ngõ Tạm Thương",
+        "notes": [
+          "Nơi thờ Nguyên phi Ỷ Lan, gắn với lịch sử thôn Yên Thái và tín ngưỡng của cộng đồng địa phương.",
+          "Có cây đa, không gian đình và những hiện vật lịch sử.",
+          "Giờ tham khảo: 08:00–18:00; vé miễn phí theo MyHanoi (n.d.). Cần xác nhận điều kiện tiếp cận bên trong trước khi tổ chức tham quan."
+        ]
+      },
+      {
+        "name": "Đền Vọng Tiên",
+        "address": "120B Hàng Bông",
+        "notes": [
+          "Di tích thờ Mẫu, gắn với truyền thuyết vua Lê Thánh Tông gặp tiên nữ.",
+          "Phù hợp kết hợp khám phá tín ngưỡng và các câu chuyện dân gian khu vực Hàng Bông.",
+          "Giờ được Hanoi Heritage Map niêm yết: 08:00–17:00; cần xác nhận trước khi ghé (Hanoi Heritage Map, n.d.)."
+        ]
+      }
+    ],
+    "route": [
+      "Biển ngõ Tạm Thương",
+      "Đình Yên Thái",
+      "Quan sát không gian ngõ",
+      "Nem chua rán",
+      "Đền Vọng Tiên"
+    ],
+    "caveats": [
+      "Đánh giá về chất lượng món ăn là ý kiến trải nghiệm của người viết, không phải kết quả đánh giá độc lập của Ngõ Kể (Ninh Tito, n.d.). Giá món và giờ hoạt động cần được kiểm tra lại."
+    ],
+    "evidence": [
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Cổng thông tin du lịch Hoàn Kiếm. (n.d.). Đình Yên Thái. https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/dinh-yen-thai.html",
+      "Hanoi Heritage Map. (n.d.). Đền Vọng Tiên. https://heritage-itineraries.com/di-tich/den-vong-tien",
+      "MyHanoi. (n.d.). Đình Yên Thái. https://myhanoi.vn/vi/dinhyenthai",
+      "Ninh Tito. (n.d.). Truy tìm hàng nem chua rán ngon nhất ngõ Tạm Thương. https://ninhtito.squarespace.com/blog/truy-tim-hang-nem-chua-ran-ngon-nhat-ngo-tam-thuong",
+      "VietnamPlus. (2024a, October 9). Còn thương nhau về ngõ Tạm Thương. https://mega.vietnamplus.vn/con-thuong-nhau-ve-ngo-tam-thuong-6639.html"
+    ]
+  },
+  "startNodeId": "tam-thuong-dinh-yen-thai",
+  "nodes": [
+    {
+      "id": "tam-thuong-dinh-yen-thai",
+      "order": 1,
+      "name": "Đình Yên Thái",
+      "summary": "Nơi thờ Nguyên phi Ỷ Lan, gắn với lịch sử thôn Yên Thái và tín ngưỡng của cộng đồng địa phương.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 10,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "Nơi thờ Nguyên phi Ỷ Lan, gắn với lịch sử thôn Yên Thái và tín ngưỡng của cộng đồng địa phương.",
+      "latitude": null,
+      "longitude": null,
+      "pendingCheck": "Chưa xác minh vị trí và điều kiện tiếp cận thực địa.",
+      "evidence": [
+        "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+        "Cổng thông tin du lịch Hoàn Kiếm. (n.d.). Đình Yên Thái. https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/dinh-yen-thai.html",
+        "Hanoi Heritage Map. (n.d.). Đền Vọng Tiên. https://heritage-itineraries.com/di-tich/den-vong-tien",
+        "MyHanoi. (n.d.). Đình Yên Thái. https://myhanoi.vn/vi/dinhyenthai",
+        "Ninh Tito. (n.d.). Truy tìm hàng nem chua rán ngon nhất ngõ Tạm Thương. https://ninhtito.squarespace.com/blog/truy-tim-hang-nem-chua-ran-ngon-nhat-ngo-tam-thuong",
+        "VietnamPlus. (2024a, October 9). Còn thương nhau về ngõ Tạm Thương. https://mega.vietnamplus.vn/con-thuong-nhau-ve-ngo-tam-thuong-6639.html"
+      ]
+    },
+    {
+      "id": "tam-thuong-den-vong-tien",
+      "order": 2,
+      "name": "Đền Vọng Tiên",
+      "summary": "Di tích thờ Mẫu, gắn với truyền thuyết vua Lê Thánh Tông gặp tiên nữ.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 10,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "Di tích thờ Mẫu, gắn với truyền thuyết vua Lê Thánh Tông gặp tiên nữ.",
+      "latitude": null,
+      "longitude": null,
+      "pendingCheck": "Chưa xác minh vị trí và điều kiện tiếp cận thực địa.",
+      "evidence": [
+        "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+        "Cổng thông tin du lịch Hoàn Kiếm. (n.d.). Đình Yên Thái. https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/dinh-yen-thai.html",
+        "Hanoi Heritage Map. (n.d.). Đền Vọng Tiên. https://heritage-itineraries.com/di-tich/den-vong-tien",
+        "MyHanoi. (n.d.). Đình Yên Thái. https://myhanoi.vn/vi/dinhyenthai",
+        "Ninh Tito. (n.d.). Truy tìm hàng nem chua rán ngon nhất ngõ Tạm Thương. https://ninhtito.squarespace.com/blog/truy-tim-hang-nem-chua-ran-ngon-nhat-ngo-tam-thuong",
+        "VietnamPlus. (2024a, October 9). Còn thương nhau về ngõ Tạm Thương. https://mega.vietnamplus.vn/con-thuong-nhau-ve-ngo-tam-thuong-6639.html"
+      ]
+    }
+  ],
+  "qa": []
+}

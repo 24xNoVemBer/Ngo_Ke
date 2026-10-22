@@ -4,6 +4,7 @@ export type ReviewStatus = 'approved';
 import { normalizeQuestion, type QaEntry as BaseQaEntry } from '../qa/match.ts';
 import { type Locale, isLocale } from './locale.ts';
 import { translate } from '../i18n/translator.ts';
+import { readAlleyGuide, readAlleyStory, type AlleyGuide, type AlleyStory } from './alleyGuide.ts';
 
 export const TOPICS = ['an thuc', 'chuyen xua', 'kham pha tu do'] as const;
 
@@ -73,6 +74,8 @@ export type DemoDatasetV2 = {
   schemaVersion: 2;
   locale: Locale;
   collectionId: string;
+  alleyStory?: AlleyStory;
+  guide?: AlleyGuide;
   polyline?: [number, number][];
   lengthMeters?: number;
   kind: 'simulated' | 'reviewed';
@@ -475,6 +478,9 @@ export function isDatasetV2(
   if (!isBoundedString(value.collectionId, MAX_ID_LENGTH)) {
     return false;
   }
+
+  if (value.alleyStory !== undefined && readAlleyStory(value) === null) return false;
+  if (value.guide !== undefined && readAlleyGuide(value) === null) return false;
 
   if (value.kind !== 'simulated' && value.kind !== 'reviewed') {
     return false;

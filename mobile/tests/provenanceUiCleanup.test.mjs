@@ -200,9 +200,12 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
   runInNewContext('(function(require,module,exports){' + screenCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
     if (modules[id]) return modules[id];
     if (/\.(png|jpe?g|gif|webp|wav|mp3)$/i.test(id)) return 1;
-    if (id === './AppIcon' || id === '../components/AppIcon' || /\/components\//.test(id) || /\/screens\//.test(id)) {
+    if (id === './AppIcon' || id === '../components/AppIcon' || /\/components\//.test(id) || /\/screens\//.test(id) || id.includes('AlleyGuideSection') || id.includes('AlleyStoryCard')) {
       const name = id.split('/').at(-1);
-      return { [name]: name, AppIcon: 'AppIcon', CrossfadePhoto: 'CrossfadePhoto', VoicePlayerBar: 'VoicePlayerBar', VoiceInteractionDock: 'VoiceInteractionDock', UnavailableScreen: 'UnavailableScreen' };
+      return { [name]: name, AppIcon: 'AppIcon', CrossfadePhoto: 'CrossfadePhoto', VoicePlayerBar: 'VoicePlayerBar', VoiceInteractionDock: 'VoiceInteractionDock', UnavailableScreen: 'UnavailableScreen', AlleyStoryCard: 'AlleyStoryCard', AlleyGuideSection: 'AlleyGuideSection' };
+    }
+    if (id.includes('alleyGuide')) {
+      return { readAlleyStory: () => null, readAlleyGuide: () => null };
     }
     if (/\/voice\//.test(id)) {
       return { lookupVoiceTrack: () => null, useVoiceSession: () => ({ activeTrackId: null, playback: { playing: false, currentTime: 0, duration: 0 }, stopPlayback() {} }) };

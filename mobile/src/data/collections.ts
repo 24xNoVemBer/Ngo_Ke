@@ -14,6 +14,9 @@ import ngoGachViData from '../../../data/localized/ngo-gach.vi.json';
 import ngoGachEnData from '../../../data/localized/ngo-gach.en.json';
 import ngoTrungYenViData from '../../../data/localized/ngo-trung-yen.vi.json';
 import ngoTrungYenEnData from '../../../data/localized/ngo-trung-yen.en.json';
+import ngoTamThuongViData from '../../../data/localized/ngo-tam-thuong.vi.json';
+import ngoCamChiViData from '../../../data/localized/ngo-cam-chi.vi.json';
+import ngoPhatLocViData from '../../../data/localized/ngo-phat-loc.vi.json';
 import { getThreeLensesDatasetRevision, THREE_LENSES_COLLECTION_ID } from './threeLensesCompanion.ts';
 
 export type CollectionId =
@@ -21,9 +24,18 @@ export type CollectionId =
   | 'old-quarter-pilot'
   | 'old-quarter-three-lenses'
   | 'ngo-gach'
-  | 'ngo-trung-yen';
+  | 'ngo-trung-yen'
+  | 'ngo-tam-thuong'
+  | 'ngo-cam-chi'
+  | 'ngo-phat-loc';
 
 export const DEFAULT_COLLECTION_ID: CollectionId = 'fiction-letter';
+
+export const VI_ONLY_COLLECTION_IDS: readonly CollectionId[] = [
+  'ngo-tam-thuong',
+  'ngo-cam-chi',
+  'ngo-phat-loc',
+] as const;
 
 export const COLLECTION_REVISIONS: Record<CollectionId, Record<Locale, string>> = {
   'fiction-letter': {
@@ -47,8 +59,20 @@ export const COLLECTION_REVISIONS: Record<CollectionId, Record<Locale, string>> 
     en: '2458be77514edfa0e4fb194f46e7f0191e5d655ccfd7e6c96b8f044f5179df59',
   },
   'ngo-trung-yen': {
-    vi: 'b8fa25cb6fbe31a5bd5806d0af8af231a59d9fa1279508671df9f624135cb889',
-    en: '8aa4d4c20413cc372f525bc111df575d5c8de60215ce11254d66b2452b5b75b1',
+    vi: '1291ae869a7d66b684d3bd764f87fe99817d250d19c544da0938e30f8ec5ae19',
+    en: 'ca2ff890877c351d3b9d82da3b9178afb5b38a09c2ff51a4d264af75874a6c27',
+  },
+  'ngo-tam-thuong': {
+    vi: '3086e80f2dda45e2354289882cb89a6526574fa98b5cfe4f2f17f02d092745e9',
+    en: 'unavailable',
+  },
+  'ngo-cam-chi': {
+    vi: 'b7898f698efc6b8db0a137d151bfc622fef52082bdfc2f8d97c44b1b2e08b48c',
+    en: 'unavailable',
+  },
+  'ngo-phat-loc': {
+    vi: 'd6e9fc6d93f4f0961dd20bdd0128df35229f33e0e89caf2071dccc9f46aff195',
+    en: 'unavailable',
   },
 };
 
@@ -115,6 +139,36 @@ export const AVAILABLE_COLLECTIONS: readonly CollectionMeta[] = [
     coverPhoto: require('../../assets/photos/alleys/pho-suong-1.jpg'),
     kind: 'simulated',
   },
+  {
+    id: 'ngo-tam-thuong',
+    nameKey: 'collection.ngo_tam_thuong.name',
+    taglineKey: 'collection.ngo_tam_thuong.tagline',
+    themeKey: 'collection.ngo_tam_thuong.theme',
+    districtKey: 'collection.ngo_tam_thuong.district',
+    nodeCount: 2,
+    coverPhoto: require('../../assets/photos/ngochieusau_05.jpg'),
+    kind: 'simulated',
+  },
+  {
+    id: 'ngo-cam-chi',
+    nameKey: 'collection.ngo_cam_chi.name',
+    taglineKey: 'collection.ngo_cam_chi.tagline',
+    themeKey: 'collection.ngo_cam_chi.theme',
+    districtKey: 'collection.ngo_cam_chi.district',
+    nodeCount: 3,
+    coverPhoto: require('../../assets/photos/ngocamchi_03.jpg'),
+    kind: 'simulated',
+  },
+  {
+    id: 'ngo-phat-loc',
+    nameKey: 'collection.ngo_phat_loc.name',
+    taglineKey: 'collection.ngo_phat_loc.tagline',
+    themeKey: 'collection.ngo_phat_loc.theme',
+    districtKey: 'collection.ngo_phat_loc.district',
+    nodeCount: 2,
+    coverPhoto: require('../../assets/photos/ngophatloc_01.jpg'),
+    kind: 'simulated',
+  },
 ] as const;
 
 export function isCollectionId(value: unknown): value is CollectionId {
@@ -123,17 +177,25 @@ export function isCollectionId(value: unknown): value is CollectionId {
     value === 'old-quarter-pilot' ||
     value === THREE_LENSES_COLLECTION_ID ||
     value === 'ngo-gach' ||
-    value === 'ngo-trung-yen'
+    value === 'ngo-trung-yen' ||
+    value === 'ngo-tam-thuong' ||
+    value === 'ngo-cam-chi' ||
+    value === 'ngo-phat-loc'
   );
 }
 
 /**
  * Returns the bundled dataset for a given collection and locale.
+ * Returns undefined when a collection is unavailable in the requested locale
+ * (e.g. Vietnamese-only collections requested in English).
  */
 export function getBundledDataset(
   collectionId: string = DEFAULT_COLLECTION_ID,
   locale: Locale = 'vi',
-): AnyDemoDataset {
+): AnyDemoDataset | undefined {
+  if (locale === 'en' && VI_ONLY_COLLECTION_IDS.includes(collectionId as CollectionId)) {
+    return undefined;
+  }
   if (collectionId === THREE_LENSES_COLLECTION_ID) {
     return (locale === 'en' ? threeLensesEnData : threeLensesViData) as unknown as DemoDatasetV2;
   }
@@ -145,6 +207,15 @@ export function getBundledDataset(
   }
   if (collectionId === 'ngo-trung-yen') {
     return (locale === 'en' ? ngoTrungYenEnData : ngoTrungYenViData) as unknown as DemoDatasetV2;
+  }
+  if (collectionId === 'ngo-tam-thuong') {
+    return locale === 'en' ? undefined : (ngoTamThuongViData as unknown as DemoDatasetV2);
+  }
+  if (collectionId === 'ngo-cam-chi') {
+    return locale === 'en' ? undefined : (ngoCamChiViData as unknown as DemoDatasetV2);
+  }
+  if (collectionId === 'ngo-phat-loc') {
+    return locale === 'en' ? undefined : (ngoPhatLocViData as unknown as DemoDatasetV2);
   }
   return (locale === 'en' ? fictionEnData : demoDataVi) as unknown as AnyDemoDataset;
 }
@@ -166,7 +237,11 @@ export function getCollectionRevision(
  * Formats collection list items with localized strings for UI rendering.
  */
 export function getLocalizedCollections(locale: Locale) {
-  return AVAILABLE_COLLECTIONS.map((c) => ({
+  const visible =
+    locale === 'en'
+      ? AVAILABLE_COLLECTIONS.filter((c) => !VI_ONLY_COLLECTION_IDS.includes(c.id))
+      : AVAILABLE_COLLECTIONS;
+  return visible.map((c) => ({
     id: c.id,
     name: t(locale, c.nameKey),
     tagline: t(locale, c.taglineKey),

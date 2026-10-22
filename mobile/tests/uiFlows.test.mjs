@@ -393,9 +393,12 @@ function mount(file, props = {}, overrides = {}, exportName) {
   runInNewContext('(function(require,module,exports){' + code + '\n})', { process: { env: {} }, setTimeout, clearTimeout, AbortController: globalThis.AbortController, ...overrides.__globals })((id) => {
     if (modules[id]) return modules[id];
     if (/\.(png|jpe?g|gif|webp|wav|mp3)$/i.test(id)) return 1;
-    if (/\/screens\//.test(id) || /\/components\//.test(id) || id === './UnavailableScreen') {
+    if (/\/screens\//.test(id) || /\/components\//.test(id) || id === './UnavailableScreen' || id.includes('AlleyGuideSection') || id.includes('AlleyStoryCard')) {
       const name = id.split('/').at(-1);
       return { [name]: name };
+    }
+    if (id.includes('alleyGuide')) {
+      return { readAlleyStory: () => null, readAlleyGuide: () => null };
     }
     throw new Error(`Unexpected import: ${id}`);
   }, module, module.exports);
@@ -1756,6 +1759,113 @@ test('logical node preserved across locale change vs reset on collection change 
   app.unmount();
 });
 
+test('App.tsx language switching with VI-only collection selected and initial/restored selection', async () => {
+  let persistedLocale = 'vi';
+  const app = mount('../App.tsx', {}, {
+    './src/data/collections': actualCollections,
+    '../data/collections': actualCollections,
+    './src/data/localeStorage': {
+      readPersistedLocaleAsync: async () => persistedLocale,
+      writePersistedLocaleAsync: async (loc) => { persistedLocale = loc; },
+      resolveEffectiveLocale: () => persistedLocale,
+    },
+  });
+
+  let tree = app.render();
+  await setImmediate();
+  tree = app.render();
+
+  const getLocaleContext = () => elements(tree, 'LocaleProvider')[0].props.value;
+
+  // 1. Initial VI state: select a VI-only collection
+  assert.equal(getLocaleContext().locale, 'vi');
+  getLocaleContext().setCollectionId('ngo-tam-thuong');
+  tree = app.render();
+  assert.equal(getLocaleContext().collectionId, 'ngo-tam-thuong');
+
+  // Verify HomeScreen renders ready nodes for ngo-tam-thuong in VI
+  const homeVi = screen(tree, 'Home');
+  assert.equal(homeVi.source.status, 'ready');
+  assert.equal(homeVi.source.dataset.collectionId, 'ngo-tam-thuong');
+  assert.equal(homeVi.source.dataset.nodes.length, 2);
+
+  // 2. Switch locale to 'en' while VI-only collection is active
+  getLocaleContext().setLocale('en');
+  tree = app.render();
+  assert.equal(getLocaleContext().locale, 'en');
+
+  // Verify D3 behavior: getBundledDataset('ngo-tam-thuong', 'en') is explicitly undefined
+  assert.equal(actualCollections.getBundledDataset('ngo-tam-thuong', 'en'), undefined);
+
+  // Verify EN collection list hides all 3 new collections and preserves 5 existing
+  const enCols = actualCollections.getLocalizedCollections('en');
+  assert.equal(enCols.length, 5);
+  for (const id of actualCollections.VI_ONLY_COLLECTION_IDS) {
+    assert.equal(enCols.some((c) => c.id === id), false, `${id} must be hidden in EN`);
+  }
+  for (const id of ['fiction-letter', 'old-quarter-pilot', 'old-quarter-three-lenses', 'ngo-gach', 'ngo-trung-yen']) {
+    assert.ok(enCols.some((c) => c.id === id), `${id} must be present in EN`);
+    assert.ok(actualCollections.getBundledDataset(id, 'en'), `${id} dataset must be available in EN`);
+  }
+
+  // Verify App enters error/unavailable state for source without crashing on nodes or intro
+  const homeEn = screen(tree, 'Home');
+  assert.equal(homeEn.source.status, 'error');
+  assert.ok(homeEn.source.detail.length > 0);
+
+  // In App.tsx, routes like Qa enter UnavailableScreen flow when source is not ready
+  const qaElement = elements(tree, 'Screen').find((item) => item.props.name === 'Qa').props.children({ navigation: { goBack() {} }, route: { params: {} } });
+  assert.equal(qaElement.type, 'UnavailableScreen', 'Qa enters UnavailableScreen on unsupported EN source');
+
+  // Verify language recovery: switching back to VI restores the collection
+  getLocaleContext().setLocale('vi');
+  tree = app.render();
+  assert.equal(getLocaleContext().locale, 'vi', 'Context restores VI locale');
+  const homeRestoredVi = screen(tree, 'Home');
+  assert.equal(homeRestoredVi.source.status, 'ready');
+  assert.equal(homeRestoredVi.source.dataset.collectionId, 'ngo-tam-thuong');
+
+  // 3. Select an existing 5 collection (e.g. ngo-gach) and switch to EN: works fully
+  getLocaleContext().setCollectionId('ngo-gach');
+  getLocaleContext().setLocale('en');
+  tree = app.render();
+  assert.equal(getLocaleContext().locale, 'en');
+  assert.equal(getLocaleContext().collectionId, 'ngo-gach');
+  const homeGachEn = screen(tree, 'Home');
+  assert.equal(homeGachEn.source.status, 'ready');
+  assert.equal(homeGachEn.source.dataset.collectionId, 'ngo-gach');
+  assert.equal(homeGachEn.source.dataset.locale, 'en');
+  assert.equal(homeGachEn.source.dataset.nodes.length, 5);
+
+  app.unmount();
+
+  // 4. Test restored selection when app loads with EN locale and a VI-only alley requested
+  persistedLocale = 'en';
+  const appRestored = mount('../App.tsx', {}, {
+    './src/data/collections': actualCollections,
+    '../data/collections': actualCollections,
+    './src/data/localeStorage': {
+      readPersistedLocaleAsync: async () => 'en',
+      writePersistedLocaleAsync: async () => {},
+      resolveEffectiveLocale: () => 'en',
+    },
+  });
+  appRestored.render();
+  await setImmediate();
+  let restoredTree = appRestored.render();
+  const restoredContext = elements(restoredTree, 'LocaleProvider')[0].props.value;
+  assert.equal(restoredContext.locale, 'en');
+  restoredContext.setCollectionId('ngo-cam-chi');
+  restoredTree = appRestored.render();
+  const restoredHome = screen(restoredTree, 'Home');
+  assert.equal(restoredHome.source.status, 'error');
+  const restoredQa = elements(restoredTree, 'Screen').find((item) => item.props.name === 'Qa').props.children({ navigation: { goBack() {} }, route: { params: {} } });
+  assert.equal(restoredQa.type, 'UnavailableScreen', 'Restored EN with VI-only alley enters unavailable flow without crash');
+  appRestored.unmount();
+});
+
+
+
 test('AlleySelectScreen selects actual collection and calls setCollectionId before navigation', () => {
   let selectedCollection;
   const navigated = [];
@@ -2662,7 +2772,10 @@ test('AlleySelectScreen with real collections generates no dead chips and every 
   for (const loc of ['vi', 'en']) {
     const realCollections = actualCollections.getLocalizedCollections(loc);
     const realThemes = new Set(realCollections.map((c) => c.theme).filter(Boolean));
-    assert.equal(realCollections.length, actualCollections.AVAILABLE_COLLECTIONS.length);
+    const expectedLength = loc === 'en'
+      ? actualCollections.AVAILABLE_COLLECTIONS.length - 3
+      : actualCollections.AVAILABLE_COLLECTIONS.length;
+    assert.equal(realCollections.length, expectedLength);
     assert.ok(realCollections.length >= 3, `Expected at least 3 real collections in ${loc}`);
 
     const view = mount('../src/screens/AlleySelectScreen.tsx', {
@@ -3846,6 +3959,9 @@ test('motion tokens obey Premium archetype hierarchy, bounded choreography budge
         },
       };
     }
+    if (id.includes('alleyGuide')) {
+      return { readAlleyStory: () => null, readAlleyGuide: () => null };
+    }
     throw new Error(`Unexpected import: ${id}`);
   }, motionExports);
 
@@ -3913,6 +4029,9 @@ test('useEntranceFadeSlide preserves legitimate staggered delays (40, 130, 220, 
           linear: (t) => t,
         },
       };
+    }
+    if (id.includes('alleyGuide')) {
+      return { readAlleyStory: () => null, readAlleyGuide: () => null };
     }
     throw new Error(`Unexpected import: ${id}`);
   }, motionExports);

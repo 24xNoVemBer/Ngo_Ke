@@ -11,6 +11,7 @@ import { canonicalDatasetJson } from '../src/data/canonicalJson.ts';
 import { parseDataset, parseDatasetV2, validateDatasetV2Pair, getSourceState } from '../src/data/sourceState.ts';
 import { t } from '../src/i18n/translator.ts';
 import { computeAlleyLayout, buildSmoothPath } from '../src/utils/alleyGeometry.ts';
+import { readAlleyStory, readAlleyGuide } from '../src/data/alleyGuide.ts';
 
 function loadTsModule(relPath, extraMocks = {}) {
   const code = ts.transpileModule(readFileSync(new URL(relPath, import.meta.url), 'utf8'), {
@@ -25,6 +26,7 @@ function loadTsModule(relPath, extraMocks = {}) {
     if (extraMocks[id]) return extraMocks[id];
     if (id === 'react-native') return { StyleSheet: { create: (s) => s } };
     if (id === './locale' || id === '../data/locale') return { isLocale: (v) => v === 'vi' || v === 'en' };
+    if (id === './alleyGuide' || id === '../data/alleyGuide') return { readAlleyStory, readAlleyGuide };
     if (id === './sourceState' || id === '../data/sourceState') {
       return { parseDataset, parseDatasetV2, validateDatasetV2Pair, getSourceState };
     }
@@ -163,9 +165,12 @@ function mount(file, props, overrides = {}) {
     '../components/AlleyTrailView': { AlleyTrailView: 'AlleyTrailView' },
     '../components/AppIcon': { AppIcon: 'AppIcon' },
     '../components/NotebookDrawerModal': { NotebookDrawerModal: 'NotebookDrawerModal' },
+    '../components/AlleyStoryCard': { AlleyStoryCard: 'AlleyStoryCard' },
+    '../components/AlleyGuideSection': { AlleyGuideSection: 'AlleyGuideSection' },
     './UnavailableScreen': { UnavailableScreen: 'UnavailableScreen' },
     '../assets/photoMap': photoMap,
     '../data/collections': collections,
+    '../data/alleyGuide': { readAlleyStory, readAlleyGuide },
     '../theme': { colors: {}, radius: {}, spacing: {}, typography: {} },
     '../theme/motion': {
       motionDurations: { instant: 120, fast: 180, normal: 240, relaxed: 320, slow: 380 },
@@ -262,7 +267,8 @@ test('(a) Collection registry - ngo-gach and ngo-trung-yen registered with simul
   const viCols = collections.getLocalizedCollections('vi');
   const enCols = collections.getLocalizedCollections('en');
   assert.equal(viCols.length, collections.AVAILABLE_COLLECTIONS.length);
-  assert.equal(enCols.length, collections.AVAILABLE_COLLECTIONS.length);
+  assert.equal(enCols.length, collections.AVAILABLE_COLLECTIONS.length - 3, '3 new VI-only collections hidden in EN');
+  assert.ok(!enCols.some((c) => ['ngo-tam-thuong', 'ngo-cam-chi', 'ngo-phat-loc'].includes(c.id)));
 
   const viGach = viCols.find((c) => c.id === 'ngo-gach');
   const enGach = enCols.find((c) => c.id === 'ngo-gach');
@@ -460,14 +466,14 @@ test('(b) Alley polyline geometry - Ngõ Trung Yên correctly interpolates unanc
   assert.equal(layout.pins.length, 5);
 
   const pin1 = layout.pins.find((p) => p.id === 'trung-yen-pho-suong'); // 17m
-  const pin2 = layout.pins.find((p) => p.id === 'trung-yen-pho-vui'); // null in draft -> interpolated
+  const pin2 = layout.pins.find((p) => p.id === 'trung-yen-dinh-trung-yen'); // null in draft -> interpolated
   const pin3 = layout.pins.find((p) => p.id === 'trung-yen-bun-ca-sam-cay-si'); // 80m
   const pin4 = layout.pins.find((p) => p.id === 'trung-yen-bun-ngan-nhan'); // null in draft -> interpolated
-  const pin5 = layout.pins.find((p) => p.id === 'trung-yen-mien-tron-muc'); // 93m
+  const pin5 = layout.pins.find((p) => p.id === 'trung-yen-pho-ga-huong-tra'); // null in draft -> interpolated
 
   assert.ok(pin1 && pin2 && pin3 && pin4 && pin5);
 
-  // Pin 2 (Phở Vui) must be interpolated between Pin 1 and Pin 3
+  // Pin 2 (Đình Trung Yên) must be interpolated between Pin 1 and Pin 3
   assert.ok(
     pin2.alongAlleyMeters > pin1.alongAlleyMeters && pin2.alongAlleyMeters < pin3.alongAlleyMeters,
     `Unanchored Pin 2 meters (${pin2.alongAlleyMeters}) must lie between Pin 1 (${pin1.alongAlleyMeters}) and Pin 3 (${pin3.alongAlleyMeters})`,
@@ -477,14 +483,24 @@ test('(b) Alley polyline geometry - Ngõ Trung Yên correctly interpolates unanc
     `Unanchored Pin 2 y (${pin2.y}) must lie between Pin 1 (${pin1.y}) and Pin 3 (${pin3.y})`,
   );
 
-  // Pin 4 (Bún ngan Nhàn) must be interpolated between Pin 3 and Pin 5
+  // Pin 4 (Bún ngan Nhàn) must be interpolated after Pin 3
   assert.ok(
-    pin4.alongAlleyMeters > pin3.alongAlleyMeters && pin4.alongAlleyMeters < pin5.alongAlleyMeters,
-    `Unanchored Pin 4 meters (${pin4.alongAlleyMeters}) must lie between Pin 3 (${pin3.alongAlleyMeters}) and Pin 5 (${pin5.alongAlleyMeters})`,
+    pin4.alongAlleyMeters > pin3.alongAlleyMeters,
+    `Unanchored Pin 4 meters (${pin4.alongAlleyMeters}) must lie after Pin 3 (${pin3.alongAlleyMeters})`,
   );
   assert.ok(
-    pin4.y > pin3.y && pin4.y < pin5.y,
-    `Unanchored Pin 4 y (${pin4.y}) must lie between Pin 3 (${pin3.y}) and Pin 5 (${pin5.y})`,
+    pin4.y > pin3.y,
+    `Unanchored Pin 4 y (${pin4.y}) must lie below Pin 3 (${pin3.y})`,
+  );
+
+  // Pin 5 (Phở gà Hương Trà) must be interpolated after Pin 4
+  assert.ok(
+    pin5.alongAlleyMeters > pin4.alongAlleyMeters,
+    `Unanchored Pin 5 meters (${pin5.alongAlleyMeters}) must lie after Pin 4 (${pin4.alongAlleyMeters})`,
+  );
+  assert.ok(
+    pin5.y > pin4.y,
+    `Unanchored Pin 5 y (${pin5.y}) must lie below Pin 4 (${pin4.y})`,
   );
 });
 
@@ -579,7 +595,7 @@ test('(b) Mounted Home wiring - Ngõ Trung Yên renders SVG Path and pins matchi
   const pinButtons = findElements(tree, 'Pressable').filter((p) => p.props.accessibilityState?.selected !== undefined);
   assert.equal(pinButtons.length, 5, 'Renders exactly 5 pins for Ngõ Trung Yên');
   assert.equal(pinButtons[0].props.accessibilityLabel, 'Xem Phở Sướng', 'pin with story uses open_story label');
-  assert.equal(pinButtons[1].props.accessibilityLabel, 'Phở Vui', 'story:null pin uses honest node name label');
+  assert.equal(pinButtons[1].props.accessibilityLabel, 'Đình Trung Yên', 'story:null pin uses honest node name label');
 });
 
 test('(b) Dataset cũ không đổi hành vi - fiction-letter preserves exact fixed PIN_CONFIG pins without polyline', () => {

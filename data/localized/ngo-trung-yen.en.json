@@ -5,21 +5,45 @@
   "kind": "simulated",
   "disclaimer": "Draft research dataset for Old Quarter alleys, not verified by on-site field survey; opening hours and prices of food stalls unverified. Simulated data for tech demo purposes; alley geometry and coordinates from OpenStreetMap (ODbL). Photos from Google Maps for demo use, rights not officially confirmed.",
   "intro": {
-    "text": "Trung Yen Alley is only about 146 metres long, beside the old Hang Be market, with eateries packed on both sides.",
+    "text": "Trung Yên Alley links Đinh Liệt and Gia Ngư in Hanoi's Old Quarter.",
     "evidence": [
-      "https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit"
     ]
   },
   "startNodeId": "trung-yen-pho-suong",
   "polyline": [
-    [21.0335, 105.85198],
-    [21.03345, 105.85251],
-    [21.03345, 105.8526],
-    [21.03343, 105.85269],
-    [21.0334, 105.85269],
-    [21.03336, 105.85268],
-    [21.03327, 105.85304],
-    [21.03304, 105.85302]
+    [
+      21.0335,
+      105.85198
+    ],
+    [
+      21.03345,
+      105.85251
+    ],
+    [
+      21.03345,
+      105.8526
+    ],
+    [
+      21.03343,
+      105.85269
+    ],
+    [
+      21.0334,
+      105.85269
+    ],
+    [
+      21.03336,
+      105.85268
+    ],
+    [
+      21.03327,
+      105.85304
+    ],
+    [
+      21.03304,
+      105.85302
+    ]
   ],
   "lengthMeters": 146,
   "nodes": [
@@ -46,23 +70,28 @@
       ]
     },
     {
-      "id": "trung-yen-pho-vui",
+      "id": "trung-yen-dinh-trung-yen",
       "order": 2,
-      "name": "Pho Vui",
-      "summary": "Another pho shop in the alley, named in the same article alongside Pho Suong.",
+      "name": "Đình Trung Yên",
+      "summary": "A national architectural and artistic relic, listed in 2008.",
       "tags": [
-        "an thuc",
+        "chuyen xua",
         "kham pha tu do"
       ],
-      "visitMinutes": 15,
+      "visitMinutes": 10,
       "available": true,
       "visited": false,
       "story": null,
-      "caption": "Another pho shop in the alley, named alongside Pho Suong.",
+      "caption": "Trung Yên communal house.",
       "latitude": null,
       "longitude": null,
-      "alongAlleyMeters": null,
-      "pendingCheck": "Vị trí trong ngõ chưa biết; chưa xác định được trên thực địa."
+      "pendingCheck": "Coordinates and visiting conditions have not been checked on site.",
+      "evidence": [
+        "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+        "Cục Du lịch Quốc gia Việt Nam. (2023). Quận Hoàn Kiếm (Hà Nội) gắn biển công trình tu bổ, tôn tạo đình Trung Yên. https://vietnamtourism.gov.vn/post/50827",
+        "Sở Văn hóa và Thể thao Hà Nội. (2021, October 21). Thẩm định dự án tu bổ, tôn tạo di tích đình Trung Yên, Hoàn Kiếm, Hà Nội. https://sovhtt.hanoi.gov.vn/tham-dinh-du-an-tu-bo-ton-tao-di-tich-dinh-trung-yen-hoan-kiem-ha-noi/",
+        "VietnamPlus. (2024c, October 9). Triết lý ẩm thực ngõ Trung Yên. https://mega.vietnamplus.vn/triet-ly-am-thuc-ngo-trung-yen-6633.html"
+      ]
     },
     {
       "id": "trung-yen-bun-ca-sam-cay-si",
@@ -109,10 +138,10 @@
       ]
     },
     {
-      "id": "trung-yen-mien-tron-muc",
+      "id": "trung-yen-pho-ga-huong-tra",
       "order": 5,
-      "name": "Mixed squid glass noodles",
-      "summary": "A squid-and-glass-noodle stall near the end, where the alley bends south.",
+      "name": "Phở gà Hương Trà",
+      "summary": "Chicken phở served with broth or mixed; a breakfast option.",
       "tags": [
         "an thuc",
         "kham pha tu do"
@@ -121,11 +150,16 @@
       "available": true,
       "visited": false,
       "story": null,
-      "caption": "A squid-and-glass-noodle stall near the southern bend of Trung Yen Alley.",
-      "latitude": 21.03333,
-      "longitude": 105.85278,
-      "alongAlleyMeters": 93,
-      "pendingCheck": null
+      "caption": "Phở gà Hương Trà.",
+      "latitude": null,
+      "longitude": null,
+      "pendingCheck": "Coordinates and opening hours have not been checked on site.",
+      "evidence": [
+        "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+        "Cục Du lịch Quốc gia Việt Nam. (2023). Quận Hoàn Kiếm (Hà Nội) gắn biển công trình tu bổ, tôn tạo đình Trung Yên. https://vietnamtourism.gov.vn/post/50827",
+        "Sở Văn hóa và Thể thao Hà Nội. (2021, October 21). Thẩm định dự án tu bổ, tôn tạo di tích đình Trung Yên, Hoàn Kiếm, Hà Nội. https://sovhtt.hanoi.gov.vn/tham-dinh-du-an-tu-bo-ton-tao-di-tich-dinh-trung-yen-hoan-kiem-ha-noi/",
+        "VietnamPlus. (2024c, October 9). Triết lý ẩm thực ngõ Trung Yên. https://mega.vietnamplus.vn/triet-ly-am-thuc-ngo-trung-yen-6633.html"
+      ]
     }
   ],
   "qa": []

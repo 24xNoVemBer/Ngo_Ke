@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 2,
+  "locale": "vi",
+  "collectionId": "ngo-phat-loc",
+  "kind": "simulated",
+  "disclaimer": "Nội dung chuyển từ tài liệu người dùng, chưa thẩm định độc lập hay khảo sát thực địa. Chưa xác định tọa độ và hình dáng các ngõ mới. Thời lượng mỗi điểm là ước tính demo, không lấy từ tài liệu và không dùng làm thời gian đi thực tế. Giờ, địa chỉ và điều kiện tiếp cận cần xác nhận trước khi ghé.",
+  "intro": {
+    "text": "Giữa khu phố cổ Hà Nội có một con ngõ mang tên một làng quê ở Thái Bình: Phất Lộc.\n\nTheo tư liệu về lịch sử địa phương, những cư dân rời quê đến Thăng Long lập nghiệp đã mang theo tên làng cũ để đặt cho nơi ở mới.\n\nQua nhiều thế hệ, Phất Lộc trở thành một không gian cư trú và buôn bán. Đền Tiên Hạ trong ngõ gắn với danh thần Nguyễn Trung Ngạn thời Trần, trong khi những hàng bún đậu và quán ăn bình dân kể tiếp câu chuyện mưu sinh của người dân.\n\nPhất Lộc vì thế không chỉ là tên một con ngõ. Đó còn là dấu ấn của những con người mang theo ký ức quê hương để xây dựng cuộc sống mới giữa lòng Thăng Long – Hà Nội.",
+    "evidence": [
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Báo Sài Gòn Giải Phóng. (2006, August 13). Ngõ Phất Lộc: Đặc trưng ngõ Hà Nội. https://www.sggp.org.vn/ngo-phat-loc-dac-trung-ngo-ha-noi-post152339.html",
+      "Cục Du lịch Quốc gia Việt Nam. (2024, November 7). Small alleys: Guardians of Ha Noi ancient culture and tradition. https://vietnamtourism.vn/en/index.php/news/items/18342",
+      "Foody. (n.d.). Bún đậu Hương – ngõ Phất Lộc. https://www.foody.vn/ha-noi/bun-dau-huong-ngo-phat-loc",
+      "Ngọc Nhi. (2018, May 4). Lang thang ngõ ngách Hà Nội – Kỳ 2: Phất Lộc “đổi đời” nhờ sát Hồ Gươm. Thanh Niên. https://thanhnien.vn/lang-thang-ngo-ngach-ha-noi-ky-2-phat-loc-doi-doi-nho-sat-ho-guom-185753321.htm",
+      "VietnamPlus. (2024b, October 9). Nhâm nhi Hà Nội trong lòng ngõ Phất Lộc. https://mega.vietnamplus.vn/nham-nhi-ha-noi-trong-long-ngo-phat-loc-6637.html"
+    ]
+  },
+  "alleyStory": {
+    "title": "Ngõ Phất Lộc",
+    "paragraphs": [
+      "Khác với cách hiểu phổ biến rằng Phất Lộc chỉ mang ý nghĩa phát tài, phát lộc, tên ngõ thực chất gắn với làng Phất Lộc ở Thái Bình cũ.",
+      "Theo Cục Du lịch Quốc gia Việt Nam (2024), những người từ làng Phất Lộc đến Thăng Long sinh sống, lập nghiệp đã mang theo tên làng để đặt cho nơi cư trú mới. Một nguồn nghiên cứu đề cập quá trình di cư từ thế kỷ XVII, trong khi lời kể địa phương được VietnamPlus (2024b) ghi lại nhắc đến người học trò họ Bùi đến Thăng Long năm 1717. Vì vậy, chưa nên xác định một mốc hình thành duy nhất của ngõ.",
+      "Ngõ Phất Lộc có cấu trúc nhiều nhánh nhỏ, hội tụ gần đền Tiên Hạ, nơi thờ Nguyễn Trung Ngạn – một danh thần thời Trần. Di tích cũng có bia trùng tu do Nguyễn Siêu soạn vào năm 1886 (Báo Sài Gòn Giải Phóng, 2006).",
+      "Theo phóng sự của Ngọc Nhi (2018), Phất Lộc từng là nơi cư trú của nhiều gia đình lao động, làm nghề phu xe, kinh doanh nhỏ và bán hàng rong. Cùng với sự phát triển du lịch phố cổ, hoạt động buôn bán và dịch vụ trong ngõ dần thay đổi. Bún đậu mắm tôm trở thành món ăn nổi bật gắn với tên tuổi con ngõ.",
+      "Dấu ấn riêng: Tên gọi gắn với ký ức quê hương, cộng đồng di cư, không gian tín ngưỡng và câu chuyện sinh kế của các gia đình."
+    ],
+    "evidence": [
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Báo Sài Gòn Giải Phóng. (2006, August 13). Ngõ Phất Lộc: Đặc trưng ngõ Hà Nội. https://www.sggp.org.vn/ngo-phat-loc-dac-trung-ngo-ha-noi-post152339.html",
+      "Cục Du lịch Quốc gia Việt Nam. (2024, November 7). Small alleys: Guardians of Ha Noi ancient culture and tradition. https://vietnamtourism.vn/en/index.php/news/items/18342",
+      "Foody. (n.d.). Bún đậu Hương – ngõ Phất Lộc. https://www.foody.vn/ha-noi/bun-dau-huong-ngo-phat-loc",
+      "Ngọc Nhi. (2018, May 4). Lang thang ngõ ngách Hà Nội – Kỳ 2: Phất Lộc “đổi đời” nhờ sát Hồ Gươm. Thanh Niên. https://thanhnien.vn/lang-thang-ngo-ngach-ha-noi-ky-2-phat-loc-doi-doi-nho-sat-ho-guom-185753321.htm",
+      "VietnamPlus. (2024b, October 9). Nhâm nhi Hà Nội trong lòng ngõ Phất Lộc. https://mega.vietnamplus.vn/nham-nhi-ha-noi-trong-long-ngo-phat-loc-6637.html"
+    ]
+  },
+  "guide": {
+    "eat": [
+      {
+        "name": "Bún đậu Hương",
+        "address": "55 ngõ Phất Lộc",
+        "dishes": "Bún đậu mắm tôm, đậu rán, chả cốm và các món ăn kèm.",
+        "hours": "Giờ tham khảo: 10:00–14:00 theo Foody.",
+        "note": null
+      },
+      {
+        "name": "Các hàng bún riêu trong ngõ Phất Lộc",
+        "address": "Dọc ngõ Phất Lộc",
+        "dishes": "Bún riêu cua, bún ốc và các món bún truyền thống.",
+        "hours": null,
+        "note": "Tùy hàng, chưa xác định được lịch chung."
+      },
+      {
+        "name": "Bún đậu Trung Hương",
+        "address": "Địa chỉ từng được giới thiệu: 49 ngõ Phất Lộc",
+        "dishes": "Gắn với câu chuyện kinh doanh từ gánh hàng rong của gia đình bà Hương.",
+        "hours": null,
+        "note": "Chưa xác định"
+      }
+    ],
+    "visit": [
+      {
+        "name": "Đền Tiên Hạ",
+        "address": "trong ngõ Phất Lộc",
+        "notes": [
+          "Không gian tín ngưỡng gắn với Nguyễn Trung Ngạn, một quan lại có vai trò quan trọng trong lịch sử Thăng Long thời Trần.",
+          "Có dấu tích kiến trúc và tư liệu trùng tu thế kỷ XIX.",
+          "Tư liệu công khai ghi số nhà 46 hoặc 48; cần xác minh địa chỉ chính xác. Chưa có giờ tham quan được xác nhận (Báo Sài Gòn Giải Phóng, 2006)."
+        ]
+      },
+      {
+        "name": "Các nhánh ngõ Phất Lộc",
+        "address": null,
+        "notes": [
+          "Quan sát cấu trúc ngõ nhỏ, các lối thông sang những tuyến phố và sự đan xen giữa không gian ở với hoạt động buôn bán.",
+          "Phù hợp khai thác chủ đề nhà ở phố cổ và sinh kế cộng đồng.",
+          "Chỉ quan sát từ lối đi công cộng, không tự ý vào nhà dân hoặc khu vực sinh hoạt riêng (Ngọc Nhi, 2018)."
+        ]
+      }
+    ],
+    "route": [
+      "Biển ngõ Phất Lộc",
+      "Nghe câu chuyện cộng đồng di cư",
+      "Quan sát cấu trúc ngõ",
+      "Khu vực đền Tiên Hạ",
+      "Khám phá ẩm thực bún đậu, bún riêu"
+    ],
+    "caveats": [
+      "Bài phỏng vấn của Ngọc Nhi (2018) là nguồn phù hợp để tìm hiểu câu chuyện phát triển sinh kế của gia đình bán bún đậu Trung Hương. Tuy nhiên, không nên mặc nhiên coi địa điểm này vẫn đang hoạt động tại đúng vị trí và giờ được đăng trên các danh bạ cũ."
+    ],
+    "evidence": [
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Báo Sài Gòn Giải Phóng. (2006, August 13). Ngõ Phất Lộc: Đặc trưng ngõ Hà Nội. https://www.sggp.org.vn/ngo-phat-loc-dac-trung-ngo-ha-noi-post152339.html",
+      "Cục Du lịch Quốc gia Việt Nam. (2024, November 7). Small alleys: Guardians of Ha Noi ancient culture and tradition. https://vietnamtourism.vn/en/index.php/news/items/18342",
+      "Foody. (n.d.). Bún đậu Hương – ngõ Phất Lộc. https://www.foody.vn/ha-noi/bun-dau-huong-ngo-phat-loc",
+      "Ngọc Nhi. (2018, May 4). Lang thang ngõ ngách Hà Nội – Kỳ 2: Phất Lộc “đổi đời” nhờ sát Hồ Gươm. Thanh Niên. https://thanhnien.vn/lang-thang-ngo-ngach-ha-noi-ky-2-phat-loc-doi-doi-nho-sat-ho-guom-185753321.htm",
+      "VietnamPlus. (2024b, October 9). Nhâm nhi Hà Nội trong lòng ngõ Phất Lộc. https://mega.vietnamplus.vn/nham-nhi-ha-noi-trong-long-ngo-phat-loc-6637.html"
+    ]
+  },
+  "startNodeId": "phat-loc-den-tien-ha",
+  "nodes": [
+    {
+      "id": "phat-loc-den-tien-ha",
+      "order": 1,
+      "name": "Đền Tiên Hạ",
+      "summary": "Không gian tín ngưỡng gắn với Nguyễn Trung Ngạn, một quan lại có vai trò quan trọng trong lịch sử Thăng Long thời Trần.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 10,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "Không gian tín ngưỡng gắn với Nguyễn Trung Ngạn, một quan lại có vai trò quan trọng trong lịch sử Thăng Long thời Trần.",
+      "latitude": null,
+      "longitude": null,
+      "pendingCheck": "Chưa xác minh vị trí và điều kiện tiếp cận thực địa.",
+      "evidence": [
+        "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+        "Báo Sài Gòn Giải Phóng. (2006, August 13). Ngõ Phất Lộc: Đặc trưng ngõ Hà Nội. https://www.sggp.org.vn/ngo-phat-loc-dac-trung-ngo-ha-noi-post152339.html",
+        "Cục Du lịch Quốc gia Việt Nam. (2024, November 7). Small alleys: Guardians of Ha Noi ancient culture and tradition. https://vietnamtourism.vn/en/index.php/news/items/18342",
+        "Foody. (n.d.). Bún đậu Hương – ngõ Phất Lộc. https://www.foody.vn/ha-noi/bun-dau-huong-ngo-phat-loc",
+        "Ngọc Nhi. (2018, May 4). Lang thang ngõ ngách Hà Nội – Kỳ 2: Phất Lộc “đổi đời” nhờ sát Hồ Gươm. Thanh Niên. https://thanhnien.vn/lang-thang-ngo-ngach-ha-noi-ky-2-phat-loc-doi-doi-nho-sat-ho-guom-185753321.htm",
+        "VietnamPlus. (2024b, October 9). Nhâm nhi Hà Nội trong lòng ngõ Phất Lộc. https://mega.vietnamplus.vn/nham-nhi-ha-noi-trong-long-ngo-phat-loc-6637.html"
+      ]
+    },
+    {
+      "id": "phat-loc-cac-nhanh-ngo",
+      "order": 2,
+      "name": "Các nhánh ngõ Phất Lộc",
+      "summary": "Quan sát cấu trúc ngõ nhỏ, các lối thông sang những tuyến phố và sự đan xen giữa không gian ở với hoạt động buôn bán.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 10,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "Quan sát cấu trúc ngõ nhỏ, các lối thông sang những tuyến phố và sự đan xen giữa không gian ở với hoạt động buôn bán.",
+      "latitude": null,
+      "longitude": null,
+      "pendingCheck": "Chưa xác minh vị trí và điều kiện tiếp cận thực địa.",
+      "evidence": [
+        "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+        "Báo Sài Gòn Giải Phóng. (2006, August 13). Ngõ Phất Lộc: Đặc trưng ngõ Hà Nội. https://www.sggp.org.vn/ngo-phat-loc-dac-trung-ngo-ha-noi-post152339.html",
+        "Cục Du lịch Quốc gia Việt Nam. (2024, November 7). Small alleys: Guardians of Ha Noi ancient culture and tradition. https://vietnamtourism.vn/en/index.php/news/items/18342",
+        "Foody. (n.d.). Bún đậu Hương – ngõ Phất Lộc. https://www.foody.vn/ha-noi/bun-dau-huong-ngo-phat-loc",
+        "Ngọc Nhi. (2018, May 4). Lang thang ngõ ngách Hà Nội – Kỳ 2: Phất Lộc “đổi đời” nhờ sát Hồ Gươm. Thanh Niên. https://thanhnien.vn/lang-thang-ngo-ngach-ha-noi-ky-2-phat-loc-doi-doi-nho-sat-ho-guom-185753321.htm",
+        "VietnamPlus. (2024b, October 9). Nhâm nhi Hà Nội trong lòng ngõ Phất Lộc. https://mega.vietnamplus.vn/nham-nhi-ha-noi-trong-long-ngo-phat-loc-6637.html"
+      ]
+    }
+  ],
+  "qa": []
+}

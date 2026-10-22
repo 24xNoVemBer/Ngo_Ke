@@ -151,6 +151,28 @@ export type TranslationKey =
   | 'collection.ngo_trung_yen.tagline'
   | 'collection.ngo_trung_yen.theme'
   | 'collection.ngo_trung_yen.district'
+  | 'collection.ngo_tam_thuong.name'
+  | 'collection.ngo_tam_thuong.tagline'
+  | 'collection.ngo_tam_thuong.theme'
+  | 'collection.ngo_tam_thuong.district'
+  | 'collection.ngo_cam_chi.name'
+  | 'collection.ngo_cam_chi.tagline'
+  | 'collection.ngo_cam_chi.theme'
+  | 'collection.ngo_cam_chi.district'
+  | 'collection.ngo_phat_loc.name'
+  | 'collection.ngo_phat_loc.tagline'
+  | 'collection.ngo_phat_loc.theme'
+  | 'collection.ngo_phat_loc.district'
+  // Home story & Alley Guide
+  | 'home.alley_story_btn'
+  | 'home.alley_story_close'
+  | 'home.alley_story_title'
+  | 'notebook.explore_more'
+  | 'notebook.explore_eat'
+  | 'notebook.explore_visit'
+  | 'notebook.explore_route'
+  | 'notebook.explore_caveats'
+  | 'notebook.explore_hours_unverified'
   | 'qa.disclaimer_three_lenses'
   | 'qa.tag_sourced_only'
   | 'qa.chapter_selector_label'
@@ -546,6 +568,27 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'collection.ngo_trung_yen.tagline': 'Con ngõ ẩm thực san sát quán quen',
     'collection.ngo_trung_yen.theme': 'Ẩm thực',
     'collection.ngo_trung_yen.district': 'Hàng Bè, Hoàn Kiếm',
+    'collection.ngo_tam_thuong.name': 'Ngõ Tạm Thương',
+    'collection.ngo_tam_thuong.tagline': 'Kho thóc thuế xưa và hương vị ngõ nhỏ',
+    'collection.ngo_tam_thuong.theme': 'Ẩm thực',
+    'collection.ngo_tam_thuong.district': 'Hàng Bông, Hoàn Kiếm',
+    'collection.ngo_cam_chi.name': 'Ngõ Cấm Chỉ',
+    'collection.ngo_cam_chi.tagline': 'Giai thoại dân gian và phố ẩm thực đêm',
+    'collection.ngo_cam_chi.theme': 'Ẩm thực',
+    'collection.ngo_cam_chi.district': 'Hàng Bông, Hoàn Kiếm',
+    'collection.ngo_phat_loc.name': 'Ngõ Phất Lộc',
+    'collection.ngo_phat_loc.tagline': 'Ký ức làng quê và nếp ngõ ẩm thực',
+    'collection.ngo_phat_loc.theme': 'Ẩm thực',
+    'collection.ngo_phat_loc.district': 'Hàng Buồm, Hoàn Kiếm',
+    'home.alley_story_btn': 'Câu chuyện ngõ',
+    'home.alley_story_close': 'Đóng',
+    'home.alley_story_title': 'Câu chuyện ngõ',
+    'notebook.explore_more': 'Khám phá thêm',
+    'notebook.explore_eat': 'Quán nên thử',
+    'notebook.explore_visit': 'Nên ghé thăm',
+    'notebook.explore_route': 'Hành trình đề xuất',
+    'notebook.explore_caveats': 'Lưu ý trải nghiệm',
+    'notebook.explore_hours_unverified': 'Chưa xác minh giờ',
     'qa.disclaimer_three_lenses': 'DEMO · Có nguồn tham khảo (SOURCED_ONLY) · Chưa duyệt chính thức',
     'qa.tag_sourced_only': 'SOURCED_ONLY · CÓ NGUỒN THAM KHẢO',
     'qa.chapter_selector_label': 'Chọn chương khám phá',
@@ -940,6 +983,27 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'collection.ngo_trung_yen.tagline': 'A food alley packed with beloved eateries',
     'collection.ngo_trung_yen.theme': 'Culinary',
     'collection.ngo_trung_yen.district': 'Hang Be, Hoan Kiem',
+    'collection.ngo_tam_thuong.name': 'Tam Thuong Alley',
+    'collection.ngo_tam_thuong.tagline': 'Ancient tax granary and vibrant alley food',
+    'collection.ngo_tam_thuong.theme': 'Culinary',
+    'collection.ngo_tam_thuong.district': 'Hang Bong, Hoan Kiem',
+    'collection.ngo_cam_chi.name': 'Cam Chi Alley',
+    'collection.ngo_cam_chi.tagline': 'Historical folklore and night food street',
+    'collection.ngo_cam_chi.theme': 'Culinary',
+    'collection.ngo_cam_chi.district': 'Hang Bong, Hoan Kiem',
+    'collection.ngo_phat_loc.name': 'Phat Loc Alley',
+    'collection.ngo_phat_loc.tagline': 'Village memory and culinary heritage',
+    'collection.ngo_phat_loc.theme': 'Culinary',
+    'collection.ngo_phat_loc.district': 'Hang Buom, Hoan Kiem',
+    'home.alley_story_btn': 'Alley story',
+    'home.alley_story_close': 'Close',
+    'home.alley_story_title': 'Alley story',
+    'notebook.explore_more': 'Explore more',
+    'notebook.explore_eat': 'Places to try',
+    'notebook.explore_visit': 'Places to visit',
+    'notebook.explore_route': 'Suggested route',
+    'notebook.explore_caveats': 'Notes & caveats',
+    'notebook.explore_hours_unverified': 'Hours unverified',
     'qa.disclaimer_three_lenses': 'DEMO · Sourced reference only (SOURCED_ONLY) · Not officially approved',
     'qa.tag_sourced_only': 'SOURCED_ONLY · SOURCED REFERENCE',
     'qa.chapter_selector_label': 'Select story chapter',

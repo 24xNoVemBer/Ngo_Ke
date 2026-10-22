@@ -1747,6 +1747,7 @@ function createTestHarness(file, defaultProps = {}, overrides = {}) {
 
     if (id.includes('threeLensesCompanion')) return { THREE_LENSES_COLLECTION_ID: 'old-quarter-three-lenses', getScopedCompanion: () => null, getThreeLensesCompanion: () => null };
     if (id.includes('alleyGeometry')) return alleyGeometry;
+    if (id.includes('alleyGuide')) return { readAlleyStory: () => null, readAlleyGuide: () => null };
 
 
 

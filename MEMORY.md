@@ -1,5 +1,14 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-22 — Bốn ngõ tích hợp đạt, được phép push
+
+- Người dùng đã chốt D1–D6 của `docs/superpowers/plans/2026-10-22-four-alley-content.md`, sau đó yêu cầu “xong all thì push lên github”. Remote đúng `ngoke-public` = `24xNoVemBer/Ngo_Ke`, nhánh `valentino/logic-fix-mobile-20261020`; không push `origin` Desithedev.
+- Phần 1 thành story đọc qua nút Home; phần 2 thành intro và bốn slot VI trống; phần 3+4 thành Khám phá thêm trong Sổ tay. Trung Yên thay Phở Vui/Miến trộn mực bằng Đình Trung Yên/Phở gà Hương Trà. Ba ngõ mới Tạm Thương/Cấm Chỉ/Phất Lộc chỉ VI, ẩn danh sách EN; đổi EN khi đang mở ngõ VI-only hiển thị unavailable và phục hồi, không fallback VI/fiction. Trung Yên EN đồng bộ tối thiểu.
+- Baseline `cf2168c` đã có Nhật Phong trước đợt này; WIP Landing/cleanup cũ commit `a93a002` trước FE. Đợt bốn ngõ không sinh MP3, không đọc khóa/API trả phí, không đổi audio/assets/backend/dependency của baseline. D6 chỉ scaffold catalogue trống; hướng dẫn sinh sau đã rút về đúng bốn VI.
+- Codex kiểm độc lập 358/358 test, 0 fail/skip/cancelled; typecheck/lint exit 0. Export native iOS/Android ra TEMP đều đạt, không web. Digest runtime trước/sau build/sau bàn giao `67f5da43c1981b166a6f5fcfccffadf814bd966ac0b200ae49a58b1553ed1b0b`. Backend roundtrip dùng DB tạm; không DB chính. Báo cáo `docs/reviews/2026-10-22-four-alleys.md`.
+- Anti FE hoàn tất, follow-up `task_c81eea5d10d1` / `ctx_be1e0b73f803` đã release/archive captured và ACK delivery_923020832c15 trong run_bab01db56ade. Không gọi Claude. Codex chốt source và push theo quyền mới, không deploy/bật Metro.
+- Cần người dùng quyết: không còn việc chặn. Cần tự làm trong plan: kiểm điện thoại/fontScale/reader/thao tác story-guide/VI-EN, chọn ảnh Tạm Thương/Cấm Chỉ và khảo sát giờ/địa chỉ/tọa độ. GPS/QR/audio silent thật còn pending. Metro8082 offline; native export không thay thế nghiệm thu thiết bị. Task8 polyline tùy chọn chưa làm; ba ngõ VI-only chưa nhập live qua CLI yêu cầu cặp EN.
+
 ## 2026-10-21 — hoàn thành sửa lỗi UI/UX toàn diện (F1–F16) theo chỉ dẫn Coordinator
 
 - **Nhiệm vụ:** Task `task_74a42e53635c` / Dispatch `ctx_429288d639c9`. Triển khai toàn bộ các hạng mục F1–F16 đã được duyệt theo `UI_UX_REMEDIATION_SPEC_20261021.md` và giải quyết các phản biện từ review độc lập của Claude.

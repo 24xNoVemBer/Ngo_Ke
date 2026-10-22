@@ -5,21 +5,48 @@
   "kind": "simulated",
   "disclaimer": "Bản nháp nghiên cứu tích hợp ngõ phố cổ, chưa qua khảo sát thực địa hay xác minh giờ mở cửa và giá quán ăn. Dữ liệu mô phỏng cho mục đích công nghệ demo; tọa độ và đường nét ngõ lấy từ OpenStreetMap (ODbL). Ảnh lấy từ Google Maps cho bản demo, quyền sử dụng chưa được xác nhận chính thức.",
   "intro": {
-    "text": "Ngõ Trung Yên chỉ dài khoảng một trăm bốn mươi mét, nằm ngay chợ Hàng Bè cũ, và quán ăn san sát hai bên.",
+    "text": "Bạn có biết ngõ Trung Yên hôm nay từng gắn với một vùng hồ cổ của Hà Nội?\n\nTheo tư liệu lịch sử, nơi đây là dấu tích của thôn Chung Yên xưa. Khu vực Đinh Liệt và Gia Ngư từng thuộc hồ Thái Cực, một phần hệ thống mặt nước quanh hồ Hoàn Kiếm. Qua thời gian, hồ dần bị bồi lấp và những con phố hình thành.\n\nĐi sâu vào ngõ, bạn sẽ gặp đình Trung Yên, một di tích mang kiến trúc nhà ống đặc trưng của phố cổ, được xếp hạng cấp quốc gia năm 2008.\n\nNgày nay, mùi phở bò, bún cá và tiếng gọi món đã trở thành nét quen thuộc. Giữa những hàng quán đông đúc, ngõ Trung Yên vẫn lưu giữ câu chuyện về vùng đất đã thay đổi qua nhiều thế hệ.",
     "evidence": [
-      "https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Cục Du lịch Quốc gia Việt Nam. (2023). Quận Hoàn Kiếm (Hà Nội) gắn biển công trình tu bổ, tôn tạo đình Trung Yên. https://vietnamtourism.gov.vn/post/50827",
+      "Sở Văn hóa và Thể thao Hà Nội. (2021, October 21). Thẩm định dự án tu bổ, tôn tạo di tích đình Trung Yên, Hoàn Kiếm, Hà Nội. https://sovhtt.hanoi.gov.vn/tham-dinh-du-an-tu-bo-ton-tao-di-tich-dinh-trung-yen-hoan-kiem-ha-noi/",
+      "VietnamPlus. (2024c, October 9). Triết lý ẩm thực ngõ Trung Yên. https://mega.vietnamplus.vn/triet-ly-am-thuc-ngo-trung-yen-6633.html"
     ]
   },
   "startNodeId": "trung-yen-pho-suong",
   "polyline": [
-    [21.0335, 105.85198],
-    [21.03345, 105.85251],
-    [21.03345, 105.8526],
-    [21.03343, 105.85269],
-    [21.0334, 105.85269],
-    [21.03336, 105.85268],
-    [21.03327, 105.85304],
-    [21.03304, 105.85302]
+    [
+      21.0335,
+      105.85198
+    ],
+    [
+      21.03345,
+      105.85251
+    ],
+    [
+      21.03345,
+      105.8526
+    ],
+    [
+      21.03343,
+      105.85269
+    ],
+    [
+      21.0334,
+      105.85269
+    ],
+    [
+      21.03336,
+      105.85268
+    ],
+    [
+      21.03327,
+      105.85304
+    ],
+    [
+      21.03304,
+      105.85302
+    ]
   ],
   "lengthMeters": 146,
   "nodes": [
@@ -46,23 +73,28 @@
       ]
     },
     {
-      "id": "trung-yen-pho-vui",
+      "id": "trung-yen-dinh-trung-yen",
       "order": 2,
-      "name": "Phở Vui",
-      "summary": "Một quán phở khác trong ngõ, được bài báo nhắc tên cạnh phở Sướng.",
+      "name": "Đình Trung Yên",
+      "summary": "Di tích kiến trúc nghệ thuật cấp quốc gia từ năm 2008.",
       "tags": [
-        "an thuc",
+        "chuyen xua",
         "kham pha tu do"
       ],
-      "visitMinutes": 15,
+      "visitMinutes": 10,
       "available": true,
       "visited": false,
       "story": null,
-      "caption": "Một quán phở khác trong ngõ, được nhắc tên cạnh phở Sướng.",
+      "caption": "Di tích kiến trúc nghệ thuật cấp quốc gia từ năm 2008.",
       "latitude": null,
       "longitude": null,
-      "alongAlleyMeters": null,
-      "pendingCheck": "Vị trí trong ngõ chưa biết; chưa xác định được trên thực địa."
+      "pendingCheck": "Chưa xác minh vị trí và điều kiện tiếp cận thực địa.",
+      "evidence": [
+        "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+        "Cục Du lịch Quốc gia Việt Nam. (2023). Quận Hoàn Kiếm (Hà Nội) gắn biển công trình tu bổ, tôn tạo đình Trung Yên. https://vietnamtourism.gov.vn/post/50827",
+        "Sở Văn hóa và Thể thao Hà Nội. (2021, October 21). Thẩm định dự án tu bổ, tôn tạo di tích đình Trung Yên, Hoàn Kiếm, Hà Nội. https://sovhtt.hanoi.gov.vn/tham-dinh-du-an-tu-bo-ton-tao-di-tich-dinh-trung-yen-hoan-kiem-ha-noi/",
+        "VietnamPlus. (2024c, October 9). Triết lý ẩm thực ngõ Trung Yên. https://mega.vietnamplus.vn/triet-ly-am-thuc-ngo-trung-yen-6633.html"
+      ]
     },
     {
       "id": "trung-yen-bun-ca-sam-cay-si",
@@ -109,10 +141,10 @@
       ]
     },
     {
-      "id": "trung-yen-mien-tron-muc",
+      "id": "trung-yen-pho-ga-huong-tra",
       "order": 5,
-      "name": "Miến trộn mực",
-      "summary": "Quán miến trộn mực ở cuối ngõ, nơi ngõ gập xuống phía nam.",
+      "name": "Phở gà Hương Trà",
+      "summary": "Phở gà nước, phở gà trộn, phù hợp ăn sáng.",
       "tags": [
         "an thuc",
         "kham pha tu do"
@@ -121,12 +153,96 @@
       "available": true,
       "visited": false,
       "story": null,
-      "caption": "Quán miến trộn mực ở cuối ngõ Trung Yên.",
-      "latitude": 21.03333,
-      "longitude": 105.85278,
-      "alongAlleyMeters": 93,
-      "pendingCheck": null
+      "caption": "Phở gà nước, phở gà trộn, phù hợp ăn sáng.",
+      "latitude": null,
+      "longitude": null,
+      "pendingCheck": "Chưa xác minh vị trí và điều kiện tiếp cận thực địa.",
+      "evidence": [
+        "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+        "Cục Du lịch Quốc gia Việt Nam. (2023). Quận Hoàn Kiếm (Hà Nội) gắn biển công trình tu bổ, tôn tạo đình Trung Yên. https://vietnamtourism.gov.vn/post/50827",
+        "Sở Văn hóa và Thể thao Hà Nội. (2021, October 21). Thẩm định dự án tu bổ, tôn tạo di tích đình Trung Yên, Hoàn Kiếm, Hà Nội. https://sovhtt.hanoi.gov.vn/tham-dinh-du-an-tu-bo-ton-tao-di-tich-dinh-trung-yen-hoan-kiem-ha-noi/",
+        "VietnamPlus. (2024c, October 9). Triết lý ẩm thực ngõ Trung Yên. https://mega.vietnamplus.vn/triet-ly-am-thuc-ngo-trung-yen-6633.html"
+      ]
     }
   ],
-  "qa": []
+  "qa": [],
+  "alleyStory": {
+    "title": "Ngõ Trung Yên",
+    "paragraphs": [
+      "Ngõ Trung Yên dài khoảng 200 m, là dấu tích còn lại của thôn Chung Yên xưa. Theo VietnamPlus (2024c), vùng đất thuộc phố Đinh Liệt và Gia Ngư ngày nay từng là một phần của hồ Thái Cực, thuộc hệ thống mặt nước cổ quanh hồ Hoàn Kiếm. Từ cuối thế kỷ XIX, hồ dần bị bồi lấp và trở thành đất bằng vào khoảng thập niên 1920. Tên gọi Trung Yên gắn với địa danh Chung Yên, nhưng thời điểm và nguyên nhân thay đổi cách gọi chưa được xác định rõ trong nguồn hiện có.",
+      "Một dấu tích lịch sử nổi bật là đình Trung Yên tại số 10, còn gọi là đền Thanh Cẩm. Đình thờ một vị Ngự sử thời Mạc, có kiến trúc hình ống đặc trưng của phố cổ và được công nhận là di tích kiến trúc nghệ thuật cấp quốc gia năm 2008 (Sở Văn hóa và Thể thao Hà Nội, 2021).",
+      "Khoảng ba thập niên gần đây, ngõ Trung Yên phát triển thành không gian ẩm thực với nhiều hàng ăn như Phở Sướng, Ngan Nhàn và Bún cá Sâm Cây Si (VietnamPlus, 2024c).",
+      "Dấu ấn riêng: Sự giao thoa giữa lịch sử làng cổ, không gian mặt nước đã biến mất, di tích tín ngưỡng và đời sống kinh doanh ẩm thực hiện tại."
+    ],
+    "evidence": [
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Cục Du lịch Quốc gia Việt Nam. (2023). Quận Hoàn Kiếm (Hà Nội) gắn biển công trình tu bổ, tôn tạo đình Trung Yên. https://vietnamtourism.gov.vn/post/50827",
+      "Sở Văn hóa và Thể thao Hà Nội. (2021, October 21). Thẩm định dự án tu bổ, tôn tạo di tích đình Trung Yên, Hoàn Kiếm, Hà Nội. https://sovhtt.hanoi.gov.vn/tham-dinh-du-an-tu-bo-ton-tao-di-tich-dinh-trung-yen-hoan-kiem-ha-noi/",
+      "VietnamPlus. (2024c, October 9). Triết lý ẩm thực ngõ Trung Yên. https://mega.vietnamplus.vn/triet-ly-am-thuc-ngo-trung-yen-6633.html"
+    ]
+  },
+  "guide": {
+    "eat": [
+      {
+        "name": "Phở Sướng",
+        "address": "24B ngõ Trung Yên",
+        "dishes": "Phở bò, nước dùng thanh; quán nhỏ, có thể đông vào giờ ăn.",
+        "hours": "Giờ tham khảo: 05:30–12:00 và 17:00–21:30, tùy ngày.",
+        "note": null
+      },
+      {
+        "name": "Bún cá Sâm Cây Si",
+        "address": "5 ngõ Trung Yên",
+        "dishes": "Bún cá, cá cuốn thịt, chả cá; tên quán gắn với bà Sâm và cây si nơi bán hàng xưa.",
+        "hours": "Giờ tham khảo: 07:00–17:00.",
+        "note": null
+      },
+      {
+        "name": "Bún ngan Nhàn",
+        "address": "11 ngõ Trung Yên",
+        "dishes": "Bún ngan nước, bún ngan trộn, ngan và mọc; nổi tiếng nhưng đánh giá phục vụ trái chiều.",
+        "hours": "Giờ tham khảo: 10:00–15:00.",
+        "note": null
+      },
+      {
+        "name": "Phở gà Hương Trà",
+        "address": "2 ngõ Trung Yên",
+        "dishes": "Phở gà nước, phở gà trộn, phù hợp ăn sáng.",
+        "hours": "Giờ tham khảo: 06:00–11:00.",
+        "note": null
+      }
+    ],
+    "visit": [
+      {
+        "name": "Đình Trung Yên",
+        "address": "số 10 ngõ Trung Yên",
+        "notes": [
+          "Di tích kiến trúc nghệ thuật cấp quốc gia từ năm 2008.",
+          "Nằm trên tầng hai một công trình dạng nhà ống, gắn với tín ngưỡng thờ một vị Ngự sử thời Mạc.",
+          "Công trình đã được tu bổ; chưa xác minh lịch mở cửa tham quan công khai (Sở Văn hóa và Thể thao Hà Nội, 2021; Cục Du lịch Quốc gia Việt Nam, 2023)."
+        ]
+      },
+      {
+        "name": "Khu vực chợ Hàng Bè và phố Gia Ngư",
+        "address": null,
+        "notes": [
+          "Có thể kết hợp đi bộ quan sát hoạt động thương mại, hàng quán và sinh hoạt phố cổ.",
+          "Phù hợp để tìm hiểu mối liên hệ giữa đời sống chợ, nghề bán hàng và sự phát triển của ngõ Trung Yên (VietnamPlus, 2024c)."
+        ]
+      }
+    ],
+    "route": [
+      "Biển ngõ Trung Yên",
+      "Đình Trung Yên",
+      "Quan sát hoạt động phố chợ",
+      "Bún cá Sâm Cây Si hoặc Phở Sướng"
+    ],
+    "caveats": [],
+    "evidence": [
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Cục Du lịch Quốc gia Việt Nam. (2023). Quận Hoàn Kiếm (Hà Nội) gắn biển công trình tu bổ, tôn tạo đình Trung Yên. https://vietnamtourism.gov.vn/post/50827",
+      "Sở Văn hóa và Thể thao Hà Nội. (2021, October 21). Thẩm định dự án tu bổ, tôn tạo di tích đình Trung Yên, Hoàn Kiếm, Hà Nội. https://sovhtt.hanoi.gov.vn/tham-dinh-du-an-tu-bo-ton-tao-di-tich-dinh-trung-yen-hoan-kiem-ha-noi/",
+      "VietnamPlus. (2024c, October 9). Triết lý ẩm thực ngõ Trung Yên. https://mega.vietnamplus.vn/triet-ly-am-thuc-ngo-trung-yen-6633.html"
+    ]
+  }
 }

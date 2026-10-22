@@ -4,10 +4,26 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, radius, spacing, typography } from '../theme';
 import { useLocale } from '../context/LocaleContext';
 
-type Props = { detail: string; onBack?: () => void; onSwitchToDemo?: () => void; onRetry?: () => void; busy?: boolean };
+type Props = {
+  detail: string;
+  onBack?: () => void;
+  onSwitchToDemo?: () => void;
+  onRetry?: () => void;
+  busy?: boolean;
+  actionLabel?: string;
+  secondaryActionLabel?: string;
+};
 
 /** Shown when the active source has no dataset, so Q&A cannot be offered. */
-export function UnavailableScreen({ detail, onBack, onSwitchToDemo, onRetry, busy = false }: Props): ReactElement {
+export function UnavailableScreen({
+  detail,
+  onBack,
+  onSwitchToDemo,
+  onRetry,
+  busy = false,
+  actionLabel,
+  secondaryActionLabel,
+}: Props): ReactElement {
   const { t } = useLocale();
   return (
     <SafeAreaView style={styles.screen}>
@@ -29,7 +45,7 @@ export function UnavailableScreen({ detail, onBack, onSwitchToDemo, onRetry, bus
               style={[styles.primaryAction, busy && styles.disabled]}
               testID="unavailable-retry-btn"
             >
-              <Text style={styles.primaryActionText}>{busy ? t('common.loading') : t('common.retry')}</Text>
+              <Text style={styles.primaryActionText}>{busy ? t('common.loading') : (actionLabel ?? t('common.retry'))}</Text>
             </Pressable>
           )}
           {onSwitchToDemo && (
@@ -39,7 +55,7 @@ export function UnavailableScreen({ detail, onBack, onSwitchToDemo, onRetry, bus
               style={styles.secondaryAction}
               testID="unavailable-switch-demo-btn"
             >
-              <Text style={styles.secondaryActionText}>{t('common.switch_to_demo')}</Text>
+              <Text style={styles.secondaryActionText}>{secondaryActionLabel ?? t('common.switch_to_demo')}</Text>
             </Pressable>
           )}
           {onBack && (

@@ -153,8 +153,11 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
   const drawerMod = { exports: {} };
   runInNewContext('(function(require,module,exports){' + drawerCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
     if (modules[id]) return modules[id];
-    if (id === './AppIcon' || id === '../components/AppIcon' || /\/components\//.test(id)) {
-      return { AppIcon: 'AppIcon' };
+    if (id === './AppIcon' || id === '../components/AppIcon' || /\/components\//.test(id) || id.includes('AlleyGuideSection')) {
+      return { AppIcon: 'AppIcon', AlleyGuideSection: 'AlleyGuideSection' };
+    }
+    if (id.includes('alleyGuide')) {
+      return { readAlleyStory: () => null, readAlleyGuide: () => null };
     }
     throw new Error(`Unexpected import in drawer: ${id}`);
   }, drawerMod, drawerMod.exports);
@@ -170,9 +173,12 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
   runInNewContext('(function(require,module,exports){' + screenCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
     if (modules[id]) return modules[id];
     if (/\.(png|jpe?g|gif|webp|wav|mp3)$/i.test(id)) return 1;
-    if (id === './AppIcon' || id === '../components/AppIcon' || /\/components\//.test(id)) {
+    if (id === './AppIcon' || id === '../components/AppIcon' || /\/components\//.test(id) || id.includes('AlleyStoryCard') || id.includes('AlleyGuideSection')) {
       const name = id.split('/').at(-1);
-      return { [name]: name, AppIcon: 'AppIcon' };
+      return { [name]: name, AppIcon: 'AppIcon', AlleyStoryCard: 'AlleyStoryCard', AlleyGuideSection: 'AlleyGuideSection' };
+    }
+    if (id.includes('alleyGuide')) {
+      return { readAlleyStory: () => null, readAlleyGuide: () => null };
     }
     throw new Error(`Unexpected import in screen: ${id}`);
   }, screenMod, screenMod.exports);

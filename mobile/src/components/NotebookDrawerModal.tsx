@@ -11,7 +11,9 @@ import {
 import { AppIcon } from './AppIcon';
 import { useLocale } from '../context/LocaleContext';
 import { useMotionState } from '../hooks/MotionPreferences';
-import { getLocalizedCollections, type CollectionId } from '../data/collections';
+import { getLocalizedCollections, getBundledDataset, type CollectionId } from '../data/collections';
+import { readAlleyGuide } from '../data/alleyGuide';
+import { AlleyGuideSection } from './AlleyGuideSection';
 import type { Mode, SourceState } from '../data/sourceState';
 import { radius, spacing } from '../theme';
 
@@ -36,6 +38,7 @@ export function NotebookDrawerModal({
   mode,
   onModeChange,
   source,
+  collectionId,
   liveBusy,
   onRetryLive,
 }: NotebookDrawerModalProps): ReactElement {
@@ -45,6 +48,11 @@ export function NotebookDrawerModal({
   const [activeView, setActiveView] = useState<'menu' | 'passport'>('menu');
 
   const collections = getLocalizedCollections(locale);
+  const activeDataset =
+    source?.status === 'ready'
+      ? source.dataset
+      : (collectionId ? getBundledDataset(collectionId, locale) : undefined);
+  const guide = activeDataset ? readAlleyGuide(activeDataset) : null;
 
   const handleClose = () => {
     setActiveView('menu');
@@ -275,6 +283,8 @@ export function NotebookDrawerModal({
                     </Pressable>
                   )}
                 </View>
+
+                {guide !== null && <AlleyGuideSection guide={guide} />}
               </ScrollView>
             </>
           )}
