@@ -28,6 +28,8 @@ const catalogSource = read('mobile/src/voice/post8Catalog.ts').toString('utf8');
 const originalCatalogSource = read('mobile/src/voice/catalog.ts').toString('utf8');
 const remainingCatalogSource = read('mobile/src/voice/post8RemainingCatalog.ts').toString('utf8');
 const threeLensesCatalogSource = read('mobile/src/voice/threeLensesCatalog.ts').toString('utf8');
+const threeLensesManifest = JSON.parse(read('mobile/assets/voice/three-lenses-elevenlabs/manifest.json').toString('utf8'));
+const threeLensesNhatPhongManifest = JSON.parse(read('mobile/assets/voice/three-lenses-nhat-phong/manifest.json').toString('utf8'));
 
 const datasetTrackRows = (dataset) => [
   { id: 'intro', kind: 'intro', text: dataset.intro.text },
@@ -82,8 +84,13 @@ function assertActiveMapping(entry, expectedTextSha256, archivedRequire) {
   assert.equal(active.sourceTextSha256, expectedTextSha256, `${key} source text hash`);
   assert.equal(active.spokenTextSha256, expectedTextSha256, `${key} spoken text hash`);
   assert.equal(active.textHash, expectedTextSha256, `${key} active catalogue text hash`);
-  assert.equal(active.voiceId, activeManifest.voiceIds[entry.locale], `${key} active voice`);
-  assert.equal(active.model, activeManifest.model, `${key} active model`);
+  const isNhatPhongMigration = entry.collectionId === 'fiction-letter' && entry.locale === 'vi';
+  assert.equal(active.voiceId,
+    isNhatPhongMigration ? activeManifest.nhatPhongMigration.voiceId : activeManifest.voiceIds[entry.locale],
+    `${key} active voice`);
+  assert.equal(active.model,
+    isNhatPhongMigration ? activeManifest.nhatPhongMigration.model : activeManifest.model,
+    `${key} active model`);
   assert.equal(active.locale, entry.locale);
   assert.equal(active.collectionId, entry.collectionId);
   assert.equal(active.durationSeconds, active.format.durationSeconds, `${key} decoded duration`);
@@ -171,6 +178,17 @@ test('the 54 new tracks complete the 100-track inventory without changing the 34
   assert.equal(activeManifest.humanApproved, false);
   assert.equal(activeManifest.selectedForShipping, false);
   assert.equal(activeManifest.model, 'eleven_v4');
+  assert.deepEqual(activeManifest.nhatPhongMigration, {
+    scope: 'fiction-letter/vi (34 reviewed-fiction demo tracks only)',
+    voiceId: '6adFm46eyy74snVn6YrT',
+    voiceName: 'Nhật Phong - Narrative & Compelling',
+    model: 'eleven_v3',
+    languageCode: 'vi',
+    outputFormat: 'mp3_44100_128',
+    sourceDataSha256: sha256(originalBytes),
+    humanListeningApproved: false,
+    rollback: activeManifest.nhatPhongMigration.rollback,
+  });
   assert.deepEqual(activeManifest.licenseProvenance, {
     provider: 'ElevenLabs',
     service: 'Text-to-Speech API',
@@ -259,7 +277,7 @@ test('the 54 new tracks complete the 100-track inventory without changing the 34
     + manifest.catalogues.vi.entries.length + added, 100);
 });
 
-test('production lookup resolves all 100 active and the unchanged 56 Three Lenses tracks', async () => {
+test('production lookup resolves all 100 active tracks and the 28+28 Three Lenses split', async () => {
   const previousRequire = globalThis.require;
   globalThis.require = (assetPath) => assetPath;
   let lookupVoiceTrack;
@@ -295,17 +313,63 @@ test('production lookup resolves all 100 active and the unchanged 56 Three Lense
   assert.equal(lookupVoiceTrack({ ...legacyVi, locale: 'en' }), undefined);
   assert.equal(lookupVoiceTrack({ ...legacyVi, collectionId: 'other' }), undefined);
 
+  assert.equal(threeLensesManifest.counts.en, 28);
+  assert.equal(threeLensesManifest.counts.vi, 28);
+  assert.equal(threeLensesManifest.counts.total, 56);
+  assert.equal(threeLensesNhatPhongManifest.entries.length, 28);
+  assert.equal(threeLensesNhatPhongManifest.scope, 'old-quarter-three-lenses/vi preview');
+  assert.equal(threeLensesNhatPhongManifest.sourceOnly, true);
+  assert.equal(threeLensesNhatPhongManifest.humanApproved, false);
+  assert.equal(threeLensesNhatPhongManifest.selectedForShipping, false);
+  assert.deepEqual(threeLensesNhatPhongManifest.voice, {
+    id: '6adFm46eyy74snVn6YrT',
+    name: 'Nhật Phong - Narrative & Compelling',
+  });
+  assert.equal(threeLensesNhatPhongManifest.model, 'eleven_v3');
+  assert.equal(threeLensesNhatPhongManifest.outputFormat, 'mp3_44100_128');
+
   let threeLensesTracks = 0;
   for (const locale of ['en', 'vi']) {
     const catalogue = threeLensesVoiceCatalogues[locale];
-    assert.equal(Object.keys(catalogue.tracks).length, 28, `${locale} unchanged catalogue size`);
+    const isNhatPhong = locale === 'vi';
+    const manifestEntries = isNhatPhong
+      ? threeLensesNhatPhongManifest.entries
+      : threeLensesManifest.catalogues.en.tracks;
+    const manifestById = new Map(manifestEntries.map((entry) => [entry.id, entry]));
+    const assetDirectory = isNhatPhong ? 'three-lenses-nhat-phong' : 'three-lenses-elevenlabs';
+    const expectedVoiceId = isNhatPhong ? '6adFm46eyy74snVn6YrT' : 'OZ0L6eISlOejga3XjDFt';
+    const expectedModel = isNhatPhong ? 'eleven_v3' : 'eleven_v4';
+
+    assert.equal(Object.keys(catalogue.tracks).length, 28, `${locale} Three Lenses catalogue size`);
+    assert.equal(manifestById.size, 28, `${locale} Three Lenses manifest size`);
+    assert.deepEqual([...manifestById.keys()].sort(), Object.keys(catalogue.tracks).sort(),
+      `${locale} content IDs match manifest and static catalogue`);
+
     for (const entry of Object.values(catalogue.tracks)) {
+      const manifestEntry = manifestById.get(entry.id);
+      assert.ok(manifestEntry, `${locale}/${entry.id} manifest record`);
+      const assetPath = `mobile/assets/voice/${assetDirectory}/${locale}/${entry.id}.mp3`;
+      const metroAsset = `../../assets/voice/${assetDirectory}/${locale}/${entry.id}.mp3`;
       const track = lookupVoiceTrack({ collectionId: THREE_LENSES_VOICE_COLLECTION, locale,
         contentId: entry.id, datasetRevision: catalogue.datasetRevision });
-      assert.equal(track?.textHash, entry.textHash, `${locale}/${entry.id} unchanged text hash`);
-      assert.equal(track?.durationSeconds, entry.durationSeconds, `${locale}/${entry.id} unchanged duration`);
-      assert.equal(track?.source, `../../assets/voice/three-lenses-elevenlabs/${locale}/${entry.id}.mp3`,
-        `${locale}/${entry.id} unchanged Metro asset`);
+      assert.equal(manifestEntry.collectionId, THREE_LENSES_VOICE_COLLECTION, `${locale}/${entry.id} collection`);
+      assert.equal(manifestEntry.locale, locale, `${locale}/${entry.id} locale`);
+      assert.equal(manifestEntry.kind, entry.kind, `${locale}/${entry.id} kind`);
+      assert.equal(manifestEntry.nodeId ?? null, entry.nodeId ?? null, `${locale}/${entry.id} node`);
+      assert.equal(manifestEntry.sourceDataSha256, sha256(read(manifestEntry.source)),
+        `${locale}/${entry.id} source hash`);
+      assert.equal(manifestEntry.textHash, entry.textHash, `${locale}/${entry.id} source text hash`);
+      assert.equal(manifestEntry.audioSha256, sha256(read(assetPath)), `${locale}/${entry.id} audio hash`);
+      assert.equal(manifestEntry.durationSeconds, entry.durationSeconds, `${locale}/${entry.id} duration`);
+      assert.equal(manifestEntry.voiceId, expectedVoiceId, `${locale}/${entry.id} voice`);
+      assert.equal(manifestEntry.model, expectedModel, `${locale}/${entry.id} model`);
+      assert.equal(manifestEntry.humanApproved, false, `${locale}/${entry.id} approval gate`);
+      assert.equal(track?.textHash, entry.textHash, `${locale}/${entry.id} runtime text hash`);
+      assert.equal(track?.durationSeconds, entry.durationSeconds, `${locale}/${entry.id} runtime duration`);
+      assert.equal(track?.source, metroAsset, `${locale}/${entry.id} runtime Metro asset`);
+      const staticLine = threeLensesCatalogSource.split('\n').find((line) =>
+        line.includes(`"${entry.id}": {`) && line.includes(`source: require("${metroAsset}")`));
+      assert.ok(staticLine, `${locale}/${entry.id} static Metro require`);
       threeLensesTracks += 1;
     }
   }

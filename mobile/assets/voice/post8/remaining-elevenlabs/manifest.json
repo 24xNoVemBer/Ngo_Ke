@@ -3148,9 +3148,9 @@
       "spokenTextSha256": "39efd9a80fb93faa0679672f66de3bec24dba4545f257343c9d2934a4d81c328",
       "textHash": "39efd9a80fb93faa0679672f66de3bec24dba4545f257343c9d2934a4d81c328",
       "characters": 339,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3168,7 +3168,7 @@
         "accountCharacterCount": 16057,
         "accountDeltaFromBaseline": 6148
       },
-      "audioSha256": "2ccaac33bd78b916b65c3015e86641bdd0f0388754539b1e2d9ac5d42915c973",
+      "audioSha256": "47e99423ab9f6f93baa94c0fa2f5bde2c2afcdb89f52a6491e136cfcb94cc65b",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/intro.mp3",
       "format": {
         "container": "mp3",
@@ -3176,12 +3176,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 24.16
+        "durationSeconds": 21.995
       },
-      "durationSeconds": 24.16,
+      "durationSeconds": 21.995,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3197,9 +3201,9 @@
       "spokenTextSha256": "aef24602381fa4d18715871ff8abe8ec1b219475b23a63387a9f0257a090f582",
       "textHash": "aef24602381fa4d18715871ff8abe8ec1b219475b23a63387a9f0257a090f582",
       "characters": 397,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3217,7 +3221,7 @@
         "accountCharacterCount": 16057,
         "accountDeltaFromBaseline": 6148
       },
-      "audioSha256": "2bc9f4f3b1cbaa5413c47742e0c5ddc81eb0a6d04e9ef921d86019474728f910",
+      "audioSha256": "f4655e92bb1ff04cb499eef4c85918e7201573910ad833b460a8f716f25bf91a",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/demo-01-story.mp3",
       "format": {
         "container": "mp3",
@@ -3225,12 +3229,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 29.04
+        "durationSeconds": 25.757
       },
-      "durationSeconds": 29.04,
+      "durationSeconds": 25.757,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3246,9 +3254,9 @@
       "spokenTextSha256": "2c730882ef89ae000010c30b376aef3322ce59be5579972dac43aea9be62bfa1",
       "textHash": "2c730882ef89ae000010c30b376aef3322ce59be5579972dac43aea9be62bfa1",
       "characters": 73,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3266,7 +3274,7 @@
         "accountCharacterCount": 16057,
         "accountDeltaFromBaseline": 6148
       },
-      "audioSha256": "6f5e9c52452edd1ededa7b186869c81057ffe712bc5f9b538e23f644bd9ab9cd",
+      "audioSha256": "a46406041beab2f20ccc3c876455cff3307772a22dd5dda12b2892628c30a794",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/demo-01-caption.mp3",
       "format": {
         "container": "mp3",
@@ -3274,12 +3282,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 5.04
+        "durationSeconds": 4.075
       },
-      "durationSeconds": 5.04,
+      "durationSeconds": 4.075,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3295,9 +3307,9 @@
       "spokenTextSha256": "a3bbe78afc9702fcac71516c04f1a86a5b2c203134a65792520f7c5137d74a97",
       "textHash": "a3bbe78afc9702fcac71516c04f1a86a5b2c203134a65792520f7c5137d74a97",
       "characters": 433,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3315,7 +3327,7 @@
         "accountCharacterCount": 16057,
         "accountDeltaFromBaseline": 6148
       },
-      "audioSha256": "16246feee71852dbfb16c2fd572ce1d348b87e14502eb527d9f06fff578690ba",
+      "audioSha256": "c8adc4055d435558ed0905bde7525d8339260a8b99bfc06154493f3a228ca1da",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/demo-02-story.mp3",
       "format": {
         "container": "mp3",
@@ -3323,12 +3335,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 32.24
+        "durationSeconds": 30.615
       },
-      "durationSeconds": 32.24,
+      "durationSeconds": 30.615,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3344,9 +3360,9 @@
       "spokenTextSha256": "ecfc3b8cae69242bcc2ee7b750671ebf1bf503bc75101975cb85c315a6fcbcd1",
       "textHash": "ecfc3b8cae69242bcc2ee7b750671ebf1bf503bc75101975cb85c315a6fcbcd1",
       "characters": 63,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3364,7 +3380,7 @@
         "accountCharacterCount": 16057,
         "accountDeltaFromBaseline": 6148
       },
-      "audioSha256": "b80c738ecf632b34dfc7039fe30bb535c5fdfa0c564838765ba495fff652bf26",
+      "audioSha256": "bf266f31b4f955914d118ef4c717e44b74fe0a93453e518607dbfee7421fb7e7",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/demo-02-caption.mp3",
       "format": {
         "container": "mp3",
@@ -3372,12 +3388,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 4.32
+        "durationSeconds": 3.422
       },
-      "durationSeconds": 4.32,
+      "durationSeconds": 3.422,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3393,9 +3413,9 @@
       "spokenTextSha256": "7d5ecd607e4fe1f6eee3b3a2b80fc67492aba3c65d6a40cbc3ba406e1cafbd95",
       "textHash": "7d5ecd607e4fe1f6eee3b3a2b80fc67492aba3c65d6a40cbc3ba406e1cafbd95",
       "characters": 468,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3413,7 +3433,7 @@
         "accountCharacterCount": 16057,
         "accountDeltaFromBaseline": 6148
       },
-      "audioSha256": "97e39eb610ddaf185b3501d99353b31a6e9f91ba1ce645ea7dc1923c0387ece1",
+      "audioSha256": "9e4b47cb2dc6d3866aba90bc0b6ea937ed00dfa464e9c1429178851d6a2890d8",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/demo-03-story.mp3",
       "format": {
         "container": "mp3",
@@ -3421,12 +3441,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 32.72
+        "durationSeconds": 29.753
       },
-      "durationSeconds": 32.72,
+      "durationSeconds": 29.753,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3442,9 +3466,9 @@
       "spokenTextSha256": "e847007f329d7a4ee02b4f82180deb073c5bff1d38eac3b925d569c065160583",
       "textHash": "e847007f329d7a4ee02b4f82180deb073c5bff1d38eac3b925d569c065160583",
       "characters": 73,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3462,7 +3486,7 @@
         "accountCharacterCount": 16057,
         "accountDeltaFromBaseline": 6148
       },
-      "audioSha256": "2fe3ee0d08537c28aaf62165c680c7c66fd6745376a01749897e1ad2f47bb5e5",
+      "audioSha256": "e533dbb88aa4189f7661f42f8e9b2cb11016beb6b78cc75c8c1b0fedcb98e25a",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/demo-03-caption.mp3",
       "format": {
         "container": "mp3",
@@ -3470,12 +3494,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 5.12
+        "durationSeconds": 4.467
       },
-      "durationSeconds": 5.12,
+      "durationSeconds": 4.467,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3491,9 +3519,9 @@
       "spokenTextSha256": "39203add33b1e1c135a2b75572995b74c23f51687d31f6bbfd5d0cff10ca3800",
       "textHash": "39203add33b1e1c135a2b75572995b74c23f51687d31f6bbfd5d0cff10ca3800",
       "characters": 437,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3511,7 +3539,7 @@
         "accountCharacterCount": 16800,
         "accountDeltaFromBaseline": 6891
       },
-      "audioSha256": "829889dde87c6e295f657359c83e085732228569608f93d925ef65841b40fcf4",
+      "audioSha256": "2a948d82c2f290a6158ae6abadbdf66b45a0022cc52ed7844a1683d705746f05",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/demo-04-story.mp3",
       "format": {
         "container": "mp3",
@@ -3519,12 +3547,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 32.72
+        "durationSeconds": 30.067
       },
-      "durationSeconds": 32.72,
+      "durationSeconds": 30.067,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3540,9 +3572,9 @@
       "spokenTextSha256": "59948c05bfa2f2a60dc414393253ea70aebaa869f8db9accfd73f6168fe6130f",
       "textHash": "59948c05bfa2f2a60dc414393253ea70aebaa869f8db9accfd73f6168fe6130f",
       "characters": 57,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3560,7 +3592,7 @@
         "accountCharacterCount": 16800,
         "accountDeltaFromBaseline": 6891
       },
-      "audioSha256": "6190596b37ecfb0d276772493e288d6f90fa6c841a30cfcefb98e4c3a7676264",
+      "audioSha256": "71ea00ffcd0e08b86dbaa30af6cdd616ce07214f9c8c4a18eb4ccd4476a069d3",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/demo-04-caption.mp3",
       "format": {
         "container": "mp3",
@@ -3568,12 +3600,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 4.16
+        "durationSeconds": 3.579
       },
-      "durationSeconds": 4.16,
+      "durationSeconds": 3.579,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3589,9 +3625,9 @@
       "spokenTextSha256": "ec010d5b285dad5818f571c04f926581a1d8b4c56fd83273de0585999f2964e8",
       "textHash": "ec010d5b285dad5818f571c04f926581a1d8b4c56fd83273de0585999f2964e8",
       "characters": 393,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3609,7 +3645,7 @@
         "accountCharacterCount": 16800,
         "accountDeltaFromBaseline": 6891
       },
-      "audioSha256": "ee24e6523ef3c715206dc48235b4d39fb776931ecdeb2befac6a1bdd841f6724",
+      "audioSha256": "e55a37e07fb067ae461af6ab26fa5dc21f3545fc85ddd67bca85d9da26d8c7d0",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/demo-05-story.mp3",
       "format": {
         "container": "mp3",
@@ -3617,12 +3653,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 31.44
+        "durationSeconds": 28.63
       },
-      "durationSeconds": 31.44,
+      "durationSeconds": 28.63,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3638,9 +3678,9 @@
       "spokenTextSha256": "8ca91306973a43f00e0bc8ae074b4ef0252ad4863d08f497f90e85029c723ee4",
       "textHash": "8ca91306973a43f00e0bc8ae074b4ef0252ad4863d08f497f90e85029c723ee4",
       "characters": 62,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3658,7 +3698,7 @@
         "accountCharacterCount": 16800,
         "accountDeltaFromBaseline": 6891
       },
-      "audioSha256": "cd4940610ce114ebff6872c504a4c45cbffba19d41eb61b63730131c5b869c0f",
+      "audioSha256": "c75185a12198d57ff616b7b24dd11bfe5b03f09bbf71c6819c0668ddf161f645",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/demo-05-caption.mp3",
       "format": {
         "container": "mp3",
@@ -3666,12 +3706,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 4.0
+        "durationSeconds": 3.422
       },
-      "durationSeconds": 4.0,
+      "durationSeconds": 3.422,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3687,9 +3731,9 @@
       "spokenTextSha256": "bb2da49b9ee34a9a1514c2b03864831c08711eaedf18d4a996b1c1ca8723249e",
       "textHash": "bb2da49b9ee34a9a1514c2b03864831c08711eaedf18d4a996b1c1ca8723249e",
       "characters": 481,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3707,7 +3751,7 @@
         "accountCharacterCount": 16800,
         "accountDeltaFromBaseline": 6891
       },
-      "audioSha256": "9e4fcf6fffc1a64620e0f4378cd3cebfe9a81e6289b25e83858a8596cb747132",
+      "audioSha256": "bb34dad795341d05713efecf22b105b2f16f6a75800bd6f73ed12e324d5e4854",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/demo-06-story.mp3",
       "format": {
         "container": "mp3",
@@ -3715,12 +3759,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 37.6
+        "durationSeconds": 32.784
       },
-      "durationSeconds": 37.6,
+      "durationSeconds": 32.784,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3736,9 +3784,9 @@
       "spokenTextSha256": "27aee96eb6c8e6588beafc01f756bab1d52cae5feed59648b60f364b4e3987d2",
       "textHash": "27aee96eb6c8e6588beafc01f756bab1d52cae5feed59648b60f364b4e3987d2",
       "characters": 71,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3756,7 +3804,7 @@
         "accountCharacterCount": 16800,
         "accountDeltaFromBaseline": 6891
       },
-      "audioSha256": "d4fade94c09b385027522c963d2c3429a7ee081255655898e0ca3eb6c96211bf",
+      "audioSha256": "51dba3fce33f916bb464ef2659097602a1ef7f3ff59f849a09523d36e37dd861",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/demo-06-caption.mp3",
       "format": {
         "container": "mp3",
@@ -3764,12 +3812,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 4.8
+        "durationSeconds": 4.78
       },
-      "durationSeconds": 4.8,
+      "durationSeconds": 4.78,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3785,9 +3837,9 @@
       "spokenTextSha256": "2a8eb7f20d53f6e796989e3987ca3c9c810f4f3191608d4f88004296484af6a5",
       "textHash": "2a8eb7f20d53f6e796989e3987ca3c9c810f4f3191608d4f88004296484af6a5",
       "characters": 190,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3805,7 +3857,7 @@
         "accountCharacterCount": 16800,
         "accountDeltaFromBaseline": 6891
       },
-      "audioSha256": "36bbc47761741c16e84552987e1bcfa62528028fb6080748d839a1be9883cfa7",
+      "audioSha256": "cce73430d2942a170d2cae47ca18eeed816c64c28e7d227ca25ea4a2e7339d7d",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-01-answer.mp3",
       "format": {
         "container": "mp3",
@@ -3813,12 +3865,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 13.76
+        "durationSeconds": 12.774
       },
-      "durationSeconds": 13.76,
+      "durationSeconds": 12.774,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3834,9 +3890,9 @@
       "spokenTextSha256": "3a184561a2fbadb3eb1bcf81f0541d5b3d741c0cc5aed1367603925a8cd9d12d",
       "textHash": "3a184561a2fbadb3eb1bcf81f0541d5b3d741c0cc5aed1367603925a8cd9d12d",
       "characters": 167,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3854,7 +3910,7 @@
         "accountCharacterCount": 16800,
         "accountDeltaFromBaseline": 6891
       },
-      "audioSha256": "bbf442b41f439fc33f5307e30c22787f857f92184d2c8bd665ce2280ae08c9b8",
+      "audioSha256": "98c08f773653f14599bb98af6d414266b4c6faec5f658317e9492f49bbf8b61f",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-02-answer.mp3",
       "format": {
         "container": "mp3",
@@ -3862,12 +3918,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 13.28
+        "durationSeconds": 11.755
       },
-      "durationSeconds": 13.28,
+      "durationSeconds": 11.755,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3883,9 +3943,9 @@
       "spokenTextSha256": "dc08e20105ba2f5b97d98e5fc3101efbf78a2c23c20e312371204f127c78a6d3",
       "textHash": "dc08e20105ba2f5b97d98e5fc3101efbf78a2c23c20e312371204f127c78a6d3",
       "characters": 177,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3903,7 +3963,7 @@
         "accountCharacterCount": 17358,
         "accountDeltaFromBaseline": 7449
       },
-      "audioSha256": "bf2974cd62dcf239596d6f49645f780842fa8b3084eb729c14e0a9003c3deb29",
+      "audioSha256": "087e2e5b6c25d1e7dc90637276d864c2ae712ad92d4a4d9b090130d810f6ee18",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-03-answer.mp3",
       "format": {
         "container": "mp3",
@@ -3911,12 +3971,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 11.92
+        "durationSeconds": 10.632
       },
-      "durationSeconds": 11.92,
+      "durationSeconds": 10.632,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3932,9 +3996,9 @@
       "spokenTextSha256": "cccd5e08e62ab6f7dd9ce3fc14e29d7688bd213f859172ad9131b4b4a11ed30c",
       "textHash": "cccd5e08e62ab6f7dd9ce3fc14e29d7688bd213f859172ad9131b4b4a11ed30c",
       "characters": 145,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -3952,7 +4016,7 @@
         "accountCharacterCount": 17358,
         "accountDeltaFromBaseline": 7449
       },
-      "audioSha256": "53c04c8248896b0bd478cc55ffe117bc0c95d6c3f51c4c6f72ce755c3e74b2cb",
+      "audioSha256": "d2cc12141d562abf97f8f2ad73aa8cb9dafe682cf09c54ad5898cada67aed9bf",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-04-answer.mp3",
       "format": {
         "container": "mp3",
@@ -3960,12 +4024,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 10.16
+        "durationSeconds": 8.777
       },
-      "durationSeconds": 10.16,
+      "durationSeconds": 8.777,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -3981,9 +4049,9 @@
       "spokenTextSha256": "c746abc90d92544a82555e1a22024fd2f8d7dbbf2958e5852c1ca446b764f148",
       "textHash": "c746abc90d92544a82555e1a22024fd2f8d7dbbf2958e5852c1ca446b764f148",
       "characters": 206,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4001,7 +4069,7 @@
         "accountCharacterCount": 17358,
         "accountDeltaFromBaseline": 7449
       },
-      "audioSha256": "fb5e3da64d30093048955d23b1227630df56d8503d550d79c92b6c0b6285cc22",
+      "audioSha256": "c0e8735f5b34a4cba1c721589d2b363e66318a1787e56bf4f0c51fc9866c4bc8",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-05-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4009,12 +4077,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 15.28
+        "durationSeconds": 13.74
       },
-      "durationSeconds": 15.28,
+      "durationSeconds": 13.74,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -4030,9 +4102,9 @@
       "spokenTextSha256": "52a3eb97252bc8b5814961953f3a8c6cd7142de32736e2beb8db34fc953b9dae",
       "textHash": "52a3eb97252bc8b5814961953f3a8c6cd7142de32736e2beb8db34fc953b9dae",
       "characters": 185,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4050,7 +4122,7 @@
         "accountCharacterCount": 17358,
         "accountDeltaFromBaseline": 7449
       },
-      "audioSha256": "2079fdeb96f17d57846ffba6dea7493ca525e0063bcd262d2e7762ca47b62fb0",
+      "audioSha256": "eebe90f2dcf7fc0b6315ae63777050dae5c5a98f49ebd5ac010789c51d3eb237",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-06-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4058,12 +4130,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 12.48
+        "durationSeconds": 11.18
       },
-      "durationSeconds": 12.48,
+      "durationSeconds": 11.18,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -4079,9 +4155,9 @@
       "spokenTextSha256": "aec16efea55ba1dbd7de85bc90b0736a58df719ad0d637500d01cfa1b1327a6e",
       "textHash": "aec16efea55ba1dbd7de85bc90b0736a58df719ad0d637500d01cfa1b1327a6e",
       "characters": 166,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4099,7 +4175,7 @@
         "accountCharacterCount": 17358,
         "accountDeltaFromBaseline": 7449
       },
-      "audioSha256": "6929ec145159c0447544e355e5ae82992c60bca041b34e58774ad32b1f8df510",
+      "audioSha256": "473b8de407cd8057c6e746bb3f31f32beaecf14b5a928ea6fd20c5d6b486e81a",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-clock-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4107,12 +4183,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 12.08
+        "durationSeconds": 10.553
       },
-      "durationSeconds": 12.08,
+      "durationSeconds": 10.553,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -4128,9 +4208,9 @@
       "spokenTextSha256": "5cab359cdfcf944583513bc08e1e39e8c82a962a57fb0cbc83f2b32cffd0375d",
       "textHash": "5cab359cdfcf944583513bc08e1e39e8c82a962a57fb0cbc83f2b32cffd0375d",
       "characters": 148,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4148,7 +4228,7 @@
         "accountCharacterCount": 17358,
         "accountDeltaFromBaseline": 7449
       },
-      "audioSha256": "be3d87ea6866c3f6e3120aae02624cde5b448113eac6f59f8063f9ba1e89cb49",
+      "audioSha256": "11a54be9a14042861b56448e0a94224d3dc1b6b44615a7befd1762bee8a0349b",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-gear-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4156,12 +4236,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 10.32
+        "durationSeconds": 9.508
       },
-      "durationSeconds": 10.32,
+      "durationSeconds": 9.508,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -4177,9 +4261,9 @@
       "spokenTextSha256": "caab6fb2e0ca5a939b6300b5bcce211b32c7f3ffe2a820c91bf71075ef8a65d2",
       "textHash": "caab6fb2e0ca5a939b6300b5bcce211b32c7f3ffe2a820c91bf71075ef8a65d2",
       "characters": 190,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4197,7 +4281,7 @@
         "accountCharacterCount": 17358,
         "accountDeltaFromBaseline": 7449
       },
-      "audioSha256": "8fdd544af725ac7c88313fee5fb0e606fee12a7946b684a1f0cf036294bf2a95",
+      "audioSha256": "d43425d4a60e748763e990b73b958084fbe84a08c44c4a2139ef77bc85e82c6f",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-lam-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4205,12 +4289,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 13.52
+        "durationSeconds": 12.382
       },
-      "durationSeconds": 13.52,
+      "durationSeconds": 12.382,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -4226,9 +4314,9 @@
       "spokenTextSha256": "8fcf7ff4a5ef8d0392a7acc8c748a884dc95ace15241e8e045a496af7faf7d7c",
       "textHash": "8fcf7ff4a5ef8d0392a7acc8c748a884dc95ace15241e8e045a496af7faf7d7c",
       "characters": 180,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4246,7 +4334,7 @@
         "accountCharacterCount": 17358,
         "accountDeltaFromBaseline": 7449
       },
-      "audioSha256": "b0f6f339a850cdbb5b2475a79a508370419d0728bcd54fec93e4a5f85275d04e",
+      "audioSha256": "034536e64ecb3a8834472572b9414f9ea6c1df04622af8ff8ed5aa5cccb04e90",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-xoi-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4254,12 +4342,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 12.48
+        "durationSeconds": 11.572
       },
-      "durationSeconds": 12.48,
+      "durationSeconds": 11.572,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -4275,9 +4367,9 @@
       "spokenTextSha256": "e16c8f621d55b5e8efc7fe8fc4244d6d3ba47f48266a741cb9f2dc95d6c19332",
       "textHash": "e16c8f621d55b5e8efc7fe8fc4244d6d3ba47f48266a741cb9f2dc95d6c19332",
       "characters": 172,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4295,7 +4387,7 @@
         "accountCharacterCount": 17427,
         "accountDeltaFromBaseline": 7518
       },
-      "audioSha256": "7f8778d5b01abd73a49bb742cfd87fc5698af4a79be5145fe80f88b5c4e71053",
+      "audioSha256": "4729dc56909927aafa34ff9db4c63771fb9943dd4755c5d272bcad8754d8ea61",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-ribbon-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4303,12 +4395,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 11.92
+        "durationSeconds": 10.71
       },
-      "durationSeconds": 11.92,
+      "durationSeconds": 10.71,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -4324,9 +4420,9 @@
       "spokenTextSha256": "40165ee16ebcb5b4295d9133a7ece5a458739f1be51b37ed5bdb15b372a017f7",
       "textHash": "40165ee16ebcb5b4295d9133a7ece5a458739f1be51b37ed5bdb15b372a017f7",
       "characters": 180,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4344,7 +4440,7 @@
         "accountCharacterCount": 17499,
         "accountDeltaFromBaseline": 7590
       },
-      "audioSha256": "943a346b4f50f39fc86eddc04534fb72a356c4a4fe3df2bb37d9340c702daf16",
+      "audioSha256": "c3c8153024cdb61c8b07857d17d324219191bebf6cfe0fc9c38c17549574228a",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-huong-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4352,12 +4448,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 13.04
+        "durationSeconds": 11.024
       },
-      "durationSeconds": 13.04,
+      "durationSeconds": 11.024,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -4373,9 +4473,9 @@
       "spokenTextSha256": "17c91f7cac78d0faa2577770b70bb6998c4e6a4a2bacff19c063ed6913dd4040",
       "textHash": "17c91f7cac78d0faa2577770b70bb6998c4e6a4a2bacff19c063ed6913dd4040",
       "characters": 166,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4393,7 +4493,7 @@
         "accountCharacterCount": 18054,
         "accountDeltaFromBaseline": 8145
       },
-      "audioSha256": "7ba8df6941d8fc33fd0fdb2e6da0fdc69e43edaffd95316509bc93f7a966d497",
+      "audioSha256": "7ac4f388420bb26bf9f43c1c3f9cf87d161e77880ef9895446afcb262bede1e5",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-flowers-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4401,12 +4501,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 12.0
+        "durationSeconds": 11.024
       },
-      "durationSeconds": 12.0,
+      "durationSeconds": 11.024,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -4422,9 +4526,9 @@
       "spokenTextSha256": "22be91961b9363fc2f55f3833b0e515d8d7e7c3b4086dd95b6c76c63e9824c62",
       "textHash": "22be91961b9363fc2f55f3833b0e515d8d7e7c3b4086dd95b6c76c63e9824c62",
       "characters": 180,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4442,7 +4546,7 @@
         "accountCharacterCount": 18054,
         "accountDeltaFromBaseline": 8145
       },
-      "audioSha256": "a222ae5e1141fd953f3be7ef429316736298c316920607570460087adbc75d78",
+      "audioSha256": "105b72c184eff39ea76c91feffd6137a35dee0a51522e0110c9671e69830bcdb",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-knot-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4450,12 +4554,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 13.6
+        "durationSeconds": 11.755
       },
-      "durationSeconds": 13.6,
+      "durationSeconds": 11.755,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -4471,9 +4579,9 @@
       "spokenTextSha256": "2541798e431029b09954c6b386792342651033ce8c75220c39f73e54a2d0e926",
       "textHash": "2541798e431029b09954c6b386792342651033ce8c75220c39f73e54a2d0e926",
       "characters": 173,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4491,7 +4599,7 @@
         "accountCharacterCount": 18054,
         "accountDeltaFromBaseline": 8145
       },
-      "audioSha256": "dacc42cc86b5b5c6f7f096e0f32e5f7959e8fcb87a010c972dc5622e0a564fb2",
+      "audioSha256": "9f1e1e188ffc6c3b6d7d67af9589178670b78e05747cbafc7826a75386b77daa",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-che-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4499,12 +4607,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 12.72
+        "durationSeconds": 10.945
       },
-      "durationSeconds": 12.72,
+      "durationSeconds": 10.945,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -4520,9 +4632,9 @@
       "spokenTextSha256": "f8dba2453d39df7b17e100ec60397461c31dab35e4aaab59fbc905665d13216c",
       "textHash": "f8dba2453d39df7b17e100ec60397461c31dab35e4aaab59fbc905665d13216c",
       "characters": 161,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4540,7 +4652,7 @@
         "accountCharacterCount": 18054,
         "accountDeltaFromBaseline": 8145
       },
-      "audioSha256": "ab38d2316059ce298fd1156ecbdd5f0874424caa18090247f180b288bebcbe52",
+      "audioSha256": "2268df597647d733dee4d30511bdec3067c1408b0330310b240449b91592724b",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-box-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4548,12 +4660,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 11.92
+        "durationSeconds": 12.147
       },
-      "durationSeconds": 11.92,
+      "durationSeconds": 12.147,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -4569,9 +4685,9 @@
       "spokenTextSha256": "257fdef60b6a964a419e20a49244d35b4780aaf84557a54ac32239ea8f55b066",
       "textHash": "257fdef60b6a964a419e20a49244d35b4780aaf84557a54ac32239ea8f55b066",
       "characters": 186,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4589,7 +4705,7 @@
         "accountCharacterCount": 18054,
         "accountDeltaFromBaseline": 8145
       },
-      "audioSha256": "11eff50d448b66ef734e05c637dfd50f32dd33fbbf5ebb2bb2b7614c66166935",
+      "audioSha256": "958452aea4b6d3c9e6f798905b24a39ed733970f333501744063bb0210efc6f0",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-envelope-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4597,12 +4713,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 14.56
+        "durationSeconds": 13.113
       },
-      "durationSeconds": 14.56,
+      "durationSeconds": 13.113,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -4618,9 +4738,9 @@
       "spokenTextSha256": "7adcefe78c4945df621275952682f35ac8bd6e0416a94b9dc5f536eda727e8a6",
       "textHash": "7adcefe78c4945df621275952682f35ac8bd6e0416a94b9dc5f536eda727e8a6",
       "characters": 153,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4638,7 +4758,7 @@
         "accountCharacterCount": 18054,
         "accountDeltaFromBaseline": 8145
       },
-      "audioSha256": "47f07857053fd4b5c4dda562fe29a0ce433f9af66e420ecdd1b56023846bf815",
+      "audioSha256": "7cae2f0167e0dc8ba663fc9aaf593a1a8167abe2e033e3466dca283e4577f4b8",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-cake-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4646,12 +4766,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 11.6
+        "durationSeconds": 9.508
       },
-      "durationSeconds": 11.6,
+      "durationSeconds": 9.508,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -4667,9 +4791,9 @@
       "spokenTextSha256": "641536c447750e73b3065bd614b4bf98c8f0c26540e1b00ce1dc63ccf0d50630",
       "textHash": "641536c447750e73b3065bd614b4bf98c8f0c26540e1b00ce1dc63ccf0d50630",
       "characters": 174,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4687,7 +4811,7 @@
         "accountCharacterCount": 18054,
         "accountDeltaFromBaseline": 8145
       },
-      "audioSha256": "12bcef922cfc27219c34b823d224804b5206bb52c455bd6e0951dfc51e1b057c",
+      "audioSha256": "b15ff12d53ca89bfc88403c1de957754269e8398a514ffac91d1caad0aba6642",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-letter-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4695,12 +4819,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 13.76
+        "durationSeconds": 12.225
       },
-      "durationSeconds": 13.76,
+      "durationSeconds": 12.225,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -4716,9 +4844,9 @@
       "spokenTextSha256": "289bb881d57ecbe4b3a5bba67600d96d6ac61a2bd87db9a305d038e69e5f1281",
       "textHash": "289bb881d57ecbe4b3a5bba67600d96d6ac61a2bd87db9a305d038e69e5f1281",
       "characters": 197,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4736,7 +4864,7 @@
         "accountCharacterCount": 18054,
         "accountDeltaFromBaseline": 8145
       },
-      "audioSha256": "b6b8e377280308584e5c82a6c16769f85f29e5aad1858623ef00a4601e3abee4",
+      "audioSha256": "c36a3999ae2610c89b35df1e8b89895abd65220a1815ee65368e978662311448",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-light-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4744,12 +4872,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 13.28
+        "durationSeconds": 12.304
       },
-      "durationSeconds": 13.28,
+      "durationSeconds": 12.304,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "fiction-letter",
@@ -4765,9 +4897,9 @@
       "spokenTextSha256": "b69205b82abcb605627be3ee2dc340d99c9bdcc9f528404aa2842b9a72587eec",
       "textHash": "b69205b82abcb605627be3ee2dc340d99c9bdcc9f528404aa2842b9a72587eec",
       "characters": 206,
-      "voiceId": "0ggMuQ1r9f9jqBu50nJn",
+      "voiceId": "6adFm46eyy74snVn6YrT",
       "voiceName": "Thắm",
-      "model": "eleven_v4",
+      "model": "eleven_v3",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.75
@@ -4785,7 +4917,7 @@
         "accountCharacterCount": 19235,
         "accountDeltaFromBaseline": 9326
       },
-      "audioSha256": "cb055257178053e2db70f01c13a3c32d3635a9c73147637a80394998cb332302",
+      "audioSha256": "c00fb0ffe70764f427af3585d1f91d72cf15a322b3ffdb990b55ec334b6013ab",
       "path": "mobile/assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/qa-home-answer.mp3",
       "format": {
         "container": "mp3",
@@ -4793,12 +4925,16 @@
         "sampleRateHz": 44100,
         "channels": 1,
         "bitrateKbps": 128,
-        "durationSeconds": 14.32
+        "durationSeconds": 13.819
       },
-      "durationSeconds": 14.32,
+      "durationSeconds": 13.819,
       "fullDecode": true,
       "humanApproved": false,
-      "sourceOnly": true
+      "sourceOnly": true,
+      "tts": {
+        "provider": "ElevenLabs",
+        "voiceSettings": "provider defaults; no explicit voice_settings or audio tags"
+      }
     },
     {
       "collectionId": "old-quarter-pilot",
@@ -5584,5 +5720,16 @@
       "humanApproved": false,
       "sourceOnly": true
     }
-  ]
+  ],
+  "nhatPhongMigration": {
+    "scope": "fiction-letter/vi (34 reviewed-fiction demo tracks only)",
+    "voiceId": "6adFm46eyy74snVn6YrT",
+    "voiceName": "Nhật Phong - Narrative & Compelling",
+    "model": "eleven_v3",
+    "languageCode": "vi",
+    "outputFormat": "mp3_44100_128",
+    "sourceDataSha256": "8b318b4e9955e3b7affe72cb21ea08cf8123a616eeab2eb1420ab105c7b65e6b",
+    "humanListeningApproved": false,
+    "rollback": "mobile/assets/voice/backups/nhat-phong-fiction-letter-20261022T030425Z"
+  }
 }
