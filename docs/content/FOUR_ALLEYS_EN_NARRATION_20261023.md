@@ -1,6 +1,6 @@
 # Lời kể tiếng Anh cho voice bốn ngõ (Talia) — bản dịch của Claude, 23/10/2026
 
-Nguồn: `intro.text` tiếng Việt trong `data/localized/ngo-{trung-yen,tam-thuong,cam-chi,phat-loc}.vi.json` (phần 2 của doc nguồn). Bản này dịch **trung thành**: không thêm sự kiện, giữ nguyên các câu rào ("theo tư liệu", "chưa được xác minh", "tương truyền"). Tên riêng giữ dấu tiếng Việt. Người dùng đã đồng ý hướng EN (23/10); **bản dịch cần người dùng đọc duyệt trước khi sinh voice EN**.
+Nguồn: `intro.text` tiếng Việt trong `data/localized/ngo-{trung-yen,tam-thuong,cam-chi,phat-loc}.vi.json` (phần 2 của doc nguồn). Bản này dịch **trung thành**: không thêm sự kiện, giữ nguyên các câu rào ("theo tư liệu", "chưa được xác minh", "tương truyền"). Tên riêng giữ dấu tiếng Việt. Người dùng đã đồng ý hướng EN (23/10); bản dịch đã được Claude duyệt theo ủy quyền của người dùng (xem cuối file).
 
 Khi duyệt xong, mỗi khối dưới đây là `intro.text` của dataset `.en.json` tương ứng và là văn bản đọc nguyên văn cho Talia (`eleven_v4`, `{"stability":0.5,"similarity_boost":0.75}`). Không đổi chữ để ép cách phát âm; nếu Talia đọc sai tên riêng thì báo lại để chọn cách xử lý.
 
@@ -52,6 +52,12 @@ Phất Lộc is therefore more than the name of an alley. It is the mark of peop
 
 - "đình Trung Yên" dịch "Trung Yên Communal House"; "đình Yên Thái" dịch "Yên Thái Communal House"; "Đền Tiên Hạ" dịch "Tiên Hạ Temple". Nếu muốn giữ nguyên tên Việt, đổi đồng loạt và báo để nhất quán với các màn EN khác.
 - "Nguyên phi Ỷ Lan" dịch "Imperial Consort Ỷ Lan".
-- "nem chua rán" để "nem chua" ở bản đọc để Talia đọc trôi chảy; nếu muốn giữ "fried", đổi thành "fried nem chua".
+- "nem chua rán" dịch "stalls frying nem chua" (giữ ý "rán" bằng động từ).
 - Câu "cấp quốc gia năm 2008" giữ "national monument in 2008" như doc nguồn; chưa ai kiểm lại nguồn chính thức ngoài danh sách tham khảo của doc.
 - Các nguồn tham khảo (`intro.evidence`) giữ nguyên bản tiếng Việt/nguồn gốc, không dịch.
+
+## Kết quả duyệt (Claude, 23/10/2026, theo ủy quyền "m đọc rồi đánh giá, tự duyệt nếu hợp lý")
+
+Đã đối chiếu từng câu với `intro.text` VI của bốn dataset: **đạt, dùng được**. Kiểm: không thêm sự kiện, tên riêng, số liệu hay địa điểm ngoài bản VI; giữ đủ các câu rào ("According to historical sources", "Legend has it", "has not been verified as a historical event", "Folk tales say"); năm/thế kỷ/triều đại khớp (2008, đầu thế kỷ XIX, Lý, Trần, Lê Trang Tông); tên ngõ, phố, đình, đền giữ dấu. Chữ đọc được liền mạch cho TTS, không có số hay ký hiệu khó đọc.
+
+Giới hạn: đây là duyệt độ trung thành và độ phù hợp với dự án, **không phải duyệt phát âm** (Talia đọc tên Việt chưa nghe) và không kiểm lại dữ kiện lịch sử ngoài doc nguồn (ví dụ "national monument in 2008" lấy từ doc). Chỗ đã chốt lại: "Imperial Consort Ỷ Lan", "Communal House", "Temple" giữ như trên. Nếu sau khi nghe Talia đọc sai tên riêng, báo Claude để chọn cách xử lý, không tự đổi chữ.
