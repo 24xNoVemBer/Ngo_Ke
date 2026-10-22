@@ -1759,7 +1759,7 @@ test('logical node preserved across locale change vs reset on collection change 
   app.unmount();
 });
 
-test('App.tsx language switching with VI-only collection selected and initial/restored selection', async () => {
+test('App.tsx language switching keeps a localized alley selected and restores it in either locale', async () => {
   let persistedLocale = 'vi';
   const app = mount('../App.tsx', {}, {
     './src/data/collections': actualCollections,
@@ -1777,7 +1777,7 @@ test('App.tsx language switching with VI-only collection selected and initial/re
 
   const getLocaleContext = () => elements(tree, 'LocaleProvider')[0].props.value;
 
-  // 1. Initial VI state: select a VI-only collection
+  // 1. Select an alley that previously had only a VI dataset.
   assert.equal(getLocaleContext().locale, 'vi');
   getLocaleContext().setCollectionId('ngo-tam-thuong');
   tree = app.render();
@@ -1789,33 +1789,29 @@ test('App.tsx language switching with VI-only collection selected and initial/re
   assert.equal(homeVi.source.dataset.collectionId, 'ngo-tam-thuong');
   assert.equal(homeVi.source.dataset.nodes.length, 2);
 
-  // 2. Switch locale to 'en' while VI-only collection is active
+  // 2. Switch locale to 'en' while the same collection is active.
   getLocaleContext().setLocale('en');
   tree = app.render();
   assert.equal(getLocaleContext().locale, 'en');
 
-  // Verify D3 behavior: getBundledDataset('ngo-tam-thuong', 'en') is explicitly undefined
-  assert.equal(actualCollections.getBundledDataset('ngo-tam-thuong', 'en'), undefined);
-
-  // Verify EN collection list hides all 3 new collections and preserves 5 existing
+  // All eight collections and their English datasets are available.
   const enCols = actualCollections.getLocalizedCollections('en');
-  assert.equal(enCols.length, 5);
-  for (const id of actualCollections.VI_ONLY_COLLECTION_IDS) {
-    assert.equal(enCols.some((c) => c.id === id), false, `${id} must be hidden in EN`);
-  }
-  for (const id of ['fiction-letter', 'old-quarter-pilot', 'old-quarter-three-lenses', 'ngo-gach', 'ngo-trung-yen']) {
+  assert.equal(enCols.length, 8);
+  for (const id of ['fiction-letter', 'old-quarter-pilot', 'old-quarter-three-lenses', 'ngo-gach', 'ngo-trung-yen', 'ngo-tam-thuong', 'ngo-cam-chi', 'ngo-phat-loc']) {
     assert.ok(enCols.some((c) => c.id === id), `${id} must be present in EN`);
     assert.ok(actualCollections.getBundledDataset(id, 'en'), `${id} dataset must be available in EN`);
   }
 
-  // Verify App enters error/unavailable state for source without crashing on nodes or intro
+  // The active alley resolves to its English dataset without changing selection.
   const homeEn = screen(tree, 'Home');
-  assert.equal(homeEn.source.status, 'error');
-  assert.ok(homeEn.source.detail.length > 0);
+  assert.equal(homeEn.source.status, 'ready');
+  assert.equal(homeEn.source.dataset.collectionId, 'ngo-tam-thuong');
+  assert.equal(homeEn.source.dataset.locale, 'en');
+  assert.equal(homeEn.source.dataset.nodes.length, 2);
 
-  // In App.tsx, routes like Qa enter UnavailableScreen flow when source is not ready
+  // Q&A remains available for the localized collection.
   const qaElement = elements(tree, 'Screen').find((item) => item.props.name === 'Qa').props.children({ navigation: { goBack() {} }, route: { params: {} } });
-  assert.equal(qaElement.type, 'UnavailableScreen', 'Qa enters UnavailableScreen on unsupported EN source');
+  assert.notEqual(qaElement.type, 'UnavailableScreen');
 
   // Verify language recovery: switching back to VI restores the collection
   getLocaleContext().setLocale('vi');
@@ -1825,7 +1821,7 @@ test('App.tsx language switching with VI-only collection selected and initial/re
   assert.equal(homeRestoredVi.source.status, 'ready');
   assert.equal(homeRestoredVi.source.dataset.collectionId, 'ngo-tam-thuong');
 
-  // 3. Select an existing 5 collection (e.g. ngo-gach) and switch to EN: works fully
+  // 3. Another English collection continues to work as before.
   getLocaleContext().setCollectionId('ngo-gach');
   getLocaleContext().setLocale('en');
   tree = app.render();
@@ -1839,7 +1835,7 @@ test('App.tsx language switching with VI-only collection selected and initial/re
 
   app.unmount();
 
-  // 4. Test restored selection when app loads with EN locale and a VI-only alley requested
+  // 4. Restore a collection that also previously lacked English content.
   persistedLocale = 'en';
   const appRestored = mount('../App.tsx', {}, {
     './src/data/collections': actualCollections,
@@ -1858,9 +1854,12 @@ test('App.tsx language switching with VI-only collection selected and initial/re
   restoredContext.setCollectionId('ngo-cam-chi');
   restoredTree = appRestored.render();
   const restoredHome = screen(restoredTree, 'Home');
-  assert.equal(restoredHome.source.status, 'error');
+  assert.equal(restoredHome.source.status, 'ready');
+  assert.equal(restoredHome.source.dataset.collectionId, 'ngo-cam-chi');
+  assert.equal(restoredHome.source.dataset.locale, 'en');
+  assert.equal(restoredHome.source.dataset.nodes.length, 3);
   const restoredQa = elements(restoredTree, 'Screen').find((item) => item.props.name === 'Qa').props.children({ navigation: { goBack() {} }, route: { params: {} } });
-  assert.equal(restoredQa.type, 'UnavailableScreen', 'Restored EN with VI-only alley enters unavailable flow without crash');
+  assert.notEqual(restoredQa.type, 'UnavailableScreen', 'Restored EN collection remains available');
   appRestored.unmount();
 });
 
@@ -2772,9 +2771,7 @@ test('AlleySelectScreen with real collections generates no dead chips and every 
   for (const loc of ['vi', 'en']) {
     const realCollections = actualCollections.getLocalizedCollections(loc);
     const realThemes = new Set(realCollections.map((c) => c.theme).filter(Boolean));
-    const expectedLength = loc === 'en'
-      ? actualCollections.AVAILABLE_COLLECTIONS.length - 3
-      : actualCollections.AVAILABLE_COLLECTIONS.length;
+    const expectedLength = actualCollections.AVAILABLE_COLLECTIONS.length;
     assert.equal(realCollections.length, expectedLength);
     assert.ok(realCollections.length >= 3, `Expected at least 3 real collections in ${loc}`);
 

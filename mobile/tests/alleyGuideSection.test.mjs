@@ -372,7 +372,7 @@ test('NotebookDrawerModal renders AlleyGuideSection when active collection has a
   assert.equal(emptySection, undefined, 'Collection without guide has NO alley-guide-section and NO empty wrapper');
 });
 
-test('3 new collections (ngo-tam-thuong, ngo-cam-chi, ngo-phat-loc) are completely hidden from EN UI and getLocalizedCollections("en")', () => {
+test('3 newly localized collections are available from the EN UI and bundled datasets', () => {
   const viCols = collections.getLocalizedCollections('vi');
   const enCols = collections.getLocalizedCollections('en');
 
@@ -383,14 +383,12 @@ test('3 new collections (ngo-tam-thuong, ngo-cam-chi, ngo-phat-loc) are complete
     assert.ok(viCols.some((c) => c.id === id), `${id} must be in getLocalizedCollections('vi')`);
   }
 
-  // All 3 hidden in EN
+  // All 3 are listed and load their own English datasets.
   for (const id of newIds) {
-    assert.ok(!enCols.some((c) => c.id === id), `${id} must be HIDDEN from getLocalizedCollections('en')`);
-  }
-
-  // getBundledDataset('en') returns undefined for VI-only collections (not default fiction or VI fallback)
-  for (const id of newIds) {
+    assert.ok(enCols.some((c) => c.id === id), `${id} must be listed in getLocalizedCollections('en')`);
     const enDataset = collections.getBundledDataset(id, 'en');
-    assert.equal(enDataset, undefined, `${id} in EN must be explicitly undefined, never default fiction or VI fallback`);
+    assert.equal(enDataset.collectionId, id, `${id} in EN must not fall back to another collection`);
+    assert.equal(enDataset.locale, 'en');
+    assert.ok(enDataset.alleyStory && enDataset.guide);
   }
 });

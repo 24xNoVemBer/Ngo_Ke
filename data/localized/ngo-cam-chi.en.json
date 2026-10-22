@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 2,
+  "locale": "en",
+  "collectionId": "ngo-cam-chi",
+  "kind": "simulated",
+  "disclaimer": "This content was adapted from user-provided documents and has not been independently reviewed or checked on site. Coordinates and alley outlines for the new alleys have not been established. Visit durations are demo estimates, are not taken from the source documents, and should not be used as real walking times. Opening hours, addresses, and access conditions need to be confirmed before visiting.",
+  "intro": {
+    "text": "In the heart of Hanoi, there is an alley with a very special name: Cấm Chỉ.\n\nFolk tales say the name is linked to Chúa Chổm, who later became King Lê Trang Tông. In his humble early days, he often ate on credit at food stalls. When he was welcomed back to become king, many of his old creditors came, pointing and demanding payment.\n\nLegend has it that an order of prohibition was issued, and from then on people called this place Cấm Chỉ.\n\nIt is an anecdote that has not been verified as a historical event, but it remains an engaging story tied to the name of the alley.\n\nToday, Cấm Chỉ no longer suggests prohibition. On the contrary, it welcomes diners with eateries, lights, and the rhythm of food life in the Old Quarter.",
+    "evidence": [
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Hà Nội Online. (2025, January 13). Hoàn Kiếm có thêm không gian nghệ thuật công cộng. https://hanoionline.vn/hoan-kiem-co-them-khong-gian-nghe-thuat-cong-cong-246295840.htm",
+      "Quang Hùng. (2025, March 9). Ngõ Cấm Chỉ, huyền thoại về “Hoàng tử ăn chịu”. VOV Giao thông. https://vovgiaothong.vn/newsaudio/ngo-cam-chi-huyen-thoai-ve-hoang-tu-an-chiu-d43650.html",
+      "VnExpress. (2001, November 6). Phố ẩm thực Hà Nội vẫn còn bộn bề. https://vnexpress.net/pho-am-thuc-ha-noi-van-con-bon-be-1997458.html",
+      "VnExpress. (2020, February 6). Các món nên thử trên phố “không ngủ”. https://vnexpress.net/cac-mon-nen-thu-tren-pho-khong-ngu-4050472.html",
+      "VOV Giao thông. (2025, February 8). Ngõ Hội Vũ – một phần của ký ức Hà Nội. https://vovgiaothong.vn/newsaudio/ngo-hoi-vu--mot-phan-cua-ky-uc-ha-noi-d43196.html"
+    ]
+  },
+  "alleyStory": {
+    "title": "Cấm Chỉ Alley",
+    "paragraphs": [
+      "Cấm Chỉ Alley is linked to a well-known folk anecdote about Chúa Chổm, often associated with King Lê Trang Tông.",
+      "According to the story recorded by VOV Giao thông (2025), when Chúa Chổm was in humble circumstances, he often ate on credit at food stalls. When Nguyễn Kim found him and established him as king, he passed through this area and old creditors pointed him out and demanded payment. According to legend, the order “Cấm Chỉ” was issued to stop people from pointing at the king to demand debts.",
+      "However, this is a folk anecdote, not a historical event that has been fully verified. VOV Giao thông (2025) also mentions another explanation: the name relates to an area where officials and troops passed and ordinary people had limited access.",
+      "Today, Cấm Chỉ and Tống Duy Tân Street form a long-standing food district. Food businesses here were organized and the area was refurbished beginning in the early 2000s. In early 2025, the area was further renovated, adding a public art space with an entrance arch and a statue of a pho vendor (Hà Nội Online, 2025; VnExpress, 2001).",
+      "Distinctive character: A name linked to folk legend, alongside a late-night food district and public art."
+    ],
+    "evidence": [
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Hà Nội Online. (2025, January 13). Hoàn Kiếm có thêm không gian nghệ thuật công cộng. https://hanoionline.vn/hoan-kiem-co-them-khong-gian-nghe-thuat-cong-cong-246295840.htm",
+      "Quang Hùng. (2025, March 9). Ngõ Cấm Chỉ, huyền thoại về “Hoàng tử ăn chịu”. VOV Giao thông. https://vovgiaothong.vn/newsaudio/ngo-cam-chi-huyen-thoai-ve-hoang-tu-an-chiu-d43650.html",
+      "VnExpress. (2001, November 6). Phố ẩm thực Hà Nội vẫn còn bộn bề. https://vnexpress.net/pho-am-thuc-ha-noi-van-con-bon-be-1997458.html",
+      "VnExpress. (2020, February 6). Các món nên thử trên phố “không ngủ”. https://vnexpress.net/cac-mon-nen-thu-tren-pho-khong-ngu-4050472.html",
+      "VOV Giao thông. (2025, February 8). Ngõ Hội Vũ – một phần của ký ức Hà Nội. https://vovgiaothong.vn/newsaudio/ngo-hoi-vu--mot-phan-cua-ky-uc-ha-noi-d43196.html"
+    ]
+  },
+  "guide": {
+    "eat": [
+      {
+        "name": "Bánh cuốn Kỳ Đồng",
+        "address": "11 Tống Duy Tân Street",
+        "dishes": "Steamed rice rolls, chả quế, fried shallots, and shrimp floss.",
+        "hours": "Reference hours: 07:00–21:00 in current directories; VnExpress (2020) listed 07:00–23:00.",
+        "note": null
+      },
+      {
+        "name": "Xôi Hồng",
+        "address": "Cấm Chỉ Alley area",
+        "dishes": "Xôi xéo, chicken sticky rice, and other savory sticky-rice dishes.",
+        "hours": null,
+        "note": "No reliable hours have been confirmed."
+      },
+      {
+        "name": "Gà tần Cây Si",
+        "address": "29 Tống Duy Tân Street",
+        "dishes": "Herbal chicken stew, chicken-stew noodles, and honey bread.",
+        "hours": "Reference hours: 08:30–22:30 according to a directory.",
+        "note": null
+      },
+      {
+        "name": "Lẩu Thắng Béo",
+        "address": "3B Cấm Chỉ Street",
+        "dishes": "Frog hotpot, Thai-style hotpot, and dishes for sharing.",
+        "hours": "Reference hours: 17:00–05:00 the next day according to a directory; confirm if visiting late at night.",
+        "note": null
+      }
+    ],
+    "visit": [
+      {
+        "name": "Tống Duy Tân Public Art Space",
+        "address": "Cấm Chỉ",
+        "notes": [
+          "View the entrance arch inspired by the Đại Hưng Gate of the old citadel.",
+          "Learn about the pho-vendor statue and the story of how the food district developed.",
+          "The space was refurbished and introduced to the public in January 2025 (Hà Nội Online, 2025)."
+        ]
+      },
+      {
+        "name": "Hội Vũ Alley",
+        "address": "Nearby area",
+        "notes": [
+          "The alley connects Hàng Bông, Quán Sứ, and Tràng Thi streets.",
+          "It is noted for its older architecture and stories about residents, including the businesswoman Cô Tư Hồng.",
+          "It can be chosen to broaden an exploration of urban life and history (VOV Giao thông, 2025b)."
+        ]
+      },
+      {
+        "name": "Vọng Tiên Temple",
+        "address": "120B Hàng Bông Street",
+        "notes": [
+          "You can combine a visit with learning about local religious spaces and folklore.",
+          "Visit only during hours and under conditions permitted by the site manager."
+        ]
+      }
+    ],
+    "route": [
+      "Cấm Chỉ Alley sign",
+      "Hear the Chúa Chổm anecdote",
+      "Tống Duy Tân Public Art Space",
+      "Bánh cuốn or herbal chicken stew",
+      "Hội Vũ Alley"
+    ],
+    "caveats": [
+      "VnExpress (2020) featured Bánh cuốn Kỳ Đồng, chicken-stew shops, and hotpot in the area. Prices in a 2020 article should not be treated as current."
+    ],
+    "evidence": [
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Hà Nội Online. (2025, January 13). Hoàn Kiếm có thêm không gian nghệ thuật công cộng. https://hanoionline.vn/hoan-kiem-co-them-khong-gian-nghe-thuat-cong-cong-246295840.htm",
+      "Quang Hùng. (2025, March 9). Ngõ Cấm Chỉ, huyền thoại về “Hoàng tử ăn chịu”. VOV Giao thông. https://vovgiaothong.vn/newsaudio/ngo-cam-chi-huyen-thoai-ve-hoang-tu-an-chiu-d43650.html",
+      "VnExpress. (2001, November 6). Phố ẩm thực Hà Nội vẫn còn bộn bề. https://vnexpress.net/pho-am-thuc-ha-noi-van-con-bon-be-1997458.html",
+      "VnExpress. (2020, February 6). Các món nên thử trên phố “không ngủ”. https://vnexpress.net/cac-mon-nen-thu-tren-pho-khong-ngu-4050472.html",
+      "VOV Giao thông. (2025, February 8). Ngõ Hội Vũ – một phần của ký ức Hà Nội. https://vovgiaothong.vn/newsaudio/ngo-hoi-vu--mot-phan-cua-ky-uc-ha-noi-d43196.html"
+    ]
+  },
+  "startNodeId": "cam-chi-khong-gian-nghe-thuat",
+  "nodes": [
+    {
+      "id": "cam-chi-khong-gian-nghe-thuat",
+      "order": 1,
+      "name": "Tống Duy Tân Public Art Space",
+      "summary": "View the entrance arch inspired by the Đại Hưng Gate of the old citadel.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 10,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "View the entrance arch inspired by the Đại Hưng Gate of the old citadel.",
+      "latitude": null,
+      "longitude": null,
+      "pendingCheck": "Location and on-site access have not been checked.",
+      "evidence": [
+        "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+        "Hà Nội Online. (2025, January 13). Hoàn Kiếm có thêm không gian nghệ thuật công cộng. https://hanoionline.vn/hoan-kiem-co-them-khong-gian-nghe-thuat-cong-cong-246295840.htm",
+        "Quang Hùng. (2025, March 9). Ngõ Cấm Chỉ, huyền thoại về “Hoàng tử ăn chịu”. VOV Giao thông. https://vovgiaothong.vn/newsaudio/ngo-cam-chi-huyen-thoai-ve-hoang-tu-an-chiu-d43650.html",
+        "VnExpress. (2001, November 6). Phố ẩm thực Hà Nội vẫn còn bộn bề. https://vnexpress.net/pho-am-thuc-ha-noi-van-con-bon-be-1997458.html",
+        "VnExpress. (2020, February 6). Các món nên thử trên phố “không ngủ”. https://vnexpress.net/cac-mon-nen-thu-tren-pho-khong-ngu-4050472.html",
+        "VOV Giao thông. (2025, February 8). Ngõ Hội Vũ – một phần của ký ức Hà Nội. https://vovgiaothong.vn/newsaudio/ngo-hoi-vu--mot-phan-cua-ky-uc-ha-noi-d43196.html"
+      ]
+    },
+    {
+      "id": "cam-chi-ngo-hoi-vu",
+      "order": 2,
+      "name": "Hội Vũ Alley",
+      "summary": "An alley connecting Hàng Bông, Quán Sứ, and Tràng Thi streets.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 10,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "An alley connecting Hàng Bông, Quán Sứ, and Tràng Thi streets.",
+      "latitude": null,
+      "longitude": null,
+      "pendingCheck": "Location and on-site access have not been checked.",
+      "evidence": [
+        "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+        "Hà Nội Online. (2025, January 13). Hoàn Kiếm có thêm không gian nghệ thuật công cộng. https://hanoionline.vn/hoan-kiem-co-them-khong-gian-nghe-thuat-cong-cong-246295840.htm",
+        "Quang Hùng. (2025, March 9). Ngõ Cấm Chỉ, huyền thoại về “Hoàng tử ăn chịu”. VOV Giao thông. https://vovgiaothong.vn/newsaudio/ngo-cam-chi-huyen-thoai-ve-hoang-tu-an-chiu-d43650.html",
+        "VnExpress. (2001, November 6). Phố ẩm thực Hà Nội vẫn còn bộn bề. https://vnexpress.net/pho-am-thuc-ha-noi-van-con-bon-be-1997458.html",
+        "VnExpress. (2020, February 6). Các món nên thử trên phố “không ngủ”. https://vnexpress.net/cac-mon-nen-thu-tren-pho-khong-ngu-4050472.html",
+        "VOV Giao thông. (2025, February 8). Ngõ Hội Vũ – một phần của ký ức Hà Nội. https://vovgiaothong.vn/newsaudio/ngo-hoi-vu--mot-phan-cua-ky-uc-ha-noi-d43196.html"
+      ]
+    },
+    {
+      "id": "cam-chi-den-vong-tien",
+      "order": 3,
+      "name": "Vọng Tiên Temple",
+      "summary": "You can combine a visit with learning about local religious spaces and folklore.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 10,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "You can combine a visit with learning about local religious spaces and folklore.",
+      "latitude": null,
+      "longitude": null,
+      "pendingCheck": "Location and on-site access have not been checked.",
+      "evidence": [
+        "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+        "Hà Nội Online. (2025, January 13). Hoàn Kiếm có thêm không gian nghệ thuật công cộng. https://hanoionline.vn/hoan-kiem-co-them-khong-gian-nghe-thuat-cong-cong-246295840.htm",
+        "Quang Hùng. (2025, March 9). Ngõ Cấm Chỉ, huyền thoại về “Hoàng tử ăn chịu”. VOV Giao thông. https://vovgiaothong.vn/newsaudio/ngo-cam-chi-huyen-thoai-ve-hoang-tu-an-chiu-d43650.html",
+        "VnExpress. (2001, November 6). Phố ẩm thực Hà Nội vẫn còn bộn bề. https://vnexpress.net/pho-am-thuc-ha-noi-van-con-bon-be-1997458.html",
+        "VnExpress. (2020, February 6). Các món nên thử trên phố “không ngủ”. https://vnexpress.net/cac-mon-nen-thu-tren-pho-khong-ngu-4050472.html",
+        "VOV Giao thông. (2025, February 8). Ngõ Hội Vũ – một phần của ký ức Hà Nội. https://vovgiaothong.vn/newsaudio/ngo-hoi-vu--mot-phan-cua-ky-uc-ha-noi-d43196.html"
+      ]
+    }
+  ],
+  "qa": []
+}

@@ -15,8 +15,11 @@ import ngoGachEnData from '../../../data/localized/ngo-gach.en.json';
 import ngoTrungYenViData from '../../../data/localized/ngo-trung-yen.vi.json';
 import ngoTrungYenEnData from '../../../data/localized/ngo-trung-yen.en.json';
 import ngoTamThuongViData from '../../../data/localized/ngo-tam-thuong.vi.json';
+import ngoTamThuongEnData from '../../../data/localized/ngo-tam-thuong.en.json';
 import ngoCamChiViData from '../../../data/localized/ngo-cam-chi.vi.json';
+import ngoCamChiEnData from '../../../data/localized/ngo-cam-chi.en.json';
 import ngoPhatLocViData from '../../../data/localized/ngo-phat-loc.vi.json';
+import ngoPhatLocEnData from '../../../data/localized/ngo-phat-loc.en.json';
 import { getThreeLensesDatasetRevision, THREE_LENSES_COLLECTION_ID } from './threeLensesCompanion.ts';
 
 export type CollectionId =
@@ -30,12 +33,6 @@ export type CollectionId =
   | 'ngo-phat-loc';
 
 export const DEFAULT_COLLECTION_ID: CollectionId = 'fiction-letter';
-
-export const VI_ONLY_COLLECTION_IDS: readonly CollectionId[] = [
-  'ngo-tam-thuong',
-  'ngo-cam-chi',
-  'ngo-phat-loc',
-] as const;
 
 export const COLLECTION_REVISIONS: Record<CollectionId, Record<Locale, string>> = {
   'fiction-letter': {
@@ -60,19 +57,19 @@ export const COLLECTION_REVISIONS: Record<CollectionId, Record<Locale, string>> 
   },
   'ngo-trung-yen': {
     vi: '1291ae869a7d66b684d3bd764f87fe99817d250d19c544da0938e30f8ec5ae19',
-    en: 'ca2ff890877c351d3b9d82da3b9178afb5b38a09c2ff51a4d264af75874a6c27',
+    en: 'f5cfa76eda2d5d577b14ac73eaddc5a0ede0b89bc769b2eabb7b05006a95dc9f',
   },
   'ngo-tam-thuong': {
     vi: '3086e80f2dda45e2354289882cb89a6526574fa98b5cfe4f2f17f02d092745e9',
-    en: 'unavailable',
+    en: 'e7f831942c2de61c7da2e1e3666800cbccbe13b39be0c7c29f25548be2299769',
   },
   'ngo-cam-chi': {
     vi: 'b7898f698efc6b8db0a137d151bfc622fef52082bdfc2f8d97c44b1b2e08b48c',
-    en: 'unavailable',
+    en: 'a2914b4a7eb324c369ddab77d977de93179e6be8e1012d8c5277443d95391072',
   },
   'ngo-phat-loc': {
     vi: 'd6e9fc6d93f4f0961dd20bdd0128df35229f33e0e89caf2071dccc9f46aff195',
-    en: 'unavailable',
+    en: '05dd3b4c79953eb4afa3418078714177bc8bf0a6b5944267733da66e1334d448',
   },
 };
 
@@ -186,16 +183,11 @@ export function isCollectionId(value: unknown): value is CollectionId {
 
 /**
  * Returns the bundled dataset for a given collection and locale.
- * Returns undefined when a collection is unavailable in the requested locale
- * (e.g. Vietnamese-only collections requested in English).
  */
 export function getBundledDataset(
   collectionId: string = DEFAULT_COLLECTION_ID,
   locale: Locale = 'vi',
 ): AnyDemoDataset | undefined {
-  if (locale === 'en' && VI_ONLY_COLLECTION_IDS.includes(collectionId as CollectionId)) {
-    return undefined;
-  }
   if (collectionId === THREE_LENSES_COLLECTION_ID) {
     return (locale === 'en' ? threeLensesEnData : threeLensesViData) as unknown as DemoDatasetV2;
   }
@@ -209,13 +201,13 @@ export function getBundledDataset(
     return (locale === 'en' ? ngoTrungYenEnData : ngoTrungYenViData) as unknown as DemoDatasetV2;
   }
   if (collectionId === 'ngo-tam-thuong') {
-    return locale === 'en' ? undefined : (ngoTamThuongViData as unknown as DemoDatasetV2);
+    return (locale === 'en' ? ngoTamThuongEnData : ngoTamThuongViData) as unknown as DemoDatasetV2;
   }
   if (collectionId === 'ngo-cam-chi') {
-    return locale === 'en' ? undefined : (ngoCamChiViData as unknown as DemoDatasetV2);
+    return (locale === 'en' ? ngoCamChiEnData : ngoCamChiViData) as unknown as DemoDatasetV2;
   }
   if (collectionId === 'ngo-phat-loc') {
-    return locale === 'en' ? undefined : (ngoPhatLocViData as unknown as DemoDatasetV2);
+    return (locale === 'en' ? ngoPhatLocEnData : ngoPhatLocViData) as unknown as DemoDatasetV2;
   }
   return (locale === 'en' ? fictionEnData : demoDataVi) as unknown as AnyDemoDataset;
 }
@@ -237,11 +229,7 @@ export function getCollectionRevision(
  * Formats collection list items with localized strings for UI rendering.
  */
 export function getLocalizedCollections(locale: Locale) {
-  const visible =
-    locale === 'en'
-      ? AVAILABLE_COLLECTIONS.filter((c) => !VI_ONLY_COLLECTION_IDS.includes(c.id))
-      : AVAILABLE_COLLECTIONS;
-  return visible.map((c) => ({
+  return AVAILABLE_COLLECTIONS.map((c) => ({
     id: c.id,
     name: t(locale, c.nameKey),
     tagline: t(locale, c.taglineKey),

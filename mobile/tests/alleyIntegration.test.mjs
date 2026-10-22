@@ -267,8 +267,8 @@ test('(a) Collection registry - ngo-gach and ngo-trung-yen registered with simul
   const viCols = collections.getLocalizedCollections('vi');
   const enCols = collections.getLocalizedCollections('en');
   assert.equal(viCols.length, collections.AVAILABLE_COLLECTIONS.length);
-  assert.equal(enCols.length, collections.AVAILABLE_COLLECTIONS.length - 3, '3 new VI-only collections hidden in EN');
-  assert.ok(!enCols.some((c) => ['ngo-tam-thuong', 'ngo-cam-chi', 'ngo-phat-loc'].includes(c.id)));
+  assert.equal(enCols.length, collections.AVAILABLE_COLLECTIONS.length);
+  assert.ok(['ngo-tam-thuong', 'ngo-cam-chi', 'ngo-phat-loc'].every((id) => enCols.some((c) => c.id === id)));
 
   const viGach = viCols.find((c) => c.id === 'ngo-gach');
   const enGach = enCols.find((c) => c.id === 'ngo-gach');
@@ -344,6 +344,19 @@ test('(a) Dataset validation - ngo-trung-yen VI/EN datasets conform to V2 schema
   const revEn = createHash('sha256').update(canonicalDatasetJson(tyEn), 'utf8').digest('hex');
   assert.equal(collections.getCollectionRevision('ngo-trung-yen', 'vi'), revVi, 'COLLECTION_REVISIONS matches SHA-256 for VI');
   assert.equal(collections.getCollectionRevision('ngo-trung-yen', 'en'), revEn, 'COLLECTION_REVISIONS matches SHA-256 for EN');
+});
+
+test('all eight collections and the three newly localized EN revisions are registered', () => {
+  const enCollections = collections.getLocalizedCollections('en');
+  assert.equal(enCollections.length, 8);
+  for (const id of ['ngo-tam-thuong', 'ngo-cam-chi', 'ngo-phat-loc']) {
+    assert.ok(enCollections.some((collection) => collection.id === id), `${id} is listed in EN`);
+    const dataset = collections.getBundledDataset(id, 'en');
+    assert.equal(dataset.collectionId, id);
+    assert.equal(dataset.locale, 'en');
+    const revision = createHash('sha256').update(canonicalDatasetJson(dataset), 'utf8').digest('hex');
+    assert.equal(collections.getCollectionRevision(id, 'en'), revision, `${id} COLLECTION_REVISIONS matches SHA-256 for EN`);
+  }
 });
 
 test('(a) Photo mapping - all 10 nodes have defined photos and honest photographer credit', () => {

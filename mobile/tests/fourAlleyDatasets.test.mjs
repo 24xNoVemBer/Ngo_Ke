@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { URL } from 'node:url';
 import { parseDatasetV2, validateDatasetV2Pair } from '../src/data/sourceState.ts';
 import { readAlleyStory, readAlleyGuide } from '../src/data/alleyGuide.ts';
@@ -11,6 +11,17 @@ const sections = source.replace(/\[[abc]\]/g, '').split(/(?=^(?:I|II|III|IV)\. N
   .filter((section) => /^(?:I|II|III|IV)\. NGÕ/.test(section));
 const ids = ['ngo-trung-yen', 'ngo-tam-thuong', 'ngo-cam-chi', 'ngo-phat-loc'];
 const load = (id, locale = 'vi') => JSON.parse(readFileSync(new URL(`data/localized/${id}.${locale}.json`, root), 'utf8'));
+const enNarrationSource = readFileSync(new URL('docs/content/FOUR_ALLEYS_EN_NARRATION_20261023.md', root), 'utf8').replace(/\r\n/g, '\n');
+
+function readEnNarration(id) {
+  const index = ids.indexOf(id);
+  const heading = `## ${index + 1}. ${id} (EN)`;
+  const headingStart = enNarrationSource.indexOf(heading);
+  assert.notEqual(headingStart, -1, `${id} EN narration block exists`);
+  const contentStart = enNarrationSource.indexOf('\n', headingStart) + 1;
+  const nextHeading = enNarrationSource.indexOf('\n## ', contentStart);
+  return enNarrationSource.slice(contentStart, nextHeading === -1 ? undefined : nextHeading).trim();
+}
 
 test('four VI datasets map source parts to story, narration and guide without mixing source notes into narration', () => {
   assert.equal(sections.length, 4);
@@ -66,14 +77,13 @@ test('Trung Yên replaces only the requested stop identities and keeps minimum E
     assert.equal(vi.nodes[index].longitude, null);
     assert.equal(vi.nodes[index].story, null);
   }
-  assert.equal(en.alleyStory, undefined);
-  assert.equal(en.guide, undefined);
+  assert.ok(readAlleyStory(en));
+  assert.ok(readAlleyGuide(en));
 });
 
-test('three new collections are VI only with no invented geometry or point stories', () => {
+test('three new VI collections keep geometry placeholders and no invented point stories', () => {
   for (const [index, id] of ids.slice(1).entries()) {
     const data = load(id);
-    assert.equal(existsSync(new URL(`data/localized/${id}.en.json`, root)), false);
     assert.equal(data.nodes.length, [2, 3, 2][index]);
     assert.equal(data.polyline, undefined);
     assert.equal(data.lengthMeters, undefined);
@@ -83,6 +93,31 @@ test('three new collections are VI only with no invented geometry or point stori
       assert.equal(node.longitude, null);
     }
     assert.match(data.disclaimer, /ước tính demo/);
+  }
+});
+
+test('all four EN alley datasets match the approved narration and preserve VI structure and evidence', () => {
+  for (const id of ids) {
+    const vi = load(id);
+    const en = load(id, 'en');
+    assert.equal(en.locale, 'en');
+    assert.ok(parseDatasetV2(en), `${id} EN parses`);
+    assert.deepEqual(validateDatasetV2Pair(vi, en), { ok: true });
+    assert.equal(en.intro.text, readEnNarration(id), `${id} intro matches the approved narration block`);
+    assert.deepEqual(en.nodes.map(({ id: nodeId, order }) => [nodeId, order]), vi.nodes.map(({ id: nodeId, order }) => [nodeId, order]));
+    assert.equal(en.nodes.length, vi.nodes.length);
+    assert.equal(en.startNodeId, vi.startNodeId);
+    assert.deepEqual({
+      intro: en.intro.evidence,
+      nodes: en.nodes.map((node) => node.evidence),
+      story: en.alleyStory.evidence,
+      guide: en.guide.evidence,
+    }, {
+      intro: vi.intro.evidence,
+      nodes: vi.nodes.map((node) => node.evidence),
+      story: vi.alleyStory.evidence,
+      guide: vi.guide.evidence,
+    });
   }
 });
 

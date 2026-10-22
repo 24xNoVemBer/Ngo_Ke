@@ -15,7 +15,7 @@ import Svg, { Path } from 'react-native-svg';
 import type { DemoNode, Mode, SourceState } from '../data/sourceState';
 import type { RootStackParamList } from '../navigation';
 import { getNodePhoto, getNodePhotographer, getAlleyMeta } from '../assets/photoMap';
-import { AVAILABLE_COLLECTIONS, DEFAULT_COLLECTION_ID, getBundledDataset, getLocalizedCollections, isCollectionId, VI_ONLY_COLLECTION_IDS, type CollectionId } from '../data/collections';
+import { AVAILABLE_COLLECTIONS, DEFAULT_COLLECTION_ID, getBundledDataset, getLocalizedCollections, isCollectionId, type CollectionId } from '../data/collections';
 import { readAlleyStory } from '../data/alleyGuide';
 import { UnavailableScreen } from './UnavailableScreen';
 import { useMotionState } from '../hooks/MotionPreferences';
@@ -86,8 +86,7 @@ export function HomeScreen({
             ? source.dataset.collectionId
             : DEFAULT_COLLECTION_ID));
   const activeCollectionId: CollectionId = isCollectionId(rawCollectionId) ? rawCollectionId : DEFAULT_COLLECTION_ID;
-  const isViOnlyInEn = locale === 'en' && Boolean(VI_ONLY_COLLECTION_IDS?.includes(activeCollectionId));
-  const activeCollection = collections.find((c) => c.id === activeCollectionId) ?? (isViOnlyInEn ? undefined : collections[0]);
+  const activeCollection = collections.find((c) => c.id === activeCollectionId) ?? collections[0];
   const knownMeta = AVAILABLE_COLLECTIONS.find((c) => c.id === activeCollectionId);
   const collectionKind: 'simulated' | 'reviewed' =
     source.status === 'ready'
@@ -214,26 +213,19 @@ export function HomeScreen({
     handlePressOut: handleExplorePressOut,
   } = usePressSpring(0.96);
 
-  if (isViOnlyInEn || source.status !== 'ready' || !nodes.some((node) => node.available)) {
-    const isUnsupported = isViOnlyInEn;
-    const unavailableDetail = isUnsupported
-      ? (locale === 'en'
-          ? 'This alley collection is available in Vietnamese only. Please choose a supported collection or switch back to Vietnamese.'
-          : source.detail)
-      : (liveBusy
-          ? t('common.loading')
-          : source.status === 'ready'
-            ? (locale === 'en' ? 'No open points in this dataset.' : 'Chưa có điểm đang mở trong dữ liệu này.')
-            : source.detail);
+  if (source.status !== 'ready' || !nodes.some((node) => node.available)) {
+    const unavailableDetail = liveBusy
+      ? t('common.loading')
+      : source.status === 'ready'
+        ? (locale === 'en' ? 'No open points in this dataset.' : 'Chưa có điểm đang mở trong dữ liệu này.')
+        : source.detail;
 
     return (
       <UnavailableScreen
         detail={unavailableDetail}
         onBack={() => navigation.goBack()}
-        onSwitchToDemo={isUnsupported ? () => setLocale('vi') : () => onModeChange('demo')}
-        onRetry={isUnsupported ? () => navigation.navigate('AlleySelect') : (mode === 'live' ? onRetryLive : undefined)}
-        actionLabel={isUnsupported ? (locale === 'en' ? 'Choose collection' : t('common.retry')) : undefined}
-        secondaryActionLabel={isUnsupported ? (locale === 'en' ? 'Tiếng Việt' : t('common.switch_to_demo')) : undefined}
+        onSwitchToDemo={() => onModeChange('demo')}
+        onRetry={mode === 'live' ? onRetryLive : undefined}
         busy={liveBusy}
       />
     );

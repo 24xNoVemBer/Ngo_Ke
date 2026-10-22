@@ -3,11 +3,14 @@
   "locale": "en",
   "collectionId": "ngo-trung-yen",
   "kind": "simulated",
-  "disclaimer": "Draft research dataset for Old Quarter alleys, not verified by on-site field survey; opening hours and prices of food stalls unverified. Simulated data for tech demo purposes; alley geometry and coordinates from OpenStreetMap (ODbL). Photos from Google Maps for demo use, rights not officially confirmed.",
+  "disclaimer": "A research draft integrating Old Quarter alley content; it has not been checked through an on-site survey, and opening hours and restaurant prices have not been verified. The dataset is simulated for a technology demo; alley coordinates and outlines are from OpenStreetMap (ODbL). Photos are from Google Maps for the demo; permission to use them has not been officially confirmed.",
   "intro": {
-    "text": "Trung Yên Alley links Đinh Liệt and Gia Ngư in Hanoi's Old Quarter.",
+    "text": "Did you know that today's Trung Yên Alley was once linked to an ancient lake in Hanoi?\n\nAccording to historical sources, this place preserves traces of the old Chung Yên village. The areas of Đinh Liệt and Gia Ngư once belonged to Thái Cực Lake, part of the network of waters around Hoàn Kiếm Lake. Over time, the lake was gradually filled in, and streets took shape.\n\nDeeper inside the alley, you will come across Trung Yên Communal House, a monument with the tube-house architecture typical of the Old Quarter, ranked as a national monument in 2008.\n\nToday, the smell of beef pho and fish noodles, and the calls of vendors taking orders, have become part of everyday life. Among the crowded eateries, Trung Yên Alley still keeps the story of a land that has changed across many generations.",
     "evidence": [
-      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit"
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Cục Du lịch Quốc gia Việt Nam. (2023). Quận Hoàn Kiếm (Hà Nội) gắn biển công trình tu bổ, tôn tạo đình Trung Yên. https://vietnamtourism.gov.vn/post/50827",
+      "Sở Văn hóa và Thể thao Hà Nội. (2021, October 21). Thẩm định dự án tu bổ, tôn tạo di tích đình Trung Yên, Hoàn Kiếm, Hà Nội. https://sovhtt.hanoi.gov.vn/tham-dinh-du-an-tu-bo-ton-tao-di-tich-dinh-trung-yen-hoan-kiem-ha-noi/",
+      "VietnamPlus. (2024c, October 9). Triết lý ẩm thực ngõ Trung Yên. https://mega.vietnamplus.vn/triet-ly-am-thuc-ngo-trung-yen-6633.html"
     ]
   },
   "startNodeId": "trung-yen-pho-suong",
@@ -50,8 +53,8 @@
     {
       "id": "trung-yen-pho-suong",
       "order": 1,
-      "name": "Pho Suong",
-      "summary": "A long-running pho shop at the entrance, regarded by many regulars as one of the Old Quarter's pho names.",
+      "name": "Phở Sướng",
+      "summary": "A long-running pho shop at the alley entrance, regarded by many regulars as one of the Old Quarter's recognized pho names.",
       "tags": [
         "an thuc",
         "kham pha tu do"
@@ -59,12 +62,12 @@
       "visitMinutes": 15,
       "available": true,
       "visited": false,
-      "story": "At the entrance is Pho Suong. The name dates from about thirty years ago, meaning customers should leave satisfied. One article says it is not necessarily the best pho in town, but is among the Old Quarter's well-known ones.",
-      "caption": "A long-running pho shop right at the entrance of Trung Yen Alley.",
+      "story": "Pho Suong is at the alley entrance. The name dates from about thirty years ago and expresses the wish that customers leave with their hunger satisfied. One article says it is not the best pho in town, but is among the Old Quarter's well-known names.",
+      "caption": "Long-running Phở Sướng pho shop at the entrance to Trung Yên Alley.",
       "latitude": 21.03355,
       "longitude": 105.85214,
       "alongAlleyMeters": 17,
-      "pendingCheck": "Bài viết thời dịch Covid-19; giờ mở cửa và giá chưa kiểm.",
+      "pendingCheck": "Hours and prices have not been checked.",
       "evidence": [
         "https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"
       ]
@@ -72,8 +75,8 @@
     {
       "id": "trung-yen-dinh-trung-yen",
       "order": 2,
-      "name": "Đình Trung Yên",
-      "summary": "A national architectural and artistic relic, listed in 2008.",
+      "name": "Trung Yên Communal House",
+      "summary": "A national-level architectural and artistic monument since 2008.",
       "tags": [
         "chuyen xua",
         "kham pha tu do"
@@ -82,10 +85,10 @@
       "available": true,
       "visited": false,
       "story": null,
-      "caption": "Trung Yên communal house.",
+      "caption": "A national-level architectural and artistic monument since 2008.",
       "latitude": null,
       "longitude": null,
-      "pendingCheck": "Coordinates and visiting conditions have not been checked on site.",
+      "pendingCheck": "Location and on-site access have not been checked.",
       "evidence": [
         "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
         "Cục Du lịch Quốc gia Việt Nam. (2023). Quận Hoàn Kiếm (Hà Nội) gắn biển công trình tu bổ, tôn tạo đình Trung Yên. https://vietnamtourism.gov.vn/post/50827",
@@ -96,8 +99,8 @@
     {
       "id": "trung-yen-bun-ca-sam-cay-si",
       "order": 3,
-      "name": "Sam Cay Si fish noodles",
-      "summary": "A fish-noodle shop that regulars jokingly call the 'quarrelsome' fish noodles; its speciality is fish rolled around minced pork.",
+      "name": "Bún cá Sâm Cây Si",
+      "summary": "A fish-noodle shop whose regulars playfully call it “bún cá sân si”; its specialty is fish wrapped around meat.",
       "tags": [
         "an thuc",
         "kham pha tu do"
@@ -105,12 +108,12 @@
       "visitMinutes": 20,
       "available": true,
       "visited": false,
-      "story": "Deeper in is Sam Cay Si fish noodles, which regulars playfully call 'sân si'. The speciality is fish rolls with a crisp fried shell, filled with fish, minced pork and wood-ear mushroom.",
-      "caption": "Sam Cay Si fish noodles; speciality is crisp fried fish rolls.",
+      "story": "Deeper in the alley is Bún cá Sâm Cây Si, which customers playfully call “bún cá sân si.” Its specialty is fish wrapped around meat, with a crisp fried coating and a filling of fish, minced pork, and wood-ear mushrooms.",
+      "caption": "Bún cá Sâm Cây Si; its specialty is fish wrapped around meat with a crisp coating.",
       "latitude": 21.0334206,
       "longitude": 105.8525924,
       "alongAlleyMeters": 80,
-      "pendingCheck": "Google Maps còn một quán tên gần giống ('Bún Cá Cây Si Dũng Hói'); xác nhận đúng quán tại chỗ.",
+      "pendingCheck": "Please confirm this is the right shop before visiting.",
       "evidence": [
         "https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"
       ]
@@ -118,8 +121,8 @@
     {
       "id": "trung-yen-bun-ngan-nhan",
       "order": 4,
-      "name": "Nhan duck noodles",
-      "summary": "A duck-noodle shop beside the fish noodles, with a rich broth; at lunchtime the queue can last an hour.",
+      "name": "Bún ngan Nhàn",
+      "summary": "A ngan noodle shop beside the fish-noodle shop, with a rich broth; at lunchtime, customers may queue for up to an hour.",
       "tags": [
         "an thuc",
         "kham pha tu do"
@@ -127,12 +130,12 @@
       "visitMinutes": 20,
       "available": true,
       "visited": false,
-      "story": "Right next door is Nhan duck noodles. One article says the lunchtime queue can last an hour, so eating at 'Nhàn' - meaning 'leisurely' - is anything but.",
-      "caption": "A duck-noodle shop beside the fish noodles; queues are common at lunch.",
+      "story": "Right next door is Bún ngan Nhàn. A newspaper says customers may queue for up to an hour at lunchtime, so a meal there can make “Nhàn” feel less like its name.",
+      "caption": "Ngan noodle shop beside the fish-noodle shop, where customers may queue at lunchtime.",
       "latitude": null,
       "longitude": null,
       "alongAlleyMeters": null,
-      "pendingCheck": "Vị trí cạnh bún cá theo bài báo; chưa kiểm tại chỗ.",
+      "pendingCheck": "The location has not been checked on site.",
       "evidence": [
         "https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"
       ]
@@ -141,7 +144,7 @@
       "id": "trung-yen-pho-ga-huong-tra",
       "order": 5,
       "name": "Phở gà Hương Trà",
-      "summary": "Chicken phở served with broth or mixed; a breakfast option.",
+      "summary": "Chicken pho in broth or mixed style, suited to breakfast.",
       "tags": [
         "an thuc",
         "kham pha tu do"
@@ -150,10 +153,10 @@
       "available": true,
       "visited": false,
       "story": null,
-      "caption": "Phở gà Hương Trà.",
+      "caption": "Chicken pho in broth or mixed style, suited to breakfast.",
       "latitude": null,
       "longitude": null,
-      "pendingCheck": "Coordinates and opening hours have not been checked on site.",
+      "pendingCheck": "Location and on-site access have not been checked.",
       "evidence": [
         "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
         "Cục Du lịch Quốc gia Việt Nam. (2023). Quận Hoàn Kiếm (Hà Nội) gắn biển công trình tu bổ, tôn tạo đình Trung Yên. https://vietnamtourism.gov.vn/post/50827",
@@ -162,5 +165,84 @@
       ]
     }
   ],
-  "qa": []
+  "qa": [],
+  "alleyStory": {
+    "title": "Trung Yên Alley",
+    "paragraphs": [
+      "Trung Yên Alley is about 200 meters long and preserves traces of the old Chung Yên hamlet. According to VietnamPlus (2024c), the land around present-day Đinh Liệt and Gia Ngư streets was once part of Thái Cực Lake, within the old network of waterways around Hoàn Kiếm Lake. From the late nineteenth century, the lake was gradually filled in and the area became dry land around the 1920s. The name Trung Yên is linked to the place name Chung Yên, but the timing and reasons for the change in spelling have not been clearly established in the available sources.",
+      "One notable historical remnant is Trung Yên Communal House at no. 10, also called Thanh Cẩm Temple. It honors a royal censor from the Mạc dynasty, has the tube-shaped architecture typical of the Old Quarter, and was recognized as a national monument of architectural and artistic value in 2008 (Hanoi Department of Culture and Sports, 2021).",
+      "Over roughly the past three decades, Trung Yên Alley has developed into a food destination with places such as Phở Sướng, Ngan Nhàn, and Bún cá Sâm Cây Si (VietnamPlus, 2024c).",
+      "Distinctive character: The alley brings together the history of an old village, a vanished waterscape, a place of worship, and today's food businesses."
+    ],
+    "evidence": [
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Cục Du lịch Quốc gia Việt Nam. (2023). Quận Hoàn Kiếm (Hà Nội) gắn biển công trình tu bổ, tôn tạo đình Trung Yên. https://vietnamtourism.gov.vn/post/50827",
+      "Sở Văn hóa và Thể thao Hà Nội. (2021, October 21). Thẩm định dự án tu bổ, tôn tạo di tích đình Trung Yên, Hoàn Kiếm, Hà Nội. https://sovhtt.hanoi.gov.vn/tham-dinh-du-an-tu-bo-ton-tao-di-tich-dinh-trung-yen-hoan-kiem-ha-noi/",
+      "VietnamPlus. (2024c, October 9). Triết lý ẩm thực ngõ Trung Yên. https://mega.vietnamplus.vn/triet-ly-am-thuc-ngo-trung-yen-6633.html"
+    ]
+  },
+  "guide": {
+    "eat": [
+      {
+        "name": "Phở Sướng",
+        "address": "24B Trung Yên Alley",
+        "dishes": "Beef pho with a light broth; the shop is small and may be busy at meal times.",
+        "hours": "Reference hours: 05:30–12:00 and 17:00–21:30, depending on the day.",
+        "note": null
+      },
+      {
+        "name": "Bún cá Sâm Cây Si",
+        "address": "5 Trung Yên Alley",
+        "dishes": "Fish noodles, fish wrapped around meat, and fried fish cakes; the shop name is linked to Ms. Sâm and the banyan tree where she once sold food.",
+        "hours": "Reference hours: 07:00–17:00.",
+        "note": null
+      },
+      {
+        "name": "Bún ngan Nhàn",
+        "address": "11 Trung Yên Alley",
+        "dishes": "Ngan noodle soup, mixed ngan noodles, ngan, and mọc meatballs; the shop is well known, though reviews of its service vary.",
+        "hours": "Reference hours: 10:00–15:00.",
+        "note": null
+      },
+      {
+        "name": "Phở gà Hương Trà",
+        "address": "2 Trung Yên Alley",
+        "dishes": "Chicken pho in broth or mixed style, suited to breakfast.",
+        "hours": "Reference hours: 06:00–11:00.",
+        "note": null
+      }
+    ],
+    "visit": [
+      {
+        "name": "Trung Yên Communal House",
+        "address": "No. 10 Trung Yên Alley",
+        "notes": [
+          "A national-level architectural and artistic monument since 2008.",
+          "Located on the second floor of a tube-house-style building and associated with worship of a royal censor from the Mạc dynasty.",
+          "The building has been restored; public visiting hours have not been confirmed (Hanoi Department of Culture and Sports, 2021; Vietnam National Authority of Tourism, 2023)."
+        ]
+      },
+      {
+        "name": "Hàng Bè Market area and Gia Ngư Street",
+        "address": null,
+        "notes": [
+          "You can combine a visit with observing local commerce, food shops, and everyday life in the Old Quarter.",
+          "The area can help illustrate the link between market life, trade, and the development of Trung Yên Alley (VietnamPlus, 2024c)."
+        ]
+      }
+    ],
+    "route": [
+      "Trung Yên Alley sign",
+      "Trung Yên Communal House",
+      "Observe the market streets",
+      "Bún cá Sâm Cây Si or Phở Sướng"
+    ],
+    "caveats": [],
+    "evidence": [
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Cục Du lịch Quốc gia Việt Nam. (2023). Quận Hoàn Kiếm (Hà Nội) gắn biển công trình tu bổ, tôn tạo đình Trung Yên. https://vietnamtourism.gov.vn/post/50827",
+      "Sở Văn hóa và Thể thao Hà Nội. (2021, October 21). Thẩm định dự án tu bổ, tôn tạo di tích đình Trung Yên, Hoàn Kiếm, Hà Nội. https://sovhtt.hanoi.gov.vn/tham-dinh-du-an-tu-bo-ton-tao-di-tich-dinh-trung-yen-hoan-kiem-ha-noi/",
+      "VietnamPlus. (2024c, October 9). Triết lý ẩm thực ngõ Trung Yên. https://mega.vietnamplus.vn/triet-ly-am-thuc-ngo-trung-yen-6633.html"
+    ]
+  }
 }

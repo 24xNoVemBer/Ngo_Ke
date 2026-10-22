@@ -1,5 +1,12 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-23 — A1 English alley datasets
+
+- W3 A1 added EN datasets for `ngo-tam-thuong`, `ngo-cam-chi`, and `ngo-phat-loc`, completed Trung Yên EN `alleyStory`/`guide`, registered all eight collections for EN, and removed the VI-only export/consumer path. Vietnamese dataset text and old audio were not changed; the shared HomeScreen still contains separate FE WIP.
+- Approved narration blocks match all four EN `intro.text` values after line-ending normalization. Node IDs/order/count/evidence, story paragraph counts/evidence, guide section counts/evidence, and computed canonical revisions match their VI counterparts. Details and SHA-256 values are in `docs/reviews/2026-10-23-luna-alley-en.md`.
+- Validation: mobile 360/360 tests, typecheck, lint, and `git diff --check` pass. Each of the four VI/EN pairs imported and read back through the backend CLI using isolated temporary SQLite databases; all temp DB/backup files were removed. No backend source/schema changes.
+- Coordinator correction: user delegated Claude to approve EN, and that approval is complete; no user EN gate remains. A1 did not access keys or call audio APIs. User has now saved the API key in ignored `.env.local`; resume VI generation and then A4 EN with `humanApproved:false`. Never print or commit the key. No push/main merge/Metro restart in this round.
+
 ## 2026-10-22 — Bốn ngõ tích hợp đạt, được phép push
 
 - Người dùng đã chốt D1–D6 của `docs/superpowers/plans/2026-10-22-four-alley-content.md`, sau đó yêu cầu “xong all thì push lên github”. Remote đúng `ngoke-public` = `24xNoVemBer/Ngo_Ke`, nhánh `valentino/logic-fix-mobile-20261020`; không push `origin` Desithedev.

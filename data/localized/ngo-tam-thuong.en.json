@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 2,
+  "locale": "en",
+  "collectionId": "ngo-tam-thuong",
+  "kind": "simulated",
+  "disclaimer": "This content was adapted from user-provided documents and has not been independently reviewed or checked on site. Coordinates and alley outlines for the new alleys have not been established. Visit durations are demo estimates, are not taken from the source documents, and should not be used as real walking times. Opening hours, addresses, and access conditions need to be confirmed before visiting.",
+  "intro": {
+    "text": "Have you ever wondered why a small alley off Hàng Bông Street is called Tạm Thương?\n\nAccording to historical sources, the name comes from a temporary storehouse for tax rice in the early nineteenth century. The old granary is long gone, but the name has been kept through many generations.\n\nDeeper inside the alley, you can find Yên Thái Communal House, which honors Imperial Consort Ỷ Lan, a prominent figure of the Lý dynasty.\n\nToday, in place of the granary, there are stalls frying nem chua, the sound of conversation, and the snacking rhythm of Hanoi life.\n\nIn Tạm Thương, the name of an alley alone can open the story of many layers of urban life.",
+    "evidence": [
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Cổng thông tin du lịch Hoàn Kiếm. (n.d.). Đình Yên Thái. https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/dinh-yen-thai.html",
+      "Hanoi Heritage Map. (n.d.). Đền Vọng Tiên. https://heritage-itineraries.com/di-tich/den-vong-tien",
+      "MyHanoi. (n.d.). Đình Yên Thái. https://myhanoi.vn/vi/dinhyenthai",
+      "Ninh Tito. (n.d.). Truy tìm hàng nem chua rán ngon nhất ngõ Tạm Thương. https://ninhtito.squarespace.com/blog/truy-tim-hang-nem-chua-ran-ngon-nhat-ngo-tam-thuong",
+      "VietnamPlus. (2024a, October 9). Còn thương nhau về ngõ Tạm Thương. https://mega.vietnamplus.vn/con-thuong-nhau-ve-ngo-tam-thuong-6639.html"
+    ]
+  },
+  "alleyStory": {
+    "title": "Tạm Thương Alley",
+    "paragraphs": [
+      "The name Tạm Thương comes from the storage of provisions during the Nguyễn dynasty. According to Giang Quân's Dictionary of Hanoi Streets, as cited by VietnamPlus (2024a), an area of Yên Thái hamlet housed a temporary storehouse for tax rice in the early nineteenth century before it was moved to the main storehouse. It was called “Tạm Thương,” and the name later became the alley's name.",
+      "The alley bends several times, with Yên Thái Communal House as a notable landmark. The house honors Imperial Consort Ỷ Lan and preserves artifacts such as a stone stele, a bronze bell, royal edicts, and traditional worship objects (Hoàn Kiếm Tourism Portal, n.d.).",
+      "VietnamPlus (2024a) records memories of a snake-wine shop that once operated in the alley and how the area changed over time. Today, Tạm Thương is known for fried nem chua and snack shops.",
+      "Distinctive character: The alley's name preserves its former granary function, a communal-house space amid the city, and its transformation into a food alley."
+    ],
+    "evidence": [
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Cổng thông tin du lịch Hoàn Kiếm. (n.d.). Đình Yên Thái. https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/dinh-yen-thai.html",
+      "Hanoi Heritage Map. (n.d.). Đền Vọng Tiên. https://heritage-itineraries.com/di-tich/den-vong-tien",
+      "MyHanoi. (n.d.). Đình Yên Thái. https://myhanoi.vn/vi/dinhyenthai",
+      "Ninh Tito. (n.d.). Truy tìm hàng nem chua rán ngon nhất ngõ Tạm Thương. https://ninhtito.squarespace.com/blog/truy-tim-hang-nem-chua-ran-ngon-nhat-ngo-tam-thuong",
+      "VietnamPlus. (2024a, October 9). Còn thương nhau về ngõ Tạm Thương. https://mega.vietnamplus.vn/con-thuong-nhau-ve-ngo-tam-thuong-6639.html"
+    ]
+  },
+  "guide": {
+    "eat": [
+      {
+        "name": "Nem chua rán 36 Tạm Thương",
+        "address": "36 Tạm Thương Alley",
+        "dishes": "Fried nem chua, cheese nem, and other fried snacks; the shop is small.",
+        "hours": "Reference hours: 08:30–23:00 according to Foody.",
+        "note": null
+      },
+      {
+        "name": "Nem chua rán Hội Quán",
+        "address": "40 Tạm Thương Alley",
+        "dishes": "Fried nem chua and other snacks; indoor seating is available.",
+        "hours": "Reference hours: 11:00–22:00 according to an online directory.",
+        "note": null
+      },
+      {
+        "name": "Nem chua rán Quán Ngọc",
+        "address": "Tạm Thương Alley–Hàng Bông area",
+        "dishes": "Ninh Tito rated the nem highly in an article comparing shops.",
+        "hours": null,
+        "note": "Not checked."
+      },
+      {
+        "name": "Nem chua rán Bà Già",
+        "address": "Around 38 Hàng Bông Street",
+        "dishes": "Rated well for its dipping sauce in a food-shop comparison.",
+        "hours": "Reference hours: 08:00–22:00 according to a directory.",
+        "note": null
+      }
+    ],
+    "visit": [
+      {
+        "name": "Yên Thái Communal House",
+        "address": "No. 8 Tạm Thương Alley",
+        "notes": [
+          "A place of worship for Imperial Consort Ỷ Lan, linked to the history of Yên Thái hamlet and local community beliefs.",
+          "There is a banyan tree, the communal-house space, and historical artifacts.",
+          "Reference hours: 08:00–18:00; free admission according to MyHanoi (n.d.). Confirm access to the interior before arranging a visit."
+        ]
+      },
+      {
+        "name": "Vọng Tiên Temple",
+        "address": "120B Hàng Bông Street",
+        "notes": [
+          "A Mother Goddess shrine linked to the legend of King Lê Thánh Tông meeting a celestial maiden.",
+          "It can be combined with exploring religious traditions and local folklore around Hàng Bông.",
+          "Hanoi Heritage Map lists hours of 08:00–17:00; confirm before visiting (Hanoi Heritage Map, n.d.)."
+        ]
+      }
+    ],
+    "route": [
+      "Tạm Thương Alley sign",
+      "Yên Thái Communal House",
+      "Observe the alley",
+      "Fried nem chua",
+      "Vọng Tiên Temple"
+    ],
+    "caveats": [
+      "Food-quality comments reflect the writer's personal experience, not an independent assessment by Ngõ Kể (Ninh Tito, n.d.). Check current prices and opening hours."
+    ],
+    "evidence": [
+      "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+      "Cổng thông tin du lịch Hoàn Kiếm. (n.d.). Đình Yên Thái. https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/dinh-yen-thai.html",
+      "Hanoi Heritage Map. (n.d.). Đền Vọng Tiên. https://heritage-itineraries.com/di-tich/den-vong-tien",
+      "MyHanoi. (n.d.). Đình Yên Thái. https://myhanoi.vn/vi/dinhyenthai",
+      "Ninh Tito. (n.d.). Truy tìm hàng nem chua rán ngon nhất ngõ Tạm Thương. https://ninhtito.squarespace.com/blog/truy-tim-hang-nem-chua-ran-ngon-nhat-ngo-tam-thuong",
+      "VietnamPlus. (2024a, October 9). Còn thương nhau về ngõ Tạm Thương. https://mega.vietnamplus.vn/con-thuong-nhau-ve-ngo-tam-thuong-6639.html"
+    ]
+  },
+  "startNodeId": "tam-thuong-dinh-yen-thai",
+  "nodes": [
+    {
+      "id": "tam-thuong-dinh-yen-thai",
+      "order": 1,
+      "name": "Yên Thái Communal House",
+      "summary": "A place of worship for Imperial Consort Ỷ Lan, linked to the history of Yên Thái hamlet and local community beliefs.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 10,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "A place of worship for Imperial Consort Ỷ Lan, linked to the history of Yên Thái hamlet and local community beliefs.",
+      "latitude": null,
+      "longitude": null,
+      "pendingCheck": "Location and on-site access have not been checked.",
+      "evidence": [
+        "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+        "Cổng thông tin du lịch Hoàn Kiếm. (n.d.). Đình Yên Thái. https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/dinh-yen-thai.html",
+        "Hanoi Heritage Map. (n.d.). Đền Vọng Tiên. https://heritage-itineraries.com/di-tich/den-vong-tien",
+        "MyHanoi. (n.d.). Đình Yên Thái. https://myhanoi.vn/vi/dinhyenthai",
+        "Ninh Tito. (n.d.). Truy tìm hàng nem chua rán ngon nhất ngõ Tạm Thương. https://ninhtito.squarespace.com/blog/truy-tim-hang-nem-chua-ran-ngon-nhat-ngo-tam-thuong",
+        "VietnamPlus. (2024a, October 9). Còn thương nhau về ngõ Tạm Thương. https://mega.vietnamplus.vn/con-thuong-nhau-ve-ngo-tam-thuong-6639.html"
+      ]
+    },
+    {
+      "id": "tam-thuong-den-vong-tien",
+      "order": 2,
+      "name": "Vọng Tiên Temple",
+      "summary": "A Mother Goddess shrine linked to the legend of King Lê Thánh Tông meeting a celestial maiden.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 10,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "A Mother Goddess shrine linked to the legend of King Lê Thánh Tông meeting a celestial maiden.",
+      "latitude": null,
+      "longitude": null,
+      "pendingCheck": "Location and on-site access have not been checked.",
+      "evidence": [
+        "https://docs.google.com/document/d/14yQCu0lMjDdfIPTFvboIf3Duddvtake10uoaR3dIbq8/edit",
+        "Cổng thông tin du lịch Hoàn Kiếm. (n.d.). Đình Yên Thái. https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/dinh-yen-thai.html",
+        "Hanoi Heritage Map. (n.d.). Đền Vọng Tiên. https://heritage-itineraries.com/di-tich/den-vong-tien",
+        "MyHanoi. (n.d.). Đình Yên Thái. https://myhanoi.vn/vi/dinhyenthai",
+        "Ninh Tito. (n.d.). Truy tìm hàng nem chua rán ngon nhất ngõ Tạm Thương. https://ninhtito.squarespace.com/blog/truy-tim-hang-nem-chua-ran-ngon-nhat-ngo-tam-thuong",
+        "VietnamPlus. (2024a, October 9). Còn thương nhau về ngõ Tạm Thương. https://mega.vietnamplus.vn/con-thuong-nhau-ve-ngo-tam-thuong-6639.html"
+      ]
+    }
+  ],
+  "qa": []
+}
