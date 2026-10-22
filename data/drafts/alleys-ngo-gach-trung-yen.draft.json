@@ -1,0 +1,258 @@
+{
+  "schemaVersion": "draft-1",
+  "status": "DRAFT - not wired into the app, not reviewed",
+  "decisionsFromUser": {
+    "date": "2026-10-22",
+    "keepBothAlleys": true,
+    "includeChuaCauDong": true,
+    "nameOnlyPoints": "short description only",
+    "photos": "from Google Maps for the demo; embedding/licensing to be decided later; partnership requests later"
+  },
+  "sources": {
+    "geometry": "OpenStreetMap (ODbL) via Overpass, 2026-10-22",
+    "pins": "Google Maps place pins where noted (2026-10-22)"
+  },
+  "alleys": [
+    {
+      "id": "ngo-gach",
+      "name": {"vi": "Ngõ Gạch", "en": "Gach Alley"},
+      "theme": "di-san",
+      "lengthMeters": 128,
+      "googleMapsPin": {"lat": 21.0363823, "lon": 105.8502167},
+      "polyline": [[21.03634,105.85084],[21.03632,105.85048],[21.03633,105.85042],[21.03643,105.85009],[21.03645,105.85002],[21.03646,105.84992],[21.03641,105.84975],[21.03638,105.84964]],
+      "intro": {
+        "vi": "Ngõ Gạch chỉ dài khoảng một trăm hai mươi tám mét, một bên là quán cà phê, nhà nghỉ nhỏ, giữa ngõ là một ngôi đình có tấm bia dựng từ năm 1430.",
+        "en": "Gach Alley is only about 128 metres long, lined with small cafes and guesthouses, and midway along it stands a communal house with a stele dated 1430."
+      },
+      "stops": [
+        {
+          "order": 1,
+          "id": "ngo-gach-ca-phe-no1",
+          "name": {"vi": "Cà Phê No.1", "en": "Cafe No.1"},
+          "kind": "cafe",
+          "addr": "1 Ngõ Gạch",
+          "alongAlleyMeters": 10,
+          "lat": 21.03627, "lon": 105.85074,
+          "positionSource": "OSM",
+          "summary": {
+            "vi": "Quán cà phê ở số 1, ngay đầu ngõ phía đông. Mình bắt đầu từ đây.",
+            "en": "A cafe at number 1, right at the eastern entrance. This is where the walk starts."
+          },
+          "story": null,
+          "evidence": [],
+          "photo": null
+        },
+        {
+          "order": 2,
+          "id": "ngo-gach-ta-ca-phe-4",
+          "name": {"vi": "Ta Cà Phê 4", "en": "Ta Coffee 4"},
+          "kind": "cafe",
+          "addr": "4A Ngõ Gạch",
+          "alongAlleyMeters": 28,
+          "lat": 21.0364, "lon": 105.85057,
+          "positionSource": "OSM",
+          "summary": {
+            "vi": "Một quán cà phê nhỏ ở số 4A, cách đầu ngõ khoảng ba chục bước chân.",
+            "en": "A small coffee shop at 4A, about thirty steps from the entrance."
+          },
+          "story": null,
+          "evidence": [],
+          "photo": null
+        },
+        {
+          "order": 3,
+          "id": "ngo-gach-dinh-thanh-ha",
+          "name": {"vi": "Đình Thanh Hà", "en": "Thanh Ha Communal House"},
+          "kind": "heritage",
+          "addr": "10 Ngõ Gạch",
+          "alongAlleyMeters": 62,
+          "lat": 21.036268, "lon": 105.8503148,
+          "positionSource": "Google Maps pin (OSM centre is 21.03659, 105.85032)",
+          "summary": {
+            "vi": "Đình thờ Trần Lựu, giữ tấm bia dựng năm 1430, được báo chí gọi là bia cổ nhất còn lại ở Hà Nội.",
+            "en": "A communal house for Tran Luu, holding a stele dated 1430 that the press calls the oldest surviving in Hanoi."
+          },
+          "story": {
+            "vi": "Giữa ngõ Gạch, bước vài bậc là tới đình Thanh Hà. Người ta kể Trần Lựu nhận lệnh khi các quan đều lùi bước, đánh tan giặc rồi khao quân, rồi biến mất giữa cơn giông. Đó là truyền thuyết, không phải điều ta kiểm chứng được. Điều còn đứng đó là một tấm bia dựng năm 1430, được báo chí gọi là tấm bia cổ nhất còn lại ở Hà Nội. Cổng đình có biển ghi đây là di tích đã xếp hạng.",
+            "en": "Halfway along Gach Alley a few steps lead to Thanh Ha communal house. The legend says Tran Luu took the command when the court officials all stepped back, defeated the invaders, feasted his troops, and vanished in a storm. That is a legend, not something we can verify. What still stands is a stele dated 1430, which the press calls the oldest surviving stele in Hanoi. A plaque at the gate marks it as a ranked monument."
+          },
+          "facts": [
+            "Thờ Trần Lựu, tướng thời Trần, phong Đại Vương [nguồn]",
+            "Bia Thanh Hà Ngọc Phả Bi Kí dựng 1430 [nguồn]",
+            "Lễ hội 4/4 và 15/9 âm lịch [nguồn]",
+            "Biển trên cổng ghi: Di tích Đình Thanh Hà đã xếp hạng [thấy trong ảnh Google Maps]"
+          ],
+          "evidence": ["https://thanglong.chinhphu.vn/english/the-communal-house-with-oldest-stele-in-ha-noi-110196.htm"],
+          "pendingCheck": "Tu bổ khởi công 1/3/2024 theo kết quả tìm kiếm; chưa kiểm đình đã mở lại hay chưa.",
+          "photo": {
+            "file": "mobile/assets/photos/alleys/dinh-thanh-ha-1.jpg",
+            "credit": "Google Maps contributor (name not recorded)",
+            "note": "Cổng đình, thấy rõ số 10 và biển di tích"
+          }
+        },
+        {
+          "order": 4,
+          "id": "ngo-gach-cafe-20",
+          "name": {"vi": "Cafe 20", "en": "Cafe 20"},
+          "kind": "cafe",
+          "addr": "20 Ngõ Gạch",
+          "alongAlleyMeters": 92,
+          "lat": 21.03652, "lon": 105.84998,
+          "positionSource": "OSM",
+          "summary": {
+            "vi": "Quán cà phê ở số 20, gần cuối ngõ phía tây.",
+            "en": "A coffee shop at number 20, near the western end."
+          },
+          "story": null,
+          "evidence": [],
+          "photo": null
+        },
+        {
+          "order": 5,
+          "id": "ngo-gach-chua-cau-dong",
+          "name": {"vi": "Chùa Cầu Đông", "en": "Cau Dong Pagoda"},
+          "kind": "heritage",
+          "addr": "38B Hàng Đường",
+          "outsideAlley": true,
+          "lat": 21.03587, "lon": 105.84948,
+          "positionSource": "OSM",
+          "summary": {
+            "vi": "Chùa ngay ngoài đầu tây ngõ, thờ cả vợ chồng Thái sư Trần Thủ Độ.",
+            "en": "A pagoda just beyond the western end, also honouring the Grand Master Tran Thu Do and his wife."
+          },
+          "story": {
+            "vi": "Ra khỏi đầu ngõ, vài bước là chùa Cầu Đông. Điều lạ là hai pho tượng gỗ thờ Trần Thủ Độ và vợ ông. Chùa nói họ không còn giấy tờ nào về nguồn gốc hai pho tượng. Người ta truyền rằng bà Trần Thị Dung từng cho tu bổ chùa, nhưng đó mới chỉ là truyền thuyết.",
+            "en": "Step out of the western end and you reach Cau Dong Pagoda. Its curiosity is a pair of wooden statues of Tran Thu Do and his wife. The pagoda says it has no records of where the statues came from. Some say Lady Tran Thi Dung once paid for repairs, but that is only a legend."
+          },
+          "facts": [
+            "38B Hàng Đường; tên chữ Đông Môn Tự [nguồn]",
+            "Theo sơ lược lịch sử do chùa lưu: dựng từ thời Lý; bia, chuông ghi trùng tu 1624–1817 [nguồn]",
+            "Chùa duy nhất ở Hà Nội thờ Trần Thủ Độ và Trần Thị Dung theo bài báo [nguồn]"
+          ],
+          "evidence": ["https://baophapluat.vn/bi-an-xung-quanh-hai-pho-tuong-trong-ngoi-chua-cau-dong-post365743.html"],
+          "pendingCheck": "Cách đi từ đầu tây ngõ ra chùa chưa kiểm tại chỗ.",
+          "photo": {
+            "file": "mobile/assets/photos/alleys/chua-cau-dong-1.jpg",
+            "credit": "Google Maps contributor (name not recorded)",
+            "note": "Tháp trong sân chùa"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ngo-trung-yen",
+      "name": {"vi": "Ngõ Trung Yên", "en": "Trung Yen Alley"},
+      "theme": "am-thuc",
+      "lengthMeters": 146,
+      "googleMapsPin": null,
+      "polyline": [[21.0335,105.85198],[21.03345,105.85251],[21.03345,105.8526],[21.03343,105.85269],[21.0334,105.85269],[21.03336,105.85268],[21.03327,105.85304],[21.03304,105.85302]],
+      "intro": {
+        "vi": "Ngõ Trung Yên chỉ dài khoảng một trăm bốn mươi mét, nằm ngay chợ Hàng Bè cũ, và quán ăn san sát hai bên.",
+        "en": "Trung Yen Alley is only about 146 metres long, beside the old Hang Be market, with eateries packed on both sides."
+      },
+      "stops": [
+        {
+          "order": 1,
+          "id": "trung-yen-pho-suong",
+          "name": {"vi": "Phở Sướng", "en": "Pho Suong"},
+          "kind": "food",
+          "alongAlleyMeters": 17,
+          "lat": 21.03355, "lon": 105.85214,
+          "positionSource": "OSM",
+          "summary": {
+            "vi": "Quán phở lâu năm ngay đầu ngõ, được nhiều thực khách quen coi là một tên phở của phố cổ.",
+            "en": "A long-running pho shop at the entrance, regarded by many regulars as one of the Old Quarter's pho names."
+          },
+          "story": {
+            "vi": "Đầu ngõ là phở Sướng. Cái tên có từ khoảng ba mươi năm trước, ý muốn khách ăn xong thấy thỏa cơn đói. Một bài báo viết rằng đây không phải phở ngon đệ nhất nhưng cũng thuộc danh phở của phố cổ.",
+            "en": "At the entrance is Pho Suong. The name dates from about thirty years ago, meaning customers should leave satisfied. One article says it is not necessarily the best pho in town, but is among the Old Quarter's well-known ones."
+          },
+          "evidence": ["https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"],
+          "pendingCheck": "Bài viết thời dịch Covid-19; giờ mở cửa và giá chưa kiểm.",
+          "photo": {
+            "file": "mobile/assets/photos/alleys/pho-suong-1.jpg",
+            "credit": "Google Maps contributor (name not recorded)",
+            "note": "Mặt quán, thấy bảng hiệu Phở Sướng"
+          }
+        },
+        {
+          "order": 2,
+          "id": "trung-yen-pho-vui",
+          "name": {"vi": "Phở Vui", "en": "Pho Vui"},
+          "kind": "food",
+          "alongAlleyMeters": null,
+          "lat": null, "lon": null,
+          "positionSource": "none (not on OSM; position unverified)",
+          "summary": {
+            "vi": "Một quán phở khác trong ngõ, được bài báo nhắc tên cạnh phở Sướng.",
+            "en": "Another pho shop in the alley, named in the same article alongside Pho Suong."
+          },
+          "story": null,
+          "evidence": ["https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"],
+          "pendingCheck": "Vị trí trong ngõ chưa biết; có thể bỏ khỏi demo nếu không xác định được.",
+          "photo": null
+        },
+        {
+          "order": 3,
+          "id": "trung-yen-bun-ca-sam-cay-si",
+          "name": {"vi": "Bún cá Sâm Cây Si", "en": "Sam Cay Si fish noodles"},
+          "kind": "food",
+          "alongAlleyMeters": 80,
+          "lat": 21.0334206, "lon": 105.8525924,
+          "positionSource": "Google Maps pin",
+          "summary": {
+            "vi": "Quán bún cá, khách quen gọi vui là bún cá sân si; đặc sản là cá cuốn thịt.",
+            "en": "A fish-noodle shop that regulars jokingly call the 'quarrelsome' fish noodles; its speciality is fish rolled around minced pork."
+          },
+          "story": {
+            "vi": "Đi sâu vào ngõ là bún cá Sâm Cây Si, khách vẫn gọi vui là bún cá sân si. Món đặc sản là cá cuốn thịt, vỏ chiên giòn, nhân gồm thịt cá, thịt băm và mộc nhĩ.",
+            "en": "Deeper in is Sam Cay Si fish noodles, which regulars playfully call 'sân si'. The speciality is fish rolls with a crisp fried shell, filled with fish, minced pork and wood-ear mushroom."
+          },
+          "evidence": ["https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"],
+          "pendingCheck": "Google Maps còn một quán tên gần giống ('Bún Cá Cây Si Dũng Hói'); xác nhận đúng quán tại chỗ.",
+          "photo": {
+            "file": "mobile/assets/photos/alleys/bun-ca-sam-cay-si-1.jpg",
+            "credit": "Google Maps contributor (name not recorded)",
+            "note": "Bát bún cá"
+          }
+        },
+        {
+          "order": 4,
+          "id": "trung-yen-bun-ngan-nhan",
+          "name": {"vi": "Bún ngan Nhàn", "en": "Nhan duck noodles"},
+          "kind": "food",
+          "alongAlleyMeters": null,
+          "lat": null, "lon": null,
+          "positionSource": "none (article says next to Sam Cay Si; position unverified)",
+          "summary": {
+            "vi": "Quán bún ngan ngay cạnh bún cá, nước dùng đậm, buổi trưa khách có thể xếp hàng cả giờ.",
+            "en": "A duck-noodle shop beside the fish noodles, with a rich broth; at lunchtime the queue can last an hour."
+          },
+          "story": {
+            "vi": "Ngay cạnh là bún ngan Nhàn. Bài báo viết buổi trưa khách có thể xếp hàng cả giờ, nên ăn bún Nhàn mà lại chẳng nhàn.",
+            "en": "Right next door is Nhan duck noodles. One article says the lunchtime queue can last an hour, so eating at 'Nhàn' - meaning 'leisurely' - is anything but."
+          },
+          "evidence": ["https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"],
+          "pendingCheck": "Ảnh Google Maps lấy thử không đúng quán (là một quán lẩu ếch ở Long Biên), đã bỏ; cần ảnh khác.",
+          "photo": null
+        },
+        {
+          "order": 5,
+          "id": "trung-yen-mien-tron-muc",
+          "name": {"vi": "Miến trộn mực", "en": "Mixed squid glass noodles"},
+          "kind": "food",
+          "alongAlleyMeters": 93,
+          "lat": 21.03333, "lon": 105.85278,
+          "positionSource": "OSM",
+          "summary": {
+            "vi": "Quán miến trộn mực ở cuối ngõ, nơi ngõ gập xuống phía nam.",
+            "en": "A squid-and-glass-noodle stall near the end, where the alley bends south."
+          },
+          "story": null,
+          "evidence": [],
+          "photo": null
+        }
+      ]
+    }
+  ]
+}

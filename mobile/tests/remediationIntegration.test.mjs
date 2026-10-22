@@ -63,6 +63,7 @@ import * as sources from '../src/data/sourceState.ts';
 
 
 import * as translator from '../src/i18n/translator.ts';
+import * as alleyGeometry from '../src/utils/alleyGeometry.ts';
 
 
 
@@ -1745,6 +1746,7 @@ function createTestHarness(file, defaultProps = {}, overrides = {}) {
 
 
     if (id.includes('threeLensesCompanion')) return { THREE_LENSES_COLLECTION_ID: 'old-quarter-three-lenses', getScopedCompanion: () => null, getThreeLensesCompanion: () => null };
+    if (id.includes('alleyGeometry')) return alleyGeometry;
 
 
 
@@ -6767,10 +6769,3 @@ test('PrologueScreen with App-owned audio player survives route unmount without 
 
 
 });
-
-
-
-
-
-
-

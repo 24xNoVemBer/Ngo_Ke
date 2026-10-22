@@ -26,6 +26,7 @@ import { usePressSpring, usePulseLoop } from '../hooks/useMotion';
 import { useLocale } from '../context/LocaleContext';
 import { radius, spacing } from '../theme';
 import { motionDurations, motionEasings } from '../theme/motion';
+import { buildSmoothPath, computeAlleyLayout } from '../utils/alleyGeometry';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'> & {
   mode: Mode;
@@ -55,38 +56,6 @@ const PIN_CONFIG: TrailPinMeta[] = [
   { id: 'demo-06', icon: '🚩', xPct: 0.55, yPct: 0.84, side: 'right' },
 ];
 
-/**
- * Xây dựng đường cong Bezier mượt mà (Catmull-Rom to Cubic Bezier)
- * tạo dải đường mòn uốn lượn liên tục qua các điểm trạm trong ngõ.
- */
-function buildSmoothPath(points: Array<{ x: number; y: number }>): string {
-  if (points.length < 2) {
-    return '';
-  }
-  const first = points[0];
-  if (!first) {
-    return '';
-  }
-  let d = `M ${first.x.toFixed(1)} ${first.y.toFixed(1)}`;
-  for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[Math.max(0, i - 1)] ?? points[0];
-    const p1 = points[i] ?? points[0];
-    const p2 = points[i + 1] ?? points[points.length - 1];
-    const p3 = points[Math.min(points.length - 1, i + 2)] ?? points[points.length - 1];
-
-    if (!p0 || !p1 || !p2 || !p3) {
-      continue;
-    }
-
-    const cp1x = p1.x + (p2.x - p0.x) / 5;
-    const cp1y = p1.y + (p2.y - p0.y) / 5;
-    const cp2x = p2.x - (p3.x - p1.x) / 5;
-    const cp2y = p2.y - (p3.y - p1.y) / 5;
-
-    d += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
-  }
-  return d;
-}
 
 export function HomeScreen({
   mode,
@@ -133,10 +102,6 @@ export function HomeScreen({
 
   const currentNode: DemoNode | undefined = nodes[selectedIndex] ?? nodes[0];
   const visitedCount = nodes.filter((n) => readNodeIds.has(n.id)).length;
-  const pins = nodes.flatMap((node, index) => {
-    const layout = PIN_CONFIG[index];
-    return layout ? [{ ...layout, id: node.id }] : [];
-  });
   const collectionCover = activeCollection?.coverPhoto ?? alleyMeta.coverPhoto;
   const isReviewed = collectionKind === 'reviewed';
   const isThreeLenses = activeCollectionId === 'old-quarter-three-lenses' && isReviewed;
@@ -150,15 +115,43 @@ export function HomeScreen({
   const canvasHeight = Math.max(560, nodes.length * 90 * fontScale);
   const canvasWidth = Math.min(screenWidth, 540);
 
-  // Tọa độ các điểm neo trên canvas
-  const splinePoints = [
-    { x: canvasWidth * 0.53, y: 0 },
-    ...pins.map((pin) => ({
-      x: canvasWidth * pin.xPct,
-      y: canvasHeight * pin.yPct,
-    })),
-    { x: canvasWidth * 0.49, y: canvasHeight },
-  ];
+  const datasetPolyline =
+    source.status === 'ready' && 'polyline' in source.dataset && Array.isArray(source.dataset.polyline)
+      ? (source.dataset.polyline as [number, number][])
+      : undefined;
+  const datasetLengthMeters =
+    source.status === 'ready' && 'lengthMeters' in source.dataset && typeof source.dataset.lengthMeters === 'number'
+      ? source.dataset.lengthMeters
+      : undefined;
+
+  let pins: TrailPinMeta[];
+  let splinePoints: Array<{ x: number; y: number }>;
+
+  if (datasetPolyline && datasetPolyline.length >= 2) {
+    const layout = computeAlleyLayout(
+      datasetPolyline,
+      nodes,
+      canvasWidth,
+      canvasHeight,
+      datasetLengthMeters,
+    );
+    pins = layout.pins;
+    splinePoints = layout.splinePoints;
+  } else {
+    // Dataset cũ không có hình dáng ngõ (không đổi hành vi)
+    pins = nodes.flatMap((node, index) => {
+      const layout = PIN_CONFIG[index];
+      return layout ? [{ ...layout, id: node.id }] : [];
+    });
+    splinePoints = [
+      { x: canvasWidth * 0.53, y: 0 },
+      ...pins.map((pin) => ({
+        x: canvasWidth * pin.xPct,
+        y: canvasHeight * pin.yPct,
+      })),
+      { x: canvasWidth * 0.49, y: canvasHeight },
+    ];
+  }
 
   const mainPath = buildSmoothPath(splinePoints);
   const leftPath = buildSmoothPath(
@@ -414,7 +407,11 @@ export function HomeScreen({
                 {/* Nút trạm tròn phát sáng nằm chính xác trên dải đường */}
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={`${t('home.open_story', { name: node.name })}${node.available ? '' : ` · ${t('home.locked')}`}`}
+                  accessibilityLabel={
+                    node.story
+                      ? `${t('home.open_story', { name: node.name })}${node.available ? '' : ` · ${t('home.locked')}`}`
+                      : `${node.name}${node.available ? '' : ` · ${t('home.locked')}`}`
+                  }
                   accessibilityState={{ selected: isSelected, disabled: !node.available }}
                   disabled={!node.available}
                   hitSlop={6}
@@ -494,6 +491,7 @@ export function HomeScreen({
         {currentNode !== undefined && (
           <Animated.View
             testID="home-selected-node-preview"
+            accessibilityHint={`${t('home.photo_credit')}: ${currentPhotographer}`}
             style={[
               styles.compactPreviewCard,
               fontScale > 1.3 && styles.compactPreviewCardStacked,
@@ -526,36 +524,43 @@ export function HomeScreen({
               <Text style={styles.previewTitle}>
                 {currentNode.name}
               </Text>
+              {(fontScale <= 1.3 || Boolean(datasetPolyline || !currentNode.story)) && (
+                <Text style={styles.previewSummary} numberOfLines={fontScale > 1.3 ? 4 : 2}>
+                  {currentNode.summary ?? t('home.unopened')}
+                </Text>
+              )}
+              {Boolean(currentNode.pendingCheck) && (
+                <Text style={styles.previewPendingNotice} numberOfLines={fontScale > 1.3 ? 4 : 2}>
+                  ⚠️ {currentNode.pendingCheck}
+                </Text>
+              )}
               {fontScale <= 1.3 && (
-                <>
-                  <Text style={styles.previewSummary} numberOfLines={1}>
-                    {currentNode.summary ?? t('home.unopened')}
-                  </Text>
-                  <Text style={styles.previewCreditText} numberOfLines={1}>
-                    {t('home.photo_credit')}: {currentPhotographer}
-                  </Text>
-                </>
+                <Text style={styles.previewCreditText} numberOfLines={1}>
+                  {t('home.photo_credit')}: {currentPhotographer}
+                </Text>
               )}
             </View>
 
             {/* Single Primary Story CTA */}
-            <Animated.View style={[{ transform: [{ scale: explorePressScale }] }, fontScale > 1.3 && styles.compactPreviewCtaWrapper]}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={t('home.read_story_label')}
-                onPressIn={handleExplorePressIn}
-                onPressOut={handleExplorePressOut}
-                onPress={handleExploreCurrent}
-                style={({ pressed }) => [
-                  styles.previewCtaButton,
-                  fontScale > 1.3 && styles.previewCtaButtonStacked,
-                  pressed && styles.pressed,
-                ]}
-              >
-                <Text style={styles.previewCtaText}>{t('home.read_story_btn')}</Text>
-                <AppIcon name="arrow" size={14} color="#FFFDF7" />
-              </Pressable>
-            </Animated.View>
+            {Boolean(currentNode.story) && (
+              <Animated.View style={[{ transform: [{ scale: explorePressScale }] }, fontScale > 1.3 && styles.compactPreviewCtaWrapper]}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('home.read_story_label')}
+                  onPressIn={handleExplorePressIn}
+                  onPressOut={handleExplorePressOut}
+                  onPress={handleExploreCurrent}
+                  style={({ pressed }) => [
+                    styles.previewCtaButton,
+                    fontScale > 1.3 && styles.previewCtaButtonStacked,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <Text style={styles.previewCtaText}>{t('home.read_story_btn')}</Text>
+                  <AppIcon name="arrow" size={14} color="#FFFDF7" />
+                </Pressable>
+              </Animated.View>
+            )}
           </Animated.View>
         )}
 
@@ -1008,6 +1013,12 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#8C7D70',
     fontStyle: 'italic',
+  },
+  previewPendingNotice: {
+    fontSize: 11,
+    color: '#A05A2C',
+    fontStyle: 'italic',
+    lineHeight: 15,
   },
   previewCtaButton: {
     backgroundColor: '#2D5748',

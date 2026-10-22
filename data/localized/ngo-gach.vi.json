@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 2,
+  "locale": "vi",
+  "collectionId": "ngo-gach",
+  "kind": "simulated",
+  "disclaimer": "Bản nháp nghiên cứu tích hợp ngõ phố cổ, chưa qua khảo sát thực địa hay thẩm định lịch sử. Dữ liệu mô phỏng cho mục đích công nghệ demo; tọa độ và đường nét ngõ lấy từ OpenStreetMap (ODbL). Ảnh lấy từ Google Maps cho bản demo, quyền sử dụng chưa được xác nhận chính thức.",
+  "intro": {
+    "text": "Ngõ Gạch chỉ dài khoảng một trăm hai mươi tám mét, một bên là quán cà phê, nhà nghỉ nhỏ, giữa ngõ là một ngôi đình có tấm bia dựng từ năm 1430.",
+    "evidence": [
+      "https://thanglong.chinhphu.vn/english/the-communal-house-with-oldest-stele-in-ha-noi-110196.htm",
+      "https://www.openstreetmap.org/way/874133481"
+    ]
+  },
+  "startNodeId": "ngo-gach-ca-phe-no1",
+  "polyline": [
+    [21.03634, 105.85084],
+    [21.03632, 105.85048],
+    [21.03633, 105.85042],
+    [21.03643, 105.85009],
+    [21.03645, 105.85002],
+    [21.03646, 105.84992],
+    [21.03641, 105.84975],
+    [21.03638, 105.84964]
+  ],
+  "lengthMeters": 128,
+  "nodes": [
+    {
+      "id": "ngo-gach-ca-phe-no1",
+      "order": 1,
+      "name": "Cà Phê No.1",
+      "summary": "Quán cà phê ở số 1, ngay đầu ngõ phía đông. Mình bắt đầu từ đây.",
+      "tags": [
+        "kham pha tu do"
+      ],
+      "visitMinutes": 5,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "Quán cà phê ở số 1, ngay đầu ngõ phía đông. Mình bắt đầu từ đây.",
+      "latitude": 21.03627,
+      "longitude": 105.85074,
+      "alongAlleyMeters": 10,
+      "pendingCheck": null
+    },
+    {
+      "id": "ngo-gach-ta-ca-phe-4",
+      "order": 2,
+      "name": "Ta Cà Phê 4",
+      "summary": "Một quán cà phê nhỏ ở số 4A, cách đầu ngõ khoảng ba chục bước chân.",
+      "tags": [
+        "kham pha tu do"
+      ],
+      "visitMinutes": 5,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "Một quán cà phê nhỏ ở số 4A, cách đầu ngõ khoảng ba chục bước chân.",
+      "latitude": 21.0364,
+      "longitude": 105.85057,
+      "alongAlleyMeters": 28,
+      "pendingCheck": null
+    },
+    {
+      "id": "ngo-gach-dinh-thanh-ha",
+      "order": 3,
+      "name": "Đình Thanh Hà",
+      "summary": "Đình thờ Trần Lựu, giữ tấm bia dựng năm 1430, được báo chí gọi là bia cổ nhất còn lại ở Hà Nội.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 15,
+      "available": true,
+      "visited": false,
+      "story": "Giữa ngõ Gạch, bước vài bậc là tới đình Thanh Hà. Người ta kể Trần Lựu nhận lệnh khi các quan đều lùi bước, đánh tan giặc rồi khao quân, rồi biến mất giữa cơn giông. Đó là truyền thuyết, không phải điều ta kiểm chứng được. Điều còn đứng đó là một tấm bia dựng năm 1430, được báo chí gọi là tấm bia cổ nhất còn lại ở Hà Nội. Cổng đình có biển ghi đây là di tích đã xếp hạng.",
+      "caption": "Đình Thanh Hà thờ Trần Lựu, giữ tấm bia cổ năm 1430 tại số 10 Ngõ Gạch.",
+      "latitude": 21.036268,
+      "longitude": 105.8503148,
+      "alongAlleyMeters": 62,
+      "pendingCheck": "Tu bổ khởi công 1/3/2024 theo kết quả tìm kiếm; chưa kiểm đình đã mở lại hay chưa.",
+      "evidence": [
+        "https://thanglong.chinhphu.vn/english/the-communal-house-with-oldest-stele-in-ha-noi-110196.htm"
+      ]
+    },
+    {
+      "id": "ngo-gach-cafe-20",
+      "order": 4,
+      "name": "Cafe 20",
+      "summary": "Quán cà phê ở số 20, gần cuối ngõ phía tây.",
+      "tags": [
+        "kham pha tu do"
+      ],
+      "visitMinutes": 5,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "Quán cà phê ở số 20, gần cuối ngõ phía tây.",
+      "latitude": 21.03652,
+      "longitude": 105.84998,
+      "alongAlleyMeters": 92,
+      "pendingCheck": null
+    },
+    {
+      "id": "ngo-gach-chua-cau-dong",
+      "order": 5,
+      "name": "Chùa Cầu Đông",
+      "summary": "Chùa ngay ngoài đầu tây ngõ, thờ cả vợ chồng Thái sư Trần Thủ Độ.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 15,
+      "available": true,
+      "visited": false,
+      "story": "Ra khỏi đầu ngõ, vài bước là chùa Cầu Đông. Điều lạ là hai pho tượng gỗ thờ Trần Thủ Độ và vợ ông. Chùa nói họ không còn giấy tờ nào về nguồn gốc hai pho tượng. Người ta truyền rằng bà Trần Thị Dung từng cho tu bổ chùa, nhưng đó mới chỉ là truyền thuyết.",
+      "caption": "Chùa Cầu Đông ở 38B Hàng Đường, ngay ngoài đầu tây ngõ Gạch.",
+      "latitude": 21.03587,
+      "longitude": 105.84948,
+      "alongAlleyMeters": 120,
+      "pendingCheck": "Cách đi từ đầu tây ngõ ra chùa chưa kiểm tại chỗ.",
+      "evidence": [
+        "https://baophapluat.vn/bi-an-xung-quanh-hai-pho-tuong-trong-ngoi-chua-cau-dong-post365743.html"
+      ]
+    }
+  ],
+  "qa": []
+}

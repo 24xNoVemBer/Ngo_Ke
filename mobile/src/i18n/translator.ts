@@ -143,6 +143,14 @@ export type TranslationKey =
   | 'collection.old_quarter_three_lenses.tagline'
   | 'collection.old_quarter_three_lenses.theme'
   | 'collection.old_quarter_three_lenses.district'
+  | 'collection.ngo_gach.name'
+  | 'collection.ngo_gach.tagline'
+  | 'collection.ngo_gach.theme'
+  | 'collection.ngo_gach.district'
+  | 'collection.ngo_trung_yen.name'
+  | 'collection.ngo_trung_yen.tagline'
+  | 'collection.ngo_trung_yen.theme'
+  | 'collection.ngo_trung_yen.district'
   | 'qa.disclaimer_three_lenses'
   | 'qa.tag_sourced_only'
   | 'qa.chapter_selector_label'
@@ -533,6 +541,14 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'collection.old_quarter_three_lenses.tagline': 'Từ tín ngưỡng, nếp nhà đến nhịp chợ',
     'collection.old_quarter_three_lenses.theme': 'Chuyện xưa',
     'collection.old_quarter_three_lenses.district': 'Hoàn Kiếm, Hà Nội',
+    'collection.ngo_gach.name': 'Ngõ Gạch',
+    'collection.ngo_gach.tagline': 'Bia cổ 1430 và dấu tích phố cổ',
+    'collection.ngo_gach.theme': 'Di sản',
+    'collection.ngo_gach.district': 'Đồng Xuân, Hoàn Kiếm',
+    'collection.ngo_trung_yen.name': 'Ngõ Trung Yên',
+    'collection.ngo_trung_yen.tagline': 'Con ngõ ẩm thực san sát quán quen',
+    'collection.ngo_trung_yen.theme': 'Ẩm thực',
+    'collection.ngo_trung_yen.district': 'Hàng Bè, Hoàn Kiếm',
     'qa.disclaimer_three_lenses': 'DEMO · Có nguồn tham khảo (SOURCED_ONLY) · Chưa duyệt chính thức',
     'qa.tag_sourced_only': 'SOURCED_ONLY · CÓ NGUỒN THAM KHẢO',
     'qa.chapter_selector_label': 'Chọn chương khám phá',
@@ -922,6 +938,14 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'collection.old_quarter_three_lenses.tagline': 'From sacred roots and ancient living to market life',
     'collection.old_quarter_three_lenses.theme': 'Living History',
     'collection.old_quarter_three_lenses.district': 'Hoan Kiem, Hanoi',
+    'collection.ngo_gach.name': 'Gach Alley',
+    'collection.ngo_gach.tagline': 'Ancient 1430 stele and Old Quarter heritage',
+    'collection.ngo_gach.theme': 'Heritage',
+    'collection.ngo_gach.district': 'Dong Xuan, Hoan Kiem',
+    'collection.ngo_trung_yen.name': 'Trung Yen Alley',
+    'collection.ngo_trung_yen.tagline': 'A food alley packed with beloved eateries',
+    'collection.ngo_trung_yen.theme': 'Culinary',
+    'collection.ngo_trung_yen.district': 'Hang Be, Hoan Kiem',
     'qa.disclaimer_three_lenses': 'DEMO · Sourced reference only (SOURCED_ONLY) · Not officially approved',
     'qa.tag_sourced_only': 'SOURCED_ONLY · SOURCED REFERENCE',
     'qa.chapter_selector_label': 'Select story chapter',

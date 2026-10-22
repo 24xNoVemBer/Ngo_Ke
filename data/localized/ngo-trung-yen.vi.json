@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 2,
+  "locale": "vi",
+  "collectionId": "ngo-trung-yen",
+  "kind": "simulated",
+  "disclaimer": "Bản nháp nghiên cứu tích hợp ngõ phố cổ, chưa qua khảo sát thực địa hay xác minh giờ mở cửa và giá quán ăn. Dữ liệu mô phỏng cho mục đích công nghệ demo; tọa độ và đường nét ngõ lấy từ OpenStreetMap (ODbL). Ảnh lấy từ Google Maps cho bản demo, quyền sử dụng chưa được xác nhận chính thức.",
+  "intro": {
+    "text": "Ngõ Trung Yên chỉ dài khoảng một trăm bốn mươi mét, nằm ngay chợ Hàng Bè cũ, và quán ăn san sát hai bên.",
+    "evidence": [
+      "https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"
+    ]
+  },
+  "startNodeId": "trung-yen-pho-suong",
+  "polyline": [
+    [21.0335, 105.85198],
+    [21.03345, 105.85251],
+    [21.03345, 105.8526],
+    [21.03343, 105.85269],
+    [21.0334, 105.85269],
+    [21.03336, 105.85268],
+    [21.03327, 105.85304],
+    [21.03304, 105.85302]
+  ],
+  "lengthMeters": 146,
+  "nodes": [
+    {
+      "id": "trung-yen-pho-suong",
+      "order": 1,
+      "name": "Phở Sướng",
+      "summary": "Quán phở lâu năm ngay đầu ngõ, được nhiều thực khách quen coi là một tên phở của phố cổ.",
+      "tags": [
+        "an thuc",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 15,
+      "available": true,
+      "visited": false,
+      "story": "Đầu ngõ là phở Sướng. Cái tên có từ khoảng ba mươi năm trước, ý muốn khách ăn xong thấy thỏa cơn đói. Một bài báo viết rằng đây không phải phở ngon đệ nhất nhưng cũng thuộc danh phở của phố cổ.",
+      "caption": "Quán phở Sướng lâu năm ngay đầu ngõ Trung Yên.",
+      "latitude": 21.03355,
+      "longitude": 105.85214,
+      "alongAlleyMeters": 17,
+      "pendingCheck": "Bài viết thời dịch Covid-19; giờ mở cửa và giá chưa kiểm.",
+      "evidence": [
+        "https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"
+      ]
+    },
+    {
+      "id": "trung-yen-pho-vui",
+      "order": 2,
+      "name": "Phở Vui",
+      "summary": "Một quán phở khác trong ngõ, được bài báo nhắc tên cạnh phở Sướng.",
+      "tags": [
+        "an thuc",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 15,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "Một quán phở khác trong ngõ, được nhắc tên cạnh phở Sướng.",
+      "latitude": null,
+      "longitude": null,
+      "alongAlleyMeters": null,
+      "pendingCheck": "Vị trí trong ngõ chưa biết; chưa xác định được trên thực địa."
+    },
+    {
+      "id": "trung-yen-bun-ca-sam-cay-si",
+      "order": 3,
+      "name": "Bún cá Sâm Cây Si",
+      "summary": "Quán bún cá, khách quen gọi vui là bún cá sân si; đặc sản là cá cuốn thịt.",
+      "tags": [
+        "an thuc",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 20,
+      "available": true,
+      "visited": false,
+      "story": "Đi sâu vào ngõ là bún cá Sâm Cây Si, khách vẫn gọi vui là bún cá sân si. Món đặc sản là cá cuốn thịt, vỏ chiên giòn, nhân gồm thịt cá, thịt băm và mộc nhĩ.",
+      "caption": "Bún cá Sâm Cây Si; đặc sản là cá cuốn thịt vỏ giòn.",
+      "latitude": 21.0334206,
+      "longitude": 105.8525924,
+      "alongAlleyMeters": 80,
+      "pendingCheck": "Google Maps còn một quán tên gần giống ('Bún Cá Cây Si Dũng Hói'); xác nhận đúng quán tại chỗ.",
+      "evidence": [
+        "https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"
+      ]
+    },
+    {
+      "id": "trung-yen-bun-ngan-nhan",
+      "order": 4,
+      "name": "Bún ngan Nhàn",
+      "summary": "Quán bún ngan ngay cạnh bún cá, nước dùng đậm, buổi trưa khách có thể xếp hàng cả giờ.",
+      "tags": [
+        "an thuc",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 20,
+      "available": true,
+      "visited": false,
+      "story": "Ngay cạnh là bún ngan Nhàn. Bài báo viết buổi trưa khách có thể xếp hàng cả giờ, nên ăn bún Nhàn mà lại chẳng nhàn.",
+      "caption": "Quán bún ngan ngay cạnh bún cá, buổi trưa khách thường xếp hàng.",
+      "latitude": null,
+      "longitude": null,
+      "alongAlleyMeters": null,
+      "pendingCheck": "Vị trí cạnh bún cá theo bài báo; chưa kiểm tại chỗ.",
+      "evidence": [
+        "https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"
+      ]
+    },
+    {
+      "id": "trung-yen-mien-tron-muc",
+      "order": 5,
+      "name": "Miến trộn mực",
+      "summary": "Quán miến trộn mực ở cuối ngõ, nơi ngõ gập xuống phía nam.",
+      "tags": [
+        "an thuc",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 15,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "Quán miến trộn mực ở cuối ngõ Trung Yên.",
+      "latitude": 21.03333,
+      "longitude": 105.85278,
+      "alongAlleyMeters": 93,
+      "pendingCheck": null
+    }
+  ],
+  "qa": []
+}

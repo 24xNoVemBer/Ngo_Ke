@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 2,
+  "locale": "en",
+  "collectionId": "ngo-trung-yen",
+  "kind": "simulated",
+  "disclaimer": "Draft research dataset for Old Quarter alleys, not verified by on-site field survey; opening hours and prices of food stalls unverified. Simulated data for tech demo purposes; alley geometry and coordinates from OpenStreetMap (ODbL). Photos from Google Maps for demo use, rights not officially confirmed.",
+  "intro": {
+    "text": "Trung Yen Alley is only about 146 metres long, beside the old Hang Be market, with eateries packed on both sides.",
+    "evidence": [
+      "https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"
+    ]
+  },
+  "startNodeId": "trung-yen-pho-suong",
+  "polyline": [
+    [21.0335, 105.85198],
+    [21.03345, 105.85251],
+    [21.03345, 105.8526],
+    [21.03343, 105.85269],
+    [21.0334, 105.85269],
+    [21.03336, 105.85268],
+    [21.03327, 105.85304],
+    [21.03304, 105.85302]
+  ],
+  "lengthMeters": 146,
+  "nodes": [
+    {
+      "id": "trung-yen-pho-suong",
+      "order": 1,
+      "name": "Pho Suong",
+      "summary": "A long-running pho shop at the entrance, regarded by many regulars as one of the Old Quarter's pho names.",
+      "tags": [
+        "an thuc",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 15,
+      "available": true,
+      "visited": false,
+      "story": "At the entrance is Pho Suong. The name dates from about thirty years ago, meaning customers should leave satisfied. One article says it is not necessarily the best pho in town, but is among the Old Quarter's well-known ones.",
+      "caption": "A long-running pho shop right at the entrance of Trung Yen Alley.",
+      "latitude": 21.03355,
+      "longitude": 105.85214,
+      "alongAlleyMeters": 17,
+      "pendingCheck": "Bài viết thời dịch Covid-19; giờ mở cửa và giá chưa kiểm.",
+      "evidence": [
+        "https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"
+      ]
+    },
+    {
+      "id": "trung-yen-pho-vui",
+      "order": 2,
+      "name": "Pho Vui",
+      "summary": "Another pho shop in the alley, named in the same article alongside Pho Suong.",
+      "tags": [
+        "an thuc",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 15,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "Another pho shop in the alley, named alongside Pho Suong.",
+      "latitude": null,
+      "longitude": null,
+      "alongAlleyMeters": null,
+      "pendingCheck": "Vị trí trong ngõ chưa biết; chưa xác định được trên thực địa."
+    },
+    {
+      "id": "trung-yen-bun-ca-sam-cay-si",
+      "order": 3,
+      "name": "Sam Cay Si fish noodles",
+      "summary": "A fish-noodle shop that regulars jokingly call the 'quarrelsome' fish noodles; its speciality is fish rolled around minced pork.",
+      "tags": [
+        "an thuc",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 20,
+      "available": true,
+      "visited": false,
+      "story": "Deeper in is Sam Cay Si fish noodles, which regulars playfully call 'sân si'. The speciality is fish rolls with a crisp fried shell, filled with fish, minced pork and wood-ear mushroom.",
+      "caption": "Sam Cay Si fish noodles; speciality is crisp fried fish rolls.",
+      "latitude": 21.0334206,
+      "longitude": 105.8525924,
+      "alongAlleyMeters": 80,
+      "pendingCheck": "Google Maps còn một quán tên gần giống ('Bún Cá Cây Si Dũng Hói'); xác nhận đúng quán tại chỗ.",
+      "evidence": [
+        "https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"
+      ]
+    },
+    {
+      "id": "trung-yen-bun-ngan-nhan",
+      "order": 4,
+      "name": "Nhan duck noodles",
+      "summary": "A duck-noodle shop beside the fish noodles, with a rich broth; at lunchtime the queue can last an hour.",
+      "tags": [
+        "an thuc",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 20,
+      "available": true,
+      "visited": false,
+      "story": "Right next door is Nhan duck noodles. One article says the lunchtime queue can last an hour, so eating at 'Nhàn' - meaning 'leisurely' - is anything but.",
+      "caption": "A duck-noodle shop beside the fish noodles; queues are common at lunch.",
+      "latitude": null,
+      "longitude": null,
+      "alongAlleyMeters": null,
+      "pendingCheck": "Vị trí cạnh bún cá theo bài báo; chưa kiểm tại chỗ.",
+      "evidence": [
+        "https://vietnamnet.vn/la-lung-con-ngo-am-thuc-du-suong-nhan-vui-san-si-o-ha-noi-722230.html"
+      ]
+    },
+    {
+      "id": "trung-yen-mien-tron-muc",
+      "order": 5,
+      "name": "Mixed squid glass noodles",
+      "summary": "A squid-and-glass-noodle stall near the end, where the alley bends south.",
+      "tags": [
+        "an thuc",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 15,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "A squid-and-glass-noodle stall near the southern bend of Trung Yen Alley.",
+      "latitude": 21.03333,
+      "longitude": 105.85278,
+      "alongAlleyMeters": 93,
+      "pendingCheck": null
+    }
+  ],
+  "qa": []
+}

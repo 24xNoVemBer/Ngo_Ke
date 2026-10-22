@@ -33,10 +33,13 @@ export type DemoNode = {
   visitMinutes: number;
   available: boolean;
   visited: boolean;
-  story: string;
+  story: string | null;
   caption: string;
   latitude: number | null;
   longitude: number | null;
+  order?: number;
+  alongAlleyMeters?: number | null;
+  pendingCheck?: string | null;
   evidence?: string[];
   reviewStatus?: ReviewStatus;
   updatedAt?: string;
@@ -70,6 +73,8 @@ export type DemoDatasetV2 = {
   schemaVersion: 2;
   locale: Locale;
   collectionId: string;
+  polyline?: [number, number][];
+  lengthMeters?: number;
   kind: 'simulated' | 'reviewed';
   disclaimer: string;
   intro: DemoIntro;
@@ -250,7 +255,12 @@ function isDemoNode(
   if (!isBoundedString(value.id, MAX_ID_LENGTH) || ids.has(value.id)) return false;
   if (!isBoundedString(value.name, MAX_SHORT_TEXT_LENGTH)) return false;
   if (!isBoundedString(value.summary, MAX_SHORT_TEXT_LENGTH)) return false;
-  if (!isBoundedString(value.story, MAX_STORY_LENGTH)) return false;
+  if (value.story === null) {
+    if (schemaVersion !== 2 || isReviewed) return false;
+  } else if (!isBoundedString(value.story, MAX_STORY_LENGTH)) {
+    return false;
+  }
+  if (value.story === undefined) return false;
   if (!isBoundedString(value.caption, MAX_CAPTION_LENGTH)) return false;
   if (!isTopicList(value.tags)) return false;
   if (typeof value.available !== 'boolean' || typeof value.visited !== 'boolean') return false;
@@ -260,6 +270,22 @@ function isDemoNode(
     if (!isCoordinate(value.latitude, 90) || !isCoordinate(value.longitude, 180)) return false;
   }
   if (!Number.isInteger(value.visitMinutes) || (value.visitMinutes as number) <= 0) return false;
+
+  if (value.order !== undefined) {
+    if (!Number.isInteger(value.order) || (value.order as number) < 1) return false;
+  }
+  if (value.alongAlleyMeters !== undefined && value.alongAlleyMeters !== null) {
+    if (
+      typeof value.alongAlleyMeters !== 'number' ||
+      !Number.isFinite(value.alongAlleyMeters) ||
+      (value.alongAlleyMeters as number) < 0
+    ) {
+      return false;
+    }
+  }
+  if (value.pendingCheck !== undefined && value.pendingCheck !== null) {
+    if (!isBoundedString(value.pendingCheck, MAX_SHORT_TEXT_LENGTH, 1)) return false;
+  }
 
   if (value.evidence !== undefined) {
     if (!isBoundedStringList(value.evidence, 1, MAX_EVIDENCE_COUNT, MAX_EVIDENCE_LENGTH)) {
@@ -402,6 +428,7 @@ function isDataset(value: unknown, mode: Mode): value is DemoDataset {
     return false;
   }
 
+
   if (!Array.isArray(value.qa)) {
     return false;
   }
@@ -487,6 +514,32 @@ export function isDatasetV2(
 
   if (!isBoundedString(value.startNodeId, MAX_ID_LENGTH) || !nodeIds.has(value.startNodeId)) {
     return false;
+  }
+
+  if (value.polyline !== undefined) {
+    if (!Array.isArray(value.polyline) || value.polyline.length < 2 || value.polyline.length > 500) {
+      return false;
+    }
+    for (const point of value.polyline) {
+      if (
+        !Array.isArray(point) ||
+        point.length !== 2 ||
+        !isCoordinate(point[0], 90) ||
+        !isCoordinate(point[1], 180)
+      ) {
+        return false;
+      }
+    }
+  }
+
+  if (value.lengthMeters !== undefined) {
+    if (
+      typeof value.lengthMeters !== 'number' ||
+      !Number.isFinite(value.lengthMeters) ||
+      value.lengthMeters <= 0
+    ) {
+      return false;
+    }
   }
 
   if (!Array.isArray(value.qa)) {

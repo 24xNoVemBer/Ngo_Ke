@@ -251,7 +251,7 @@ export function QaScreen({
     }
     return {
       title: activeChapter ? activeChapter.title : (currentNode ? currentNode.name : t('qa.opening_stop')),
-      text: activeChapter ? activeChapter.text : (currentNode ? currentNode.story : intro.text),
+      text: activeChapter ? activeChapter.text : (currentNode ? (currentNode.story ?? currentNode.summary ?? intro.text) : intro.text),
       voiceContentId: activeChapter ? activeChapter.voiceContentId : (currentNode ? `${currentNode.id}-story` : 'intro'),
       evidence: activeChapter ? activeChapter.evidence : (currentNode?.evidence ?? intro.evidence),
       nodeId: currentNode?.id ?? 'intro',

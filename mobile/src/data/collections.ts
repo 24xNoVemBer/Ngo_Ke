@@ -10,9 +10,18 @@ import oldQuarterViData from '../../../data/localized/old-quarter.vi.json';
 import oldQuarterEnData from '../../../data/localized/old-quarter.en.json';
 import threeLensesViData from '../../../data/localized/three-lenses.vi.json';
 import threeLensesEnData from '../../../data/localized/three-lenses.en.json';
+import ngoGachViData from '../../../data/localized/ngo-gach.vi.json';
+import ngoGachEnData from '../../../data/localized/ngo-gach.en.json';
+import ngoTrungYenViData from '../../../data/localized/ngo-trung-yen.vi.json';
+import ngoTrungYenEnData from '../../../data/localized/ngo-trung-yen.en.json';
 import { getThreeLensesDatasetRevision, THREE_LENSES_COLLECTION_ID } from './threeLensesCompanion.ts';
 
-export type CollectionId = 'fiction-letter' | 'old-quarter-pilot' | 'old-quarter-three-lenses';
+export type CollectionId =
+  | 'fiction-letter'
+  | 'old-quarter-pilot'
+  | 'old-quarter-three-lenses'
+  | 'ngo-gach'
+  | 'ngo-trung-yen';
 
 export const DEFAULT_COLLECTION_ID: CollectionId = 'fiction-letter';
 
@@ -32,6 +41,14 @@ export const COLLECTION_REVISIONS: Record<CollectionId, Record<Locale, string>> 
     get en() {
       return getThreeLensesDatasetRevision('en');
     },
+  },
+  'ngo-gach': {
+    vi: '0b8d32ff1a4fac3867995d7be7c4394be4ef9080425c5217ebb65d7df5e90aa3',
+    en: '2458be77514edfa0e4fb194f46e7f0191e5d655ccfd7e6c96b8f044f5179df59',
+  },
+  'ngo-trung-yen': {
+    vi: 'b8fa25cb6fbe31a5bd5806d0af8af231a59d9fa1279508671df9f624135cb889',
+    en: '8aa4d4c20413cc372f525bc111df575d5c8de60215ce11254d66b2452b5b75b1',
   },
 };
 
@@ -78,13 +95,35 @@ export const AVAILABLE_COLLECTIONS: readonly CollectionMeta[] = [
     coverPhoto: require('../../assets/photos/three-lenses/bach-ma.jpg'),
     kind: 'reviewed',
   },
+  {
+    id: 'ngo-gach',
+    nameKey: 'collection.ngo_gach.name',
+    taglineKey: 'collection.ngo_gach.tagline',
+    themeKey: 'collection.ngo_gach.theme',
+    districtKey: 'collection.ngo_gach.district',
+    nodeCount: 5,
+    coverPhoto: require('../../assets/photos/alleys/dinh-thanh-ha-1.jpg'),
+    kind: 'simulated',
+  },
+  {
+    id: 'ngo-trung-yen',
+    nameKey: 'collection.ngo_trung_yen.name',
+    taglineKey: 'collection.ngo_trung_yen.tagline',
+    themeKey: 'collection.ngo_trung_yen.theme',
+    districtKey: 'collection.ngo_trung_yen.district',
+    nodeCount: 5,
+    coverPhoto: require('../../assets/photos/alleys/pho-suong-1.jpg'),
+    kind: 'simulated',
+  },
 ] as const;
 
 export function isCollectionId(value: unknown): value is CollectionId {
   return (
     value === 'fiction-letter' ||
     value === 'old-quarter-pilot' ||
-    value === THREE_LENSES_COLLECTION_ID
+    value === THREE_LENSES_COLLECTION_ID ||
+    value === 'ngo-gach' ||
+    value === 'ngo-trung-yen'
   );
 }
 
@@ -100,6 +139,12 @@ export function getBundledDataset(
   }
   if (collectionId === 'old-quarter-pilot') {
     return (locale === 'en' ? oldQuarterEnData : oldQuarterViData) as unknown as DemoDatasetV2;
+  }
+  if (collectionId === 'ngo-gach') {
+    return (locale === 'en' ? ngoGachEnData : ngoGachViData) as unknown as DemoDatasetV2;
+  }
+  if (collectionId === 'ngo-trung-yen') {
+    return (locale === 'en' ? ngoTrungYenEnData : ngoTrungYenViData) as unknown as DemoDatasetV2;
   }
   return (locale === 'en' ? fictionEnData : demoDataVi) as unknown as AnyDemoDataset;
 }

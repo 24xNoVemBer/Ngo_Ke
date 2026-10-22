@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 2,
+  "locale": "en",
+  "collectionId": "ngo-gach",
+  "kind": "simulated",
+  "disclaimer": "Draft research dataset for Old Quarter alleys, not verified by on-site field survey or historical appraisal. Simulated data for tech demo purposes; alley geometry and coordinates from OpenStreetMap (ODbL). Photos from Google Maps for demo use, rights not officially confirmed.",
+  "intro": {
+    "text": "Gach Alley is only about 128 metres long, lined with small cafes and guesthouses, and midway along it stands a communal house with a stele dated 1430.",
+    "evidence": [
+      "https://thanglong.chinhphu.vn/english/the-communal-house-with-oldest-stele-in-ha-noi-110196.htm",
+      "https://www.openstreetmap.org/way/874133481"
+    ]
+  },
+  "startNodeId": "ngo-gach-ca-phe-no1",
+  "polyline": [
+    [21.03634, 105.85084],
+    [21.03632, 105.85048],
+    [21.03633, 105.85042],
+    [21.03643, 105.85009],
+    [21.03645, 105.85002],
+    [21.03646, 105.84992],
+    [21.03641, 105.84975],
+    [21.03638, 105.84964]
+  ],
+  "lengthMeters": 128,
+  "nodes": [
+    {
+      "id": "ngo-gach-ca-phe-no1",
+      "order": 1,
+      "name": "Cafe No.1",
+      "summary": "A cafe at number 1, right at the eastern entrance. This is where the walk starts.",
+      "tags": [
+        "kham pha tu do"
+      ],
+      "visitMinutes": 5,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "A cafe at number 1, right at the eastern entrance. This is where the walk starts.",
+      "latitude": 21.03627,
+      "longitude": 105.85074,
+      "alongAlleyMeters": 10,
+      "pendingCheck": null
+    },
+    {
+      "id": "ngo-gach-ta-ca-phe-4",
+      "order": 2,
+      "name": "Ta Coffee 4",
+      "summary": "A small coffee shop at 4A, about thirty steps from the entrance.",
+      "tags": [
+        "kham pha tu do"
+      ],
+      "visitMinutes": 5,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "A small coffee shop at 4A, about thirty steps from the entrance.",
+      "latitude": 21.0364,
+      "longitude": 105.85057,
+      "alongAlleyMeters": 28,
+      "pendingCheck": null
+    },
+    {
+      "id": "ngo-gach-dinh-thanh-ha",
+      "order": 3,
+      "name": "Thanh Ha Communal House",
+      "summary": "A communal house for Tran Luu, holding a stele dated 1430 that the press calls the oldest surviving in Hanoi.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 15,
+      "available": true,
+      "visited": false,
+      "story": "Halfway along Gach Alley a few steps lead to Thanh Ha communal house. The legend says Tran Luu took the command when the court officials all stepped back, defeated the invaders, feasted his troops, and vanished in a storm. That is a legend, not something we can verify. What still stands is a stele dated 1430, which the press calls the oldest surviving stele in Hanoi. A plaque at the gate marks it as a ranked monument.",
+      "caption": "Thanh Ha communal house for Tran Luu, holding a stele dated 1430 at 10 Gach Alley.",
+      "latitude": 21.036268,
+      "longitude": 105.8503148,
+      "alongAlleyMeters": 62,
+      "pendingCheck": "Tu bổ khởi công 1/3/2024 theo kết quả tìm kiếm; chưa kiểm đình đã mở lại hay chưa.",
+      "evidence": [
+        "https://thanglong.chinhphu.vn/english/the-communal-house-with-oldest-stele-in-ha-noi-110196.htm"
+      ]
+    },
+    {
+      "id": "ngo-gach-cafe-20",
+      "order": 4,
+      "name": "Cafe 20",
+      "summary": "A coffee shop at number 20, near the western end.",
+      "tags": [
+        "kham pha tu do"
+      ],
+      "visitMinutes": 5,
+      "available": true,
+      "visited": false,
+      "story": null,
+      "caption": "A coffee shop at number 20, near the western end.",
+      "latitude": 21.03652,
+      "longitude": 105.84998,
+      "alongAlleyMeters": 92,
+      "pendingCheck": null
+    },
+    {
+      "id": "ngo-gach-chua-cau-dong",
+      "order": 5,
+      "name": "Cau Dong Pagoda",
+      "summary": "A pagoda just beyond the western end, also honouring the Grand Master Tran Thu Do and his wife.",
+      "tags": [
+        "chuyen xua",
+        "kham pha tu do"
+      ],
+      "visitMinutes": 15,
+      "available": true,
+      "visited": false,
+      "story": "Step out of the western end and you reach Cau Dong Pagoda. Its curiosity is a pair of wooden statues of Tran Thu Do and his wife. The pagoda says it has no records of where the statues came from. Some say Lady Tran Thi Dung once paid for repairs, but that is only a legend.",
+      "caption": "Cau Dong Pagoda at 38B Hang Duong, just outside the western entrance of Gach Alley.",
+      "latitude": 21.03587,
+      "longitude": 105.84948,
+      "alongAlleyMeters": 120,
+      "pendingCheck": "Cách đi từ đầu tây ngõ ra chùa chưa kiểm tại chỗ.",
+      "evidence": [
+        "https://baophapluat.vn/bi-an-xung-quanh-hai-pho-tuong-trong-ngoi-chua-cau-dong-post365743.html"
+      ]
+    }
+  ],
+  "qa": []
+}

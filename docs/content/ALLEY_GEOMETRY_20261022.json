@@ -1,0 +1,34 @@
+{
+  "source": "OpenStreetMap (ODbL), Overpass, 2026-10-22",
+  "note": "Draft research geometry. Not a reviewed dataset. s = metres from the first polyline point, projected onto the alley.",
+  "alleys": [
+    {
+      "id": "ngo-gach",
+      "name": "Ngõ Gạch",
+      "osmWay": 28103104,
+      "lengthMeters": 127.7,
+      "polyline": [[21.03634,105.85084],[21.03632,105.85048],[21.03633,105.85042],[21.03643,105.85009],[21.03645,105.85002],[21.03646,105.84992],[21.03641,105.84975],[21.03638,105.84964]],
+      "stops": [
+        {"name": "Cà Phê No.1", "s": 10, "lat": 21.03627, "lon": 105.85074, "housenumber": "1", "hasSourcedStory": false},
+        {"name": "Ta Cà Phê 4", "s": 28, "lat": 21.0364, "lon": 105.85057, "housenumber": "4A", "hasSourcedStory": false},
+        {"name": "Đình Thanh Hà", "s": 62, "lat": 21.03659, "lon": 105.85032, "housenumber": "10", "hasSourcedStory": true},
+        {"name": "Cafe 20", "s": 92, "lat": 21.03652, "lon": 105.84998, "housenumber": "20", "hasSourcedStory": false},
+        {"name": "Chùa Cầu Đông", "s": null, "lat": 21.03587, "lon": 105.84948, "address": "38B Hàng Đường", "hasSourcedStory": true, "outsideAlley": true}
+      ]
+    },
+    {
+      "id": "ngo-trung-yen",
+      "name": "Ngõ Trung Yên",
+      "osmWay": 399591508,
+      "lengthMeters": 145.9,
+      "polyline": [[21.0335,105.85198],[21.03345,105.85251],[21.03345,105.8526],[21.03343,105.85269],[21.0334,105.85269],[21.03336,105.85268],[21.03327,105.85304],[21.03304,105.85302]],
+      "stops": [
+        {"name": "Phở Sướng", "s": 17, "lat": 21.03355, "lon": 105.85214, "hasSourcedStory": true},
+        {"name": "Phở Vui", "s": null, "lat": null, "lon": null, "hasSourcedStory": false, "note": "no OSM coordinate"},
+        {"name": "Bún cá Sâm Cây Si", "s": 80, "lat": 21.03338, "lon": 105.85267, "hasSourcedStory": true},
+        {"name": "Bún ngan Nhàn", "s": null, "lat": null, "lon": null, "hasSourcedStory": true, "note": "no OSM coordinate; next to Bún cá Sâm Cây Si per article"},
+        {"name": "Miến trộn mực", "s": 93, "lat": 21.03333, "lon": 105.85278, "hasSourcedStory": false}
+      ]
+    }
+  ]
+}

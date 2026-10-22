@@ -16,6 +16,7 @@ import * as voiceIntent from '../src/voice/intent.ts';
 import * as voiceAppState from '../src/voice/appState.ts';
 import * as translator from '../src/i18n/translator.ts';
 import * as threeLensesModule from '../src/data/threeLensesCompanion.ts';
+import * as alleyGeometry from '../src/utils/alleyGeometry.ts';
 
 const actualCollectionsCode = ts.transpileModule(readFileSync(new URL('../src/data/collections.ts', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true },
@@ -201,6 +202,8 @@ function mount(file, props = {}, overrides = {}, exportName) {
     './src/data/live': { readLiveConfig: () => undefined, loadLiveSource: async () => sources.liveEmpty('no-config'), loadLiveSourceV2: async () => sources.liveEmpty('no-config') },
     './src/navigation': { areas: {} },
     '../assets/photoMap': { HERO_PHOTO: 1, getNodePhoto: () => 1, getNodePhotographer: () => 'Demo', getAlleyMeta: () => ({ name: 'Ngõ demo', coverPhoto: 1, photographer: 'Demo' }) },
+    '../utils/alleyGeometry': alleyGeometry,
+    './src/utils/alleyGeometry': alleyGeometry,
     '../theme': { colors: {}, radius: {}, spacing: {}, typography: {} },
     './src/theme': { colors: {} },
     './src/hooks/MotionPreferences': { MotionProvider: 'MotionProvider', useMotionPreferences: () => ({ reducedMotion: false, foreground: true }) },
@@ -2705,7 +2708,7 @@ test('AlleySelectScreen with real collections generates no dead chips and every 
     // Stale/dead chips from old mock or fixed lists must no longer render
     const staleDeadChips = loc === 'en'
       ? ['Food', 'Hàng Buồm', 'Hàng Gai', 'Đồng Xuân', 'Ẩm thực']
-      : ['Ẩm thực', 'Food', 'Hàng Buồm', 'Hàng Gai', 'Đồng Xuân'];
+      : ['Food', 'Hàng Buồm', 'Hàng Gai', 'Đồng Xuân'];
     for (const dead of staleDeadChips) {
       assert.equal(filterLabels.includes(dead), false, `Stale/dead chip "${dead}" must no longer render in ${loc}`);
     }
@@ -3150,7 +3153,7 @@ test('LandingScreen header layout policy wraps and stacks cleanly at fontScale 2
   const headerStylesHigh = [].concat(headerBarHigh.props.style).filter(Boolean);
   // Stacks into column with left alignment at fontScale > 1.3
   assert.ok(headerStylesHigh.some((s) => s.flexDirection === 'column' && s.alignItems === 'flex-start'), 'High fontScale stacks into column');
-  
+
   // Verify NgoKeLogo is passed flexShrink style
   const logoInHeader = elements(headerBarHigh, 'NgoKeLogo')[0];
   assert.ok(logoInHeader, 'NgoKeLogo present in header');
