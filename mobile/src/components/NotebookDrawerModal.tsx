@@ -1,4 +1,4 @@
-import { useState, type ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import {
   Modal,
   Pressable,
@@ -11,7 +11,7 @@ import {
 import { AppIcon } from './AppIcon';
 import { useLocale } from '../context/LocaleContext';
 import { useMotionState } from '../hooks/MotionPreferences';
-import { getLocalizedCollections, getBundledDataset, type CollectionId } from '../data/collections';
+import { getBundledDataset, type CollectionId } from '../data/collections';
 import { readAlleyGuide } from '../data/alleyGuide';
 import { AlleyGuideSection } from './AlleyGuideSection';
 import type { Mode, SourceState } from '../data/sourceState';
@@ -45,26 +45,19 @@ export function NotebookDrawerModal({
   const { locale, t } = useLocale();
   const motion = useMotionState();
   const { fontScale } = useWindowDimensions();
-  const [activeView, setActiveView] = useState<'menu' | 'passport'>('menu');
 
-  const collections = getLocalizedCollections(locale);
   const activeDataset =
     source?.status === 'ready'
       ? source.dataset
       : (collectionId ? getBundledDataset(collectionId, locale) : undefined);
   const guide = activeDataset ? readAlleyGuide(activeDataset) : null;
 
-  const handleClose = () => {
-    setActiveView('menu');
-    onClose();
-  };
-
   return (
     <Modal
       visible={visible}
       animationType={motion.reducedMotion ? 'none' : 'slide'}
       transparent
-      onRequestClose={handleClose}
+      onRequestClose={onClose}
       testID="notebook-drawer-modal"
       accessibilityViewIsModal
     >
@@ -73,221 +66,142 @@ export function NotebookDrawerModal({
           testID="notebook-drawer-backdrop"
           accessibilityRole="button"
           style={styles.modalDismissArea}
-          onPress={handleClose}
+          onPress={onClose}
           accessibilityLabel={t('home.close_notebook')}
         />
 
         <View style={styles.journalDrawerSheet}>
-          {activeView === 'passport' ? (
-            /* BỘ SƯU TẬP HỘ CHIẾU NGÕ PHỐ (ALLEY PASSPORT SUBVIEW) */
-            <>
-              <View style={[styles.drawerHeaderRow, fontScale > 1.3 && styles.drawerHeaderRowStacked]}>
-                <Pressable
-                  testID="notebook-passport-back-btn"
-                  onPress={() => setActiveView('menu')}
-                  accessibilityRole="button"
-                  accessibilityLabel={locale === 'en' ? 'Back to Notebook' : 'Quay lại Sổ tay'}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                  style={styles.backDrawerButton}
-                >
-                  <Text style={styles.backDrawerText}>‹</Text>
-                </Pressable>
-                <View style={styles.drawerTitleGroup}>
-                  <Text style={styles.passportPhase}>{t('landing.passport_phase')}</Text>
-                  <Text accessibilityRole="header" style={styles.drawerTitle} numberOfLines={2}>
-                    {t('landing.passport_title')}
-                  </Text>
-                </View>
-                <Pressable
-                  testID="notebook-passport-close-btn"
-                  onPress={handleClose}
-                  accessibilityRole="button"
-                  accessibilityLabel={t('common.close')}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                  style={styles.closeDrawerButton}
-                >
-                  <Text style={styles.closeDrawerText}>✕</Text>
-                </Pressable>
-              </View>
+          <View style={[styles.drawerHeaderRow, fontScale > 1.3 && styles.drawerHeaderRowStacked]}>
+            <View style={styles.drawerTitleGroup}>
+              <Text style={styles.drawerPhase}>{t('home.notebook_phase')}</Text>
+              <Text accessibilityRole="header" style={styles.drawerTitle} numberOfLines={2}>
+                {t('home.notebook_title')}
+              </Text>
+            </View>
+            <Pressable
+              testID="notebook-drawer-close-btn"
+              onPress={onClose}
+              accessibilityRole="button"
+              accessibilityLabel={t('home.close_notebook')}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              style={styles.closeDrawerButton}
+            >
+              <Text style={styles.closeDrawerText}>✕</Text>
+            </Pressable>
+          </View>
 
-              <ScrollView contentContainerStyle={styles.drawerScrollContent}>
-                <Text style={styles.passportGuideText}>
-                  {t('landing.passport_guide')}
-                </Text>
+          <ScrollView contentContainerStyle={styles.drawerScrollContent}>
+            {/* Lối tắt các tính năng chính */}
+            <View style={styles.toolsGrid}>
+              <Pressable
+                testID="notebook-tool-plan"
+                accessibilityRole="button"
+                accessibilityLabel={t('home.tool_plan_label')}
+                onPress={() => {
+                  onClose();
+                  navigation.navigate('Plan');
+                }}
+                style={({ pressed }) => [styles.toolGridCard, pressed && styles.pressed]}
+              >
+                <AppIcon name="compass" color="#2D5748" />
+                <Text style={styles.toolGridTitle}>{t('home.tool_plan_title')}</Text>
+                <Text style={styles.toolGridDesc}>{t('home.tool_plan_desc')}</Text>
+              </Pressable>
 
-                {collections.map((col) => (
-                  <View key={col.id} style={styles.passportAlleySection}>
-                    <View style={styles.passportAlleyHeader}>
-                      <Text style={styles.passportAlleyName}>{col.name}</Text>
-                      <View style={styles.badgeSamplePill}>
-                        <Text style={styles.badgeSampleText}>{t('landing.badge_sample')}</Text>
-                      </View>
-                    </View>
-                    <Text style={styles.passportAlleyDistrict}>{col.district}</Text>
+              <Pressable
+                testID="notebook-tool-camera"
+                accessibilityRole="button"
+                accessibilityLabel={t('home.tool_qr_label')}
+                onPress={() => {
+                  onClose();
+                  navigation.navigate('Camera');
+                }}
+                style={({ pressed }) => [styles.toolGridCard, pressed && styles.pressed]}
+              >
+                <AppIcon name="qr" color="#2D5748" />
+                <Text style={styles.toolGridTitle}>{t('home.tool_qr_title')}</Text>
+                <Text style={styles.toolGridDesc}>{t('home.tool_qr_desc')}</Text>
+              </Pressable>
 
-                    <View style={styles.passportStopsRow}>
-                      {Array.from({ length: Math.min(col.nodeCount, 6) }).map((_, i) => (
-                        <View key={i} style={styles.passportStampSlot}>
-                          <View style={styles.stampDottedCircle}>
-                            <Text style={styles.stampNumberText}>{i + 1}</Text>
-                          </View>
-                          <Text style={styles.stampSlotLabel}>
-                            {`${t('home.stop_prefix')} ${i + 1}`}
-                          </Text>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-                ))}
-              </ScrollView>
-            </>
-          ) : (
-            /* MENU SỔ TAY CHÍNH: CÔNG CỤ & QUẢN LÝ NGUỒN DỮ LIỆU */
-            <>
-              <View style={[styles.drawerHeaderRow, fontScale > 1.3 && styles.drawerHeaderRowStacked]}>
-                <View style={styles.drawerTitleGroup}>
-                  <Text style={styles.drawerPhase}>{t('home.notebook_phase')}</Text>
-                  <Text accessibilityRole="header" style={styles.drawerTitle} numberOfLines={2}>
-                    {t('home.notebook_title')}
-                  </Text>
-                </View>
-                <Pressable
-                  testID="notebook-drawer-close-btn"
-                  onPress={handleClose}
-                  accessibilityRole="button"
-                  accessibilityLabel={t('home.close_notebook')}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                  style={styles.closeDrawerButton}
-                >
-                  <Text style={styles.closeDrawerText}>✕</Text>
-                </Pressable>
-              </View>
+              <Pressable
+                testID="notebook-tool-gps"
+                accessibilityRole="button"
+                accessibilityLabel={t('home.tool_gps_label')}
+                onPress={() => {
+                  onClose();
+                  navigation.navigate('Location');
+                }}
+                style={({ pressed }) => [styles.toolGridCard, pressed && styles.pressed]}
+              >
+                <AppIcon name="pin" color="#2D5748" />
+                <Text style={styles.toolGridTitle}>{t('home.tool_gps_title')}</Text>
+                <Text style={styles.toolGridDesc}>{t('home.tool_gps_desc')}</Text>
+              </Pressable>
+            </View>
 
-              <ScrollView contentContainerStyle={styles.drawerScrollContent}>
-                {/* Lối tắt các tính năng chính */}
-                <View style={styles.toolsGrid}>
-                  <Pressable
-                    testID="notebook-tool-plan"
-                    accessibilityRole="button"
-                    accessibilityLabel={t('home.tool_plan_label')}
-                    onPress={() => {
-                      handleClose();
-                      navigation.navigate('Plan');
-                    }}
-                    style={({ pressed }) => [styles.toolGridCard, pressed && styles.pressed]}
-                  >
-                    <AppIcon name="compass" color="#2D5748" />
-                    <Text style={styles.toolGridTitle}>{t('home.tool_plan_title')}</Text>
-                    <Text style={styles.toolGridDesc}>{t('home.tool_plan_desc')}</Text>
-                  </Pressable>
-
-                  <Pressable
-                    testID="notebook-tool-camera"
-                    accessibilityRole="button"
-                    accessibilityLabel={t('home.tool_qr_label')}
-                    onPress={() => {
-                      handleClose();
-                      navigation.navigate('Camera');
-                    }}
-                    style={({ pressed }) => [styles.toolGridCard, pressed && styles.pressed]}
-                  >
-                    <AppIcon name="qr" color="#2D5748" />
-                    <Text style={styles.toolGridTitle}>{t('home.tool_qr_title')}</Text>
-                    <Text style={styles.toolGridDesc}>{t('home.tool_qr_desc')}</Text>
-                  </Pressable>
-
-                  <Pressable
-                    testID="notebook-tool-gps"
-                    accessibilityRole="button"
-                    accessibilityLabel={t('home.tool_gps_label')}
-                    onPress={() => {
-                      handleClose();
-                      navigation.navigate('Location');
-                    }}
-                    style={({ pressed }) => [styles.toolGridCard, pressed && styles.pressed]}
-                  >
-                    <AppIcon name="pin" color="#2D5748" />
-                    <Text style={styles.toolGridTitle}>{t('home.tool_gps_title')}</Text>
-                    <Text style={styles.toolGridDesc}>{t('home.tool_gps_desc')}</Text>
-                  </Pressable>
-
-                  <Pressable
-                    testID="notebook-tool-passport"
-                    accessibilityRole="button"
-                    accessibilityLabel={t('landing.passport_open_label')}
-                    onPress={() => setActiveView('passport')}
-                    style={({ pressed }) => [styles.toolGridCard, pressed && styles.pressed]}
-                  >
-                    <AppIcon name="book" color="#2D5748" />
-                    <Text style={styles.toolGridTitle}>{t('landing.passport_title')}</Text>
-                    <Text style={styles.toolGridDesc}>{t('landing.passport_desc')}</Text>
-                  </Pressable>
-                </View>
-
-                {/* Quản lý nguồn dữ liệu Demo / Live */}
-                <View style={styles.sourceBox} accessibilityLiveRegion="polite">
-                  <View style={[styles.sourceHeaderRow, fontScale > 1.3 && styles.sourceHeaderRowStacked]}>
-                    <Text style={styles.sourceSectionTitle}>{t('home.data_source')}</Text>
-                    <View style={styles.modeToggleGroup}>
-                      {(['demo', 'live'] as const).map((val) => (
-                        <Pressable
-                          key={val}
-                          testID={`notebook-mode-${val}`}
-                          accessibilityRole="radio"
-                          accessibilityLabel={val === 'demo' ? t('home.mode_demo') : t('home.mode_live')}
-                          accessibilityState={{ checked: mode === val }}
-                          onPress={() => onModeChange(val)}
-                          style={({ pressed }) => [
-                            styles.modeOption,
-                            mode === val && styles.modeOptionActive,
-                            pressed && styles.pressed,
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.modeOptionText,
-                              mode === val && styles.modeOptionTextActive,
-                            ]}
-                          >
-                            {val === 'demo' ? 'Demo' : 'Live'}
-                          </Text>
-                        </Pressable>
-                      ))}
-                    </View>
-                  </View>
-
-                  {(liveBusy || source.status !== 'ready') && (
-                    <>
-                      <Text style={styles.sourceTitle}>
-                        {liveBusy ? (locale === 'en' ? 'Fetching live data…' : 'Đang lấy dữ liệu live…') : source.title}
-                      </Text>
-                      <Text style={styles.sourceBody}>
-                        {liveBusy
-                          ? (locale === 'en' ? 'Connecting for live content…' : 'Đang kết nối để tải dữ liệu trực tiếp…')
-                          : source.detail}
-                      </Text>
-                    </>
-                  )}
-
-                  {source.mode === 'live' && onRetryLive !== undefined && (
+            {/* Quản lý nguồn dữ liệu Demo / Live */}
+            <View style={styles.sourceBox} accessibilityLiveRegion="polite">
+              <View style={[styles.sourceHeaderRow, fontScale > 1.3 && styles.sourceHeaderRowStacked]}>
+                <Text style={styles.sourceSectionTitle}>{t('home.data_source')}</Text>
+                <View style={styles.modeToggleGroup}>
+                  {(['demo', 'live'] as const).map((val) => (
                     <Pressable
-                      testID="notebook-retry-live-btn"
-                      accessibilityRole="button"
-                      accessibilityLabel={t('home.retry_live_label')}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                      onPress={onRetryLive}
-                      disabled={liveBusy}
-                      style={({ pressed }) => [styles.retryBtn, pressed && styles.pressed]}
+                      key={val}
+                      testID={`notebook-mode-${val}`}
+                      accessibilityRole="radio"
+                      accessibilityLabel={val === 'demo' ? t('home.mode_demo') : t('home.mode_live')}
+                      accessibilityState={{ checked: mode === val }}
+                      onPress={() => onModeChange(val)}
+                      style={({ pressed }) => [
+                        styles.modeOption,
+                        mode === val && styles.modeOptionActive,
+                        pressed && styles.pressed,
+                      ]}
                     >
-                      <Text style={styles.retryBtnText}>{t('home.retry_live')}</Text>
+                      <Text
+                        style={[
+                          styles.modeOptionText,
+                          mode === val && styles.modeOptionTextActive,
+                        ]}
+                      >
+                        {val === 'demo' ? 'Demo' : 'Live'}
+                      </Text>
                     </Pressable>
-                  )}
+                  ))}
                 </View>
+              </View>
 
-                {guide !== null && <AlleyGuideSection guide={guide} />}
-              </ScrollView>
-            </>
-          )}
+              {(liveBusy || source.status !== 'ready') && (
+                <>
+                  <Text style={styles.sourceTitle}>
+                    {liveBusy ? (locale === 'en' ? 'Fetching live data…' : 'Đang lấy dữ liệu live…') : source.title}
+                  </Text>
+                  <Text style={styles.sourceBody}>
+                    {liveBusy
+                      ? (locale === 'en' ? 'Connecting for live content…' : 'Đang kết nối để tải dữ liệu trực tiếp…')
+                      : source.detail}
+                  </Text>
+                </>
+              )}
+
+              {source.mode === 'live' && onRetryLive !== undefined && (
+                <Pressable
+                  testID="notebook-retry-live-btn"
+                  accessibilityRole="button"
+                  accessibilityLabel={t('home.retry_live_label')}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  onPress={onRetryLive}
+                  disabled={liveBusy}
+                  style={({ pressed }) => [styles.retryBtn, pressed && styles.pressed]}
+                >
+                  <Text style={styles.retryBtnText}>{t('home.retry_live')}</Text>
+                </Pressable>
+              )}
+            </View>
+
+            {/* Mục Khám phá thêm trong Sổ tay: Quán nên thử, Nên ghé thăm, Hành trình đề xuất */}
+            {guide !== null && <AlleyGuideSection guide={guide} />}
+          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -297,116 +211,115 @@ export function NotebookDrawerModal({
 const styles = StyleSheet.create({
   modalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(15, 12, 10, 0.72)',
+    backgroundColor: 'rgba(12, 14, 18, 0.65)',
     justifyContent: 'flex-end',
   },
   modalDismissArea: {
     flex: 1,
   },
   journalDrawerSheet: {
-    backgroundColor: '#FFFDF8',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    maxHeight: '82%',
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl + 12,
-    borderTopWidth: 1,
-    borderColor: '#EFE5D4',
+    backgroundColor: '#FFFDF7',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '85%',
+    paddingBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 16,
   },
   drawerHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EDE5D8',
   },
   drawerHeaderRowStacked: {
+    flexDirection: 'column',
     alignItems: 'flex-start',
+    gap: spacing.sm,
   },
   drawerTitleGroup: {
     flex: 1,
     flexShrink: 1,
     minWidth: 0,
-    marginRight: spacing.sm,
+    gap: 2,
   },
   drawerPhase: {
     fontSize: 11,
     fontWeight: '700',
     color: '#8C5A40',
-    textTransform: 'uppercase',
     letterSpacing: 0.8,
+    textTransform: 'uppercase',
   },
   drawerTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '800',
     color: '#2C221E',
-  },
-  backDrawerButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#EFE8DA',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.sm,
-  },
-  backDrawerText: {
-    fontSize: 24,
-    lineHeight: 26,
-    color: '#4A3B32',
-    fontWeight: '700',
+    letterSpacing: 0.3,
   },
   closeDrawerButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#EFE8DA',
+    backgroundColor: '#F5ECE0',
     alignItems: 'center',
     justifyContent: 'center',
   },
   closeDrawerText: {
-    fontSize: 14,
     color: '#4A3B32',
+    fontSize: 16,
     fontWeight: '700',
   },
   drawerScrollContent: {
+    padding: spacing.lg,
     gap: spacing.md,
   },
   toolsGrid: {
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   toolGridCard: {
-    backgroundColor: '#F8F3E9',
+    flex: 1,
+    backgroundColor: '#F7F2E7',
     borderRadius: radius.md,
-    padding: spacing.md,
+    padding: spacing.sm,
     borderWidth: 1,
-    borderColor: '#E8DEC9',
-    gap: 3,
-    minHeight: 56,
+    borderColor: '#E6DCC8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    minHeight: 76,
   },
   toolGridTitle: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '700',
     color: '#2C221E',
+    textAlign: 'center',
   },
   toolGridDesc: {
-    fontSize: 12,
-    color: '#6E5D4F',
-    lineHeight: 16,
+    fontSize: 10,
+    color: '#8C7D70',
+    textAlign: 'center',
+    lineHeight: 12,
   },
   sourceBox: {
     backgroundColor: '#F5ECE0',
     borderRadius: radius.md,
     padding: spacing.md,
+    gap: spacing.xs,
     borderWidth: 1,
     borderColor: '#E6D7C2',
-    gap: 6,
   },
   sourceHeaderRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
     alignItems: 'center',
-    gap: spacing.xs,
   },
   sourceHeaderRowStacked: {
     flexDirection: 'column',
@@ -414,25 +327,26 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   sourceSectionTitle: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '700',
-    color: '#5C483D',
+    color: '#4A3B32',
   },
   modeToggleGroup: {
     flexDirection: 'row',
-    backgroundColor: '#EADBC8',
+    backgroundColor: '#EAE1D1',
     borderRadius: radius.pill,
     padding: 2,
-    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#D4C5B0',
   },
   modeOption: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
     borderRadius: radius.pill,
-    minHeight: 48,
-    minWidth: 48,
-    alignItems: 'center',
+    minHeight: 44,
+    minWidth: 44,
     justifyContent: 'center',
+    alignItems: 'center',
   },
   modeOptionActive: {
     backgroundColor: '#2A6F50',
@@ -440,7 +354,7 @@ const styles = StyleSheet.create({
   modeOptionText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#5C483D',
+    color: '#6E5D4F',
   },
   modeOptionTextActive: {
     color: '#FFFFFF',
@@ -469,85 +383,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '700',
-  },
-  passportPhase: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#8C5A40',
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-  passportGuideText: {
-    fontSize: 12,
-    color: '#6E5D4F',
-    lineHeight: 18,
-    backgroundColor: '#F5ECE0',
-    padding: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: '#E6D7C2',
-  },
-  passportAlleySection: {
-    gap: spacing.xs,
-  },
-  passportAlleyHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  passportAlleyName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#2C221E',
-  },
-  badgeSamplePill: {
-    backgroundColor: '#8C5A40',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radius.pill,
-  },
-  badgeSampleText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#FFFDF7',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-  },
-  passportAlleyDistrict: {
-    fontSize: 12,
-    color: '#8C7D70',
-  },
-  passportStopsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginTop: 6,
-  },
-  passportStampSlot: {
-    width: 52,
-    alignItems: 'center',
-    gap: 4,
-  },
-  stampDottedCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    borderWidth: 1.5,
-    borderColor: '#C4B5A0',
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FDFBF7',
-  },
-  stampNumberText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#A0907C',
-  },
-  stampSlotLabel: {
-    fontSize: 12,
-    color: '#8C7D70',
-    textAlign: 'center',
   },
   pressed: {
     opacity: 0.82,

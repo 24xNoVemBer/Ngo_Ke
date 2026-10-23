@@ -19,6 +19,8 @@ import { HERO_PHOTO } from '../assets/photoMap';
 import { AppIcon } from '../components/AppIcon';
 import { NgoKeLogo } from '../components/NgoKeLogo';
 import { NotebookDrawerModal } from '../components/NotebookDrawerModal';
+import { AlleyPassportModal } from '../components/AlleyPassportModal';
+import { ToolDock } from '../components/ToolDock';
 import { useEntranceFadeSlide } from '../hooks/useMotion';
 import { useLocale } from '../context/LocaleContext';
 import { getBundledDataset, getLocalizedCollections, isCollectionId } from '../data/collections';
@@ -47,6 +49,7 @@ export function LandingScreen({
   const collections = getLocalizedCollections(locale);
 
   const [notebookVisible, setNotebookVisible] = useState(false);
+  const [passportVisible, setPassportVisible] = useState(false);
 
   const topPadding = Math.max(insets.top, 28) + 12;
 
@@ -58,29 +61,30 @@ export function LandingScreen({
 
   const headerEntrance = useEntranceFadeSlide({ delay: 40, duration: 360, offsetY: 14 });
   const carouselEntrance = useEntranceFadeSlide({ delay: 130, duration: 380, offsetY: 16 });
-  const quickActionsEntrance = useEntranceFadeSlide({ delay: 200, duration: 380, offsetY: 16 });
 
   return (
     <View style={styles.rootContainer}>
-      {/* 1. NỀN ẢNH ĐIỆN ẢNH PHỐ CỔ LÀM MỜ VỚI SCRIM RÊU ĐỒNG NHẤT */}
+      {/* 1. NỀN ẢNH ĐIỆN ẢNH PHỐ CỔ LÀM MỜ VỚI SCRIM RÊU ĐỒNG NHẤT (B1: blur~6, scrim a >= 0.62) */}
       <ImageBackground
         source={HERO_PHOTO}
-        blurRadius={14}
+        blurRadius={6}
         style={StyleSheet.absoluteFill}
         resizeMode="cover"
       >
         <View style={styles.scrimOverlay} />
+      </ImageBackground>
 
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingTop: topPadding, paddingBottom: Math.max(insets.bottom, 24) + 20 },
-          ]}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* 2. THANH THƯƠNG HIỆU: LOGO, NÚT NGÔN NGỮ PHÂN ĐOẠN VI|EN & NÚT SỔ TAY */}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: topPadding, paddingBottom: spacing.lg },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+          {/* 2. THANH THƯƠNG HIỆU: LOGO, NÚT NGÔN NGỮ VI|EN & NÚT HỘ CHIẾU CHỈ BIỂU TƯỢNG */}
           <Animated.View
+            testID="landing-header-bar"
             style={[
               styles.headerBar,
               fontScale > 1.3 && styles.headerBarStacked,
@@ -129,36 +133,41 @@ export function LandingScreen({
                 </Pressable>
               </View>
 
-              {/* Nút Sổ tay mở NotebookDrawerModal */}
+              {/* Nút Hộ chiếu chỉ biểu tượng, vùng chạm >= 44, bắt buộc localized a11y label & role=button */}
               <Pressable
-                testID="landing-header-notebook"
+                testID="landing-header-passport"
                 accessibilityRole="button"
-                accessibilityLabel={t('landing.header_notebook_label')}
+                accessibilityLabel={locale === 'en' ? 'Alley Passport' : 'Hộ chiếu ngõ phố'}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                onPress={() => setNotebookVisible(true)}
-                style={styles.headerNotebookBtn}
+                onPress={() => setPassportVisible(true)}
+                style={styles.headerPassportBtn}
               >
-                <AppIcon name="book" size={16} color="#FFFDF7" />
-                <Text style={styles.headerNotebookText}>{t('landing.header_notebook')}</Text>
+                <AppIcon name="passport" size={22} color="#FFFDF7" />
               </Pressable>
             </View>
           </Animated.View>
 
-          {/* Dòng trạng thái nội dung văn bản dưới header */}
-          <View style={styles.statusLineContainer}>
+          {/* Dòng trạng thái nội dung văn bản dưới header (B7: câu tĩnh, chiều cao ổn định) */}
+          <View
+            testID="landing-status-line"
+            style={[styles.statusLineContainer, fontScale > 1.3 && styles.statusLineContainerStacked]}
+          >
             <Text style={styles.statusLineText}>
-              {t('landing.mode_status', { mode: mode === 'demo' ? t('common.demo') : t('common.live') })}
+              {t('landing.mode_status')}
             </Text>
           </View>
 
-          {/* 3. DANH MỤC CÁC CON NGÕ TIÊU BIỂU (CAROUSEL NẰM NGANG) */}
+          {/* 3. DANH MỤC CÁC CON NGÕ TIÊU BIỂU (CAROUSEL NẰM NGANG - B6: cố định chiều cao & thứ tự) */}
           <Animated.View
             style={{
               opacity: carouselEntrance.opacity,
               transform: [{ translateY: carouselEntrance.translateY }],
             }}
           >
-            <View style={[styles.sectionHeaderRow, fontScale > 1.2 && styles.sectionHeaderStacked]}>
+            <View
+              testID="landing-section-header"
+              style={[styles.sectionHeaderRow, fontScale > 1.2 && styles.sectionHeaderStacked]}
+            >
               <Text style={styles.sectionMainTitle}>{t('landing.featured_section_title')}</Text>
               <Pressable
                 accessibilityRole="button"
@@ -223,6 +232,7 @@ export function LandingScreen({
                 ).map((col) => (
                   <Pressable
                     key={col.id}
+                    testID={`landing-alley-card-${col.id}`}
                     accessibilityRole="button"
                     accessibilityLabel={`${t('landing.explore_alley_label')} ${col.name}`}
                     onPress={() => {
@@ -243,9 +253,9 @@ export function LandingScreen({
                       <Text style={styles.cardThemeTagText}>{col.theme}</Text>
                     </View>
 
-                    {/* Dải đáy thẻ nền đặc chứa thông tin & chữ vàng */}
+                    {/* Dải đáy thẻ nền đặc chứa thông tin & chữ vàng với chiều cao tối thiểu ổn định */}
                     <View style={styles.alleyCardFooter}>
-                      <Text style={styles.alleyCardDistrict}>{col.district}</Text>
+                      <Text style={styles.alleyCardDistrict} numberOfLines={1}>{col.district}</Text>
                       <Text style={styles.alleyCardName} numberOfLines={1}>{col.name}</Text>
                       <Text style={styles.alleyCardTagline} numberOfLines={2}>
                         {col.tagline}
@@ -262,73 +272,17 @@ export function LandingScreen({
               </ScrollView>
             )}
           </Animated.View>
-
-          {/* 4. TIỆN ÍCH TRỰC TIẾP: VỊ TRÍ GPS & SỔ TAY HÀNH TRÌNH (CÙNG CHIỀU CAO VÀ GIỚI HẠN DÒNG) */}
-          <Animated.View
-            testID="landing-quick-actions-section"
-            style={[
-              styles.quickActionsSection,
-              {
-                opacity: quickActionsEntrance.opacity,
-                transform: [{ translateY: quickActionsEntrance.translateY }],
-              },
-            ]}
-          >
-            <View style={[styles.sectionHeaderRow, fontScale > 1.2 && styles.sectionHeaderStacked]}>
-              <Text style={styles.sectionMainTitle}>{t('landing.quick_section_title')}</Text>
-            </View>
-
-            <View
-              style={[
-                styles.quickActionsGrid,
-                (fontScale > 1.2 || screenWidth < 360) && styles.quickActionsGridStacked,
-              ]}
-            >
-              {/* Nút 1: Vị trí GPS */}
-              <Pressable
-                testID="landing-quick-gps"
-                accessibilityRole="button"
-                accessibilityLabel={t('landing.quick_gps_label')}
-                onPress={() => navigation.navigate('Location')}
-                style={({ pressed }) => [styles.quickActionCard, pressed && styles.pressed]}
-              >
-                <View style={styles.quickActionIconCircle}>
-                  <AppIcon name="pin" size={20} color="#2D5748" />
-                </View>
-                <View style={styles.quickActionTextGroup}>
-                  <Text style={styles.quickActionTitle} numberOfLines={1}>{t('landing.quick_gps_title')}</Text>
-                  <Text style={styles.quickActionDesc} numberOfLines={2}>
-                    {t('landing.quick_gps_desc')}
-                  </Text>
-                </View>
-                <Text style={styles.quickActionChevron}>›</Text>
-              </Pressable>
-
-              {/* Nút 2: Sổ tay */}
-              <Pressable
-                testID="landing-quick-notebook"
-                accessibilityRole="button"
-                accessibilityLabel={t('landing.quick_notebook_label')}
-                onPress={() => setNotebookVisible(true)}
-                style={({ pressed }) => [styles.quickActionCard, pressed && styles.pressed]}
-              >
-                <View style={styles.quickActionIconCircle}>
-                  <AppIcon name="write" size={20} color="#2D5748" />
-                </View>
-                <View style={styles.quickActionTextGroup}>
-                  <Text style={styles.quickActionTitle} numberOfLines={1}>{t('landing.quick_notebook_title')}</Text>
-                  <Text style={styles.quickActionDesc} numberOfLines={2}>
-                    {t('landing.quick_notebook_desc')}
-                  </Text>
-                </View>
-                <Text style={styles.quickActionChevron}>›</Text>
-              </Pressable>
-            </View>
-          </Animated.View>
         </ScrollView>
-      </ImageBackground>
 
-      {/* 5. MODAL SỔ TAY NGÕ PHỐ (CHỨA HÀNH TRÌNH, CÔNG CỤ, HỘ CHIẾU & DEMO/LIVE TOGGLE) */}
+      {/* 4. THANH CÔNG CỤ DÙNG CHUNG Ở ĐÁY (B3: ToolDock 3 mục GPS, QR nổi bật, Sổ tay) */}
+      <ToolDock
+        testIDPrefix="landing"
+        onPressGps={() => navigation.navigate('Location')}
+        onPressQr={() => navigation.navigate('Camera')}
+        onPressNotebook={() => setNotebookVisible(true)}
+      />
+
+      {/* 5. MODAL SỔ TAY NGÕ PHỐ (CHỨA HÀNH TRÌNH, CÔNG CỤ & DEMO/LIVE TOGGLE) */}
       <NotebookDrawerModal
         visible={notebookVisible}
         onClose={() => setNotebookVisible(false)}
@@ -341,6 +295,12 @@ export function LandingScreen({
         collectionId={collectionId}
         liveBusy={liveBusy}
         onRetryLive={onRetryLive}
+      />
+
+      {/* 6. MODAL HỘ CHIẾU NGÕ PHỐ MỞ TỪ HEADER */}
+      <AlleyPassportModal
+        visible={passportVisible}
+        onClose={() => setPassportVisible(false)}
       />
     </View>
   );
@@ -426,7 +386,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: 20,
   },
   headerBar: {
     flexDirection: 'row',
@@ -435,11 +395,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xs,
+    minHeight: 48,
   },
   headerBarStacked: {
     flexDirection: 'column',
     alignItems: 'flex-start',
     gap: spacing.sm,
+    minHeight: 88,
   },
   logoWrapper: {
     transform: [{ scale: 0.95 }],
@@ -485,29 +447,27 @@ const styles = StyleSheet.create({
     height: 18,
     backgroundColor: 'rgba(255, 253, 247, 0.20)',
   },
-  headerNotebookBtn: {
-    flexDirection: 'row',
+  headerPassportBtn: {
     alignItems: 'center',
     justifyContent: 'center',
+    width: 44,
+    height: 44,
     minHeight: 44,
     minWidth: 44,
-    paddingHorizontal: 14,
     borderRadius: radius.pill,
     backgroundColor: 'rgba(30, 32, 25, 0.70)',
     borderWidth: 1,
     borderColor: 'rgba(255, 253, 247, 0.22)',
-    gap: 6,
-  },
-  headerNotebookText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FFFDF7',
-    letterSpacing: 0.2,
   },
   statusLineContainer: {
     paddingHorizontal: spacing.lg,
     marginBottom: spacing.md,
     marginTop: 2,
+    minHeight: 28,
+    justifyContent: 'center',
+  },
+  statusLineContainerStacked: {
+    minHeight: 48,
   },
   statusLineText: {
     fontSize: 12,
@@ -521,11 +481,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     paddingHorizontal: spacing.lg,
     marginBottom: spacing.sm,
+    minHeight: 36,
   },
   sectionHeaderStacked: {
     flexDirection: 'column',
     alignItems: 'flex-start',
     gap: 4,
+    minHeight: 56,
   },
   sectionMainTitle: {
     fontSize: 20,
@@ -555,7 +517,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   alleyPreviewCard: {
-    minHeight: 310,
+    height: 330,
     borderRadius: radius.lg,
     overflow: 'hidden',
     backgroundColor: '#2A2D24',
@@ -597,6 +559,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 253, 247, 0.12)',
     gap: 4,
+    minHeight: 148,
   },
   alleyCardDistrict: {
     fontSize: 12,
@@ -633,65 +596,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: '#E8F5E9',
-  },
-  quickActionsSection: {
-    marginHorizontal: spacing.lg,
-    marginTop: spacing.lg,
-    gap: spacing.sm,
-  },
-  quickActionsGrid: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    alignItems: 'stretch',
-  },
-  quickActionsGridStacked: {
-    flexDirection: 'column',
-  },
-  quickActionCard: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFDF7',
-    borderRadius: radius.lg,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.md,
-    borderWidth: 1,
-    borderColor: '#E8DEC9',
-    minHeight: 72,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 3,
-    gap: spacing.sm,
-  },
-  quickActionIconCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#EAE1D1',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  quickActionTextGroup: {
-    flex: 1,
-    gap: 2,
-  },
-  quickActionTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#2C221E',
-  },
-  quickActionDesc: {
-    fontSize: 12,
-    color: '#6E5D4F',
-    lineHeight: 16,
-  },
-  quickActionChevron: {
-    fontSize: 18,
-    color: '#A89989',
-    fontWeight: '600',
-    marginRight: 2,
   },
   pressed: {
     opacity: 0.82,

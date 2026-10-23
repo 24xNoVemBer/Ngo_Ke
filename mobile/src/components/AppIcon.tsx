@@ -16,6 +16,7 @@ const paths = {
   pin: 'M12 22s8-8 8-14a8 8 0 0 0-16 0c0 6 8 14 8 14z M12 5a3 3 0 1 0 0 6 3 3 0 0 0 0-6',
   compass: 'M22 12a10 10 0 1 0-20 0 10 10 0 0 0 20 0z M16 8l-3 5-5 3 3-5z',
   arrow: 'M4 12h16 M14 6l6 6-6 6',
+  passport: 'M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z M8 18h8',
 };
 
 export function AppIcon({ name, size = 22, color = '#FFFDF7' }: {

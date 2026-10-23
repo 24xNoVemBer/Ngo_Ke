@@ -192,6 +192,14 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
     '../components/AlleyTrailView': { AlleyTrailView: 'AlleyTrailView' },
     '../components/AppIcon': { AppIcon: 'AppIcon' },
     '../components/NotebookDrawerModal': { NotebookDrawerModal: 'NotebookDrawerModal' },
+    'expo-audio': {
+      setAudioModeAsync: async () => {},
+      useAudioPlayer: () => ({ loop: false, pause() {}, play() {}, replace() {} }),
+      useAudioPlayerStatus: () => ({ playing: false, currentTime: 0, duration: 0 }),
+    },
+    '../voice/localizedCatalog': {
+      lookupVoiceTrack: () => undefined,
+    },
     ...overrides,
   };
 

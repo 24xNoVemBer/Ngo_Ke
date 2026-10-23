@@ -8,6 +8,7 @@ import ts from 'typescript';
 import * as translator from '../src/i18n/translator.ts';
 import * as sources from '../src/data/sourceState.ts';
 import * as live from '../src/data/live.ts';
+import * as alleyGeometry from '../src/utils/alleyGeometry.ts';
 
 const fixture = JSON.parse(readFileSync(new URL('../../data/demo.json', import.meta.url), 'utf8'));
 const reviewedPilotVi = JSON.parse(readFileSync(new URL('../../data/localized/old-quarter.vi.json', import.meta.url), 'utf8'));
@@ -149,6 +150,7 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
       HERO_PHOTO: 1,
       getNodePhoto: () => 1,
       getNodePhotographer: () => 'Nguyễn Văn A',
+      getAlleyMeta: () => ({ name: 'Phố Cổ', coverPhoto: 1, photographer: 'Nguyễn Văn A' }),
     },
     '../theme': {
       colors: { primary: '#2D5748', terracotta: '#C85A32', text: '#2C221E' },
@@ -189,6 +191,12 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
       CameraView: 'CameraView',
       useCameraPermissions: () => [{ granted: true }, async () => ({ granted: true })],
     },
+    'react-native-svg': { default: 'Svg', Svg: 'Svg', Path: 'Path' },
+    'expo-audio': {
+      setAudioModeAsync: async () => {},
+      useAudioPlayer: () => ({ loop: false, pause() {}, play() {}, replace() {} }),
+      useAudioPlayerStatus: () => ({ playing: false, currentTime: 0, duration: 0 }),
+    },
     ...overrides,
   };
 
@@ -200,12 +208,15 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
   runInNewContext('(function(require,module,exports){' + screenCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
     if (modules[id]) return modules[id];
     if (/\.(png|jpe?g|gif|webp|wav|mp3)$/i.test(id)) return 1;
-    if (id === './AppIcon' || id === '../components/AppIcon' || /\/components\//.test(id) || /\/screens\//.test(id) || id.includes('AlleyGuideSection') || id.includes('AlleyStoryCard')) {
+    if (id === './AppIcon' || id === '../components/AppIcon' || /\/components\//.test(id) || /\/screens\//.test(id) || id.includes('AlleyGuideSection') || id.includes('AlleyStoryCard') || id.includes('UnavailableScreen')) {
       const name = id.split('/').at(-1);
       return { [name]: name, AppIcon: 'AppIcon', CrossfadePhoto: 'CrossfadePhoto', VoicePlayerBar: 'VoicePlayerBar', VoiceInteractionDock: 'VoiceInteractionDock', UnavailableScreen: 'UnavailableScreen', AlleyStoryCard: 'AlleyStoryCard', AlleyGuideSection: 'AlleyGuideSection' };
     }
     if (id.includes('alleyGuide')) {
       return { readAlleyStory: () => null, readAlleyGuide: () => null };
+    }
+    if (id.includes('alleyGeometry')) {
+      return alleyGeometry;
     }
     if (/\/voice\//.test(id)) {
       return { lookupVoiceTrack: () => null, useVoiceSession: () => ({ activeTrackId: null, playback: { playing: false, currentTime: 0, duration: 0 }, stopPlayback() {} }) };
@@ -286,7 +297,7 @@ test('LandingScreen P2-1: mode_status renders truthful format + mode without sim
 
   const treeVi = viewVi.render();
   const textVi = JSON.stringify(treeVi);
-  assert.ok(textVi.includes('Truyện chữ · Live'), 'VI mode_status renders truthful format and live mode');
+  assert.ok(textVi.includes('Chọn một con ngõ để bắt đầu câu chuyện.'), 'VI mode_status renders static truthful copy');
   assert.equal(textVi.includes('mô phỏng'), false, 'VI mode_status must not include mô phỏng');
   assert.equal(textVi.includes('simulated'), false, 'VI mode_status must not include simulated');
   viewVi.unmount();
@@ -311,7 +322,7 @@ test('LandingScreen P2-1: mode_status renders truthful format + mode without sim
 
   const treeEn = viewEn.render();
   const textEn = JSON.stringify(treeEn);
-  assert.ok(textEn.includes('Text stories · Live'), 'EN mode_status renders truthful format and live mode');
+  assert.ok(textEn.includes('Choose an alley to begin its story.'), 'EN mode_status renders static truthful copy');
   assert.equal(textEn.includes('simulated'), false, 'EN mode_status must not include simulated');
   assert.equal(textEn.includes('mô phỏng'), false, 'EN mode_status must not include mô phỏng');
   viewEn.unmount();
@@ -344,7 +355,7 @@ test('LandingScreen P2-1: mode_status renders truthful format + mode without sim
 
   const treeDemoVi = viewDemoVi.render();
   const textDemoVi = JSON.stringify(treeDemoVi);
-  assert.ok(textDemoVi.includes('Truyện chữ · Demo'), 'VI Demo mode_status renders format + Demo');
+  assert.ok(textDemoVi.includes('Chọn một con ngõ để bắt đầu câu chuyện.'), 'VI Demo mode_status renders static truthful copy');
   assert.equal(textDemoVi.includes('mô phỏng'), false, 'VI Demo mode_status must not claim mô phỏng');
   viewDemoVi.unmount();
 
@@ -368,7 +379,7 @@ test('LandingScreen P2-1: mode_status renders truthful format + mode without sim
 
   const treeDemoEn = viewDemoEn.render();
   const textDemoEn = JSON.stringify(treeDemoEn);
-  assert.ok(textDemoEn.includes('Text stories · Demo'), 'EN Demo mode_status renders format + Demo');
+  assert.ok(textDemoEn.includes('Choose an alley to begin its story.'), 'EN Demo mode_status renders static truthful copy');
   assert.equal(textDemoEn.includes('simulated'), false, 'EN Demo mode_status must not claim simulated');
   viewDemoEn.unmount();
 });
@@ -589,6 +600,11 @@ test('QaScreen removes waveform provenance badge, source pill, and verified tag 
   // Narrative title and questions retained
   assert.ok(text.includes(reviewedPilotVi.nodes[0].name), 'node title retained');
   assert.ok(text.includes(reviewedPilotVi.qa[0].question), 'question text retained');
+
+  // Phase C: Photo credit and ClickableSources removed from QaScreen
+  assert.equal(text.includes('creditPillText'), false, 'creditPillText style absent');
+  assert.equal(text.includes('Nguyễn Văn A'), false, 'photographer name removed from QaScreen');
+  assert.equal(text.includes('ClickableSources'), false, 'ClickableSources absent from QaScreen');
   view.unmount();
 });
 
@@ -931,15 +947,18 @@ test('P2-2: AlleySelectScreen removes source badges, Bia minh hoa, and unclutter
   const visibleDemoVi = elements(treeDemoVi, 'Text').map((t) => [].concat(t.props?.children ?? []).join('')).filter(Boolean);
   const textDemoVi = visibleDemoVi.join(' ');
 
-  // Card meta info contains point count and mode without "Bìa minh họa"
-  assert.ok(textDemoVi.includes('6 điểm · Demo'), 'card meta renders count and mode');
+  // Card meta info contains point count without mode suffix or "Bìa minh họa"
+  assert.ok(textDemoVi.includes('6 điểm'), 'card meta renders count');
+  assert.equal(textDemoVi.includes('Demo'), false, 'Demo removed from meta');
+  assert.equal(textDemoVi.includes('DEMO'), false, 'DEMO removed from header/card');
   assert.equal(textDemoVi.includes('Bìa minh họa'), false, 'Bìa minh họa removed from meta');
   assert.equal(textDemoVi.includes('Cover photo'), false, 'Cover photo removed');
   assert.equal(textDemoVi.includes('từ nguồn'), false, 'từ nguồn removed from hint');
-  assert.ok(textDemoVi.includes('Chọn con ngõ bên dưới để mở các điểm khám phá · Demo'), 'clean hint rendered');
+  assert.ok(textDemoVi.includes('Chọn con ngõ bên dưới để mở các điểm khám phá'), 'clean hint rendered without mode suffix');
 
   // GPS area has bare area status and location name
-  assert.ok(textDemoVi.includes('KHU VỰC DEMO'), 'demo area label present');
+  assert.ok(textDemoVi.includes('KHU VỰC KHÁM PHÁ'), 'mode-neutral area label present');
+  assert.equal(textDemoVi.includes('KHU VỰC DEMO'), false, 'demo area label removed');
   assert.ok(textDemoVi.includes('Phố cổ Hà Nội'), 'demo location name present');
   assert.equal(textDemoVi.includes('mô phỏng'), false, 'no simulated qualifier in location name');
   viewDemoVi.unmount();
@@ -965,10 +984,13 @@ test('P2-2: AlleySelectScreen removes source badges, Bia minh hoa, and unclutter
   const visibleDemoEn = elements(treeDemoEn, 'Text').map((t) => [].concat(t.props?.children ?? []).join('')).filter(Boolean);
   const textDemoEn = visibleDemoEn.join(' ');
 
-  assert.ok(textDemoEn.includes('6 stops · Demo'), 'EN card meta renders stops and mode');
+  assert.ok(textDemoEn.includes('6 stops'), 'EN card meta renders stops without mode');
+  assert.equal(textDemoEn.includes('Demo'), false, 'Demo removed in EN');
+  assert.equal(textDemoEn.includes('DEMO'), false, 'DEMO removed from header/card in EN');
   assert.equal(textDemoEn.includes('Cover photo'), false, 'Cover photo removed in EN');
   assert.equal(textDemoEn.includes('from Demo source'), false, 'from source removed from EN hint');
-  assert.ok(textDemoEn.includes('DEMO AREA'), 'EN demo area label present');
+  assert.ok(textDemoEn.includes('EXPLORATION AREA'), 'EN mode-neutral area label present');
+  assert.equal(textDemoEn.includes('DEMO AREA'), false, 'EN demo area label removed');
   assert.ok(textDemoEn.includes('Hanoi Old Quarter'), 'EN demo location name present');
   assert.equal(textDemoEn.includes('simulated'), false, 'no simulated label in EN');
   viewDemoEn.unmount();
@@ -1005,7 +1027,9 @@ test('P2-2: AlleySelectScreen removes source badges, Bia minh hoa, and unclutter
   const visibleLiveVi = elements(treeLiveVi, 'Text').map((t) => [].concat(t.props?.children ?? []).join('')).filter(Boolean);
   const textLiveVi = visibleLiveVi.join(' ');
 
-  assert.ok(textLiveVi.includes('6 điểm · Live'), 'card meta renders count and Live');
+  assert.ok(textLiveVi.includes('6 điểm'), 'card meta renders count without Live');
+  assert.equal(textLiveVi.includes('Live'), false, 'Live label removed');
+  assert.equal(textLiveVi.includes('LIVE'), false, 'LIVE badge removed');
   assert.equal(textLiveVi.includes('Nguồn máy chủ Live'), false, 'Nguồn máy chủ Live badge removed');
   assert.equal(textLiveVi.includes('Bìa minh họa'), false, 'Bìa minh họa removed');
   assert.equal(textLiveVi.includes('đã duyệt'), false, 'no reviewed provenance label');
@@ -1021,7 +1045,7 @@ test('P2-2: AlleySelectScreen removes source badges, Bia minh hoa, and unclutter
     liveSource: {
       mode: 'live',
       status: 'error',
-      title: 'Lỗi kết nối máy chủ Live',
+      title: 'Lỗi kết nối máy chủ',
       detail: 'Không thể kết nối tới backend.',
     },
     liveBusy: false,
@@ -1041,7 +1065,7 @@ test('P2-2: AlleySelectScreen removes source badges, Bia minh hoa, and unclutter
   const treeLiveError = viewLiveError.render();
   const visibleLiveError = elements(treeLiveError, 'Text').map((t) => [].concat(t.props?.children ?? []).join('')).filter(Boolean);
   const textLiveError = visibleLiveError.join(' ');
-  assert.ok(textLiveError.includes('Lỗi kết nối máy chủ Live'), 'operational error title visible');
+  assert.ok(textLiveError.includes('Lỗi kết nối máy chủ'), 'operational error title visible');
   assert.ok(textLiveError.includes('Không thể kết nối tới backend.'), 'operational error detail visible');
 
   const retryBtn = elements(treeLiveError, 'Pressable').find((p) => p.props.testID === 'alley-retry-live-btn');
@@ -1073,4 +1097,98 @@ test('P2-3 and P3-c: i18n copy rewrites for voice plan, voice gps, and photo cre
   assert.equal(translator.translate('en', 'qa.photo_credit'), 'Photo');
   assert.equal(translator.translate('vi', 'home.photo_credit'), 'Ảnh');
   assert.equal(translator.translate('en', 'home.photo_credit'), 'Photo');
+});
+
+test('Phase C: Home and Q&A label cleanup - no Demo/Live in progress line, no photo credits, no ClickableSources, no About Content/Source section', () => {
+  // 1. HomeScreen in VI removes Demo/Live from stories_opened progress line and photo credit from preview
+  const homeProps = {
+    mode: 'demo',
+    source: {
+      mode: 'demo',
+      status: 'ready',
+      title: 'Demo',
+      detail: 'Sẵn sàng',
+      dataset: reviewedPilotVi,
+    },
+    currentNodeId: reviewedPilotVi.nodes[0].id,
+    onSelectNode() {},
+    readNodeIds: new Set([reviewedPilotVi.nodes[0].id]),
+    onModeChange() {},
+    navigation: { navigate() {}, goBack() {} },
+    route: { params: {} },
+  };
+
+  const homeViewVi = createTestMount('../src/screens/HomeScreen.tsx', homeProps, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        setLocale: () => {},
+        collectionId: 'old-quarter-pilot',
+        setCollectionId: () => {},
+        t: (k, p) => translator.t('vi', k, p),
+      }),
+    },
+  });
+
+  const homeTreeVi = homeViewVi.render();
+  const homeTextVi = JSON.stringify(homeTreeVi);
+  // Progress line has no Demo or Live
+  assert.ok(homeTextVi.includes('Đã mở 1/3 câu chuyện'), 'progress title renders clean count without mode');
+  assert.equal(homeTextVi.includes('Đã mở 1/3 câu chuyện · Demo'), false, 'no Demo suffix in progress title');
+  assert.equal(homeTextVi.includes('Đã mở 1/3 câu chuyện · Live'), false, 'no Live suffix in progress title');
+  // Preview has no photo credit text or accessibilityHint with photo credit
+  const preview = elements(homeTreeVi, 'Animated.View').find((v) => v.props.testID === 'home-selected-node-preview');
+  assert.ok(preview, 'Home preview card present');
+  assert.equal(Boolean(preview.props.accessibilityHint && preview.props.accessibilityHint.includes('Ảnh:')), false, 'no photo credit in accessibilityHint');
+  assert.equal(homeTextVi.includes('previewCreditText'), false, 'previewCreditText style absent from Home');
+  homeViewVi.unmount();
+
+  // 2. HomeScreen in EN
+  const homeViewEn = createTestMount('../src/screens/HomeScreen.tsx', homeProps, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'en',
+        setLocale: () => {},
+        collectionId: 'old-quarter-pilot',
+        setCollectionId: () => {},
+        t: (k, p) => translator.t('en', k, p),
+      }),
+    },
+  });
+  const homeTreeEn = homeViewEn.render();
+  const homeTextEn = JSON.stringify(homeTreeEn);
+  assert.ok(homeTextEn.includes('Opened 1/3 stories'), 'EN progress title renders clean count without mode');
+  assert.equal(homeTextEn.includes('Opened 1/3 stories · Demo'), false, 'no Demo in EN progress');
+  homeViewEn.unmount();
+
+  // 3. NotebookDrawerModal preserves functional mode selector and has NO "Về nội dung và nguồn" section
+  const notebookView = createTestMount('../src/components/NotebookDrawerModal.tsx', {
+    visible: true,
+    onClose() {},
+    navigation: { navigate() {} },
+    mode: 'demo',
+    source: sources.getSourceState('demo', fixture, 'vi'),
+    onModeChange() {},
+    collectionId: 'fiction-letter',
+  }, {
+    '../context/LocaleContext': {
+      useLocale: () => ({
+        locale: 'vi',
+        setLocale: () => {},
+        collectionId: 'fiction-letter',
+        setCollectionId: () => {},
+        t: (k, p) => translator.t('vi', k, p),
+      }),
+    },
+  });
+  const notebookTree = notebookView.render();
+  const notebookText = JSON.stringify(notebookTree);
+  assert.equal(notebookText.includes('Về nội dung và nguồn'), false, 'no About content-source section');
+  assert.equal(notebookText.includes('About content and sources'), false, 'no EN about content-source');
+  // Functional mode selector preserved
+  const demoRadio = elements(notebookTree, 'Pressable').find((p) => p.props.testID === 'notebook-mode-demo');
+  const liveRadio = elements(notebookTree, 'Pressable').find((p) => p.props.testID === 'notebook-mode-live');
+  assert.ok(demoRadio, 'demo radio preserved');
+  assert.ok(liveRadio, 'live radio preserved');
+  notebookView.unmount();
 });

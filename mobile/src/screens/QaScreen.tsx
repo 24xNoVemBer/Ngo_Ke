@@ -20,7 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TOPICS, type AnyDemoDataset, type Mode, type Topic } from '../data/sourceState';
 import { findAnswer, type QaEntry, type QaMatch } from '../qa/match';
 import { pickPoints, type PlanDraft } from '../recommendation/pick';
-import { HERO_PHOTO, getNodePhoto, getNodePhotographer } from '../assets/photoMap';
+import { HERO_PHOTO, getNodePhoto } from '../assets/photoMap';
 import { VoiceInteractionDock } from '../components/VoiceInteractionDock';
 import { VoicePlayerBar } from '../components/VoicePlayerBar';
 import { AppIcon } from '../components/AppIcon';
@@ -217,7 +217,9 @@ export function QaScreen({
   const currentSegmentData = (() => {
     if (selectedSegment === 'intro') {
       return {
-        title: locale === 'en' ? 'Opening — Three lenses on the Old Quarter' : 'Phần mở đầu — Ba lát cắt phố cổ',
+        title: isThreeLenses
+          ? (locale === 'en' ? 'Opening — Three lenses on the Old Quarter' : 'Phần mở đầu — Ba lát cắt phố cổ')
+          : (locale === 'en' ? 'Opening introduction' : 'Phần mở đầu'),
         text: intro.text,
         voiceContentId: 'intro',
         evidence: intro.evidence,
@@ -262,10 +264,6 @@ export function QaScreen({
   const currentPhoto = activeChapter
     ? getNodePhoto(currentNode?.id, activeChapter.photoKey)
     : (currentNode ? getNodePhoto(currentNode.id) : HERO_PHOTO);
-
-  const currentPhotographer = activeChapter
-    ? getNodePhotographer(currentNode?.id, activeChapter.photoKey, isThreeLenses ? 'old-quarter-three-lenses' : undefined, locale)
-    : (currentNode ? getNodePhotographer(currentNode.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined, locale) : (locale === 'en' ? 'Ngõ Kể Project' : 'Dự án Ngõ Kể'));
 
   const chapterQa = (activeChapter && activeChapter.qaIds && activeChapter.qaIds.length > 0)
     ? nodeQa.filter((q) => activeChapter.qaIds.includes(q.id))
@@ -416,6 +414,15 @@ export function QaScreen({
     contentId: storyTrackId,
     datasetRevision,
   });
+  const introTrack = storyTrackId === 'intro'
+    ? storyTrack
+    : lookupVoiceTrack({
+        collectionId: actualCollectionId,
+        locale,
+        contentId: 'intro',
+        datasetRevision,
+      });
+  const hasIntro = isThreeLenses || Boolean(introTrack);
   const answerTrackId = entry ? `${entry.id}-answer` : '';
   const answerTrack = entry
     ? lookupVoiceTrack({
@@ -564,7 +571,6 @@ export function QaScreen({
               {t('home.stop_prefix')} {String(activeIndex + 1).padStart(2, '0')}/{dataset.nodes.length}:{' '}
               {currentNode ? currentNode.name : t('qa.explore_alley')}
             </Text>
-            <Text style={styles.creditPillText}>{t('qa.photo_credit')}: {currentPhotographer}</Text>
           </View>
         </View>
 
@@ -623,7 +629,7 @@ export function QaScreen({
               )}
 
               {/* NÚT CHUYỂN ĐOẠN / KẾT THÚC / QUAY LẠI CÂU CHUYỆN */}
-              {(nodeTransition || nodeClosing || selectedSegment !== 'chapter' || isThreeLenses) && (
+              {(nodeTransition || nodeClosing || selectedSegment !== 'chapter' || hasIntro) && (
                 <View style={styles.journeySegmentControls}>
                   {selectedSegment !== 'chapter' && (
                     <Pressable
@@ -637,7 +643,7 @@ export function QaScreen({
                       </Text>
                     </Pressable>
                   )}
-                  {isThreeLenses && selectedSegment !== 'intro' && (
+                  {hasIntro && selectedSegment !== 'intro' && (
                     <Pressable
                       accessibilityRole="button"
                       accessibilityLabel={locale === 'en' ? 'Opening narration' : 'Phần mở đầu'}
@@ -1181,19 +1187,6 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0,0,0,0.85)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
-  },
-  creditPill: {
-    backgroundColor: 'rgba(28, 20, 16, 0.60)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 245, 230, 0.15)',
-  },
-  creditPillText: {
-    fontSize: 12,
-    color: '#E8D5BC',
-    fontStyle: 'italic',
   },
   scrollContent: {
     paddingHorizontal: spacing.md,

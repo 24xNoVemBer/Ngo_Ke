@@ -326,6 +326,7 @@ function mount(file, props = {}, overrides = {}, exportName) {
     'expo-audio': {
       setAudioModeAsync: async () => {},
       useAudioPlayer: () => defaultAudioPlayer,
+      useAudioPlayerStatus: () => ({ playing: false, currentTime: 0, duration: 0 }),
       createAudioPlayer: () => defaultAudioPlayer,
       ...(overrides['expo-audio'] ?? {}),
     },
@@ -384,6 +385,46 @@ function mount(file, props = {}, overrides = {}, exportName) {
     },
     './src/components/NotebookDrawerModal': {
       NotebookDrawerModal: (props) => modules['../components/NotebookDrawerModal'].NotebookDrawerModal(props),
+    },
+    '../components/ToolDock': {
+      ToolDock: (props) => ({
+        type: 'View',
+        props: {
+          testID: (props.testIDPrefix ?? 'dock') + '-tool-dock',
+          children: [
+            {
+              type: 'Pressable',
+              props: {
+                testID: (props.testIDPrefix ?? 'dock') + '-dock-gps',
+                accessibilityRole: 'button',
+                accessibilityLabel: 'Vị trí GPS',
+                onPress: props.onPressGps,
+              },
+            },
+            {
+              type: 'Pressable',
+              props: {
+                testID: (props.testIDPrefix ?? 'dock') + '-dock-qr',
+                accessibilityRole: 'button',
+                accessibilityLabel: 'Quét mã QR',
+                onPress: props.onPressQr,
+              },
+            },
+            {
+              type: 'Pressable',
+              props: {
+                testID: props.testIDPrefix ? (props.testIDPrefix + '-notebook') : 'dock-notebook',
+                accessibilityRole: 'button',
+                accessibilityLabel: 'Mở sổ tay ngõ phố',
+                onPress: props.onPressNotebook,
+              },
+            },
+          ],
+        },
+      }),
+    },
+    './src/components/ToolDock': {
+      ToolDock: (props) => modules['../components/ToolDock'].ToolDock(props),
     },
   };
   const module = { exports: {} };
@@ -1391,7 +1432,7 @@ test('Home pins match ids after reordering and empty sources have working escape
   let tree = view.render();
   elements(tree, 'Pressable').find((item) => item.props.accessibilityLabel === `Xem ${fixture.nodes[1].name}`).props.onPress();
   assert.equal(selected, 'demo-02');
-  assert.ok(elements(tree, 'Text').some((item) => [].concat(item.props.children).join('') === 'Đã mở 0/6 câu chuyện · Demo'));
+  assert.ok(elements(tree, 'Text').some((item) => [].concat(item.props.children).join('') === 'Đã mở 0/6 câu chuyện'));
   const renamed = nodes.map((node) => ({ ...node, id: 'live-' + node.id }));
   tree = view.render({ ...props, currentNodeId: 'live-demo-03', source: { ...props.source, dataset: { ...fixture, nodes: renamed } } });
   const pins = elements(tree, 'Pressable').filter((item) => item.props.accessibilityLabel?.startsWith('Xem '));
@@ -1499,7 +1540,7 @@ test('ready Live passes its mode to Q&A/Plan and Home does not label it Demo', a
   assert.equal(screen(tree, 'Qa').mode, 'live');
   assert.equal(screen(tree, 'Plan').mode, 'live');
   const home = mount('../src/screens/HomeScreen.tsx', { ...screen(tree, 'Home'), navigation: { goBack() {}, navigate() {} }, route: {} });
-  assert.ok(elements(home.render(), 'Text').some((item) => [].concat(item.props.children).join('') === 'Đã mở 0/6 câu chuyện · Live'));
+  assert.ok(elements(home.render(), 'Text').some((item) => [].concat(item.props.children).join('') === 'Đã mở 0/6 câu chuyện'));
 });
 
 test('Home switches to a wrapping scrollable trail at large font scale', () => {
@@ -2009,7 +2050,8 @@ test('AlleySelectScreen in live mode shows only actual server collection with ac
   assert.equal(readyCards.length, 1, 'in live mode only one actual server collection is shown, never bundle picker');
   readyCards[0].props.onPress();
   assert.equal(selectedCollection, 'old-quarter-pilot');
-  assert.ok(JSON.stringify(treeReady).includes('3 điểm · Live'));
+  assert.ok(JSON.stringify(treeReady).includes('3 điểm'));
+  assert.equal(JSON.stringify(treeReady).includes('3 điểm · Live'), false);
   assert.ok(JSON.stringify(treeReady).includes('Phố Cổ, Hoàn Kiếm'));
   assert.equal(JSON.stringify(treeReady).includes('Phố Hàng Bút'), false, 'bundled fiction collection is not shown in live');
   assert.equal(JSON.stringify(treeReady).includes('Lá thư Hà Nội'), false);
@@ -2045,7 +2087,8 @@ test('AlleySelectScreen in live mode shows only actual server collection with ac
   const treeArbitrary = viewArbitrary.render();
   const arbitraryCards = elements(treeArbitrary, 'Pressable').filter((p) => p.props.accessibilityLabel?.startsWith('Open'));
   assert.equal(arbitraryCards.length, 1);
-  assert.ok(JSON.stringify(treeArbitrary).includes('4 stops · Live'));
+  assert.ok(JSON.stringify(treeArbitrary).includes('4 stops'));
+  assert.equal(JSON.stringify(treeArbitrary).includes('4 stops · Live'), false);
   assert.equal(JSON.stringify(treeArbitrary).includes('Live backend source'), false);
   assert.ok(JSON.stringify(treeArbitrary).includes('custom-heritage-quarter'));
   assert.equal(JSON.stringify(treeArbitrary).includes('Hanoi Old Quarter · simulated content'), false);
@@ -2068,7 +2111,7 @@ test('AlleySelectScreen in live mode shows only actual server collection with ac
     },
   });
   const treeLoading = viewLoading.render();
-  assert.ok(JSON.stringify(treeLoading).includes('Đang kết nối máy chủ Live...'));
+  assert.ok(JSON.stringify(treeLoading).includes('Đang kết nối máy chủ...'));
   assert.equal(elements(treeLoading, 'Pressable').filter((p) => p.props.accessibilityLabel?.startsWith('Mở')).length, 0);
   viewLoading.unmount();
 
@@ -4161,7 +4204,7 @@ test('HomeScreen positions compact selected node preview directly above bottom d
   assert.ok(previewTexts.some((text) => text.includes('Cổng ngõ')), 'Preview shows node name');
   assert.ok(previewTexts.some((text) => text.includes('5 phút')), 'Preview shows visit minutes');
   assert.equal(previewTexts.some((text) => text.includes('mô phỏng')), false, 'Preview removes simulated duration clutter');
-  assert.ok(previewTexts.some((text) => text.includes('Ảnh:')), 'Preview retains photo credit attribution');
+  assert.equal(previewTexts.some((text) => text.includes('Ảnh:')), false, 'Preview removes photo credit attribution in Phase C');
 
   const titleNode = elements(preview, 'Text').find((t) => [].concat(t.props.children).join('') === 'Cổng ngõ');
   assert.ok(titleNode, 'Title node exists');
@@ -4180,12 +4223,13 @@ test('HomeScreen positions compact selected node preview directly above bottom d
   assert.ok(previewTexts2.some((text) => text.includes('Hiên đồng hồ')), 'Preview updates to second node');
   assert.ok(previewTexts2.some((text) => text.includes('15 phút')), 'Preview shows updated visit minutes');
 
-  // 5. Dock contains exactly 2 secondary buttons (GPS and Notebook), with NO duplicate center circle button
-  const dockButtons = elements(tree, 'Pressable').filter((item) =>
-    item.props.accessibilityLabel === 'Xác nhận điểm GPS' ||
-    item.props.accessibilityLabel === 'Mở sổ tay ngõ phố'
-  );
-  assert.equal(dockButtons.length, 2, 'Bottom dock contains GPS and Notebook secondary buttons');
+  // 5. Dock contains ToolDock items (GPS, QR, Notebook) with NO duplicate center circle button
+  const dockGps = elements(tree, 'Pressable').find((item) => item.props.testID === 'home-dock-gps');
+  const dockQr = elements(tree, 'Pressable').find((item) => item.props.testID === 'home-dock-qr');
+  const dockNotebook = elements(tree, 'Pressable').find((item) => item.props.testID === 'home-notebook');
+  assert.ok(dockGps, 'Bottom dock contains GPS button');
+  assert.ok(dockQr, 'Bottom dock contains QR button');
+  assert.ok(dockNotebook, 'Bottom dock contains Notebook button');
 
   const oldCenterCircle = elements(tree, 'Pressable').find((item) =>
     item.props.style && [].concat(item.props.style).some((s) => s?.backgroundColor === '#F5ECE0')

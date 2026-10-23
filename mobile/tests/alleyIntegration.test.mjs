@@ -165,6 +165,7 @@ function mount(file, props, overrides = {}) {
     '../components/AlleyTrailView': { AlleyTrailView: 'AlleyTrailView' },
     '../components/AppIcon': { AppIcon: 'AppIcon' },
     '../components/NotebookDrawerModal': { NotebookDrawerModal: 'NotebookDrawerModal' },
+    '../components/ToolDock': { ToolDock: 'ToolDock' },
     '../components/AlleyStoryCard': { AlleyStoryCard: 'AlleyStoryCard' },
     '../components/AlleyGuideSection': { AlleyGuideSection: 'AlleyGuideSection' },
     './UnavailableScreen': { UnavailableScreen: 'UnavailableScreen' },
@@ -182,6 +183,14 @@ function mount(file, props, overrides = {}) {
     '../utils/alleyGeometry': {
       buildSmoothPath,
       computeAlleyLayout,
+    },
+    'expo-audio': {
+      setAudioModeAsync: async () => {},
+      useAudioPlayer: () => ({ loop: false, pause() {}, play() {}, replace() {} }),
+      useAudioPlayerStatus: () => ({ playing: false, currentTime: 0, duration: 0 }),
+    },
+    '../voice/localizedCatalog': {
+      lookupVoiceTrack: () => undefined,
     },
     ...overrides,
   };
@@ -735,8 +744,13 @@ test('(c) Honest labels - stop with pendingCheck renders warning and does not as
   const texts = findElements(preview, 'Text').map((t) => [].concat(t.props.children).join(''));
 
   assert.ok(
-    texts.some((text) => text.includes('Tu bổ khởi công') && text.includes('⚠️')),
-    'Pending check is prominently displayed with warning symbol',
+    texts.some((text) => text.includes('Một số chi tiết chưa được xác nhận')),
+    'Pending check is displayed with approved copy',
+  );
+  assert.equal(
+    texts.some((text) => text.includes('⚠️')),
+    false,
+    'Pending check must not render warning emoji',
   );
 });
 
@@ -768,15 +782,17 @@ test('(c) Accessibility - summary & pendingCheck remain visible at fontScale > 1
   const preview = findElements(tree, 'Animated.View').find((item) => item.props.testID === 'home-selected-node-preview');
   assert.ok(preview, 'Large preview rendered');
 
-  // accessibilityHint contains photo credit
-  assert.ok(
-    preview.props.accessibilityHint && preview.props.accessibilityHint.includes('Google Maps contributor'),
-    'Photo credit is accessible via accessibilityHint at large font scale',
+  // Phase C: Photo credit removed from Home preview card
+  assert.equal(
+    Boolean(preview.props.accessibilityHint && preview.props.accessibilityHint.includes('Google Maps contributor')),
+    false,
+    'Photo credit is removed from accessibilityHint in Phase C',
   );
 
   const texts = findElements(preview, 'Text').map((t) => [].concat(t.props.children).join(''));
   assert.ok(texts.some((text) => text.includes('Đình Thanh Hà')), 'Title is rendered at large font');
-  assert.ok(texts.some((text) => text.includes('⚠️ Tu bổ khởi công')), 'PendingCheck warning remains rendered at large font');
+  assert.ok(texts.some((text) => text.includes('Một số chi tiết chưa được xác nhận')), 'PendingCheck warning remains rendered at large font');
+  assert.equal(texts.some((text) => text.includes('⚠️')), false, 'PendingCheck must not render warning emoji at large font');
   assert.ok(texts.some((text) => text.includes('Đình thờ Trần Lựu')), 'Summary remains rendered for new alley dataset');
 
   // 2. Legacy dataset at fontScale > 1.3 omits summary to preserve body room

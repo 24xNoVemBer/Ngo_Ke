@@ -17,16 +17,22 @@ export interface AlleyStoryCardProps {
   story: AlleyStory;
   onClose: () => void;
   visible?: boolean;
+  hasIntroTrack?: boolean;
+  isPlayingIntro?: boolean;
+  onTogglePlayIntro?: () => void;
 }
 
 export function AlleyStoryCard({
   story,
   onClose,
   visible = true,
+  hasIntroTrack = false,
+  isPlayingIntro = false,
+  onTogglePlayIntro,
 }: AlleyStoryCardProps): ReactElement | null {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const { t } = useLocale();
+  const { locale, t } = useLocale();
 
   if (!visible) return null;
 
@@ -65,16 +71,34 @@ export function AlleyStoryCard({
                 {story.title}
               </Text>
             </View>
-            <Pressable
-              testID="alley-story-close"
-              accessibilityRole="button"
-              accessibilityLabel={t('home.alley_story_close')}
-              onPress={onClose}
-              style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <Text style={styles.closeButtonText}>✕</Text>
-            </Pressable>
+            <View style={styles.headerActions}>
+              {hasIntroTrack && onTogglePlayIntro && (
+                <Pressable
+                  testID="alley-story-play-btn"
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    isPlayingIntro
+                      ? (locale === 'en' ? 'Pause alley intro' : 'Tạm dừng giới thiệu ngõ')
+                      : (locale === 'en' ? 'Play alley intro' : 'Nghe giới thiệu ngõ')
+                  }
+                  onPress={onTogglePlayIntro}
+                  style={({ pressed }) => [styles.cardPlayButton, pressed && styles.pressed]}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Text style={styles.cardPlayButtonIcon}>{isPlayingIntro ? '⏸' : '▶'}</Text>
+                </Pressable>
+              )}
+              <Pressable
+                testID="alley-story-close"
+                accessibilityRole="button"
+                accessibilityLabel={t('home.alley_story_close')}
+                onPress={onClose}
+                style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Text style={styles.closeButtonText}>✕</Text>
+              </Pressable>
+            </View>
           </View>
 
           {/* Scrollable Story Reader */}
@@ -148,6 +172,27 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.text,
     lineHeight: 25,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  cardPlayButton: {
+    width: 44,
+    height: 44,
+    minWidth: 44,
+    minHeight: 44,
+    borderRadius: radius.pill,
+    backgroundColor: '#F2C56B',
+    borderWidth: 1,
+    borderColor: 'rgba(242, 197, 107, 0.65)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardPlayButtonIcon: {
+    fontSize: 16,
+    color: '#24392E',
   },
   closeButton: {
     width: 44,

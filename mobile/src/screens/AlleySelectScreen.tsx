@@ -9,7 +9,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -46,8 +45,6 @@ export function AlleySelectScreen({
 }: Props): ReactElement {
   const { locale, t, setCollectionId } = useLocale();
   const insets = useSafeAreaInsets();
-  const { fontScale } = useWindowDimensions();
-
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<LocationFilter>('Tất cả');
 
@@ -77,9 +74,9 @@ export function AlleySelectScreen({
     liveCollectionItem = {
       id: rawCollectionId,
       name: known ? t(known.nameKey) : rawCollectionId,
-      tagline: known ? t(known.taglineKey) : (locale === 'en' ? 'Live collection' : 'Bộ sưu tập Live'),
-      theme: known ? t(known.themeKey) : (locale === 'en' ? 'Live explore' : 'Khám phá Live'),
-      district: known ? t(known.districtKey) : (locale === 'en' ? 'Live area' : 'Khu vực Live'),
+      tagline: known ? t(known.taglineKey) : (locale === 'en' ? 'Alley collection' : 'Bộ sưu tập ngõ phố'),
+      theme: known ? t(known.themeKey) : (locale === 'en' ? 'Explore' : 'Khám phá'),
+      district: known ? t(known.districtKey) : (locale === 'en' ? 'Hanoi' : 'Hà Nội'),
       nodeCount: dataset.nodes.length,
       coverPhoto: known ? known.coverPhoto : HERO_PHOTO,
       kind: dataset.kind ?? 'reviewed',
@@ -160,9 +157,7 @@ export function AlleySelectScreen({
           <Text style={styles.topBarMainTitle}>{t('alley_select.title')}</Text>
         </View>
 
-        <View style={[styles.gpsHeaderBtn, fontScale > 1.2 && styles.gpsHeaderBtnLarge]}>
-          <Text style={styles.gpsHeaderBtnIcon}>{mode === 'demo' ? 'DEMO' : 'LIVE'}</Text>
-        </View>
+        <View style={styles.topBarSpacer} />
       </Animated.View>
 
       <ScrollView
@@ -245,7 +240,7 @@ export function AlleySelectScreen({
           >
             <Text style={styles.nearestSparkle}>ℹ️</Text>
             <Text style={styles.nearestAlleyLabel}>
-              {t('alley_select.hint', { mode: isLive ? t('common.live') : t('common.demo') })}
+              {t('alley_select.hint')}
             </Text>
           </View>
 
@@ -299,9 +294,7 @@ export function AlleySelectScreen({
             {t('alley_select.explore_count', { count: filteredCollections.length })}
           </Text>
           <Text style={styles.sectionSubtitle}>
-            {isLive
-              ? t('alley_select.live_source_badge')
-              : t('alley_select.sample_list')}
+            {t('alley_select.sample_list')}
           </Text>
         </Animated.View>
 
@@ -365,18 +358,13 @@ export function AlleySelectScreen({
                   <View style={styles.themeBadge}>
                     <Text style={styles.themeBadgeText}>{col.theme}</Text>
                   </View>
-                  <View style={styles.distanceBadge}>
-                    <Text style={styles.distanceBadgeText}>{isLive ? 'LIVE' : 'DEMO'}</Text>
-                  </View>
                 </View>
                 <View style={styles.cardBottomBar}>
                   <View style={styles.cardTextCol}>
                     <Text style={styles.cardDistrictText}>{col.district}</Text>
                     <Text style={styles.cardNameText}>{col.name}</Text>
                     <Text style={styles.cardBriefMeta}>
-                      {isLive
-                        ? t('alley_select.live_meta_info', { count: col.nodeCount })
-                        : t('alley_select.meta_info', { count: col.nodeCount, mode: t('common.demo') })}
+                      {t('alley_select.meta_info', { count: col.nodeCount })}
                     </Text>
                   </View>
                   <View style={styles.cardForwardBtn}>
@@ -436,6 +424,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 7,
     flexShrink: 1,
+  },
+  topBarSpacer: {
+    width: 48,
+    height: 48,
   },
   topBarMainTitle: {
     fontSize: 17,

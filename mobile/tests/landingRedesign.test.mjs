@@ -15,6 +15,16 @@ const drawerCode = ts.transpileModule(readFileSync(new URL('../src/components/No
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
 }).outputText;
 
+// Transpile ToolDock
+const toolDockCode = ts.transpileModule(readFileSync(new URL('../src/components/ToolDock.tsx', import.meta.url), 'utf8'), {
+  compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
+}).outputText;
+
+// Transpile AlleyPassportModal
+const passportCode = ts.transpileModule(readFileSync(new URL('../src/components/AlleyPassportModal.tsx', import.meta.url), 'utf8'), {
+  compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
+}).outputText;
+
 function createTestMount(file, defaultProps = {}, overrides = {}) {
   const slots = [];
   let cursor = 0;
@@ -122,15 +132,13 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
     '../data/collections': {
       getLocalizedCollections: (loc = 'vi') => [
         { id: 'old-quarter-pilot', name: loc === 'en' ? 'Old Quarter Pilot' : 'Thử nghiệm Phố Cổ', tagline: 'Di sản', theme: 'Lịch sử', district: 'Hoàn Kiếm', coverPhoto: 1, kind: 'reviewed', nodeCount: 3 },
-        { id: 'fiction-letter', name: loc === 'en' ? 'Hanoi Letters' : 'Thư Hà Nội', tagline: 'Kể chuyện', theme: 'Văn hóa', district: 'Hoàn Kiếm', coverPhoto: 2, kind: 'simulated', nodeCount: 6 },
-        { id: 'ngo-gach', name: loc === 'en' ? 'Gach Alley' : 'Ngõ Gạch', tagline: 'Ngõ cổ', theme: 'Đời sống', district: 'Đồng Xuân', coverPhoto: 3, kind: 'simulated', nodeCount: 5 },
+        { id: 'fiction-letter', name: loc === 'en' ? 'Hanoi Letters' : 'Thư Hà Nội', tagline: 'Kể chuyện', theme: 'Văn hóa', district: 'Hoàn Kiếm', coverPhoto: 1, kind: 'simulated', nodeCount: 6 },
       ],
       getBundledDataset: () => fixture,
-      isCollectionId: (id) => ['old-quarter-pilot', 'fiction-letter', 'ngo-gach'].includes(id),
     },
     '../data/sourceState': sources,
     '../assets/photoMap': {
-      HERO_PHOTO: { testUri: 'pexels_demo_06.jpg' },
+      HERO_PHOTO: 1,
     },
     '../theme': {
       colors: { primary: '#2D5748', terracotta: '#C85A32', text: '#2C221E' },
@@ -140,6 +148,29 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
     ...overrides,
   };
 
+  // Build ToolDock module
+  const toolDockMod = { exports: {} };
+  runInNewContext('(function(require,module,exports){' + toolDockCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (modules[id]) return modules[id];
+    if (id === './AppIcon' || id === '../components/AppIcon') {
+      return { AppIcon: 'AppIcon' };
+    }
+    throw new Error(`Unexpected import in toolDock: ${id}`);
+  }, toolDockMod, toolDockMod.exports);
+  modules['../components/ToolDock'] = toolDockMod.exports;
+
+  // Build AlleyPassportModal module
+  const passportMod = { exports: {} };
+  runInNewContext('(function(require,module,exports){' + passportCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (modules[id]) return modules[id];
+    if (id === './AppIcon' || id === '../components/AppIcon') {
+      return { AppIcon: 'AppIcon' };
+    }
+    throw new Error(`Unexpected import in passport: ${id}`);
+  }, passportMod, passportMod.exports);
+  modules['../components/AlleyPassportModal'] = passportMod.exports;
+
+  // Build Drawer module
   const drawerMod = { exports: {} };
   runInNewContext('(function(require,module,exports){' + drawerCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
     if (modules[id]) return modules[id];
@@ -162,9 +193,9 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
   runInNewContext('(function(require,module,exports){' + screenCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
     if (modules[id]) return modules[id];
     if (/\.(png|jpe?g|gif|webp|wav|mp3)$/i.test(id)) return 1;
-    if (id === './AppIcon' || id === '../components/AppIcon' || /\/components\//.test(id) || id.includes('AlleyStoryCard') || id.includes('AlleyGuideSection')) {
+    if (id === './AppIcon' || id === '../components/AppIcon' || id === '../components/NgoKeLogo' || id.includes('NgoKeLogo') || /\/components\//.test(id) || id.includes('AlleyStoryCard') || id.includes('AlleyGuideSection')) {
       const name = id.split('/').at(-1);
-      return { [name]: name, AppIcon: 'AppIcon', AlleyStoryCard: 'AlleyStoryCard', AlleyGuideSection: 'AlleyGuideSection' };
+      return { [name]: name, AppIcon: 'AppIcon', NgoKeLogo: 'NgoKeLogo', AlleyStoryCard: 'AlleyStoryCard', AlleyGuideSection: 'AlleyGuideSection' };
     }
     if (id.includes('alleyGuide')) {
       return { readAlleyStory: () => null, readAlleyGuide: () => null };
@@ -231,13 +262,13 @@ test('Redesign (a): LandingScreen drops quote card, soundscape green banner, and
   assert.equal(allTexts.some((t) => t.includes(translator.t('vi', 'landing.quote_text'))), false, 'Quote text is removed');
   assert.equal(allTexts.some((t) => t.includes(translator.t('vi', 'landing.quote_author'))), false, 'Quote author is removed');
 
-  // 2. Green soundscape banner removed; replaced with plain text status line
+  // 2. Green soundscape banner removed; replaced with plain text status line (B1: blur~6, scrim a>=0.62)
   const bg = elements(tree, 'ImageBackground')[0];
   assert.ok(bg, 'ImageBackground rendered');
-  assert.equal(bg.props.blurRadius, 14, 'Hero image background blurRadius is 14');
+  assert.equal(bg.props.blurRadius, 6, 'Hero image background blurRadius is 6');
 
-  // Status line text is present
-  const expectedStatus = translator.t('vi', 'landing.mode_status', { mode: translator.t('vi', 'common.demo') });
+  // Status line text is static (B7)
+  const expectedStatus = translator.t('vi', 'landing.mode_status');
   assert.ok(allTexts.some((t) => t.includes(expectedStatus)), `Status line rendered with: ${expectedStatus}`);
 
   // 3. Header button-style DEMO pill removed
@@ -258,9 +289,9 @@ test('Redesign (a): LandingScreen drops quote card, soundscape green banner, and
 });
 
 // =============================================================================
-// ACCEPTANCE GROUP (b): Có nút ngôn ngữ phân đoạn và nút Sổ tay
+// ACCEPTANCE GROUP (b): Có nút ngôn ngữ phân đoạn và nút Hộ chiếu trên Header
 // =============================================================================
-test('Redesign (b): Header renders segmented VI|EN control and Sổ tay notebook button', () => {
+test('Redesign (b): Header renders segmented VI|EN control and Passport icon button', () => {
   let selectedLocale = 'vi';
   const mountObj = createTestMount('../src/screens/LandingScreen.tsx', {
     navigation: { navigate() {}, goBack() {}, replace() {} },
@@ -294,128 +325,95 @@ test('Redesign (b): Header renders segmented VI|EN control and Sổ tay notebook
   assert.equal(viSegment.props.accessibilityState?.selected, true, 'VI segment selected by default');
   assert.equal(enSegment.props.accessibilityState?.selected, false, 'EN segment not selected by default');
 
-  // 3. Header Sổ tay button exists with icon and label
-  const headerNotebookBtn = elements(tree, 'Pressable').find((p) => p.props.testID === 'landing-header-notebook');
-  assert.ok(headerNotebookBtn, 'Header Sổ tay button is present');
-  assert.equal(headerNotebookBtn.props.accessibilityRole, 'button');
-  assert.equal(headerNotebookBtn.props.accessibilityLabel, translator.t('vi', 'landing.header_notebook_label'));
+  // 3. Header Passport button exists with icon only, touch target >= 44
+  const headerPassportBtn = elements(tree, 'Pressable').find((p) => p.props.testID === 'landing-header-passport');
+  assert.ok(headerPassportBtn, 'Header Passport button is present');
+  assert.equal(headerPassportBtn.props.accessibilityRole, 'button');
+  assert.equal(headerPassportBtn.props.accessibilityLabel, 'Hộ chiếu ngõ phố');
 
-  const headerNotebookTexts = elements(headerNotebookBtn, 'Text').map((t) => [].concat(t.props.children).join(''));
-  assert.ok(headerNotebookTexts.includes(translator.t('vi', 'landing.header_notebook')), 'Header notebook text Sổ tay rendered');
+  // Icon only across all font scales (no visible text children in header passport button)
+  const headerPassportTexts = elements(headerPassportBtn, 'Text');
+  assert.equal(headerPassportTexts.length, 0, 'Header passport button is icon only with no text children');
 
-  // 4. Pressing header Sổ tay opens NotebookDrawerModal
-  headerNotebookBtn.props.onPress();
+  // 4. Pressing header Passport opens AlleyPassportModal
+  headerPassportBtn.props.onPress();
   const treeAfterOpen = mountObj.render();
-  const drawerModal = elements(treeAfterOpen, 'Modal').find((m) => m.props.testID === 'notebook-drawer-modal');
-  assert.ok(drawerModal, 'NotebookDrawerModal found');
-  assert.equal(drawerModal.props.visible, true, 'NotebookDrawerModal is visible after tapping header notebook button');
+  const passportModal = elements(treeAfterOpen, 'Modal').find((m) => m.props.testID === 'alley-passport-modal');
+  assert.ok(passportModal, 'AlleyPassportModal found');
+  assert.equal(passportModal.props.visible, true, 'AlleyPassportModal is visible after tapping header passport button');
 
   mountObj.unmount();
 });
 
 // =============================================================================
-// ACCEPTANCE GROUP (c): Passport mở được từ trong Sổ tay (không bị stacked modal)
+// ACCEPTANCE GROUP (c): Passport mở từ Landing header và không nằm trong Notebook
 // =============================================================================
-test('Redesign (c): Alley Passport is accessible inside NotebookDrawerModal without stacked modals', () => {
-  let drawerClosed = false;
-
-  const mountObj = createTestMount('../src/components/NotebookDrawerModal.tsx', {
+test('Redesign (c): Alley Passport is accessible via Landing header and removed from NotebookDrawerModal', () => {
+  const drawerMount = createTestMount('../src/components/NotebookDrawerModal.tsx', {
     visible: true,
-    onClose: () => { drawerClosed = true; },
+    onClose: () => {},
     navigation: { navigate() {} },
     mode: 'demo',
     onModeChange: () => {},
     source: sources.getSourceState('demo', fixture, 'vi'),
   });
 
-  let tree = mountObj.render();
+  const drawerTree = drawerMount.render();
 
-  // 1. Passport tool button is present in the main tools grid
-  const passportTool = elements(tree, 'Pressable').find((p) => p.props.testID === 'notebook-tool-passport');
-  assert.ok(passportTool, 'Passport tool button present in Notebook tools grid');
-  assert.equal(passportTool.props.accessibilityRole, 'button');
+  // 1. Passport tool button is removed from NotebookDrawerModal
+  const passportTool = elements(drawerTree, 'Pressable').find((p) => p.props.testID === 'notebook-tool-passport');
+  assert.equal(passportTool, undefined, 'Passport tool is removed from Notebook drawer');
 
-  // 2. Pressing Passport tool opens Passport subview within the same modal
-  passportTool.props.onPress();
-  tree = mountObj.render();
+  // 2. AlleyPassportModal rendered standalone
+  const passportMount = createTestMount('../src/components/AlleyPassportModal.tsx', {
+    visible: true,
+    onClose: () => {},
+  });
 
-  // Verify only 1 Modal is rendered (no stacked RN Modal that blocks iOS presentation)
-  const allModals = elements(tree, 'Modal');
+  const pTree = passportMount.render();
+  const allModals = elements(pTree, 'Modal');
   assert.equal(allModals.length, 1, 'Single modal presentation, no stacked modals');
 
-  // Verify Passport subview header and guide text
-  const passportTexts = elements(tree, 'Text').map((t) => [].concat(t.props.children).join(''));
+  const passportTexts = elements(pTree, 'Text').map((t) => [].concat(t.props.children).join(''));
   assert.ok(passportTexts.includes(translator.t('vi', 'landing.passport_title')), 'Passport title rendered in header');
   assert.ok(passportTexts.includes(translator.t('vi', 'landing.passport_phase')), 'Passport phase rendered');
   assert.ok(passportTexts.some((t) => t.includes(translator.t('vi', 'landing.passport_guide'))), 'Passport guide text rendered');
 
-  // Stamp slots present
-  const stampLabels = passportTexts.filter((t) => t.includes(translator.t('vi', 'home.stop_prefix')));
-  assert.ok(stampLabels.length >= 3, 'Heritage collection stamp slots rendered');
-
-  // 3. Back button returns to main Notebook menu
-  const backBtn = elements(tree, 'Pressable').find((p) => p.props.testID === 'notebook-passport-back-btn');
-  assert.ok(backBtn, 'Passport back button rendered');
-  backBtn.props.onPress();
-  tree = mountObj.render();
-
-  // Now back to tools grid
-  const planTool = elements(tree, 'Pressable').find((p) => p.props.testID === 'notebook-tool-plan');
-  assert.ok(planTool, 'Returned to main Notebook tools grid');
-
-  // 4. Re-enter Passport and close via passport close button
-  const passportTool2 = elements(tree, 'Pressable').find((p) => p.props.testID === 'notebook-tool-passport');
-  passportTool2.props.onPress();
-  tree = mountObj.render();
-
-  const closeBtn = elements(tree, 'Pressable').find((p) => p.props.testID === 'notebook-passport-close-btn');
-  assert.ok(closeBtn, 'Passport close button rendered');
-  closeBtn.props.onPress();
-  assert.equal(drawerClosed, true, 'onClose triggered when closing from passport view');
-
-  mountObj.unmount();
+  drawerMount.unmount();
+  passportMount.unmount();
 });
 
 // =============================================================================
-// ACCEPTANCE GROUP (d): Đổi chế độ Demo/Live vẫn tới được từ Sổ tay
+// ACCEPTANCE GROUP (d): Chuyển Demo/Live trong NotebookDrawerModal
 // =============================================================================
 test('Redesign (d): Demo/Live mode toggle is fully functional in NotebookDrawerModal', () => {
-  let currentMode = 'demo';
   const modeChanges = [];
-
   const mountObj = createTestMount('../src/components/NotebookDrawerModal.tsx', {
     visible: true,
-    onClose: () => {},
+    onClose() {},
     navigation: { navigate() {} },
-    mode: currentMode,
-    onModeChange: (next) => {
-      modeChanges.push(next);
-      currentMode = next;
-    },
+    mode: 'demo',
+    onModeChange: (next) => modeChanges.push(next),
     source: sources.getSourceState('demo', fixture, 'vi'),
   });
 
   const tree = mountObj.render();
-
   const demoOption = elements(tree, 'Pressable').find((p) => p.props.testID === 'notebook-mode-demo');
   const liveOption = elements(tree, 'Pressable').find((p) => p.props.testID === 'notebook-mode-live');
-  assert.ok(demoOption, 'notebook-mode-demo is present');
-  assert.ok(liveOption, 'notebook-mode-live is present');
 
-  assert.equal(demoOption.props.accessibilityState?.checked, true, 'demo is initially checked');
-  assert.equal(liveOption.props.accessibilityState?.checked, false, 'live is initially unchecked');
+  assert.ok(demoOption, 'Demo mode option present');
+  assert.ok(liveOption, 'Live mode option present');
 
-  // Toggle to live
   liveOption.props.onPress();
-  assert.deepEqual(modeChanges, ['live'], 'onModeChange triggered with "live"');
+  assert.deepEqual(modeChanges, ['live'], 'Tapping Live switches mode to live');
 
   mountObj.unmount();
 });
 
 // =============================================================================
-// ACCEPTANCE GROUP (e): Hai ô công cụ cùng minHeight và mô tả numberOfLines
+// ACCEPTANCE GROUP (e): ToolDock có đúng 3 items với nhãn và kích thước chuẩn
 // =============================================================================
-test('Redesign (e): Two quick action cards share minHeight 72 and strict numberOfLines bounds', () => {
+test('Redesign (e): Shared ToolDock renders exactly 3 items with text labels and safe geometry', () => {
   const mountObj = createTestMount('../src/screens/LandingScreen.tsx', {
     navigation: { navigate() {}, goBack() {}, replace() {} },
     route: { params: {} },
@@ -425,28 +423,25 @@ test('Redesign (e): Two quick action cards share minHeight 72 and strict numberO
 
   const tree = mountObj.render();
 
-  const gpsCard = elements(tree, 'Pressable').find((p) => p.props.testID === 'landing-quick-gps');
-  const notebookCard = elements(tree, 'Pressable').find((p) => p.props.testID === 'landing-quick-notebook');
-  assert.ok(gpsCard, 'landing-quick-gps card present');
-  assert.ok(notebookCard, 'landing-quick-notebook card present');
+  const dock = elements(tree, 'View').find((v) => v.props.testID === 'landing-tool-dock');
+  assert.ok(dock, 'ToolDock present on Landing');
 
-  // Both cards have minHeight 72
-  const gpsStyle = resolveStyle(gpsCard.props.style);
-  const notebookStyle = resolveStyle(notebookCard.props.style);
-  assert.ok(gpsStyle.some((s) => s.minHeight === 72), 'GPS card has minHeight: 72');
-  assert.ok(notebookStyle.some((s) => s.minHeight === 72), 'Notebook card has minHeight: 72');
+  const gpsBtn = elements(tree, 'Pressable').find((p) => p.props.testID === 'landing-dock-gps');
+  const qrBtn = elements(tree, 'Pressable').find((p) => p.props.testID === 'landing-dock-qr');
+  const notebookBtn = elements(tree, 'Pressable').find((p) => p.props.testID === 'landing-notebook');
 
-  // Both titles have numberOfLines={1}
-  const gpsTitle = elements(gpsCard, 'Text').find((t) => t.props.numberOfLines === 1);
-  const notebookTitle = elements(notebookCard, 'Text').find((t) => t.props.numberOfLines === 1);
-  assert.ok(gpsTitle, 'GPS card title has numberOfLines={1}');
-  assert.ok(notebookTitle, 'Notebook card title has numberOfLines={1}');
+  assert.ok(gpsBtn, 'landing-dock-gps present');
+  assert.ok(qrBtn, 'landing-dock-qr present');
+  assert.ok(notebookBtn, 'landing-notebook present');
 
-  // Both descriptions have numberOfLines={2}
-  const gpsDesc = elements(gpsCard, 'Text').find((t) => t.props.numberOfLines === 2);
-  const notebookDesc = elements(notebookCard, 'Text').find((t) => t.props.numberOfLines === 2);
-  assert.ok(gpsDesc, 'GPS card desc has numberOfLines={2}');
-  assert.ok(notebookDesc, 'Notebook card desc has numberOfLines={2}');
+  // All 3 items render text labels
+  const gpsTexts = elements(gpsBtn, 'Text').map((t) => [].concat(t.props.children).join(''));
+  const qrTexts = elements(qrBtn, 'Text').map((t) => [].concat(t.props.children).join(''));
+  const notebookTexts = elements(notebookBtn, 'Text').map((t) => [].concat(t.props.children).join(''));
+
+  assert.ok(gpsTexts.includes('Vị trí'), 'GPS button has visible label "Vị trí"');
+  assert.ok(qrTexts.includes('Quét QR'), 'QR button has visible label "Quét QR"');
+  assert.ok(notebookTexts.includes('Sổ tay'), 'Notebook button has visible label "Sổ tay"');
 
   mountObj.unmount();
 });
@@ -467,23 +462,23 @@ test('Redesign (f): Interactive controls enforce minimum 44pt touch targets', ()
   // 1. See all link
   const seeAll = elements(tree, 'Pressable').find((p) => p.props.accessibilityLabel === translator.t('vi', 'landing.see_all_label'));
   assert.ok(seeAll, 'See all link present');
-  const seeAllStyle = [].concat(seeAll.props.style).filter(Boolean);
+  const seeAllStyle = resolveStyle(seeAll.props.style);
   assert.ok(seeAllStyle.some((s) => s.minHeight >= 44), 'See all has minHeight >= 44');
 
   // 2. Segmented control buttons
   const viSegment = elements(tree, 'Pressable').find((p) => p.props.testID === 'locale-option-vi');
   const enSegment = elements(tree, 'Pressable').find((p) => p.props.testID === 'locale-option-en');
-  const viStyle = [].concat(viSegment.props.style).filter(Boolean);
-  const enStyle = [].concat(enSegment.props.style).filter(Boolean);
+  const viStyle = resolveStyle(viSegment.props.style);
+  const enStyle = resolveStyle(enSegment.props.style);
   assert.ok(viStyle.some((s) => s.minHeight >= 44 && s.minWidth >= 44), 'VI segment has minHeight and minWidth >= 44');
   assert.ok(enStyle.some((s) => s.minHeight >= 44 && s.minWidth >= 44), 'EN segment has minHeight and minWidth >= 44');
 
-  // 3. Header notebook button
-  const headerNotebook = elements(tree, 'Pressable').find((p) => p.props.testID === 'landing-header-notebook');
-  const headerNotebookStyle = [].concat(headerNotebook.props.style).filter(Boolean);
-  assert.ok(headerNotebookStyle.some((s) => s.minHeight >= 44 && s.minWidth >= 44), 'Header notebook has minHeight and minWidth >= 44');
+  // 3. Header Passport button
+  const headerPassport = elements(tree, 'Pressable').find((p) => p.props.testID === 'landing-header-passport');
+  const headerPassportStyle = resolveStyle(headerPassport.props.style);
+  assert.ok(headerPassportStyle.some((s) => s.minHeight >= 44 && s.minWidth >= 44), 'Header passport has minHeight and minWidth >= 44');
 
-  // 4. Modal close & back buttons in NotebookDrawerModal
+  // 4. Modal close in NotebookDrawerModal
   const drawerMount = createTestMount('../src/components/NotebookDrawerModal.tsx', {
     visible: true,
     onClose: () => {},
@@ -493,26 +488,24 @@ test('Redesign (f): Interactive controls enforce minimum 44pt touch targets', ()
     source: sources.getSourceState('demo', fixture, 'vi'),
   });
 
-  let drawerTree = drawerMount.render();
+  const drawerTree = drawerMount.render();
   const drawerCloseBtn = elements(drawerTree, 'Pressable').find((p) => p.props.testID === 'notebook-drawer-close-btn');
   const drawerCloseStyle = [].concat(drawerCloseBtn.props.style).filter(Boolean);
   assert.ok(drawerCloseStyle.some((s) => s.width >= 44 && s.height >= 44), 'Drawer close button is at least 44x44');
 
-  // In passport subview
-  const passportTool = elements(drawerTree, 'Pressable').find((p) => p.props.testID === 'notebook-tool-passport');
-  passportTool.props.onPress();
-  drawerTree = drawerMount.render();
-
-  const passportBackBtn = elements(drawerTree, 'Pressable').find((p) => p.props.testID === 'notebook-passport-back-btn');
-  const passportBackStyle = [].concat(passportBackBtn.props.style).filter(Boolean);
-  assert.ok(passportBackStyle.some((s) => s.width >= 44 && s.height >= 44), 'Passport back button is at least 44x44');
-
-  const passportCloseBtn = elements(drawerTree, 'Pressable').find((p) => p.props.testID === 'notebook-passport-close-btn');
+  // 5. Passport modal close button
+  const passportMount = createTestMount('../src/components/AlleyPassportModal.tsx', {
+    visible: true,
+    onClose: () => {},
+  });
+  const passportTree = passportMount.render();
+  const passportCloseBtn = elements(passportTree, 'Pressable').find((p) => p.props.testID === 'passport-modal-close-btn');
   const passportCloseStyle = [].concat(passportCloseBtn.props.style).filter(Boolean);
   assert.ok(passportCloseStyle.some((s) => s.width >= 44 && s.height >= 44), 'Passport close button is at least 44x44');
 
   mountObj.unmount();
   drawerMount.unmount();
+  passportMount.unmount();
 });
 
 // =============================================================================
@@ -546,10 +539,12 @@ test('Redesign (g): Complete locale switching and translations rendered faithful
   let tree = mountObj.render();
   let allTexts = elements(tree, 'Text').map((t) => [].concat(t.props.children).join(''));
   assert.ok(allTexts.includes(translator.t('vi', 'landing.featured_section_title')), 'VI section title rendered');
-  assert.ok(allTexts.includes(translator.t('vi', 'landing.quick_section_title')), 'VI quick section title rendered');
-  assert.ok(allTexts.includes(translator.t('vi', 'landing.header_notebook')), 'VI header notebook label rendered');
-  assert.ok(allTexts.includes(translator.t('vi', 'landing.quick_gps_desc')), 'VI shortened GPS description rendered');
-  assert.ok(allTexts.includes(translator.t('vi', 'landing.quick_notebook_desc')), 'VI shortened Notebook description rendered');
+
+  const gpsBtnVi = elements(tree, 'Pressable').find((p) => p.props.testID === 'landing-dock-gps');
+  assert.equal(gpsBtnVi.props.accessibilityLabel, 'Vị trí GPS');
+
+  const viStatus = translator.t('vi', 'landing.mode_status');
+  assert.ok(allTexts.some((t) => t.includes(viStatus)), `VI status line rendered: "${viStatus}"`);
 
   // 2. Switch to EN via segment button
   const enSegment = elements(tree, 'Pressable').find((p) => p.props.testID === 'locale-option-en');
@@ -560,12 +555,11 @@ test('Redesign (g): Complete locale switching and translations rendered faithful
   tree = mountObj.render();
   allTexts = elements(tree, 'Text').map((t) => [].concat(t.props.children).join(''));
   assert.ok(allTexts.includes(translator.t('en', 'landing.featured_section_title')), 'EN section title rendered');
-  assert.ok(allTexts.includes(translator.t('en', 'landing.quick_section_title')), 'EN quick section title rendered');
-  assert.ok(allTexts.includes(translator.t('en', 'landing.header_notebook')), 'EN header notebook label rendered');
-  assert.ok(allTexts.includes(translator.t('en', 'landing.quick_gps_desc')), 'EN shortened GPS description rendered');
-  assert.ok(allTexts.includes(translator.t('en', 'landing.quick_notebook_desc')), 'EN shortened Notebook description rendered');
 
-  const enStatus = translator.t('en', 'landing.mode_status', { mode: translator.t('en', 'common.demo') });
+  const gpsBtnEn = elements(tree, 'Pressable').find((p) => p.props.testID === 'landing-dock-gps');
+  assert.equal(gpsBtnEn.props.accessibilityLabel, 'GPS Location');
+
+  const enStatus = translator.t('en', 'landing.mode_status');
   assert.ok(allTexts.some((t) => t.includes(enStatus)), `EN status line rendered: "${enStatus}"`);
 
   mountObj.unmount();

@@ -15,6 +15,11 @@ const drawerCode = ts.transpileModule(readFileSync(new URL('../src/components/No
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
 }).outputText;
 
+// Transpile ToolDock
+const toolDockCode = ts.transpileModule(readFileSync(new URL('../src/components/ToolDock.tsx', import.meta.url), 'utf8'), {
+  compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
+}).outputText;
+
 function createTestMount(file, defaultProps = {}, overrides = {}) {
   const slots = [];
   let cursor = 0;
@@ -149,6 +154,18 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
     ...overrides,
   };
 
+  // Build ToolDock module
+  const toolDockMod = { exports: {} };
+  runInNewContext('(function(require,module,exports){' + toolDockCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (modules[id]) return modules[id];
+    if (id === './AppIcon' || id === '../components/AppIcon') {
+      return { AppIcon: 'AppIcon' };
+    }
+    throw new Error(`Unexpected import in toolDock: ${id}`);
+  }, toolDockMod, toolDockMod.exports);
+
+  modules['../components/ToolDock'] = toolDockMod.exports;
+
   // Build Drawer module
   const drawerMod = { exports: {} };
   runInNewContext('(function(require,module,exports){' + drawerCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
@@ -173,9 +190,9 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
   runInNewContext('(function(require,module,exports){' + screenCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
     if (modules[id]) return modules[id];
     if (/\.(png|jpe?g|gif|webp|wav|mp3)$/i.test(id)) return 1;
-    if (id === './AppIcon' || id === '../components/AppIcon' || /\/components\//.test(id) || id.includes('AlleyStoryCard') || id.includes('AlleyGuideSection')) {
+    if (id === './AppIcon' || id === '../components/AppIcon' || id === '../components/NgoKeLogo' || id.includes('NgoKeLogo') || id === '../components/AlleyPassportModal' || id.includes('AlleyPassportModal') || id.includes('AlleyStoryCard') || id.includes('AlleyGuideSection')) {
       const name = id.split('/').at(-1);
-      return { [name]: name, AppIcon: 'AppIcon', AlleyStoryCard: 'AlleyStoryCard', AlleyGuideSection: 'AlleyGuideSection' };
+      return { [name]: name, AppIcon: 'AppIcon', NgoKeLogo: 'NgoKeLogo', AlleyPassportModal: 'AlleyPassportModal', AlleyStoryCard: 'AlleyStoryCard', AlleyGuideSection: 'AlleyGuideSection' };
     }
     if (id.includes('alleyGuide')) {
       return { readAlleyStory: () => null, readAlleyGuide: () => null };
@@ -193,10 +210,9 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
       dirty = true;
       let passes = 0;
       while (dirty) {
-        assert.ok(passes++ < 20, 'state/effect loop in mount');
+        if (++passes > 10) throw new Error('Too many re-renders in test mount');
         dirty = false;
         cursor = 0;
-        pending = [];
         tree = component(currentProps);
         pending.forEach((e) => e());
       }
@@ -232,28 +248,29 @@ test('LandingScreen renders direct GPS and Sổ tay quick actions with accessibl
 
   const tree = mountObj.render();
 
-  // 1. Section is rendered below carousel
-  const section = elements(tree, 'Animated.View').find((item) => item.props.testID === 'landing-quick-actions-section');
-  assert.ok(section, 'Quick actions section is rendered');
-
-  // Section titles: pre-title removed per Landing redesign spec (Dieter Rams #10)
-  const sectionTexts = elements(section, 'Text').map((t) => [].concat(t.props.children).join(''));
-  assert.equal(sectionTexts.some((t) => t.includes('CÔNG CỤ TIỆN ÍCH')), false, 'VI pre-title removed per redesign spec');
-  assert.ok(sectionTexts.some((t) => t.includes(translator.t('vi', 'landing.quick_section_title'))), 'VI main title rendered');
+  // 1. ToolDock is rendered with testID="landing-tool-dock"
+  const dock = elements(tree, 'View').find((item) => item.props.testID === 'landing-tool-dock');
+  assert.ok(dock, 'ToolDock is rendered');
 
   // 2. GPS Button
-  const gpsBtn = elements(tree, 'Pressable').find((item) => item.props.testID === 'landing-quick-gps');
+  const gpsBtn = elements(tree, 'Pressable').find((item) => item.props.testID === 'landing-dock-gps');
   assert.ok(gpsBtn, 'GPS button is rendered');
   assert.equal(gpsBtn.props.accessibilityRole, 'button');
-  assert.equal(gpsBtn.props.accessibilityLabel, translator.t('vi', 'landing.quick_gps_label'));
+  assert.equal(gpsBtn.props.accessibilityLabel, 'Vị trí GPS');
 
-  // 3. Sổ tay Button
-  const notebookBtn = elements(tree, 'Pressable').find((item) => item.props.testID === 'landing-quick-notebook');
+  // 3. QR Button (prominent center)
+  const qrBtn = elements(tree, 'Pressable').find((item) => item.props.testID === 'landing-dock-qr');
+  assert.ok(qrBtn, 'QR button is rendered');
+  assert.equal(qrBtn.props.accessibilityRole, 'button');
+  assert.equal(qrBtn.props.accessibilityLabel, 'Quét mã QR');
+
+  // 4. Sổ tay Button (exactly one Notebook testID on Landing: landing-notebook)
+  const notebookBtn = elements(tree, 'Pressable').find((item) => item.props.testID === 'landing-notebook');
   assert.ok(notebookBtn, 'Sổ tay button is rendered');
   assert.equal(notebookBtn.props.accessibilityRole, 'button');
-  assert.equal(notebookBtn.props.accessibilityLabel, translator.t('vi', 'landing.quick_notebook_label'));
+  assert.equal(notebookBtn.props.accessibilityLabel, translator.t('vi', 'home.notebook_label'));
 
-  // 4. Mounting LandingScreen does not request location permissions
+  // 5. Mounting LandingScreen does not request location permissions
   assert.equal(mountObj.getPermissionRequestsCount(), 0, 'No location permission requested on Landing mount');
 
   mountObj.unmount();
@@ -273,11 +290,34 @@ test('LandingScreen GPS button navigates directly to Location route', () => {
   });
 
   const tree = mountObj.render();
-  const gpsBtn = elements(tree, 'Pressable').find((item) => item.props.testID === 'landing-quick-gps');
+  const gpsBtn = elements(tree, 'Pressable').find((item) => item.props.testID === 'landing-dock-gps');
   assert.ok(gpsBtn, 'GPS button present');
 
   gpsBtn.props.onPress();
   assert.deepEqual(navigatedRoutes, ['Location'], 'GPS tap navigates directly to Location screen');
+
+  mountObj.unmount();
+});
+
+test('LandingScreen QR button navigates directly to Camera route', () => {
+  const navigatedRoutes = [];
+  const mountObj = createTestMount('../src/screens/LandingScreen.tsx', {
+    navigation: {
+      navigate: (route) => navigatedRoutes.push(route),
+      goBack() {},
+      replace() {},
+    },
+    route: { params: {} },
+    nodeCount: 6,
+    mode: 'demo',
+  });
+
+  const tree = mountObj.render();
+  const qrBtn = elements(tree, 'Pressable').find((item) => item.props.testID === 'landing-dock-qr');
+  assert.ok(qrBtn, 'QR button present');
+
+  qrBtn.props.onPress();
+  assert.deepEqual(navigatedRoutes, ['Camera'], 'QR tap navigates directly to Camera screen');
 
   mountObj.unmount();
 });
@@ -308,8 +348,8 @@ test('LandingScreen Sổ tay button opens NotebookDrawerModal in a single tap, w
   let drawerModal = elements(tree, 'Modal').find((m) => m.props.testID === 'notebook-drawer-modal');
   assert.equal(drawerModal.props.visible, false, 'Drawer modal is closed initially');
 
-  // 1. One tap on Sổ tay opens the modal
-  const notebookBtn = elements(tree, 'Pressable').find((item) => item.props.testID === 'landing-quick-notebook');
+  // 1. One tap on Sổ tay in ToolDock opens the modal
+  const notebookBtn = elements(tree, 'Pressable').find((item) => item.props.testID === 'landing-notebook');
   notebookBtn.props.onPress();
 
   tree = mountObj.render();
@@ -484,18 +524,17 @@ test('LandingScreen quick-actions render accurately in English locale', () => {
   });
 
   const tree = mountObj.render();
-  const section = elements(tree, 'Animated.View').find((item) => item.props.testID === 'landing-quick-actions-section');
-  assert.ok(section, 'Quick actions section rendered in EN');
+  const dock = elements(tree, 'View').find((item) => item.props.testID === 'landing-tool-dock');
+  assert.ok(dock, 'ToolDock rendered in EN');
 
-  const sectionTexts = elements(section, 'Text').map((t) => [].concat(t.props.children).join(''));
-  assert.equal(sectionTexts.some((t) => t.includes('DIRECT TOOLS')), false, 'EN pre-title removed per redesign spec');
-  assert.ok(sectionTexts.some((t) => t.includes(translator.t('en', 'landing.quick_section_title'))), 'EN main title rendered');
+  const gpsBtn = elements(tree, 'Pressable').find((item) => item.props.testID === 'landing-dock-gps');
+  assert.equal(gpsBtn.props.accessibilityLabel, 'GPS Location');
 
-  const gpsBtn = elements(tree, 'Pressable').find((item) => item.props.testID === 'landing-quick-gps');
-  assert.equal(gpsBtn.props.accessibilityLabel, translator.t('en', 'landing.quick_gps_label'));
+  const qrBtn = elements(tree, 'Pressable').find((item) => item.props.testID === 'landing-dock-qr');
+  assert.equal(qrBtn.props.accessibilityLabel, 'Scan QR Code');
 
-  const notebookBtn = elements(tree, 'Pressable').find((item) => item.props.testID === 'landing-quick-notebook');
-  assert.equal(notebookBtn.props.accessibilityLabel, translator.t('en', 'landing.quick_notebook_label'));
+  const notebookBtn = elements(tree, 'Pressable').find((item) => item.props.testID === 'landing-notebook');
+  assert.equal(notebookBtn.props.accessibilityLabel, translator.t('en', 'home.notebook_label'));
 
   mountObj.unmount();
 });

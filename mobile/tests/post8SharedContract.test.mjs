@@ -879,12 +879,12 @@ test('translator.ts - 100% dictionary parity between VI and EN', () => {
   assert.equal(translate('vi', 'home.menu_title'), 'Tùy chọn');
   assert.equal(translate('en', 'home.menu_title'), 'Options');
   assert.equal(
-    translate('vi', 'home.stories_opened', { opened: 0, total: 6, mode: 'Demo' }),
-    'Đã mở 0/6 câu chuyện · Demo',
+    translate('vi', 'home.stories_opened', { opened: 0, total: 6 }),
+    'Đã mở 0/6 câu chuyện',
   );
   assert.equal(
-    translate('en', 'home.stories_opened', { opened: 0, total: 6, mode: 'Demo' }),
-    'Opened 0/6 stories · Demo',
+    translate('en', 'home.stories_opened', { opened: 0, total: 6 }),
+    'Opened 0/6 stories',
   );
   assert.equal(translate('vi', 'qa.read_answer_btn'), 'Xem câu trả lời bằng chữ');
   assert.equal(translate('en', 'qa.read_answer_btn'), 'Read answer text');

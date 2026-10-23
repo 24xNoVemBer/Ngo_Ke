@@ -1748,6 +1748,8 @@ function createTestHarness(file, defaultProps = {}, overrides = {}) {
     if (id.includes('threeLensesCompanion')) return { THREE_LENSES_COLLECTION_ID: 'old-quarter-three-lenses', getScopedCompanion: () => null, getThreeLensesCompanion: () => null };
     if (id.includes('alleyGeometry')) return alleyGeometry;
     if (id.includes('alleyGuide')) return { readAlleyStory: () => null, readAlleyGuide: () => null };
+    if (id === 'expo-audio') return { setAudioModeAsync: async () => {}, useAudioPlayer: () => ({ loop: false, pause() {}, play() {}, replace() {} }), useAudioPlayerStatus: () => ({ playing: false, currentTime: 0, duration: 0 }) };
+    if (id.includes('localizedCatalog')) return { lookupVoiceTrack: () => undefined };
 
 
 
@@ -3409,21 +3411,20 @@ test('HomeScreen adapts to >6 points using AlleyTrailView, removes duplicate pin
 
 
     '../components/NotebookDrawerModal': {
-
-
-
-
-
-
-
       NotebookDrawerModal: () => ({ type: 'NotebookDrawerModal', props: {} }),
-
-
-
-
-
-
-
+    },
+    '../components/ToolDock': {
+      ToolDock: (props) => ({
+        type: 'View',
+        props: {
+          testID: 'tool-dock',
+          children: [
+            { type: 'Pressable', props: { testID: (props.testIDPrefix || 'dock') + '-dock-gps', accessibilityRole: 'button', children: [{ type: 'AppIcon', props: { name: 'pin' } }] } },
+            { type: 'Pressable', props: { testID: (props.testIDPrefix || 'dock') + '-dock-qr', accessibilityRole: 'button', children: [{ type: 'AppIcon', props: { name: 'qr' } }] } },
+            { type: 'Pressable', props: { testID: (props.testIDPrefix || 'dock') + '-notebook', accessibilityRole: 'button', children: [{ type: 'AppIcon', props: { name: 'write' } }] } },
+          ],
+        },
+      }),
     },
 
 
