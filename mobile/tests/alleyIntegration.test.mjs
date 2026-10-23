@@ -582,7 +582,7 @@ test('(b) Mounted Home wiring - Ngõ Gạch renders SVG Path matching geometry a
   }
 
   // 4. Honest accessibility labels on mounted pins
-  assert.equal(pinButtons[0].props.accessibilityLabel, 'Cà Phê No.1', 'story:null pin uses honest node name label');
+  assert.equal(pinButtons[0].props.accessibilityLabel, 'Xem Cà Phê No.1', 'node with a story uses open_story label');
   assert.equal(pinButtons[2].props.accessibilityLabel, 'Xem Đình Thanh Hà', 'Node with available story uses open_story label');
 });
 
@@ -617,7 +617,7 @@ test('(b) Mounted Home wiring - Ngõ Trung Yên renders SVG Path and pins matchi
   const pinButtons = findElements(tree, 'Pressable').filter((p) => p.props.accessibilityState?.selected !== undefined);
   assert.equal(pinButtons.length, 5, 'Renders exactly 5 pins for Ngõ Trung Yên');
   assert.equal(pinButtons[0].props.accessibilityLabel, 'Xem Phở Sướng', 'pin with story uses open_story label');
-  assert.equal(pinButtons[1].props.accessibilityLabel, 'Đình Trung Yên', 'story:null pin uses honest node name label');
+  assert.equal(pinButtons[1].props.accessibilityLabel, 'Xem Đình Trung Yên', 'node with a story uses open_story label');
 });
 
 test('(b) Dataset cũ không đổi hành vi - fiction-letter preserves exact fixed PIN_CONFIG pins without polyline', () => {
@@ -655,10 +655,15 @@ test('(c) Honest labels - stop with story:null shows summary only, honest pin la
     dataset: gachDataset,
   };
 
-  // Node 1: Cà Phê No.1 has story: null
+  // Keep null-story behavior covered with an isolated fixture after the bundled node gets a story.
+  const gachDatasetWithoutStory = {
+    ...gachDataset,
+    nodes: gachDataset.nodes.map((node) => node.id === 'ngo-gach-ca-phe-no1' ? { ...node, story: null } : node),
+  };
+  const gachSourceWithoutStory = { ...gachSource, dataset: gachDatasetWithoutStory };
   const viewNullStory = mount('../src/screens/HomeScreen.tsx', {
     mode: 'demo',
-    source: gachSource,
+    source: gachSourceWithoutStory,
     currentNodeId: 'ngo-gach-ca-phe-no1',
     onSelectNode() {},
     readNodeIds: new Set(),

@@ -52,24 +52,24 @@ export const COLLECTION_REVISIONS: Record<CollectionId, Record<Locale, string>> 
     },
   },
   'ngo-gach': {
-    vi: '0b8d32ff1a4fac3867995d7be7c4394be4ef9080425c5217ebb65d7df5e90aa3',
-    en: '2458be77514edfa0e4fb194f46e7f0191e5d655ccfd7e6c96b8f044f5179df59',
+    vi: '60c242b80557356b8c6f8302f16e937447e0fc48c09b8c84453965631028d19b',
+    en: '0f02ac35e6f3eaba103190a7e366d1dae11d6966609d296e175e29185cb79051',
   },
   'ngo-trung-yen': {
-    vi: '1291ae869a7d66b684d3bd764f87fe99817d250d19c544da0938e30f8ec5ae19',
-    en: 'f5cfa76eda2d5d577b14ac73eaddc5a0ede0b89bc769b2eabb7b05006a95dc9f',
+    vi: '59e84df99d75369d5cfb53df901c8c3e748d0d528e5f4334acfc07b20029d7c9',
+    en: '50ecf581900181a2589571b820d3b43710a7f19daa0d947fe7bab9d9c3100741',
   },
   'ngo-tam-thuong': {
-    vi: '3086e80f2dda45e2354289882cb89a6526574fa98b5cfe4f2f17f02d092745e9',
-    en: 'e7f831942c2de61c7da2e1e3666800cbccbe13b39be0c7c29f25548be2299769',
+    vi: '41e95b6510f06fbabb9d0a776cb1fec7f204e2f21244ebd57161724e9efb7271',
+    en: '0afc9ed695fac834fb53010893d855a7aabfc87ec61bf9ac8a74eddf0c176efd',
   },
   'ngo-cam-chi': {
-    vi: 'b7898f698efc6b8db0a137d151bfc622fef52082bdfc2f8d97c44b1b2e08b48c',
-    en: 'a2914b4a7eb324c369ddab77d977de93179e6be8e1012d8c5277443d95391072',
+    vi: 'f658ad9a1ab8c52fe4fe4daaaf7d87b59553da9617b424702ba8f64dc619a4a4',
+    en: '2f75572bb84552fcd6ba0602e9682170a00b614bc1aa2a1a7ac6aa36fb60c877',
   },
   'ngo-phat-loc': {
-    vi: 'd6e9fc6d93f4f0961dd20bdd0128df35229f33e0e89caf2071dccc9f46aff195',
-    en: '05dd3b4c79953eb4afa3418078714177bc8bf0a6b5944267733da66e1334d448',
+    vi: 'c2a2b2afc53b52b2a0770ba1d23a80c2dfe08507e5ece19a2c4edff703e33d6a',
+    en: '5ac2c7c70a755c416baf4538598cac45e9a56eb102cf101fa7b670c36ab0692f',
   },
 };
 

@@ -75,20 +75,20 @@ test('Trung Yên replaces only the requested stop identities and keeps minimum E
   for (const index of [1, 4]) {
     assert.equal(vi.nodes[index].latitude, null);
     assert.equal(vi.nodes[index].longitude, null);
-    assert.equal(vi.nodes[index].story, null);
+    assert.ok(vi.nodes[index].story, `${vi.nodes[index].id} has a source-checked story`);
   }
   assert.ok(readAlleyStory(en));
   assert.ok(readAlleyGuide(en));
 });
 
-test('three new VI collections keep geometry placeholders and no invented point stories', () => {
+test('three new VI collections keep geometry placeholders and include source-checked node stories', () => {
   for (const [index, id] of ids.slice(1).entries()) {
     const data = load(id);
     assert.equal(data.nodes.length, [2, 3, 2][index]);
     assert.equal(data.polyline, undefined);
     assert.equal(data.lengthMeters, undefined);
     for (const node of data.nodes) {
-      assert.equal(node.story, null);
+      assert.ok(node.story, `${node.id} has a source-checked story`);
       assert.equal(node.latitude, null);
       assert.equal(node.longitude, null);
     }
