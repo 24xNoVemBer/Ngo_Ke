@@ -12,10 +12,14 @@ npm start -- --go
 
 Quét mã Metro bằng Expo Go trên thiết bị cùng mạng với máy phát triển. Lệnh trên chạy giao diện; để thử nhận dạng giọng nói, cần khởi động gateway theo mục dưới đây.
 
-## Chia sẻ preview iOS qua Expo Go
+## Chia sẻ bản mới qua Expo Go — 23/10/2026
 
-- [Trang update trên Expo.dev](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/f102185d-c42c-4efc-9101-452655b5f2f3)
-- [Mở trực tiếp trong Expo Go trên iPhone](exp://u.expo.dev/update/01a14018-58fd-7282-a486-46294348b2ca)
+- [iOS trên Expo.dev](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/1f8e5893-14fa-4061-9984-5c23648d186f) · [Mở trong Expo Go](exp://u.expo.dev/update/01a167b3-4aa1-7499-a4d9-c46da33e2c0a)
+- [Android trên Expo.dev](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/c5374c8d-0785-4157-bbe0-853ff6143148) · [Mở trong Expo Go](exp://u.expo.dev/update/01a167b3-4aa1-702a-8987-724c5c68b295)
+
+Hai update dùng source `4af64c4`, gồm 17 node stories VI/EN và 34 MP3 mới. Không cần cùng Wi-Fi với máy phát triển.
+
+- [Tải APK Android preview](https://expo.dev/artifacts/eas/rJoo7PPcw2U1Th3hHzi_Qfb0aSuwJbKwKwtuAvLHWxo.apk) · [trang build EAS](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/builds/afe6f352-3be5-4a0d-856f-381d1d4c8923). APK 204.312.512 byte, SHA-256 `01444cc0b444d2e9bd7db8c67041d7c8c83ad3e623648fda6fe4a0311171ad8b`; link EAS build nội bộ có hạn đến 06/11/2026. Channel `preview` trỏ tới nhánh update `ios-preview`.
 
 Đây **không phải link công khai**. Project `ngo-ke-demo` đã được chuyển từ `valentino241` sang tổ chức `valentino241s-team` ngày 15/10/2026. Thành viên cần đăng nhập Expo Go bằng tài khoản thuộc tổ chức; quyền Viewer đủ để xem project qua Expo Go ([thông báo Expo](https://expo.dev/changelog/expo-go-loading-changes-may-2026), [loại tài khoản và quyền](https://docs.expo.dev/accounts/account-types/)). Không chia sẻ thông tin đăng nhập cá nhân. Biến môi trường cấp project đi theo project; biến và secret cấp account không đi theo, nên chỉ cần tạo lại trong team nếu cấu hình thực sự dùng chúng. Liên kết GitHub EAS chưa được kết nối; Git remote cục bộ không bị ảnh hưởng.
 
@@ -24,7 +28,7 @@ Cài Expo Go rồi mở link chỉ có tác dụng khi tài khoản có quyền 
 ```powershell
 $env:CI = '1'
 $env:EXPO_NO_DOTENV = '1'
-npx eas-cli@latest update --branch ios-preview --platform ios --environment preview --clear-cache --message "Mô tả thay đổi"
+npx eas-cli@latest update --branch ios-preview --platform all --environment preview --clear-cache --message "Mô tả thay đổi"
 ```
 
 Giữ `EXPO_NO_DOTENV=1` khi publish để không đưa URL gateway riêng trong `.env.local` vào bundle.

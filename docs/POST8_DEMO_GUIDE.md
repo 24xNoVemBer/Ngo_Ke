@@ -1,6 +1,17 @@
 # Mở demo Việt/Anh — bản tích hợp local
 
-## Expo.dev mới nhất — chỉnh bố cục màn mở đầu, 20/10/2026
+## Expo.dev mới nhất — 17 lời kể điểm VI/EN, 23/10/2026
+
+- [iOS Expo Go](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/1f8e5893-14fa-4061-9984-5c23648d186f) · `exp://u.expo.dev/update/01a167b3-4aa1-7499-a4d9-c46da33e2c0a`
+- [Android Expo Go](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/c5374c8d-0785-4157-bbe0-853ff6143148) · `exp://u.expo.dev/update/01a167b3-4aa1-702a-8987-724c5c68b295`
+
+Source `4af64c4` trên nhánh `valentino/logic-fix-mobile-20261020` đã push lên `24xNoVemBer/Ngo_Ke`; hai update Published, gồm 17 story mỗi ngôn ngữ và 34 MP3 mới. Thành viên đăng nhập Expo Go bằng tài khoản thuộc `valentino241s-team`; không cần cùng Wi-Fi/Metro. Demo và audio đóng gói dùng được; Live API và nhận giọng nói cần server/gateway truy cập được từ thiết bị. Chưa xác minh phát âm trên điện thoại thật.
+
+[Tải APK Android nội bộ](https://expo.dev/artifacts/eas/rJoo7PPcw2U1Th3hHzi_Qfb0aSuwJbKwKwtuAvLHWxo.apk) · [trang build EAS](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/builds/afe6f352-3be5-4a0d-856f-381d1d4c8923). Build `FINISHED` từ source `4af64c4`, profile `preview`, channel `preview` → branch `ios-preview`, runtime Android `0.1.0`. APK 204.312.512 byte, SHA-256 `01444cc0b444d2e9bd7db8c67041d7c8c83ad3e623648fda6fe4a0311171ad8b`; ZIP hợp lệ, đủ 34/34 MP3 mới đối chiếu SHA-256 với source. Bản EAS build nội bộ hết hạn 06/11/2026; file đã lưu local tại `D:/MovedFromC/orca-workspaces/ngoke/artifacts/ngoke-20261023-4af64c4-preview.apk`. Chưa cài/chạy APK trên điện thoại thật.
+
+**Việc cần anh quyết:** không có quyết định chặn việc chia sẻ trong tổ chức. **Việc anh tự làm:** thêm tester vào `valentino241s-team` nếu họ chưa là thành viên, rồi mở Expo Go hoặc cài APK trên thiết bị thật; nghe thử lời kể VI/EN và báo lỗi phát âm. Gateway STT/Live API chưa công khai nên hai chức năng online đó chưa dùng được ngoài mạng phát triển.
+
+## Mốc Expo.dev — chỉnh bố cục màn mở đầu, 20/10/2026
 
 [Mở preview và QR mới](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/02936a78-2e15-413b-b1da-5a37e3269a33). Trong Expo Go iOS mở `exp://u.expo.dev/update/01a1553f-c32e-7747-9653-e9bc732bc684`; dùng tài khoản thuộc team như trước, không cần cùng Wi-Fi/Metro.
 

@@ -1,5 +1,12 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-23 — GitHub, Expo Go tổ chức và APK theo yêu cầu mới
+
+- Người dùng yêu cầu push GitHub, chia sẻ bản mới trên Expo Go cho tổ chức và tạo APK. W1 push nhánh `valentino/logic-fix-mobile-20261020` lên đúng remote `ngoke-public` (`24xNoVemBer/Ngo_Ke`) tại source `4af64c4`; không merge main. WIP tài liệu riêng chưa commit được giữ nguyên.
+- EAS Update `ios-preview` từ source `4af64c4` đã Published cho iOS group `1f8e5893-14fa-4061-9984-5c23648d186f`/update `01a167b3-4aa1-7499-a4d9-c46da33e2c0a` và Android group `c5374c8d-0785-4157-bbe0-853ff6143148`/update `01a167b3-4aa1-702a-8987-724c5c68b295`. Export có 34 MP3 mới; `EXPO_NO_DOTENV=1`, không nhúng URL gateway LAN. Project thuộc `valentino241s-team`, thành viên cần đăng nhập Expo Go. Channel APK `preview` đã trỏ tới branch `ios-preview`.
+- EAS Android internal build `afe6f352-3be5-4a0d-856f-381d1d4c8923` FINISHED, APK `https://expo.dev/artifacts/eas/rJoo7PPcw2U1Th3hHzi_Qfb0aSuwJbKwKwtuAvLHWxo.apk`. File local `D:/MovedFromC/orca-workspaces/ngoke/artifacts/ngoke-20261023-4af64c4-preview.apk` có 204.312.512 byte, SHA-256 `01444cc0b444d2e9bd7db8c67041d7c8c83ad3e623648fda6fe4a0311171ad8b`; ZIP hợp lệ, 34/34 MP3 mới khớp byte nguồn. Build nội bộ hết hạn 06/11/2026. Chưa chạy trên điện thoại thật/nghe audio; Live API và STT cần server/gateway truy cập từ thiết bị.
+- Cần người dùng quyết: không có. Cần người dùng tự làm: thêm tester vào tổ chức nếu chưa có, mở Expo Go/cài APK và nghe thử trên máy thật; báo lỗi phát âm nếu có. Không sinh thêm voice trả phí trong lượt publish này.
+
 ## 2026-10-23 — P3 node-story voice + P4 FE hoàn tất trong phạm vi hiện có
 
 - Người dùng mở ElevenLabs P3 và sau preflight chọn “hạ dự phòng” từ 10.000 xuống 4.000 cho batch 34 story. Luna GPT-6-Luna xhigh, task `task_98ca6577b92c` / dispatch `ctx_64b245027b00`, tạo 17 MP3 VI Nhật Phong `eleven_v3` + 17 MP3 EN Talia `eleven_v4`, đăng ký native catalogue; commit local `d7084d6`. 34/34 POST HTTP 200, 12.889 ký tự text được gửi/nhận; bộ đếm subscription 22.247 → 25.016 (+2.769), còn 14.984 ký tự theo quota 40.000. `humanApproved:false`, `listened:false`; không tự đánh dấu người dùng đã nghe. Manifest/progress và script giữ tránh retry request trạng thái không chắc chắn. Không in hoặc commit key.
