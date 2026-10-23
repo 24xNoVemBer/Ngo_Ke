@@ -4,9 +4,9 @@
 
 - W1 tạo/bind Orca Run mới `run_643f70daddc0`, vì `run_56e095e0d983` không còn trong runtime. Không gọi Claude tiếp; Muse chưa khả dụng; không push/merge/deploy/restart Metro 8082 (đang nghe ở PID 10520).
 - WIP triển khai trước đó được kiểm độc lập: `npm test` 379/379, `npm run typecheck`, `npm run lint`, `git diff --check` đều đạt. Commit FE/Phase B-C-D-E + bốn ảnh cover local `93d871d`; commit voice intro VI/catalog + bốn MP3 local `20e8bf3`. Audio bytes được giữ nguyên.
-- Luna dispatch `ctx_6321b54cc812` / task `task_c732377a3c15` dùng model GPT-6-Luna xhigh, đã đọc plan và datasets, nhưng dừng trước mọi file edit vì user scope mâu thuẫn: số lượng 5+5+2+3+2 là 17, trong khi yêu cầu ghi 15. Dataset xác nhận 17 node; coordinator đang chờ user chọn đủ 17 hoặc nêu hai ID bỏ. Không có story/revision/hash/pin nào bị sửa. Terminal đã release; chỉ retry sau khi có quyết định.
+- Luna dispatch đầu `ctx_6321b54cc812` dừng read-only vì 15/17; người dùng chốt “17 đi”. Task mới `task_2854ecad666c` / dispatch `ctx_86c505f7124d`, GPT-6-Luna xhigh, đã hoàn tất P1 VI rồi P2 EN cho 17 node. Worker terminal đã release, delivery đã acknowledged.
 - Antigravity dispatch `ctx_ca5500746ab4` / task `task_30e767f46ecc` hoàn tất FE audit thành công, không đổi code: `QaScreen.tsx` đã hỗ trợ `<nodeId>-story`, ẩn player khi track thiếu, giữ playback Q&A/intro và fontScale 1.3/2.0. Worker báo 379/379 tests, typecheck, lint đạt; terminal đã release.
-- Run còn chờ quyết định 15/17 trước khi chạy P1/P2. Sau khi user chọn, triển khai VI rồi EN cho đúng node set; update dataset/revision, re-pin bốn intro VI + bốn EN nhưng giữ textHash/audio bytes; chuẩn bị contentId/hash cho voice sau này; không tạo audio trả phí hoặc dùng key. P4 hiện không cần FE sửa.
+- Commit cục bộ `4544be2`: mười localized datasets, năm cặp revision, tám pin intro, ba test liên quan và `docs/handoffs/2026-10-23-node-story-voice-handoff.json` gồm 34 contentId/textHash/datasetRevision. W1 chạy độc lập `npm test` 380/380, typecheck/lint và `git diff --check` đều đạt; tám intro textHash giữ nguyên, không sửa MP3. Worker kiểm năm cặp import vào TEMP SQLite đạt. Story mới chưa được người dùng duyệt đọc/nghe; không tạo audio trả phí hoặc dùng key. P4 không cần FE sửa. WIP tài liệu cũ vẫn riêng, chưa commit.
 
 ## 2026-10-23 — Trạng thái điều phối mới nhất, thay các gate cũ bên dưới
 
