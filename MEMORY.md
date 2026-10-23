@@ -1,5 +1,10 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-23 — P3 node-story voice + P4 FE hoàn tất trong phạm vi hiện có
+
+- Người dùng mở ElevenLabs P3 và sau preflight chọn “hạ dự phòng” từ 10.000 xuống 4.000 cho batch 34 story. Luna GPT-6-Luna xhigh, task `task_98ca6577b92c` / dispatch `ctx_64b245027b00`, tạo 17 MP3 VI Nhật Phong `eleven_v3` + 17 MP3 EN Talia `eleven_v4`, đăng ký native catalogue; commit local `d7084d6`. 34/34 POST HTTP 200, 12.889 ký tự text được gửi/nhận; bộ đếm subscription 22.247 → 25.016 (+2.769), còn 14.984 ký tự theo quota 40.000. `humanApproved:false`, `listened:false`; không tự đánh dấu người dùng đã nghe. Manifest/progress và script giữ tránh retry request trạng thái không chắc chắn. Không in hoặc commit key.
+- Antigravity task `task_dc4dde4fbfe3` / dispatch `ctx_dd448de069a4` kiểm FE story player 17 node x2 locale, intro/Q&A, fontScale 1.3/2.0; không cần sửa production FE, thêm test/báo cáo commit local `dd292ad`. W1 kiểm độc lập 390/390 mobile, typecheck/lint, Python 4/4, `git diff --check`; 34/34 MP3 SHA256 khớp manifest và ffprobe có thời lượng dương. Hai worker đã release, delivery acknowledged. Chưa nghe duyệt chất lượng giọng/nội dung và chưa kiểm phát trên thiết bị thật; không push/merge/deploy/restart Metro.
+
 ## 2026-10-23 — W1 Node Stories run nhận lại điều phối
 
 - W1 tạo/bind Orca Run mới `run_643f70daddc0`, vì `run_56e095e0d983` không còn trong runtime. Không gọi Claude tiếp; Muse chưa khả dụng; không push/merge/deploy/restart Metro 8082 (đang nghe ở PID 10520).
