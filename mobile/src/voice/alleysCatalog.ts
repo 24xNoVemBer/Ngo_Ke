@@ -8,7 +8,7 @@ export const ALLEY_INTRO_VOICE = {
   locale: 'vi',
 } as const;
 
-// Pending slots describe text only; they must never be treated as playable clips.
+// Reservations pin source text; only locale catalogue entries below are playable.
 export const pendingAlleyIntroSlots = [
   {
     collectionId: 'ngo-trung-yen', contentId: 'intro',
@@ -31,6 +31,21 @@ export const pendingAlleyIntroSlots = [
     textHash: 'd6a9cbbc66c17a3c6c6ae20074887c542fb5d716d28ffdcb598b6e429a48d401',
   },
 ] as const;
+
+const vietnameseIntroTracks: Record<string, VoiceTrack> = {
+  'ngo-trung-yen': {
+    id: 'intro', kind: 'intro', source: require('../../assets/voice/alleys-intro/vi/ngo-trung-yen-intro.mp3'), textHash: '05cd6a7070c4fc90e8f148d9ff6719c70bf72e318acee918b916476e068e143c', durationSeconds: 40.4,
+  },
+  'ngo-tam-thuong': {
+    id: 'intro', kind: 'intro', source: require('../../assets/voice/alleys-intro/vi/ngo-tam-thuong-intro.mp3'), textHash: '846bf31e046012f7f1526a3b5d6328ef218807f9efc30ce6cde792f6f42ef8bc', durationSeconds: 37.52,
+  },
+  'ngo-cam-chi': {
+    id: 'intro', kind: 'intro', source: require('../../assets/voice/alleys-intro/vi/ngo-cam-chi-intro.mp3'), textHash: '3b45c4d9b90e0d69ddd09a2d47e93de2de1eb3ad00dea199b7cd3e73ec5a9a92', durationSeconds: 38.4,
+  },
+  'ngo-phat-loc': {
+    id: 'intro', kind: 'intro', source: require('../../assets/voice/alleys-intro/vi/ngo-phat-loc-intro.mp3'), textHash: 'd6a9cbbc66c17a3c6c6ae20074887c542fb5d716d28ffdcb598b6e429a48d401', durationSeconds: 37.28,
+  },
+};
 
 const englishIntroCatalogues: Record<string, { datasetRevision: string; track: VoiceTrack }> = {
   'ngo-trung-yen': {
@@ -55,9 +70,10 @@ export const alleysVoiceCatalogues: Record<string, Partial<Record<Locale, {
   datasetRevision: string;
   tracks: Record<string, VoiceTrack>;
 }>>> = Object.fromEntries(pendingAlleyIntroSlots.map((slot) => {
+  const vietnameseIntro = vietnameseIntroTracks[slot.collectionId];
   const english = englishIntroCatalogues[slot.collectionId];
   return [slot.collectionId, {
-    vi: { datasetRevision: slot.datasetRevision, tracks: {} },
+    vi: { datasetRevision: slot.datasetRevision, tracks: { intro: vietnameseIntro } },
     en: { datasetRevision: english.datasetRevision, tracks: { intro: english.track } },
   }];
 }));
