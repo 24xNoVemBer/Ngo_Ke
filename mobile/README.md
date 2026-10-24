@@ -12,14 +12,14 @@ npm start -- --go
 
 Quét mã Metro bằng Expo Go trên thiết bị cùng mạng với máy phát triển. Lệnh trên chạy giao diện; để thử nhận dạng giọng nói, cần khởi động gateway theo mục dưới đây.
 
-## Chia sẻ bản mới — 24/10/2026
+## Chia sẻ bản SDK 58 — 24/10/2026
 
-- [iOS trên Expo.dev](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/47169c1b-44de-4dae-9ffb-0f975aa22e52) · [Mở trong Expo Go tương thích SDK 57](exp://u.expo.dev/update/01a16c65-8373-7f8f-9cad-f0740c45566b)
-- [Android EAS Update](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/77d0d3f9-952a-433b-aeef-5fd4f3d383a9): bản này dùng runtime `0.1.0` và được phân phối cho APK preview đã cài qua channel `preview`, không phải link Expo Go Android.
+- [iOS trên Expo.dev](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/fee91aeb-1bed-4082-80ee-4f1441fd00eb) · [Mở trong Expo Go SDK 58](exp://u.expo.dev/update/01a16c79-a90c-7fb1-a2c9-009db599a127)
+- [Android EAS Update SDK 58](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/6173f1fd-5d38-4f51-be8f-8c14e5a923c8): runtime `0.2.0`, dành cho APK SDK 58 qua channel `preview`.
 
-Hai update xuất lại cùng source ứng dụng `4af64c4`, gồm 17 node stories VI/EN và 34 MP3. Không có thay đổi app mới sau bản 23/10. Không cần cùng Wi-Fi với máy phát triển.
+Hai update dùng source `f72b04d`, Expo SDK 58/React Native 0.88, gồm 17 node stories VI/EN và 34 MP3. Không cần cùng Wi-Fi với máy phát triển. Bản APK SDK 57 runtime `0.1.0` không nhận update SDK 58; cần cài APK mới.
 
-- [Tải APK Android preview](https://expo.dev/artifacts/eas/rJoo7PPcw2U1Th3hHzi_Qfb0aSuwJbKwKwtuAvLHWxo.apk) · [trang build EAS](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/builds/afe6f352-3be5-4a0d-856f-381d1d4c8923). APK 204.312.512 byte, SHA-256 `01444cc0b444d2e9bd7db8c67041d7c8c83ad3e623648fda6fe4a0311171ad8b`; link EAS build nội bộ có hạn đến 06/11/2026. Channel `preview` trỏ tới nhánh update `ios-preview`.
+- [Tải APK Android SDK 58](https://expo.dev/artifacts/eas/ixpr3D3C5yfIIoCdYJ2T8R6_-kt_5FptyEKjoUDAa0M.apk) · [trang build EAS](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/builds/b48fdf95-8593-4024-a0ca-5041050af683). APK 198.108.328 byte, SHA-256 `f21e6127cc05ca34fd50689d66571d41ff468a5e5ac3652eb66ac295bb4fc99a`; link build nội bộ có hạn đến 07/11/2026. Đã đối chiếu đủ 34/34 MP3 mới theo SHA-256.
 
 Đây **không phải link công khai**. Project `ngo-ke-demo` đã được chuyển từ `valentino241` sang tổ chức `valentino241s-team` ngày 15/10/2026. Thành viên cần đăng nhập Expo Go bằng tài khoản thuộc tổ chức; quyền Viewer đủ để xem project qua Expo Go ([thông báo Expo](https://expo.dev/changelog/expo-go-loading-changes-may-2026), [loại tài khoản và quyền](https://docs.expo.dev/accounts/account-types/)). Không chia sẻ thông tin đăng nhập cá nhân. Biến môi trường cấp project đi theo project; biến và secret cấp account không đi theo, nên chỉ cần tạo lại trong team nếu cấu hình thực sự dùng chúng. Liên kết GitHub EAS chưa được kết nối; Git remote cục bộ không bị ảnh hưởng.
 

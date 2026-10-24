@@ -1,6 +1,15 @@
 # Mở demo Việt/Anh — bản tích hợp local
 
-## Xuất lại Expo.dev — 24/10/2026
+## Bản SDK 58 — Expo Go và APK, 24/10/2026
+
+- [iOS Expo Go SDK 58](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/fee91aeb-1bed-4082-80ee-4f1441fd00eb) · `exp://u.expo.dev/update/01a16c79-a90c-7fb1-a2c9-009db599a127` · QR local `D:/MovedFromC/orca-workspaces/ngoke/artifacts/ngoke-expo-go-ios-sdk58-20261024.png`.
+- [Android EAS Update SDK 58](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/6173f1fd-5d38-4f51-be8f-8c14e5a923c8), runtime `0.2.0`. [Tải APK SDK 58](https://expo.dev/artifacts/eas/ixpr3D3C5yfIIoCdYJ2T8R6_-kt_5FptyEKjoUDAa0M.apk) · [build EAS](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/builds/b48fdf95-8593-4024-a0ca-5041050af683).
+
+Source `f72b04d` đã push lên nhánh `valentino/logic-fix-mobile-20261020`. Expo 58/React Native 0.88, iOS runtime `exposdk:58.0.0`, Android runtime `0.2.0`; hai update Published và APK Android `FINISHED`. APK local `D:/MovedFromC/orca-workspaces/ngoke/artifacts/ngoke-20261024-f72b04d-sdk58-preview.apk` có 198.108.328 byte, SHA-256 `f21e6127cc05ca34fd50689d66571d41ff468a5e5ac3652eb66ac295bb4fc99a`, ZIP hợp lệ và 34/34 MP3 node-story khớp byte nguồn; link EAS hết hạn 07/11/2026. Worker Expo Doctor 20/20, typecheck/lint, iOS/Android export đạt; W1 kiểm độc lập Doctor 20/20, typecheck/lint, EAS runtime/readback và APK hash. Chưa kiểm mở/nghe trên điện thoại thật. Bản APK SDK 57 cũ không nhận update runtime `0.2.0`; cần cài APK mới. `EXPO_NO_DOTENV=1` khi publish, không nhúng URL gateway LAN.
+
+**Việc cần anh quyết:** không có. **Việc anh tự làm:** đăng nhập Expo Go SDK 58 bằng tài khoản thuộc `valentino241s-team`, mở QR iOS và thử phát voice; Android cài APK SDK 58 mới rồi thử. Nếu người xem chưa thuộc tổ chức, thêm họ với quyền Viewer. Live API/STT ngoài LAN vẫn cần server/gateway riêng.
+
+## Mốc xuất lại SDK 57 — 24/10/2026
 
 - [iOS Expo Go mới](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/47169c1b-44de-4dae-9ffb-0f975aa22e52) · `exp://u.expo.dev/update/01a16c65-8373-7f8f-9cad-f0740c45566b` · QR local `D:/MovedFromC/orca-workspaces/ngoke/artifacts/ngoke-expo-go-ios-20261024.png`.
 - [Android EAS Update mới](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/77d0d3f9-952a-433b-aeef-5fd4f3d383a9) cho [APK preview đã build](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/builds/afe6f352-3be5-4a0d-856f-381d1d4c8923). Android runtime `0.1.0` không tương thích Expo Go; dùng APK cài riêng.
