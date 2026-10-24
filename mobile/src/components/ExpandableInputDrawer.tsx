@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  type TextInputInstance,
   View,
   useWindowDimensions,
 } from 'react-native';
@@ -54,7 +55,7 @@ export function ExpandableInputDrawer({
   const [height, setHeight] = useState(windowHeight);
   const progress = useRef(new Animated.Value(visible ? 1 : 0)).current;
   const request = useRef(0);
-  const input = useRef<TextInput>(null);
+  const input = useRef<TextInputInstance>(null);
 
   useEffect(() => {
     const id = ++request.current;

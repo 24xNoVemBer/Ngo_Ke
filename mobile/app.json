@@ -2,7 +2,7 @@
   "expo": {
     "name": "Ngõ Kể",
     "slug": "ngo-ke-demo",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "platforms": [
       "android",
       "ios"
@@ -16,7 +16,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "runtimeVersion": "exposdk:57.0.0",
+      "runtimeVersion": "exposdk:58.0.0",
       "infoPlist": {
         "NSCameraUsageDescription": "Cho phép Ngõ Kể dùng camera để quét mã QR của điểm.",
         "NSLocationWhenInUseUsageDescription": "Cho phép Ngõ Kể đọc vị trí một lần để gợi ý điểm gần nhất. App không theo dõi vị trí nền.",

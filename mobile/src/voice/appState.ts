@@ -1,11 +1,11 @@
 export function shouldCancelVoiceOnAppStateChange(
-  state: string,
+  state: string | null | undefined,
   permissionPending: boolean,
 ): boolean {
   return !permissionPending && (state === 'background' || state === 'inactive');
 }
 
-export function canContinueVoiceStart(state: string): boolean {
+export function canContinueVoiceStart(state: string | null | undefined): boolean {
   return state === 'active';
 }
 

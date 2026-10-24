@@ -12,6 +12,7 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  type ScrollViewInstance,
   StyleSheet,
   Text,
   View,
@@ -119,7 +120,7 @@ export function QaScreen({
   const [dockHeight, setDockHeight] = useState(0);
   const [voiceActionCard, setVoiceActionCard] = useState<VoiceActionCard | null>(null);
   const motion = useMotionState();
-  const scroll = useRef<ScrollView>(null);
+  const scroll = useRef<ScrollViewInstance>(null);
   const answerY = useRef(0);
   const revealAnswer = useRef(false);
   const voiceOptionContext = useRef<VoiceOptionContext | null>(null);

@@ -3,7 +3,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation';
 import * as Location from 'expo-location';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
-import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Linking, Pressable, ScrollView, type ScrollViewInstance, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { DemoNode } from '../data/sourceState';
 import { pickCandidate, type Candidate } from '../location/nearest';
@@ -50,7 +50,7 @@ export function LocationScreen({
 }: Props): ReactElement {
   const isReviewed = collectionKind === 'reviewed';
   const motion = useMotionState();
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
   const { t, locale, collectionId: ctxCollectionId } = useLocale();
   const effectiveCollectionId = collectionId ?? ctxCollectionId;
   const isThreeLenses = effectiveCollectionId === 'old-quarter-three-lenses' && isReviewed;
