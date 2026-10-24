@@ -12,12 +12,12 @@ npm start -- --go
 
 Quét mã Metro bằng Expo Go trên thiết bị cùng mạng với máy phát triển. Lệnh trên chạy giao diện; để thử nhận dạng giọng nói, cần khởi động gateway theo mục dưới đây.
 
-## Chia sẻ bản mới qua Expo Go — 23/10/2026
+## Chia sẻ bản mới — 24/10/2026
 
-- [iOS trên Expo.dev](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/1f8e5893-14fa-4061-9984-5c23648d186f) · [Mở trong Expo Go](exp://u.expo.dev/update/01a167b3-4aa1-7499-a4d9-c46da33e2c0a)
-- [Android trên Expo.dev](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/c5374c8d-0785-4157-bbe0-853ff6143148) · [Mở trong Expo Go](exp://u.expo.dev/update/01a167b3-4aa1-702a-8987-724c5c68b295)
+- [iOS trên Expo.dev](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/47169c1b-44de-4dae-9ffb-0f975aa22e52) · [Mở trong Expo Go tương thích SDK 57](exp://u.expo.dev/update/01a16c65-8373-7f8f-9cad-f0740c45566b)
+- [Android EAS Update](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/77d0d3f9-952a-433b-aeef-5fd4f3d383a9): bản này dùng runtime `0.1.0` và được phân phối cho APK preview đã cài qua channel `preview`, không phải link Expo Go Android.
 
-Hai update dùng source `4af64c4`, gồm 17 node stories VI/EN và 34 MP3 mới. Không cần cùng Wi-Fi với máy phát triển.
+Hai update xuất lại cùng source ứng dụng `4af64c4`, gồm 17 node stories VI/EN và 34 MP3. Không có thay đổi app mới sau bản 23/10. Không cần cùng Wi-Fi với máy phát triển.
 
 - [Tải APK Android preview](https://expo.dev/artifacts/eas/rJoo7PPcw2U1Th3hHzi_Qfb0aSuwJbKwKwtuAvLHWxo.apk) · [trang build EAS](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/builds/afe6f352-3be5-4a0d-856f-381d1d4c8923). APK 204.312.512 byte, SHA-256 `01444cc0b444d2e9bd7db8c67041d7c8c83ad3e623648fda6fe4a0311171ad8b`; link EAS build nội bộ có hạn đến 06/11/2026. Channel `preview` trỏ tới nhánh update `ios-preview`.
 

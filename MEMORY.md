@@ -1,5 +1,11 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-24 — xuất lại EAS Update theo yêu cầu
+
+- Worktree triển khai và remote `ngoke-public` vẫn ở HEAD `12ea90d`; source app cuối `4af64c4`, không có commit app/data/audio mới sau lần publish 23/10. User yêu cầu build lại và đẩy Expo Go, nên W1 chạy lại EAS Update `--platform all --branch ios-preview --environment preview --clear-cache` với `CI=1`, `EXPO_NO_DOTENV=1`; không build APK mới hay dùng ElevenLabs.
+- EAS Published iOS group `47169c1b-44de-4dae-9ffb-0f975aa22e52`, update `01a16c65-8373-7f8f-9cad-f0740c45566b`, runtime `exposdk:57.0.0`; Android group `77d0d3f9-952a-433b-aeef-5fd4f3d383a9`, update `01a16c65-8373-797d-8456-ae283cc5dead`, runtime `0.1.0`. CLI readback xác nhận hai update đúng branch/source HEAD. Android `0.1.0` phục vụ APK preview qua channel `preview` → `ios-preview`, không giới thiệu như Expo Go Android. iOS cần Expo Go tương thích SDK 57 và tài khoản trong tổ chức. QR iOS mới `D:/MovedFromC/orca-workspaces/ngoke/artifacts/ngoke-expo-go-ios-20261024.png` đã decode khớp URL.
+- Cần người dùng quyết: không có. Cần tự làm: mở iOS trên Expo Go SDK 57 hoặc khởi động lại APK Android đã cài, nghe/kiểm trên thiết bị thật và báo sai khác; Live API/STT ngoài LAN chưa có server. Không tự nhận đã thử thiết bị.
+
 ## 2026-10-23 — GitHub, Expo Go tổ chức và APK theo yêu cầu mới
 
 - Người dùng yêu cầu push GitHub, chia sẻ bản mới trên Expo Go cho tổ chức và tạo APK. W1 push nhánh `valentino/logic-fix-mobile-20261020` lên đúng remote `ngoke-public` (`24xNoVemBer/Ngo_Ke`) tại source `4af64c4`; không merge main. WIP tài liệu riêng chưa commit được giữ nguyên.

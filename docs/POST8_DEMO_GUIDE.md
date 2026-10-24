@@ -1,9 +1,16 @@
 # Mở demo Việt/Anh — bản tích hợp local
 
-## Expo.dev mới nhất — 17 lời kể điểm VI/EN, 23/10/2026
+## Xuất lại Expo.dev — 24/10/2026
+
+- [iOS Expo Go mới](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/47169c1b-44de-4dae-9ffb-0f975aa22e52) · `exp://u.expo.dev/update/01a16c65-8373-7f8f-9cad-f0740c45566b` · QR local `D:/MovedFromC/orca-workspaces/ngoke/artifacts/ngoke-expo-go-ios-20261024.png`.
+- [Android EAS Update mới](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/77d0d3f9-952a-433b-aeef-5fd4f3d383a9) cho [APK preview đã build](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/builds/afe6f352-3be5-4a0d-856f-381d1d4c8923). Android runtime `0.1.0` không tương thích Expo Go; dùng APK cài riêng.
+
+Hai update Published trên branch `ios-preview`, source app vẫn là `4af64c4` và HEAD tài liệu `12ea90d`; không có thay đổi app/audio mới kể từ 23/10. Xuất lại với `EXPO_NO_DOTENV=1`, không nhúng URL gateway LAN. iOS cần Expo Go tương thích SDK 57 và tài khoản thuộc `valentino241s-team`. Chưa xác minh mở/nghe trên điện thoại thật. **Việc cần anh quyết:** không có. **Việc anh tự làm:** mở link iOS trên máy có Expo Go SDK 57, hoặc mở lại APK Android đã cài để nhận update; nếu không thuộc tổ chức, thêm tài khoản tester trước. Live API và STT ngoài LAN vẫn cần server riêng.
+
+## Mốc Expo.dev — 17 lời kể điểm VI/EN, 23/10/2026
 
 - [iOS Expo Go](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/1f8e5893-14fa-4061-9984-5c23648d186f) · `exp://u.expo.dev/update/01a167b3-4aa1-7499-a4d9-c46da33e2c0a`
-- [Android Expo Go](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/c5374c8d-0785-4157-bbe0-853ff6143148) · `exp://u.expo.dev/update/01a167b3-4aa1-702a-8987-724c5c68b295`
+- [Android EAS Update cho APK preview](https://expo.dev/accounts/valentino241s-team/projects/ngo-ke-demo/updates/c5374c8d-0785-4157-bbe0-853ff6143148), runtime `0.1.0`.
 
 Source `4af64c4` trên nhánh `valentino/logic-fix-mobile-20261020` đã push lên `24xNoVemBer/Ngo_Ke`; hai update Published, gồm 17 story mỗi ngôn ngữ và 34 MP3 mới. Thành viên đăng nhập Expo Go bằng tài khoản thuộc `valentino241s-team`; không cần cùng Wi-Fi/Metro. Demo và audio đóng gói dùng được; Live API và nhận giọng nói cần server/gateway truy cập được từ thiết bị. Chưa xác minh phát âm trên điện thoại thật.
 
