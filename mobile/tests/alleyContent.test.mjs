@@ -24,6 +24,8 @@ const storyGroups = {
 };
 const revisionSource = readFileSync(new URL('../src/data/collections.ts', import.meta.url), 'utf8');
 const voiceHandoff = JSON.parse(readFileSync(new URL('../../docs/handoffs/2026-10-23-node-story-voice-handoff.json', import.meta.url), 'utf8'));
+const migratedVoice = JSON.parse(readFileSync(new URL('../assets/voice/demo-migration-v1/manifest.json', import.meta.url), 'utf8'));
+const migratedVoiceRows = new Map(migratedVoice.entries.map((entry) => [`${entry.collectionId}/${entry.locale}/${entry.id}`, entry]));
 
 function collectionRevision(collectionId, locale) {
   const start = revisionSource.indexOf(`'${collectionId}': {`);
@@ -56,7 +58,7 @@ test('V2 validation accepts absent or valid optional alley fields and rejects ma
   assert.equal(parseDatasetV2({ ...old, guide: { ...guide, eat: [{ ...guide.eat[0], hours: false }] } }), undefined);
 });
 
-test('17 VI and EN node stories match IDs, source datasets, revisions, and voice handoff', () => {
+test('17 VI and EN node stories match IDs, current revisions, and active voice handoff', () => {
   const handoff = new Map(voiceHandoff.records.map((entry) => [`${entry.collectionId}|${entry.locale}|${entry.nodeId}`, entry]));
   assert.equal(voiceHandoff.records.length, 34);
   assert.equal(handoff.size, 34);
@@ -78,18 +80,57 @@ test('17 VI and EN node stories match IDs, source datasets, revisions, and voice
       assert.equal(datasetRevision, collectionRevision(collectionId, locale));
       for (const node of dataset.nodes) {
         assert.ok(typeof node.story === 'string' && node.story.trim());
-        assert.doesNotMatch(node.story, /\d|https?:\/\//i);
+        const spokenWithoutNamedNumber = node.story.replaceAll('Cà Phê No.1', '').replaceAll('Ta Cà Phê 4', '').replaceAll('Cafe 20', '');
+        assert.doesNotMatch(spokenWithoutNamedNumber, /\d|https?:\/\//i);
         const entry = handoff.get(`${collectionId}|${locale}|${node.id}`);
         assert.ok(entry);
         assert.equal(entry.contentId, `${node.id}-story`);
-        assert.equal(entry.textHash, hashText(node.story));
-        assert.equal(entry.datasetRevision, datasetRevision);
+        if (collectionId === 'ngo-gach') {
+          const active = migratedVoiceRows.get(`ngo-gach/${locale}/${entry.contentId}`);
+          assert.ok(active, `${locale}:${entry.contentId} active V2 track exists`);
+          assert.equal(active.textHash, hashText(node.story));
+          assert.equal(active.datasetRevision, datasetRevision);
+          assert.equal(active.previousTextHash, entry.textHash, `${entry.contentId} prior handoff remains historical`);
+        } else {
+          assert.equal(entry.textHash, hashText(node.story));
+          assert.equal(entry.datasetRevision, datasetRevision);
+        }
         nodeCount++;
       }
     }
   }
 
   assert.equal(nodeCount, 34);
+});
+
+test('all 32 Ngõ Gạch runtime strings equal the approved V2 review and source evidence stays attached', () => {
+  const review = readFileSync(new URL('../../docs/content/NGO_GACH_STORYTELLING_V2_REVIEW.md', import.meta.url), 'utf8');
+  const section = review.split('## 2. Kịch bản exact text hiện hành')[1]?.split('## 3. Nguồn, claim')[0];
+  assert.ok(section, 'approved exact-text section exists');
+  const approved = [...section.matchAll(/^> (.*)$/gm)].map((match) => match[1]);
+  const values = [];
+  for (const locale of ['vi', 'en']) {
+    const dataset = load(`localized/ngo-gach.${locale}.json`);
+    values.push(dataset.intro.text);
+  }
+  for (const node of load('localized/ngo-gach.vi.json').nodes) {
+    const enNode = load('localized/ngo-gach.en.json').nodes.find((item) => item.id === node.id);
+    for (const field of ['story', 'summary', 'caption']) values.push(node[field], enNode[field]);
+  }
+  assert.equal(approved.length, 32);
+  assert.deepEqual(values, approved);
+
+  const vi = load('localized/ngo-gach.vi.json');
+  const en = load('localized/ngo-gach.en.json');
+  const s22 = 'https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/dinh-thanh-ha.html';
+  const b2bS01 = 'https://dsvh.gov.vn/dinh-thanh-ha-thanh-pho-ha-noi-22263';
+  const s25 = 'https://www.tacaphe.vn/';
+  for (const dataset of [vi, en]) {
+    assert.ok(dataset.intro.evidence.includes(s22));
+    assert.ok(dataset.nodes.find((node) => node.id === 'ngo-gach-dinh-thanh-ha').evidence.includes(s22));
+    assert.ok(dataset.nodes.find((node) => node.id === 'ngo-gach-dinh-thanh-ha').evidence.includes(b2bS01));
+    assert.ok(dataset.nodes.find((node) => node.id === 'ngo-gach-ta-ca-phe-4').evidence.includes(s25));
+  }
 });
 
 test('unchanged legacy datasets retain their canonical content fingerprint', () => {

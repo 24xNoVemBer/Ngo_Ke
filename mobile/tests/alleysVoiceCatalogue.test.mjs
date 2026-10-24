@@ -6,6 +6,8 @@ import { URL } from 'node:url';
 import { canonicalDatasetJson } from '../src/data/canonicalJson.ts';
 
 const hash = (text) => createHash('sha256').update(text).digest('hex');
+const migrationManifest = JSON.parse(readFileSync(
+  new URL('../assets/voice/demo-migration-v1/manifest.json', import.meta.url), 'utf8'));
 const priorRequire = globalThis.require;
 globalThis.require = (path) => path;
 const { pendingAlleyIntroSlots, alleysVoiceCatalogues, ALLEY_INTRO_VOICE } = await import('../src/voice/alleysCatalog.ts');
@@ -86,7 +88,7 @@ test('four VI and four EN intros match their source, manifest, and audio', () =>
 
 test('VI and EN intros resolve only for their collection and current revision', async () => {
   const previousRequire = globalThis.require;
-  globalThis.require = () => 'existing-audio';
+  globalThis.require = (assetPath) => assetPath;
   let lookupVoiceTrack;
   try {
     ({ lookupVoiceTrack } = await import('../src/voice/localizedCatalog.ts'));
@@ -96,14 +98,26 @@ test('VI and EN intros resolve only for their collection and current revision', 
   }
   for (const slot of pendingAlleyIntroSlots) {
     const catalogue = alleysVoiceCatalogues[slot.collectionId];
+    const migratedVi = migrationManifest.entries.find((entry) => entry.collectionId === slot.collectionId
+      && entry.locale === 'vi' && entry.id === 'intro');
+    const migratedEn = migrationManifest.entries.find((entry) => entry.collectionId === slot.collectionId
+      && entry.locale === 'en' && entry.id === 'intro');
     const viQuery = { ...slot, locale: 'vi' };
     const enQuery = { ...slot, locale: 'en', datasetRevision: catalogue.en.datasetRevision };
-    assert.equal(lookupVoiceTrack(viQuery), catalogue.vi.tracks.intro);
+    const viTrack = lookupVoiceTrack(viQuery);
+    assert.equal(viTrack?.source,
+      `../../assets/voice/demo-migration-v1/${slot.collectionId}/vi/intro.mp3`);
+    assert.equal(viTrack?.textHash, migratedVi.textHash);
+    assert.equal(viTrack?.durationSeconds, migratedVi.durationSeconds);
     assert.equal(lookupVoiceTrack({ ...viQuery, datasetRevision: 'changed' }), undefined);
     assert.equal(lookupVoiceTrack({ ...viQuery, contentId: 'other-story' }), undefined);
     assert.equal(lookupVoiceTrack({ ...viQuery, contentId: '__proto__' }), undefined);
     assert.equal(lookupVoiceTrack({ ...viQuery, contentId: 'toString' }), undefined);
-    assert.equal(lookupVoiceTrack(enQuery), catalogue.en.tracks.intro);
+    const enTrack = lookupVoiceTrack(enQuery);
+    assert.equal(enTrack?.source,
+      `../../assets/voice/demo-migration-v1/${slot.collectionId}/en/intro.mp3`);
+    assert.equal(enTrack?.textHash, migratedEn.textHash);
+    assert.equal(enTrack?.durationSeconds, migratedEn.durationSeconds);
     assert.equal(lookupVoiceTrack({ ...enQuery, datasetRevision: 'changed' }), undefined);
     assert.equal(lookupVoiceTrack({ ...enQuery, contentId: 'story' }), undefined);
     assert.equal(lookupVoiceTrack({ ...enQuery, locale: 'vi' }), undefined);

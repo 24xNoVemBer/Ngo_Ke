@@ -1,4 +1,5 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useIsFocused } from '@react-navigation/native';
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import {
   Animated,
@@ -31,7 +32,16 @@ import { usePressSpring, usePulseLoop } from '../hooks/useMotion';
 import { useLocale } from '../context/LocaleContext';
 import { radius, spacing } from '../theme';
 import { motionDurations, motionEasings } from '../theme/motion';
-import { buildSmoothPath, computeAlleyLayout } from '../utils/alleyGeometry';
+import { buildSmoothPath, computeAlleyLayout, computeSchematicTrailLayout } from '../utils/alleyGeometry';
+import {
+  createImagePerfFirstLayoutReporter,
+  recordImagePerfLoadEnd,
+  recordImagePerfLoadError,
+  recordImagePerfLoadStart,
+  recordImagePerfLoadSuccess,
+  recordImagePerfNavigationTap,
+  recordImagePerfScreenFocus,
+} from '../utils/imagePerformanceDiagnostics';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'> & {
   mode: Mode;
@@ -72,6 +82,8 @@ export function HomeScreen({
   navigation,
   route,
 }: Props): ReactElement {
+  const isFocused = useIsFocused();
+  const reportFirstLayout = useRef(createImagePerfFirstLayoutReporter('home')).current;
   const { width: screenWidth, fontScale } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
@@ -127,53 +139,79 @@ export function HomeScreen({
   const introPlayback = useAudioPlayerStatus(introPlayer);
   const isIntroPlaying = Boolean(introPlayback?.playing);
   const lastPlayedTrackRef = useRef<string | null>(null);
+  const introGeneration = useRef(0);
+  const introPending = useRef<number | null>(null);
+  const introMounted = useRef(true);
+  const introFocused = useRef(navigation?.isFocused?.() ?? true);
+  const introScope = `${mode}:${activeCollectionId}:${locale}:${datasetRevision}:${source.status}:${motion.foreground}`;
+  const introScopeRef = useRef(introScope);
+  introScopeRef.current = introScope;
 
   const handleTogglePlayIntro = useCallback(async () => {
-    if (!introTrack) return;
+    if (!introTrack || !introMounted.current || !introFocused.current || motion.foreground === false) return;
+    if (introPending.current !== null) return;
+    const generation = ++introGeneration.current;
+    const isCurrent = () => introMounted.current && introFocused.current &&
+      (navigation?.isFocused?.() ?? true) && introScopeRef.current === introScope &&
+      introGeneration.current === generation;
     if (isIntroPlaying) {
       try {
         introPlayer?.pause?.();
       } catch { /* best effort */ }
     } else {
       const trackKey = `${activeCollectionId}:${locale}:${introTrack.id}`;
+      introPending.current = generation;
       try {
         if (lastPlayedTrackRef.current !== trackKey) {
           try {
             await setAudioModeAsync?.({ allowsRecording: false, playsInSilentMode: true });
           } catch { /* best effort */ }
+          if (!isCurrent()) return;
           introPlayer?.replace?.(introTrack.source as AudioSource);
           lastPlayedTrackRef.current = trackKey;
         }
-        introPlayer?.play?.();
+        if (isCurrent()) introPlayer?.play?.();
       } catch { /* best effort */ }
+      finally {
+        if (introPending.current === generation) introPending.current = null;
+      }
     }
-  }, [introTrack, isIntroPlaying, introPlayer, activeCollectionId, locale]);
+  }, [introTrack, isIntroPlaying, introPlayer, activeCollectionId, locale, introScope, motion.foreground, navigation]);
 
   const handleStopIntro = useCallback(() => {
+    introGeneration.current += 1;
+    introPending.current = null;
     try {
       introPlayer?.pause?.();
     } catch { /* best effort */ }
   }, [introPlayer]);
 
   useEffect(() => {
+    introMounted.current = true;
     return () => {
+      introMounted.current = false;
       handleStopIntro();
     };
   }, [handleStopIntro]);
 
   useEffect(() => {
+    const unsubscribeFocus = navigation?.addListener?.('focus', () => {
+      introFocused.current = true;
+    });
     const unsubscribe = navigation?.addListener?.('blur', () => {
+      introFocused.current = false;
       handleStopIntro();
     });
     return () => {
       unsubscribe?.();
+      unsubscribeFocus?.();
     };
   }, [navigation, handleStopIntro]);
 
   useEffect(() => {
     handleStopIntro();
     lastPlayedTrackRef.current = null;
-  }, [activeCollectionId, locale, handleStopIntro]);
+  }, [introScope, handleStopIntro]);
 
   const currentNode: DemoNode | undefined = nodes[selectedIndex] ?? nodes[0];
   const visitedCount = nodes.filter((n) => readNodeIds.has(n.id)).length;
@@ -181,6 +219,10 @@ export function HomeScreen({
   const isReviewed = collectionKind === 'reviewed';
   const isThreeLenses = activeCollectionId === 'old-quarter-three-lenses' && isReviewed;
   const currentPhoto = currentNode ? getNodePhoto(currentNode.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined) : collectionCover;
+
+  useEffect(() => {
+    if (isFocused) recordImagePerfScreenFocus('home');
+  }, [isFocused]);
 
   const topHeaderPadding = Math.max(insets.top, 28) + 8;
   const canvasHeight = Math.max(560, nodes.length * 90 * fontScale);
@@ -208,8 +250,8 @@ export function HomeScreen({
     );
     pins = layout.pins;
     splinePoints = layout.splinePoints;
-  } else {
-    // Dataset cũ không có hình dáng ngõ (không đổi hành vi)
+  } else if (activeCollectionId === 'fiction-letter') {
+    // Keep the legacy simulated collection's six established pin positions.
     pins = nodes.flatMap((node, index) => {
       const layout = PIN_CONFIG[index];
       return layout ? [{ ...layout, id: node.id }] : [];
@@ -222,6 +264,10 @@ export function HomeScreen({
       })),
       { x: canvasWidth * 0.49, y: canvasHeight },
     ];
+  } else {
+    const layout = computeSchematicTrailLayout(nodes, canvasWidth, canvasHeight);
+    pins = layout.pins;
+    splinePoints = layout.splinePoints;
   }
 
   const mainPath = buildSmoothPath(splinePoints);
@@ -247,6 +293,7 @@ export function HomeScreen({
   function handleExploreCurrent(): void {
     if (!currentNode?.available) return;
     onSelectNode(currentNode.id);
+    recordImagePerfNavigationTap('home', 'qa', currentNode.id);
     navigation.navigate('Qa');
   }
 
@@ -300,12 +347,16 @@ export function HomeScreen({
   }
 
   return (
-    <View style={styles.rootContainer}>
+    <View style={styles.rootContainer} onLayout={reportFirstLayout}>
       {/* 1. NỀN ẢNH CHỤP THẬT TRÀN TOÀN BỘ MÀN HÌNH (B2: scrim 0.40 mộc mạc) */}
       <ImageBackground
         source={collectionCover}
         style={StyleSheet.absoluteFill}
         resizeMode="cover"
+        onLoadStart={() => recordImagePerfLoadStart('home', `cover:${activeCollectionId}`)}
+        onLoad={() => recordImagePerfLoadSuccess('home', `cover:${activeCollectionId}`)}
+        onLoadEnd={() => recordImagePerfLoadEnd('home', `cover:${activeCollectionId}`)}
+        onError={() => recordImagePerfLoadError('home', `cover:${activeCollectionId}`)}
       >
         <View style={styles.scrimOverlay} />
       </ImageBackground>
@@ -469,6 +520,9 @@ export function HomeScreen({
                 const isVisited = readNodeIds.has(node.id);
                 const px = canvasWidth * pinMeta.xPct;
                 const py = canvasHeight * pinMeta.yPct;
+                const leftLabelInset = Math.min(10, canvasWidth / 2);
+                const leftLabelRight = Math.max(leftLabelInset, Math.min(canvasWidth - leftLabelInset, px - 25));
+                const leftLabelWidth = Math.max(0, Math.min(130, leftLabelRight - leftLabelInset));
 
                 return (
                   <View key={pinMeta.id} style={StyleSheet.absoluteFill} pointerEvents="box-none">
@@ -549,8 +603,12 @@ export function HomeScreen({
                         style={[
                           styles.labelLeftContainer,
                           {
-                            right: canvasWidth - px + 25,
+                            right: canvasWidth - leftLabelRight,
                             top: py - 18,
+                            width: leftLabelWidth,
+                            // Keep padding inside even a zero-width box; ordinary labels remain unclipped and wrap.
+                            paddingHorizontal: Math.min(8, leftLabelWidth / 2),
+                            overflow: leftLabelWidth <= 16 ? 'hidden' : 'visible',
                           },
                         ]}
                       >

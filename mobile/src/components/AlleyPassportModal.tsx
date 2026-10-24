@@ -11,7 +11,7 @@ import {
 import { useLocale } from '../context/LocaleContext';
 import { useMotionState } from '../hooks/MotionPreferences';
 import { getLocalizedCollections } from '../data/collections';
-import { radius, spacing } from '../theme';
+import { colors, radius, spacing } from '../theme';
 
 export type AlleyPassportModalProps = {
   visible: boolean;
@@ -111,11 +111,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   journalDrawerSheet: {
-    backgroundColor: '#1E241D',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
     borderTopWidth: 1,
-    borderColor: '#B9A589',
+    borderColor: colors.border,
     maxHeight: '85%',
     paddingBottom: 24,
     shadowColor: '#000',
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.lg,
     paddingBottom: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 253, 247, 0.12)',
+    borderBottomColor: colors.journalDivider,
   },
   drawerHeaderRowStacked: {
     flexDirection: 'column',
@@ -148,26 +148,26 @@ const styles = StyleSheet.create({
   passportPhase: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#D4AF37',
+    color: colors.terracotta,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
   drawerTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFDF7',
+    color: colors.text,
     letterSpacing: 0.3,
   },
   closeDrawerButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255, 253, 247, 0.10)',
+    backgroundColor: colors.surfaceWarm,
     alignItems: 'center',
     justifyContent: 'center',
   },
   closeDrawerText: {
-    color: '#FFFDF7',
+    color: colors.text,
     fontSize: 16,
     fontWeight: '700',
   },
@@ -177,15 +177,15 @@ const styles = StyleSheet.create({
   },
   passportGuideText: {
     fontSize: 13,
-    color: 'rgba(255, 253, 247, 0.78)',
+    color: colors.muted,
     lineHeight: 18,
   },
   passportAlleySection: {
-    backgroundColor: 'rgba(255, 253, 247, 0.05)',
+    backgroundColor: colors.background,
     borderRadius: radius.md,
     padding: spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(255, 253, 247, 0.10)',
+    borderColor: colors.border,
     gap: 6,
   },
   passportAlleyHeader: {
@@ -196,24 +196,24 @@ const styles = StyleSheet.create({
   passportAlleyName: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#FFFDF7',
+    color: colors.text,
   },
   passportAlleyDistrict: {
     fontSize: 12,
-    color: '#D4AF37',
+    color: colors.accent,
   },
   badgeSamplePill: {
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: radius.sm,
-    backgroundColor: 'rgba(212, 175, 55, 0.20)',
+    backgroundColor: colors.terracottaSoft,
     borderWidth: 1,
-    borderColor: '#D4AF37',
+    borderColor: colors.terracotta,
   },
   badgeSampleText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#D4AF37',
+    color: colors.terracotta,
     textTransform: 'uppercase',
   },
   passportStopsRow: {
@@ -232,18 +232,18 @@ const styles = StyleSheet.create({
     borderRadius: 19,
     borderWidth: 1.5,
     borderStyle: 'dashed',
-    borderColor: 'rgba(255, 253, 247, 0.40)',
+    borderColor: colors.borderStrong,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 253, 247, 0.04)',
+    backgroundColor: colors.surfaceWarm,
   },
   stampNumberText: {
     fontSize: 13,
     fontWeight: '700',
-    color: 'rgba(255, 253, 247, 0.75)',
+    color: colors.text,
   },
   stampSlotLabel: {
     fontSize: 10,
-    color: 'rgba(255, 253, 247, 0.60)',
+    color: colors.muted,
   },
 });

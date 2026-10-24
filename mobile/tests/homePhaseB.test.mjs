@@ -144,6 +144,7 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
     'react-native-safe-area-context': {
       useSafeAreaInsets: () => ({ top: 44, bottom: 34, left: 0, right: 0 }),
     },
+    '@react-navigation/native': { useIsFocused: () => true },
     '../context/LocaleContext': overrides['../context/LocaleContext'] ?? {
       useLocale: () => ({
         locale: 'vi',
@@ -196,6 +197,11 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
     '../components/AppIcon': { AppIcon: 'AppIcon' },
     'react-native-svg': { default: 'Svg', Path: 'Path', Defs: 'Defs', LinearGradient: 'LinearGradient', Stop: 'Stop', __esModule: true },
     '../utils/alleyGeometry': alleyGeometry,
+    '../utils/imagePerformanceDiagnostics': {
+      createImagePerfFirstLayoutReporter: () => () => {},
+      recordImagePerfLoadEnd: () => {}, recordImagePerfLoadError: () => {}, recordImagePerfLoadStart: () => {},
+      recordImagePerfLoadSuccess: () => {}, recordImagePerfNavigationTap: () => {}, recordImagePerfScreenFocus: () => {},
+    },
     './src/utils/alleyGeometry': alleyGeometry,
     'expo-audio': {
       setAudioModeAsync: async () => {},

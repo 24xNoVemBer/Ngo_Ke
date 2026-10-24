@@ -36,8 +36,12 @@ tools/e2e/.runs/
 # Local voice model environment and generated probe/catalogue files
 tools/voice/.venv/
 tools/voice/.cache/
-__pycache__/
 
 # OS
 .DS_Store
 Thumbs.db
+
+.env.local
+.env.*.local
+
+.cache/

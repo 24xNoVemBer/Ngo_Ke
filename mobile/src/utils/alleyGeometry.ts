@@ -23,6 +23,18 @@ export interface AlleyLayoutResult {
   pins: ComputedTrailPin[];
 }
 
+export interface SchematicTrailPin {
+  id: string;
+  xPct: number;
+  yPct: number;
+  side: 'left' | 'right';
+}
+
+export interface SchematicTrailLayoutResult {
+  pins: SchematicTrailPin[];
+  splinePoints: CanvasPoint[];
+}
+
 export function buildSmoothPath(points: Array<{ x: number; y: number }>): string {
   if (points.length < 2) {
     return '';
@@ -201,5 +213,66 @@ export function computeAlleyLayout(
     canvasPolyline,
     splinePoints,
     pins,
+  };
+}
+
+/**
+ * Place real node IDs on a schematic sequence when no surveyed polyline exists.
+ * This is visual ordering only; it does not represent geographic coordinates,
+ * distance, or a navigable route.
+ */
+export function computeSchematicTrailLayout(
+  nodes: readonly { id: string }[],
+  canvasWidth: number,
+  canvasHeight: number,
+): SchematicTrailLayoutResult {
+  if (
+    !nodes
+    || nodes.length === 0
+    || !Number.isFinite(canvasWidth)
+    || canvasWidth <= 0
+    || !Number.isFinite(canvasHeight)
+    || canvasHeight <= 0
+  ) {
+    return { pins: [], splinePoints: [] };
+  }
+
+  if (nodes.length === 1) {
+    const pin: SchematicTrailPin = {
+      id: nodes[0]!.id,
+      xPct: 0.5,
+      yPct: 0.5,
+      side: 'right',
+    };
+    return {
+      pins: [pin],
+      splinePoints: [
+        { x: canvasWidth * 0.5, y: 0 },
+        { x: canvasWidth * pin.xPct, y: canvasHeight * pin.yPct },
+        { x: canvasWidth * 0.5, y: canvasHeight },
+      ],
+    };
+  }
+
+  const startY = 0.15;
+  const endY = 0.85;
+  const stepY = (endY - startY) / (nodes.length - 1);
+  const pins = nodes.map((node, index): SchematicTrailPin => {
+    const side = index % 2 === 0 ? 'right' : 'left';
+    return {
+      id: node.id,
+      xPct: side === 'right' ? 0.56 : 0.44,
+      yPct: startY + index * stepY,
+      side,
+    };
+  });
+
+  return {
+    pins,
+    splinePoints: [
+      { x: canvasWidth * 0.5, y: 0 },
+      ...pins.map((pin) => ({ x: canvasWidth * pin.xPct, y: canvasHeight * pin.yPct })),
+      { x: canvasWidth * 0.5, y: canvasHeight },
+    ],
   };
 }

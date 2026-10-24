@@ -199,11 +199,16 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
     '../data/threeLensesCompanion': { getScopedCompanion: () => null, THREE_LENSES_COLLECTION_ID: 'old-quarter-three-lenses' },
     '../voice/intent': { parseVoiceIntent: () => ({ type: 'none' }), resolveFirstOptionReference: () => ({ type: 'none' }) },
     '../voice/performance': { recordVoicePerformance: () => {}, voicePerformanceNow: () => 0 },
+    '../utils/imagePerformanceDiagnostics': {
+      createImagePerfFirstLayoutReporter: () => () => {},
+      recordImagePerfLoadEnd: () => {}, recordImagePerfLoadError: () => {}, recordImagePerfLoadStart: () => {},
+      recordImagePerfLoadSuccess: () => {}, recordImagePerfNavigationTap: () => {}, recordImagePerfScreenFocus: () => {},
+    },
     '../components/VoicePlayerBar': { VoicePlayerBar: (props) => ({ type: 'VoicePlayerBar', props }) },
     '../components/VoiceInteractionDock': { VoiceInteractionDock: 'VoiceInteractionDock' },
     '../components/ExpandableInputDrawer': { ExpandableInputDrawer: 'ExpandableInputDrawer' },
     '../utils/alleyGeometry': alleyGeometry,
-    ...overrides,
+    ...Object.fromEntries(Object.entries(overrides).filter(([key]) => key !== 'expo-audio')),
   };
 
   const screenCode = ts.transpileModule(readFileSync(new URL(file, import.meta.url), 'utf8'), {
@@ -273,6 +278,98 @@ function elements(node, type) {
 // ------------------- TESTS -------------------
 
 const VI_VOICE_ALLEYS = ['ngo-trung-yen', 'ngo-tam-thuong', 'ngo-cam-chi', 'ngo-phat-loc'];
+
+for (const change of ['blur', 'unmount', 'locale', 'collection', 'mode', 'background']) {
+  test(`pending Home intro is invalidated by ${change} and can play after reentry`, async () => {
+    let resolveMode;
+    const prepared = new Promise((resolve) => { resolveMode = resolve; });
+    let locale = 'vi';
+    let foreground = true;
+    const listeners = new Map();
+    const events = [];
+    const dataset = getBundledDataset('ngo-trung-yen', 'vi');
+    const mount = createTestMount('../src/screens/HomeScreen.tsx', {
+      mode: 'demo', source: sources.getSourceState('demo', dataset, 'vi'),
+      route: { params: { alleyId: 'ngo-trung-yen' } }, currentNodeId: dataset.startNodeId,
+      readNodeIds: new Set(), onSelectNode() {}, onModeChange() {},
+      navigation: { navigate() {}, goBack() {}, addListener(event, cb) {
+        listeners.set(event, cb); return () => listeners.delete(event);
+      } },
+    }, {
+      __audioEvents: events,
+      'expo-audio': { setAudioModeAsync: () => prepared },
+      '../context/LocaleContext': { useLocale: () => ({ locale, setLocale() {}, t: (key, params) => translator.t(locale, key, params) }) },
+      '../hooks/MotionPreferences': { useMotionState: () => ({ foreground, active: foreground, reducedMotion: false }) },
+    });
+    const play = (tree) => elements(tree, 'Pressable').find((p) => p.props.testID === 'home-intro-play');
+    const initial = mount.render();
+    const pendingPlay = play(initial).props.onPress();
+    // Duplicate input while preparation is pending must not launch another play.
+    await play(initial).props.onPress();
+    if (change === 'blur') listeners.get('blur')();
+    if (change === 'unmount') mount.unmount();
+    if (change === 'locale') { locale = 'en'; mount.render(); }
+    if (change === 'collection') mount.render({ route: { params: { alleyId: 'ngo-tam-thuong' } } });
+    if (change === 'mode') mount.render({ mode: 'live' });
+    if (change === 'background') { foreground = false; mount.render(); }
+    resolveMode();
+    await pendingPlay;
+    assert.equal(events.filter((e) => e === 'play').length, 0);
+    assert.equal(events.filter((e) => typeof e === 'object' && 'replace' in e).length, 0);
+    if (change === 'unmount') {
+      assert.equal(listeners.size, 0, 'both listeners removed');
+      return;
+    }
+    if (change === 'blur') listeners.get('focus')();
+    foreground = true;
+    const tree = mount.render();
+    assert.equal(events.filter((e) => e === 'play').length, 0, 'return never autoplays');
+    await play(tree).props.onPress();
+    assert.equal(events.filter((e) => e === 'play').length, 1, 'explicit new Play works');
+    mount.unmount();
+    assert.equal(listeners.size, 0);
+  });
+}
+
+test('Home coalesces double Play during preparation and reduced motion permits audio', async () => {
+  let resolveMode;
+  const prepared = new Promise((resolve) => { resolveMode = resolve; });
+  const events = [];
+  const dataset = getBundledDataset('ngo-trung-yen', 'vi');
+  const mount = createTestMount('../src/screens/HomeScreen.tsx', {
+    mode: 'demo', source: sources.getSourceState('demo', dataset), route: { params: { alleyId: 'ngo-trung-yen' } },
+    navigation: { navigate() {}, goBack() {} }, readNodeIds: new Set(), onSelectNode() {}, onModeChange() {},
+  }, { __audioEvents: events, 'expo-audio': { setAudioModeAsync: () => prepared },
+    '../hooks/MotionPreferences': { useMotionState: () => ({ foreground: true, active: false, reducedMotion: true }) } });
+  const button = elements(mount.render(), 'Pressable').find((p) => p.props.testID === 'home-intro-play');
+  const first = button.props.onPress();
+  await button.props.onPress();
+  resolveMode(); await first;
+  assert.equal(events.filter((e) => e === 'play').length, 1);
+  mount.unmount();
+});
+
+test('a stale Home preparation cannot clear a newer pending Play', async () => {
+  const resolvers = [];
+  const listeners = new Map();
+  const events = [];
+  const dataset = getBundledDataset('ngo-trung-yen', 'vi');
+  const mount = createTestMount('../src/screens/HomeScreen.tsx', {
+    mode: 'demo', source: sources.getSourceState('demo', dataset), route: { params: { alleyId: 'ngo-trung-yen' } },
+    navigation: { navigate() {}, addListener(event, cb) { listeners.set(event, cb); return () => listeners.delete(event); } },
+    readNodeIds: new Set(), onSelectNode() {}, onModeChange() {},
+  }, { __audioEvents: events, 'expo-audio': { setAudioModeAsync: () => new Promise((resolve) => resolvers.push(resolve)) } });
+  const button = elements(mount.render(), 'Pressable').find((p) => p.props.testID === 'home-intro-play');
+  const oldPlay = button.props.onPress();
+  listeners.get('blur')(); listeners.get('focus')();
+  const newPlay = button.props.onPress();
+  resolvers[0](); await oldPlay;
+  await button.props.onPress();
+  assert.equal(resolvers.length, 2, 'new request is still pending after stale completion');
+  resolvers[1](); await newPlay;
+  assert.equal(events.filter((e) => e === 'play').length, 1);
+  mount.unmount();
+});
 
 test('HomeScreen: intro play button is present for all 4 VI voice alleys with touch target >= 44', () => {
   for (const alleyId of VI_VOICE_ALLEYS) {
@@ -361,7 +458,7 @@ test('HomeScreen EN: localized accessibilityLabel, button label, and EN audio tr
   // Verify English audio source was loaded
   const replaceEvent = audioEvents.find((e) => typeof e === 'object' && e !== null && 'replace' in e);
   assert.ok(replaceEvent, 'Audio replace event dispatched');
-  assert.ok(String(replaceEvent.replace).includes('alleys-intro/en/ngo-trung-yen-intro.mp3'), `Loaded EN mp3 asset, got: ${replaceEvent.replace}`);
+  assert.ok(String(replaceEvent.replace).includes('demo-migration-v1/ngo-trung-yen/en/intro.mp3'), `Loaded EN mp3 asset, got: ${replaceEvent.replace}`);
 
   mount.unmount();
 });

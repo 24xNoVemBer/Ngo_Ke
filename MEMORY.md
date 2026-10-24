@@ -1,5 +1,13 @@
 # MEMORY.md — Ngõ Kể
 
+## 2026-10-23 — UI Wave 1 scoped implementation handoff
+
+- Người dùng cấp quyền một lần cho NK-UI-01A → NK-UI-02 → NK-UI-06A, triển khai tuần tự; đây không phải thay đổi ownership dài hạn trong `AGENTS.md`. Runtime model không thể đổi sang Luna trong phiên này; Codex runtime hiện hành thực hiện, không tuyên bố là Luna.
+- Baseline branch `valentino/logic-fix-mobile-20261020`, HEAD `4af64c49a4ada47f952ddf76c35adfb90f826224`; giữ nguyên các tracked changes/untracked WIP có sẵn. Không commit/push/đổi branch, không sửa dataset, audio, voice, Q&A, ảnh, GPS/QR hoặc backend.
+- Đã triển khai additive theme/paper surfaces (01A), schematic fallback giữ node IDs/polyline/fiction positions (02), và Plan empty-state/recovery dựa trên metadata hiện có, có thao tác người dùng rõ ràng (06A). `npm test` 418/418; typecheck, no-cache lint, `git diff --check` đạt. Báo cáo: `docs/reviews/NGO_KE_UI_WAVE1_REPORT.md`.
+- Native verification chưa xong: `adb` không có trong PATH; không mở emulator/Metro, không xác minh iOS. Chỉ host-regression pass; visual acceptance, font scale/touch/layout trên thiết bị còn pending.
+- **Cần người dùng quyết:** không có quyết định mới cho code scope; trước visual acceptance, chọn Android/iOS device evidence dùng để review. **Cần người dùng tự làm:** mở/cung cấp thiết bị Android có `adb` (và iOS nếu cần) để chạy native cases; đây là gate kiểm thử thiết bị của plan, không phải duyệt code mới. Chưa bắt đầu wave/ticket tiếp theo.
+
 ## 2026-10-23 — P3 node-story voice + P4 FE hoàn tất trong phạm vi hiện có
 
 - Người dùng mở ElevenLabs P3 và sau preflight chọn “hạ dự phòng” từ 10.000 xuống 4.000 cho batch 34 story. Luna GPT-6-Luna xhigh, task `task_98ca6577b92c` / dispatch `ctx_64b245027b00`, tạo 17 MP3 VI Nhật Phong `eleven_v3` + 17 MP3 EN Talia `eleven_v4`, đăng ký native catalogue; commit local `d7084d6`. 34/34 POST HTTP 200, 12.889 ký tự text được gửi/nhận; bộ đếm subscription 22.247 → 25.016 (+2.769), còn 14.984 ký tự theo quota 40.000. `humanApproved:false`, `listened:false`; không tự đánh dấu người dùng đã nghe. Manifest/progress và script giữ tránh retry request trạng thái không chắc chắn. Không in hoặc commit key.

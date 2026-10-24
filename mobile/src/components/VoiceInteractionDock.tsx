@@ -17,6 +17,8 @@ interface Props {
   onOpenSettings?: () => void;
   onQuickAction?: () => void;
   quickActionLabel?: string;
+  idleTitle?: string;
+  idleSubtitle?: string;
 }
 
 function formatDuration(milliseconds: number): string {
@@ -27,6 +29,7 @@ function formatDuration(milliseconds: number): string {
 export function VoiceInteractionDock({
   stage, error, recordingDurationMs, metering, onStartRecording, onSubmitRecording,
   onCancel, onOpenInput, onOpenSettings, onQuickAction, quickActionLabel = 'Sổ tay',
+  idleTitle, idleSubtitle,
 }: Props): ReactElement {
   const { t, locale } = useLocale();
   const level = meteringToLevel(metering);
@@ -90,10 +93,10 @@ export function VoiceInteractionDock({
                 {stage === 'preparing' ? t('voice.dock.preparing')
                   : stage === 'stopping' ? t('voice.dock.stopping')
                     : stage === 'transcribing' ? t('voice.dock.transcribing')
-                      : stage === 'error' ? t('voice.dock.error_title') : t('voice.dock.idle_title')}
+                      : stage === 'error' ? t('voice.dock.error_title') : idleTitle ?? t('voice.dock.idle_title')}
               </Text>
               <Text style={styles.subtitle}>
-                {busy ? t('voice.dock.busy_subtitle') : t('voice.dock.idle_subtitle')}
+                {busy ? t('voice.dock.busy_subtitle') : idleSubtitle ?? t('voice.dock.idle_subtitle')}
               </Text>
             </>
           )}

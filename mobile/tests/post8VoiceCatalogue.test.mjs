@@ -24,6 +24,7 @@ const originalManifest = JSON.parse(read('mobile/assets/voice/manifest.json').to
 const manifest = JSON.parse(read('mobile/assets/voice/post8/old-quarter-pilot/manifest.json').toString('utf8'));
 const remainingManifest = JSON.parse(read('mobile/assets/voice/post8/remaining/manifest.json').toString('utf8'));
 const activeManifest = JSON.parse(read('mobile/assets/voice/post8/remaining-elevenlabs/manifest.json').toString('utf8'));
+const migrationManifest = JSON.parse(read('mobile/assets/voice/demo-migration-v1/manifest.json').toString('utf8'));
 const catalogSource = read('mobile/src/voice/post8Catalog.ts').toString('utf8');
 const originalCatalogSource = read('mobile/src/voice/catalog.ts').toString('utf8');
 const remainingCatalogSource = read('mobile/src/voice/post8RemainingCatalog.ts').toString('utf8');
@@ -296,10 +297,13 @@ test('production lookup resolves all 100 active tracks and the 28+28 Three Lense
     const query = { collectionId: entry.collectionId, locale: entry.locale,
       contentId: entry.id, datasetRevision: entry.datasetRevision };
     const track = lookupVoiceTrack(query);
+    const migrated = migrationManifest.entries.find((item) => item.collectionId === entry.collectionId
+      && item.locale === entry.locale && item.id === entry.id);
+    assert.ok(migrated, `${entry.collectionId}/${entry.locale}/${entry.id} migration manifest`);
     assert.equal(track?.textHash, entry.textHash, `${entry.collectionId}/${entry.locale}/${entry.id} text`);
-    assert.equal(track?.durationSeconds, entry.durationSeconds, `${entry.collectionId}/${entry.locale}/${entry.id} duration`);
+    assert.equal(track?.durationSeconds, migrated.durationSeconds, `${entry.collectionId}/${entry.locale}/${entry.id} duration`);
     assert.equal(track?.source,
-      `../../assets/voice/post8/remaining-elevenlabs/${entry.collectionId}/${entry.locale}/${entry.id}.mp3`,
+      `../../assets/voice/demo-migration-v1/${entry.collectionId}/${entry.locale}/${entry.id}.mp3`,
       `${entry.collectionId}/${entry.locale}/${entry.id} Metro asset`);
     assert.equal(lookupVoiceTrack({ ...query, contentId: 'unknown' }), undefined);
     assert.equal(lookupVoiceTrack({ ...query, datasetRevision: 'stale' }), undefined);
@@ -308,9 +312,14 @@ test('production lookup resolves all 100 active tracks and the 28+28 Three Lense
   const originalIntro = originalManifest.entries[0];
   const legacyVi = { collectionId: 'fiction-letter', locale: 'vi', contentId: originalIntro.id,
     datasetRevision: voiceCatalogueRevision };
+  const migratedEnIntro = migrationManifest.entries.find((entry) => entry.collectionId === 'fiction-letter'
+    && entry.locale === 'en' && entry.id === originalIntro.id);
   assert.equal(lookupVoiceTrack(legacyVi)?.source,
-    `../../assets/voice/post8/remaining-elevenlabs/fiction-letter/vi/${originalIntro.id}.mp3`);
-  assert.equal(lookupVoiceTrack({ ...legacyVi, locale: 'en' }), undefined);
+    `../../assets/voice/demo-migration-v1/fiction-letter/vi/${originalIntro.id}.mp3`);
+  assert.equal(lookupVoiceTrack({ ...legacyVi, locale: 'en' }), undefined,
+    'English catalogue rejects the Vietnamese dataset revision');
+  assert.equal(lookupVoiceTrack({ ...legacyVi, locale: 'en', datasetRevision: migratedEnIntro.datasetRevision })?.source,
+    `../../assets/voice/demo-migration-v1/fiction-letter/en/${originalIntro.id}.mp3`);
   assert.equal(lookupVoiceTrack({ ...legacyVi, collectionId: 'other' }), undefined);
 
   assert.equal(threeLensesManifest.counts.en, 28);
@@ -349,9 +358,13 @@ test('production lookup resolves all 100 active tracks and the 28+28 Three Lense
       const manifestEntry = manifestById.get(entry.id);
       assert.ok(manifestEntry, `${locale}/${entry.id} manifest record`);
       const assetPath = `mobile/assets/voice/${assetDirectory}/${locale}/${entry.id}.mp3`;
-      const metroAsset = `../../assets/voice/${assetDirectory}/${locale}/${entry.id}.mp3`;
+      const legacyMetroAsset = `../../assets/voice/${assetDirectory}/${locale}/${entry.id}.mp3`;
+      const metroAsset = `../../assets/voice/demo-migration-v1/${THREE_LENSES_VOICE_COLLECTION}/${locale}/${entry.id}.mp3`;
       const track = lookupVoiceTrack({ collectionId: THREE_LENSES_VOICE_COLLECTION, locale,
         contentId: entry.id, datasetRevision: catalogue.datasetRevision });
+      const migratedTrack = migrationManifest.entries.find((item) => item.collectionId === THREE_LENSES_VOICE_COLLECTION
+        && item.locale === locale && item.id === entry.id);
+      assert.ok(migratedTrack, `${locale}/${entry.id} migration manifest record`);
       assert.equal(manifestEntry.collectionId, THREE_LENSES_VOICE_COLLECTION, `${locale}/${entry.id} collection`);
       assert.equal(manifestEntry.locale, locale, `${locale}/${entry.id} locale`);
       assert.equal(manifestEntry.kind, entry.kind, `${locale}/${entry.id} kind`);
@@ -365,10 +378,10 @@ test('production lookup resolves all 100 active tracks and the 28+28 Three Lense
       assert.equal(manifestEntry.model, expectedModel, `${locale}/${entry.id} model`);
       assert.equal(manifestEntry.humanApproved, false, `${locale}/${entry.id} approval gate`);
       assert.equal(track?.textHash, entry.textHash, `${locale}/${entry.id} runtime text hash`);
-      assert.equal(track?.durationSeconds, entry.durationSeconds, `${locale}/${entry.id} runtime duration`);
+      assert.equal(track?.durationSeconds, migratedTrack.durationSeconds, `${locale}/${entry.id} runtime duration`);
       assert.equal(track?.source, metroAsset, `${locale}/${entry.id} runtime Metro asset`);
       const staticLine = threeLensesCatalogSource.split('\n').find((line) =>
-        line.includes(`"${entry.id}": {`) && line.includes(`source: require("${metroAsset}")`));
+        line.includes(`"${entry.id}": {`) && line.includes(`source: require("${legacyMetroAsset}")`));
       assert.ok(staticLine, `${locale}/${entry.id} static Metro require`);
       threeLensesTracks += 1;
     }

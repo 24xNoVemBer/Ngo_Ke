@@ -1,12 +1,9 @@
 import { DEFAULT_LOCALE, type Locale } from '../data/locale.ts';
-import { voiceCatalogueRevision, voiceTracks, type VoiceTrack } from './catalog.ts';
-import { POST8_VOICE_COLLECTION, post8VoiceCatalogues } from './post8Catalog.ts';
-import { post8RemainingCatalogues } from './post8RemainingCatalog.ts';
-import { THREE_LENSES_VOICE_COLLECTION, threeLensesVoiceCatalogues } from './threeLensesCatalog.ts';
-import { alleysVoiceCatalogues } from './alleysCatalog.ts';
-import { nodeStoryVoiceCatalogues } from './nodeStoriesCatalog.ts';
+import type { VoiceTrack } from './catalog';
+import { demoVoiceMigrationV1Catalogues } from './demoVoiceMigrationV1Catalog.ts';
 
 export const DEFAULT_VOICE_COLLECTION = 'fiction-letter';
+export const voiceCatalogueRevision = '8b318b4e9955e3b7affe72cb21ea08cf8123a616eeab2eb1420ab105c7b65e6b';
 
 export type VoiceTrackQuery = {
   collectionId?: string;
@@ -22,30 +19,10 @@ export function lookupVoiceTrack({
   contentId,
   datasetRevision,
 }: VoiceTrackQuery): VoiceTrack | undefined {
-  const catalogues: { datasetRevision: string; tracks: Record<string, VoiceTrack> }[] = [];
-  if (collectionId === DEFAULT_VOICE_COLLECTION && locale === 'vi' && datasetRevision === voiceCatalogueRevision) {
-    catalogues.push({ datasetRevision: voiceCatalogueRevision, tracks: voiceTracks });
-  }
-  if (collectionId === POST8_VOICE_COLLECTION) {
-    const firstpoint = post8VoiceCatalogues[locale];
-    if (firstpoint) catalogues.push(firstpoint);
-  }
-  const remaining = post8RemainingCatalogues[collectionId]?.[locale];
-  if (remaining) catalogues.push(remaining);
-  if (collectionId === THREE_LENSES_VOICE_COLLECTION) catalogues.push(threeLensesVoiceCatalogues[locale]);
-  const alley = alleysVoiceCatalogues[collectionId]?.[locale];
-  if (alley) catalogues.push(alley);
-  const nodeStories = nodeStoryVoiceCatalogues[collectionId]?.[locale];
-  if (nodeStories) catalogues.push(nodeStories);
-
-  for (const catalogue of catalogues) {
-    if (catalogue.datasetRevision !== datasetRevision) continue;
-    if (!Object.prototype.hasOwnProperty.call(catalogue.tracks, contentId)) continue;
-    const track = catalogue.tracks[contentId];
-    if (track) return track;
-  }
-  return undefined;
+  const catalogue = demoVoiceMigrationV1Catalogues[collectionId]?.[locale];
+  if (!catalogue || catalogue.datasetRevision !== datasetRevision
+    || !Object.prototype.hasOwnProperty.call(catalogue.tracks, contentId)) return undefined;
+  return catalogue.tracks[contentId];
 }
 
-export { voiceCatalogueRevision };
 export type { VoiceTrack };

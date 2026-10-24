@@ -166,6 +166,11 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
       useIsFocused: () => true,
       useNavigation: () => ({ navigate() {}, goBack() {} }),
     },
+    '../utils/imagePerformanceDiagnostics': {
+      createImagePerfFirstLayoutReporter: () => () => {},
+      recordImagePerfLoadEnd: () => {}, recordImagePerfLoadError: () => {}, recordImagePerfLoadStart: () => {},
+      recordImagePerfLoadSuccess: () => {}, recordImagePerfNavigationTap: () => {}, recordImagePerfScreenFocus: () => {},
+    },
     '../recommendation/pick': {
       pickRecommendations: () => [],
       pickPoints: () => [],
@@ -226,6 +231,13 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
     }
     if (/\/data\/threeLensesCompanion/.test(id)) {
       return { getScopedCompanion: () => null, THREE_LENSES_COLLECTION_ID: 'old-quarter-three-lenses' };
+    }
+    if (id.includes('imagePerformanceDiagnostics')) {
+      return {
+        createImagePerfFirstLayoutReporter: () => () => {},
+        recordImagePerfLoadEnd: () => {}, recordImagePerfLoadError: () => {}, recordImagePerfLoadStart: () => {},
+        recordImagePerfLoadSuccess: () => {}, recordImagePerfNavigationTap: () => {}, recordImagePerfScreenFocus: () => {},
+      };
     }
     throw new Error(`Unexpected import in ${file}: ${id}`);
   }, screenMod, screenMod.exports);

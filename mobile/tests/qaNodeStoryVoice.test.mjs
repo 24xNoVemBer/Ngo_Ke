@@ -9,6 +9,7 @@ import * as translator from '../src/i18n/translator.ts';
 import * as sources from '../src/data/sourceState.ts';
 import * as alleyGeometry from '../src/utils/alleyGeometry.ts';
 import { findAnswer } from '../src/qa/match.ts';
+import * as voiceIntent from '../src/voice/intent.ts';
 
 // 1. Load actual collections
 const actualCollectionsCode = ts.transpileModule(readFileSync(new URL('../src/data/collections.ts', import.meta.url), 'utf8'), {
@@ -215,6 +216,11 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
     '../components/ExpandableInputDrawer': { ExpandableInputDrawer: 'ExpandableInputDrawer' },
     '../components/NotebookDrawerModal': { NotebookDrawerModal: 'NotebookDrawerModal' },
     '../utils/alleyGeometry': alleyGeometry,
+    '../utils/imagePerformanceDiagnostics': {
+      createImagePerfFirstLayoutReporter: () => () => {},
+      recordImagePerfLoadEnd: () => {}, recordImagePerfLoadError: () => {}, recordImagePerfLoadStart: () => {},
+      recordImagePerfLoadSuccess: () => {}, recordImagePerfNavigationTap: () => {}, recordImagePerfScreenFocus: () => {},
+    },
     ...overrides,
   };
 
@@ -279,6 +285,104 @@ function elements(node, type) {
 }
 
 const FIVE_COLLECTIONS = ['ngo-trung-yen', 'ngo-gach', 'ngo-tam-thuong', 'ngo-cam-chi', 'ngo-phat-loc'];
+
+for (const locale of ['vi', 'en']) {
+  test(`story-first node keeps voice and typed controls with localized command copy (${locale})`, () => {
+    const dataset = getBundledDataset('ngo-gach', locale);
+    const node = dataset.nodes[0];
+    let voiceOptions;
+    const mount = createTestMount('../src/screens/QaScreen.tsx', {
+      mode: 'demo', dataset, datasetRevision: getCollectionRevision('ngo-gach', locale),
+      currentNodeId: node.id, readNodeIds: new Set(), onSelectNode() {}, onReadNode() {}, onOpenNotebook() {},
+    }, {
+      __locale: locale,
+      '../voice/intent': voiceIntent,
+      '../voice/useVoiceSession': {
+        useVoiceSession(options) {
+          voiceOptions = options;
+          return mount.mockVoiceSession;
+        },
+      },
+    });
+    let tree = mount.render();
+    assert.equal(dataset.qa.length, 0);
+    const dock = elements(tree, 'VoiceInteractionDock')[0];
+    assert.ok(dock, 'microphone dock remains mounted with no fixed Q&A');
+    assert.equal(dock.props.idleTitle, translator.t(locale, 'qa.story_voice_title'));
+    assert.equal(dock.props.idleSubtitle, translator.t(locale, 'qa.story_voice_subtitle'));
+    assert.equal(typeof dock.props.onStartRecording, 'function');
+    assert.equal(typeof dock.props.onOpenInput, 'function');
+
+    let drawer = elements(tree, 'ExpandableInputDrawer')[0];
+    assert.equal(drawer.props.placeholder, translator.t(locale, 'drawer.command_placeholder'));
+    assert.deepEqual(drawer.props.suggestedQuestions, []);
+    drawer.props.onChangeText('An unlisted content question');
+    tree = mount.render();
+    drawer = elements(tree, 'ExpandableInputDrawer')[0];
+    drawer.props.onSubmit();
+    tree = mount.render();
+    assert.ok(JSON.stringify(tree).includes(translator.t(locale, 'qa.story_no_match_title')));
+    assert.ok(JSON.stringify(tree).includes(translator.t(locale, 'qa.story_no_match_body')));
+
+    voiceOptions.onTranscript('An unlisted content question', {
+      turnId: 'story-mode-test', scope: voiceOptions.scope, nodeId: voiceOptions.nodeId,
+      mode: voiceOptions.mode, datasetRevision: voiceOptions.datasetRevision,
+    });
+    tree = mount.render();
+    assert.ok(JSON.stringify(tree).includes(translator.t(locale, 'qa.story_no_match_body')));
+    mount.unmount();
+  });
+
+  test(`all 17 intentional no-QA nodes omit notice while retaining story controls (${locale})`, () => {
+    let count = 0;
+    for (const collectionId of FIVE_COLLECTIONS) {
+      const dataset = getBundledDataset(collectionId, locale);
+      for (const node of dataset.nodes) {
+        const mount = createTestMount('../src/screens/QaScreen.tsx', {
+          mode: 'demo', dataset, datasetRevision: getCollectionRevision(collectionId, locale),
+          currentNodeId: node.id, readNodeIds: new Set(), onSelectNode() {}, onReadNode() {}, onOpenNotebook() {},
+        }, { __locale: locale });
+        const tree = mount.render();
+        assert.equal(dataset.qa.length, 0);
+        assert.ok(!JSON.stringify(tree).includes(translator.t(locale, 'qa.no_questions_for_node')));
+        assert.equal(elements(tree, 'VoicePlayerBar').length, 1);
+        assert.equal(elements(tree, 'VoiceInteractionDock').length, 1);
+        assert.ok(elements(tree, 'Pressable').length > 0);
+        count++;
+        mount.unmount();
+      }
+    }
+    assert.equal(count, 17);
+  });
+
+  test(`unknown typed/voice questions remain visible after removing empty notice (${locale})`, () => {
+    const dataset = getBundledDataset('ngo-trung-yen', locale);
+    let voiceOptions;
+    const mount = createTestMount('../src/screens/QaScreen.tsx', {
+      dataset, datasetRevision: getCollectionRevision('ngo-trung-yen', locale),
+      currentNodeId: dataset.nodes[0].id, readNodeIds: new Set(), onSelectNode() {}, onReadNode() {}, onOpenNotebook() {},
+    }, { __locale: locale, '../voice/intent': voiceIntent,
+      '../voice/useVoiceSession': { useVoiceSession(options) { voiceOptions = options; return mount.mockVoiceSession; } } });
+    let tree = mount.render();
+    elements(tree, 'ExpandableInputDrawer')[0].props.onChangeText('unlisted question 9876?');
+    tree = mount.render();
+    elements(tree, 'ExpandableInputDrawer')[0].props.onSubmit();
+    tree = mount.render();
+    assert.ok(JSON.stringify(tree).includes(translator.t(locale, 'qa.story_no_match_title')));
+    assert.ok(JSON.stringify(tree).includes(translator.t(locale, 'qa.story_no_match_body')));
+    voiceOptions.onTranscript('unlisted question 9876?', {
+      turnId: 'test', scope: voiceOptions.scope, nodeId: voiceOptions.nodeId,
+      mode: voiceOptions.mode, datasetRevision: voiceOptions.datasetRevision,
+    });
+    tree = mount.render();
+    assert.ok(JSON.stringify(tree).includes(translator.t(locale, 'qa.story_no_match_title')));
+    assert.ok(JSON.stringify(tree).includes(translator.t(locale, 'qa.story_no_match_body')));
+    mount.setLocale(locale === 'vi' ? 'en' : 'vi');
+    tree = mount.render();
+    assert.ok(!JSON.stringify(tree).includes(translator.t(locale, 'qa.no_questions_for_node')));
+    mount.unmount();
+  });
+}
 
 test('QaScreen resolves <nodeId>-story and renders visible VoicePlayerBar for all 17 VI nodes', () => {
   let totalChecked = 0;
@@ -449,7 +553,7 @@ test('QaScreen node switching updates story track, label, and duration dynamical
   const tree1 = mount.render({ currentNodeId: node1.id });
   const player1 = elements(tree1, 'VoicePlayerBar')[0].props;
   assert.ok(player1.label.includes(node1.name));
-  assert.equal(player1.measuredDuration, 23.28);
+  assert.equal(player1.measuredDuration, 24.72);
 
   mount.unmount();
 });
@@ -528,8 +632,8 @@ test('QaScreen intro narration behavior remains unaffected on both intro-enabled
   mountGach.unmount();
 });
 
-test('QaScreen Q&A behavior and emptyNotice remain unaffected with node story voice present', () => {
-  // Case A: ngo-trung-yen has qa: [] -> displays honest emptyNotice while story player remains active
+test('QaScreen hides intentional empty notice and preserves valid Q&A and follow-ups', () => {
+  // Case A: intentional qa=[] omits the notice while the story remains active.
   const tyDataset = getBundledDataset('ngo-trung-yen', 'vi');
   const tyRevision = getCollectionRevision('ngo-trung-yen', 'vi');
   const mountEmpty = createTestMount('../src/screens/QaScreen.tsx', {
@@ -548,7 +652,7 @@ test('QaScreen Q&A behavior and emptyNotice remain unaffected with node story vo
   const treeEmpty = mountEmpty.render();
   assert.equal(elements(treeEmpty, 'VoicePlayerBar').length, 1, 'Story player visible on node');
   const texts = elements(treeEmpty, 'Text').map((t) => (typeof t.props?.children === 'string' ? t.props.children : '')).join(' ');
-  assert.ok(texts.includes('Chưa có câu hỏi cho điểm này'), 'Honest empty notice rendered when qa is empty');
+  assert.ok(!texts.includes('Chưa có câu hỏi cho điểm này'), 'Intentional empty notice is absent');
   mountEmpty.unmount();
 
   // Case B: dataset with QA entries -> matching question, answer card, follow-ups do not break story player
@@ -700,7 +804,7 @@ test('QaScreen locale switch dynamically updates story track, labels, and durati
   });
   const enPlayer = elements(enTree, 'VoicePlayerBar')[0].props;
   assert.ok(enPlayer.label.startsWith('Story · '));
-  assert.equal(enPlayer.measuredDuration, 23.2);
+  assert.equal(enPlayer.measuredDuration, 22.8);
 
   enPlayer.onPlay();
   const lastCall = voiceCalls.at(-1);

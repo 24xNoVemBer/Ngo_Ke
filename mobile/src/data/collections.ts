@@ -52,8 +52,8 @@ export const COLLECTION_REVISIONS: Record<CollectionId, Record<Locale, string>> 
     },
   },
   'ngo-gach': {
-    vi: '60c242b80557356b8c6f8302f16e937447e0fc48c09b8c84453965631028d19b',
-    en: '0f02ac35e6f3eaba103190a7e366d1dae11d6966609d296e175e29185cb79051',
+    vi: '8c52c3d6bc910fbae34da641741023bce240e2c1ea9ba6e39a029aeb9b7c8986',
+    en: '62e4edfbd7492cf173171b5d01997063a561fd4b4d9bdab2eac8f6b39bf38203',
   },
   'ngo-trung-yen': {
     vi: '59e84df99d75369d5cfb53df901c8c3e748d0d528e5f4334acfc07b20029d7c9',

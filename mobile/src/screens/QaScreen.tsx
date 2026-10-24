@@ -35,6 +35,14 @@ import type { TranslationKey } from '../i18n/translator';
 import { getScopedCompanion, THREE_LENSES_COLLECTION_ID } from '../data/threeLensesCompanion';
 import { colors, radius, spacing, typography } from '../theme';
 import { motionDurations, motionEasings } from '../theme/motion';
+import {
+  createImagePerfFirstLayoutReporter,
+  recordImagePerfLoadEnd,
+  recordImagePerfLoadError,
+  recordImagePerfLoadStart,
+  recordImagePerfLoadSuccess,
+  recordImagePerfScreenFocus,
+} from '../utils/imagePerformanceDiagnostics';
 
 const CHIP_COUNT = 4;
 
@@ -102,11 +110,16 @@ export function QaScreen({
 }: Props): ReactElement {
   const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
+  const reportFirstLayout = useRef(createImagePerfFirstLayoutReporter('qa')).current;
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [notebookVisible, setNotebookVisible] = useState(false);
   const { locale, collectionId, t } = useLocale();
   const effectiveCollectionId = collectionId;
   const effectiveSource = source ?? getSourceState(mode, dataset, locale);
+
+  useEffect(() => {
+    if (isFocused) recordImagePerfScreenFocus('qa');
+  }, [isFocused]);
 
   const [asked, setAsked] = useState<string | null>(null);
   const [askedSource, setAskedSource] = useState<'voice' | 'text' | 'chip' | null>(null);
@@ -525,12 +538,16 @@ export function QaScreen({
   const bottomInset = Math.max(insets.bottom, 16);
 
   return (
-    <View style={styles.rootContainer}>
+    <View style={styles.rootContainer} onLayout={reportFirstLayout}>
       {/* ẢNH NỀN FULL TOÀN MÀN HÌNH CỦA ĐIỂM ĐANG KHÁM PHÁ */}
       <ImageBackground
         source={currentPhoto}
         style={styles.fullBleedBackground}
         resizeMode="cover"
+        onLoadStart={() => recordImagePerfLoadStart('qa', `background:${currentNode?.id ?? 'intro'}`)}
+        onLoad={() => recordImagePerfLoadSuccess('qa', `background:${currentNode?.id ?? 'intro'}`)}
+        onLoadEnd={() => recordImagePerfLoadEnd('qa', `background:${currentNode?.id ?? 'intro'}`)}
+        onError={() => recordImagePerfLoadError('qa', `background:${currentNode?.id ?? 'intro'}`)}
       >
         <View style={styles.scrimOverlay} />
 
@@ -905,13 +922,6 @@ export function QaScreen({
               </View>
             )}
 
-            {nodeQa.length === 0 && (
-              <View style={styles.emptyNotice}>
-                <Text style={styles.noDataTitle}>{t('qa.no_questions_for_node')}</Text>
-                <Text style={styles.noDataBody}>{t('qa.can_read_or_choose')}</Text>
-              </View>
-            )}
-
             {/* THẺ KẾT QUẢ CÂU TRẢ LỜI ĐÃ KIỂM CHỨNG */}
             {match !== null && (
               <Animated.View
@@ -935,12 +945,14 @@ export function QaScreen({
                 {entry === null ? (
                   <View style={styles.noDataBox}>
                     <Text style={styles.noDataTitle}>
-                      {askedSource === 'voice' ? t('qa.unmatched_question_title') : t('qa.no_match_title')}
+                      {nodeQa.length === 0
+                        ? t('qa.story_no_match_title')
+                        : askedSource === 'voice' ? t('qa.unmatched_question_title') : t('qa.no_match_title')}
                     </Text>
                     <Text style={styles.noDataBody}>
                       {askedSource === 'voice'
-                        ? t('qa.unmatched_question_body')
-                        : t('qa.no_match_body')}
+                        ? (nodeQa.length === 0 ? t('qa.story_no_match_body') : t('qa.unmatched_question_body'))
+                        : (nodeQa.length === 0 ? t('qa.story_no_match_body') : t('qa.no_match_body'))}
                     </Text>
                     {asked && !isTextVisible && (
                       <Pressable
@@ -1074,6 +1086,8 @@ export function QaScreen({
             onOpenSettings={voiceSession.permissionBlocked ? () => { void Linking.openSettings().catch(() => undefined); } : undefined}
             onQuickAction={() => setNotebookVisible(true)}
             quickActionLabel={t('home.notebook_label')}
+            idleTitle={nodeQa.length === 0 ? t('qa.story_voice_title') : undefined}
+            idleSubtitle={nodeQa.length === 0 ? t('qa.story_voice_subtitle') : undefined}
           />
         </View>
       </ImageBackground>
@@ -1085,7 +1099,7 @@ export function QaScreen({
         onChangeText={setDrawerText}
         onSubmit={() => ask(drawerText)}
         onClose={() => setIsInputDrawerVisible(false)}
-        placeholder={t('drawer.placeholder')}
+        placeholder={t(nodeQa.length === 0 ? 'drawer.command_placeholder' : 'drawer.placeholder')}
         title={t('qa.ask_placeholder', { name: currentNode ? currentNode.name : t('qa.this_point') })}
         suggestedQuestions={quickQuestions}
         onSelectSuggestion={(q) => ask(q)}

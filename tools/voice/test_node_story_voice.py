@@ -31,6 +31,34 @@ class NodeStoryVoiceGeneratorTests(unittest.TestCase):
         self.assertEqual(len(self.rows), 34)
         self.assertEqual({locale: sum(row["locale"] == locale for row in self.rows) for locale in generator.VOICES}, {"vi": 17, "en": 17})
 
+    def test_source_hashes_are_eol_stable_and_keep_raw_provenance(self) -> None:
+        lf = "ngõ kể\nsecond line\n".encode("utf-8")
+        crlf = lf.replace(b"\n", b"\r\n")
+        lf_hashes = generator.source_data_hashes(lf)
+        crlf_hashes = generator.source_data_hashes(crlf)
+        self.assertEqual(lf_hashes["sourceDataSha256"], crlf_hashes["sourceDataSha256"])
+        self.assertNotEqual(lf_hashes["sourceDataRawSha256"], crlf_hashes["sourceDataRawSha256"])
+        changed = crlf.replace("kể".encode("utf-8"), "kể!".encode("utf-8"))
+        self.assertNotEqual(lf_hashes["sourceDataSha256"], generator.source_data_hashes(changed)["sourceDataSha256"])
+        with self.assertRaisesRegex(ValueError, "bare carriage return"):
+            generator.source_data_hashes(b"first\rsecond")
+
+    def test_current_handoff_rows_keep_raw_and_normalized_hashes(self) -> None:
+        for row in self.rows:
+            raw = (generator.ROOT / row["source"]).read_bytes()
+            hashes = generator.source_data_hashes(raw)
+            self.assertEqual(row["sourceDataSha256"], hashes["sourceDataSha256"])
+            self.assertEqual(row["sourceDataRawSha256"], hashes["sourceDataRawSha256"])
+
+    def test_manifest_records_both_normalized_and_raw_source_hashes(self) -> None:
+        row = self.rows[0]
+        value = generator.manifest_value(
+            [row], {"tracks": {generator.track_key(row): {"status": "pending"}}}
+        )
+        entry = value["entries"][0]
+        self.assertEqual(entry["sourceDataSha256"], row["sourceDataSha256"])
+        self.assertEqual(entry["sourceDataRawSha256"], row["sourceDataRawSha256"])
+
     def test_request_body_uses_pinned_locale_model_and_settings(self) -> None:
         for locale, expected in generator.VOICES.items():
             row = next(row for row in self.rows if row["locale"] == locale)

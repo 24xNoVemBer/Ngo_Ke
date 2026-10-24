@@ -1022,6 +1022,11 @@ function createTestHarness(file, defaultProps = {}, overrides = {}) {
 
 
     },
+    '../utils/imagePerformanceDiagnostics': {
+      createImagePerfFirstLayoutReporter: () => () => {},
+      recordImagePerfLoadEnd: () => {}, recordImagePerfLoadError: () => {}, recordImagePerfLoadStart: () => {},
+      recordImagePerfLoadSuccess: () => {}, recordImagePerfNavigationTap: () => {}, recordImagePerfScreenFocus: () => {},
+    },
 
 
 

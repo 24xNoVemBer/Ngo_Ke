@@ -11,7 +11,7 @@
  */
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer } from 'node:http';
@@ -67,6 +67,7 @@ describe('backend contract on temp loopback (real HTTP, temp DB)', () => {
   after(async () => {
     await new Promise((resolve) => server.close(resolve));
     db.close();
+    rmSync(dir, { recursive: true, force: true });
   });
 
   it('empty dataset: GET /api/dataset is canonical 404 NO_REVIEWED_DATA', async () => {
@@ -201,6 +202,7 @@ describe('live adapter against real HTTP (no fallback, 8s deadline)', () => {
   after(async () => {
     await new Promise((resolve) => server.close(resolve));
     db.close();
+    rmSync(dir, { recursive: true, force: true });
   });
 
   it('default deadline is 8s and missing config stays live-empty', async () => {

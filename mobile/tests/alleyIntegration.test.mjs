@@ -10,7 +10,7 @@ import ts from 'typescript';
 import { canonicalDatasetJson } from '../src/data/canonicalJson.ts';
 import { parseDataset, parseDatasetV2, validateDatasetV2Pair, getSourceState } from '../src/data/sourceState.ts';
 import { t } from '../src/i18n/translator.ts';
-import { computeAlleyLayout, buildSmoothPath } from '../src/utils/alleyGeometry.ts';
+import { computeAlleyLayout, computeSchematicTrailLayout, buildSmoothPath } from '../src/utils/alleyGeometry.ts';
 import { readAlleyStory, readAlleyGuide } from '../src/data/alleyGuide.ts';
 
 function loadTsModule(relPath, extraMocks = {}) {
@@ -142,6 +142,7 @@ function mount(file, props, overrides = {}) {
     'react-native-safe-area-context': {
       useSafeAreaInsets: () => ({ top: 44, bottom: 34, left: 0, right: 0 }),
     },
+    '@react-navigation/native': { useIsFocused: () => true },
     'react-native-svg': {
       default: 'Svg',
       Svg: 'Svg',
@@ -183,6 +184,7 @@ function mount(file, props, overrides = {}) {
     '../utils/alleyGeometry': {
       buildSmoothPath,
       computeAlleyLayout,
+      computeSchematicTrailLayout,
     },
     'expo-audio': {
       setAudioModeAsync: async () => {},
@@ -191,6 +193,11 @@ function mount(file, props, overrides = {}) {
     },
     '../voice/localizedCatalog': {
       lookupVoiceTrack: () => undefined,
+    },
+    '../utils/imagePerformanceDiagnostics': {
+      createImagePerfFirstLayoutReporter: () => () => {},
+      recordImagePerfLoadEnd: () => {}, recordImagePerfLoadError: () => {}, recordImagePerfLoadStart: () => {},
+      recordImagePerfLoadSuccess: () => {}, recordImagePerfNavigationTap: () => {}, recordImagePerfScreenFocus: () => {},
     },
     ...overrides,
   };
@@ -639,6 +646,52 @@ test('(b) Dataset cũ không đổi hành vi - fiction-letter preserves exact fi
 
   // 6 pins rendered from PIN_CONFIG
   assert.equal(pins.length, 6, 'Legacy dataset without polyline renders exactly 6 PIN_CONFIG pins');
+  const legacyPositions = [
+    [0.55, 0.08], [0.55, 0.23], [0.45, 0.39],
+    [0.45, 0.53], [0.45, 0.68], [0.55, 0.84],
+  ];
+  pins.forEach((pin, index) => {
+    const computedStyle = pin.props.style({ pressed: false })
+      .find((style) => typeof style?.left === 'number' && typeof style?.top === 'number');
+    const [xPct, yPct] = legacyPositions[index];
+    assert.ok(computedStyle, `Legacy pin ${index + 1} has absolute coordinates`);
+    assert.equal(computedStyle.left, 390 * xPct - (index === 0 ? 22 : 19));
+    assert.equal(computedStyle.top, 560 * yPct - (index === 0 ? 22 : 19));
+  });
+});
+
+test('non-fiction collection without a polyline uses actual IDs and keeps pin selection guarded', () => {
+  const tamThuong = collections.getBundledDataset('ngo-tam-thuong', 'vi');
+  assert.equal(tamThuong.polyline, undefined, 'Tạm Thương fixture has no surveyed polyline');
+  const nodes = tamThuong.nodes.map((node, index) => index === 1 ? { ...node, available: false } : node);
+  const source = getSourceState('demo', { ...tamThuong, nodes });
+  const selectedNodeIds = [];
+  const view = mount('../src/screens/HomeScreen.tsx', {
+    mode: 'demo',
+    source,
+    currentNodeId: nodes[0].id,
+    onSelectNode: (nodeId) => selectedNodeIds.push(nodeId),
+    readNodeIds: new Set(),
+    onModeChange() {},
+    navigation: { navigate() {}, goBack() {} },
+    route: { params: { alleyId: 'ngo-tam-thuong' } },
+  });
+
+  const tree = view.render();
+  const pins = findElements(tree, 'Pressable').filter((pin) => pin.props.accessibilityState?.selected !== undefined);
+  assert.equal(pins.length, 2);
+  assert.equal(pins[0].props.disabled, false);
+  assert.equal(pins[1].props.disabled, true);
+
+  const firstPinStyle = pins[0].props.style({ pressed: false })
+    .find((style) => typeof style?.top === 'number');
+  const secondPinStyle = pins[1].props.style({ pressed: false })
+    .find((style) => typeof style?.top === 'number');
+  assert.equal(firstPinStyle.top, 560 * 0.15 - 22);
+  assert.equal(secondPinStyle.top, 560 * 0.85 - 19);
+
+  pins[0].props.onPress();
+  assert.deepEqual(selectedNodeIds, [nodes[0].id], 'Pin opens its actual node ID');
 });
 
 // ---------------------------------------------------------------------------
@@ -678,7 +731,7 @@ test('(c) Honest labels - stop with story:null shows summary only, honest pin la
 
   const previewTexts = findElements(previewNull, 'Text').map((t) => [].concat(t.props.children).join(''));
   assert.ok(previewTexts.some((text) => text.includes('Cà Phê No.1')), 'Preview card displays stop name');
-  assert.ok(previewTexts.some((text) => text.includes('Quán cà phê ở số 1')), 'Preview displays summary text');
+  assert.ok(previewTexts.some((text) => text.includes('Cà Phê No.1 — điểm mở đầu trong trải nghiệm Ngõ Gạch')), 'Preview displays summary text');
 
   // Verify that the "Đọc lời kể" button is NOT rendered for story: null
   const readStoryBtnNull = findElements(previewNull, 'Pressable').find((p) => p.props.accessibilityLabel === 'Đọc lời kể điểm đang chọn');
@@ -798,7 +851,7 @@ test('(c) Accessibility - summary & pendingCheck remain visible at fontScale > 1
   assert.ok(texts.some((text) => text.includes('Đình Thanh Hà')), 'Title is rendered at large font');
   assert.ok(texts.some((text) => text.includes('Một số chi tiết chưa được xác nhận')), 'PendingCheck warning remains rendered at large font');
   assert.equal(texts.some((text) => text.includes('⚠️')), false, 'PendingCheck must not render warning emoji at large font');
-  assert.ok(texts.some((text) => text.includes('Đình thờ Trần Lựu')), 'Summary remains rendered for new alley dataset');
+  assert.ok(texts.some((text) => text.includes('Đình Thanh Hà thờ Trần Lựu')), 'Summary remains rendered for new alley dataset');
 
   // 2. Legacy dataset at fontScale > 1.3 omits summary to preserve body room
   const fixture = JSON.parse(readFileSync(new URL('../../data/demo.json', import.meta.url), 'utf8'));
@@ -829,4 +882,108 @@ test('(c) Accessibility - summary & pendingCheck remain visible at fontScale > 1
     false,
     'Legacy dataset omits photo credit text at fontScale > 1.3',
   );
+});
+
+function flatLabelStyle(style) {
+  const resolved = typeof style === 'function' ? style({ pressed: false }) : style;
+  return Object.assign({}, ...[].concat(resolved).flat().filter(Boolean));
+}
+
+function checkLeftLabels({ collectionId, viewportWidth, locale = 'vi', tiny = false }) {
+  const bundled = collections.getBundledDataset(collectionId, locale);
+  const nodes = bundled.nodes.map((node) => ({
+    ...node,
+    name: `${node.name} — ${locale === 'vi' ? 'Tên điểm rất dài cần xuống dòng đầy đủ' : 'A very long stop name that needs to wrap in full'}`,
+  }));
+  const dataset = { ...bundled, nodes };
+  const canvasWidth = Math.min(viewportWidth, 540);
+  const canvasHeight = Math.max(560, nodes.length * 90);
+  let layout;
+  if (dataset.polyline?.length >= 2) {
+    layout = computeAlleyLayout(dataset.polyline, nodes, canvasWidth, canvasHeight, dataset.lengthMeters);
+  } else if (collectionId === 'fiction-letter') {
+    const positions = [[0.55, 0.08], [0.55, 0.23], [0.45, 0.39], [0.45, 0.53], [0.45, 0.68], [0.55, 0.84]];
+    layout = { pins: nodes.map((node, i) => ({
+      id: node.id, xPct: positions[i][0], yPct: positions[i][1], side: i >= 2 && i <= 4 ? 'left' : 'right',
+    })) };
+  } else {
+    layout = computeSchematicTrailLayout(nodes, canvasWidth, canvasHeight);
+  }
+  const selectedIds = [];
+  const tree = mount('../src/screens/HomeScreen.tsx', {
+    mode: 'demo', source: { mode: 'demo', status: 'ready', dataset },
+    currentNodeId: nodes[0].id, readNodeIds: new Set(),
+    onSelectNode: (id) => selectedIds.push(id), onModeChange() {},
+    navigation: { navigate() {}, goBack() {} }, route: { params: { alleyId: collectionId } },
+  }, {
+    __windowDimensions: { width: viewportWidth, height: 844, fontScale: 1 },
+    '../context/LocaleContext': { useLocale: () => ({ locale, setLocale() {}, t: (key, params) => t(locale, key, params) }) },
+  }).render();
+  const canvas = findElements(tree, 'View').find((view) => {
+    const style = flatLabelStyle(view.props.style);
+    return style.width === canvasWidth && style.height === canvasHeight;
+  });
+  assert.ok(canvas, 'The rendered canvas uses its actual width, not the full viewport');
+  const pins = findElements(tree, 'Pressable').filter((p) => p.props.accessibilityState?.selected !== undefined);
+  assert.equal(pins.length, nodes.length);
+  pins.forEach((pin, i) => {
+    const style = flatLabelStyle(pin.props.style);
+    const expectedPin = layout.pins[i];
+    const offset = i === 0 ? 22 : 19;
+    assert.equal(style.left, canvasWidth * expectedPin.xPct - offset, 'Pin X remains unchanged');
+    assert.equal(style.top, canvasHeight * expectedPin.yPct - offset, 'Pin Y remains unchanged');
+    assert.ok(pin.props.accessibilityLabel.includes(nodes[i].name), 'Full name remains available on the pin');
+  });
+  if (layout.splinePoints) {
+    assert.equal(findElements(tree, 'Path')[0].props.d, buildSmoothPath(layout.splinePoints), 'The existing spline is unchanged');
+  }
+
+  const leftPins = layout.pins.filter((pin) => pin.side === 'left');
+  const leftLabels = findElements(tree, 'Pressable').filter((p) => p.props.accessible === false && typeof flatLabelStyle(p.props.style).right === 'number');
+  assert.equal(leftLabels.length, leftPins.length);
+  assert.ok(leftLabels.length > 0);
+  leftLabels.forEach((label, i) => {
+    const style = flatLabelStyle(label.props.style);
+    const right = canvasWidth - style.right;
+    const left = right - style.width;
+    const inset = Math.min(10, canvasWidth / 2);
+    const context = `${collectionId}/${locale}, viewport=${viewportWidth}, canvas=${canvasWidth}`;
+    assert.ok(Number.isFinite(style.width) && style.width >= 0 && style.width <= 130, context);
+    assert.ok(left >= inset - 1e-8, `Safe left edge: ${left}; ${context}`);
+    assert.ok(right <= canvasWidth - inset + 1e-8, `Safe right edge: ${right}; ${context}`);
+    const horizontalPadding = style.paddingHorizontal ?? style.padding;
+    assert.ok(horizontalPadding >= 0 && 2 * horizontalPadding <= style.width + 1e-8, `Padding fits the box; ${context}`);
+    if (!tiny) {
+      assert.ok(Math.abs(right - (canvasWidth * leftPins[i].xPct - 25)) < 1e-8, 'The ordinary label anchor stays 25 from the pin');
+      assert.equal(style.paddingHorizontal ?? style.padding, 8, 'Normal text padding stays unchanged');
+      assert.notEqual(style.overflow, 'hidden', 'Ordinary long labels wrap rather than being clipped');
+      const children = findElements(label, 'Text');
+      assert.equal(children.length, 2);
+      children.forEach((text) => {
+        assert.equal(text.props.numberOfLines, undefined);
+        assert.equal(text.props.ellipsizeMode, undefined);
+        assert.equal(text.props.allowFontScaling, undefined);
+      });
+    } else if (style.width < 16) {
+      assert.equal(style.overflow, 'hidden', 'A degenerate box cannot paint glyphs beyond its bounds');
+    }
+    label.props.onPress();
+    assert.equal(selectedIds.at(-1), leftPins[i].id, 'Label selection keeps the actual node ID');
+  });
+}
+
+for (const viewportWidth of [320, 360, 375, 430, 720]) {
+  test(`FIX-01: left labels fit actual canvas at viewport ${viewportWidth}, across 8 collections and VI/EN`, () => {
+    for (const { id: collectionId } of collections.AVAILABLE_COLLECTIONS) {
+      for (const locale of ['vi', 'en']) checkLeftLabels({ collectionId, viewportWidth, locale });
+    }
+  });
+}
+
+test('FIX-01: tiny canvases never create negative label widths or padding overflow', () => {
+  for (const viewportWidth of [1, 8, 16, 20, 40, 64, 96]) {
+    for (const collectionId of ['fiction-letter', 'ngo-gach', 'ngo-tam-thuong']) {
+      checkLeftLabels({ collectionId, viewportWidth, tiny: true });
+    }
+  }
 });

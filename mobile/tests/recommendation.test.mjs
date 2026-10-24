@@ -109,6 +109,35 @@ test('a topic with no remaining points reports an empty state', () => {
   assert.equal(result.kind, 'empty');
 });
 
+test('empty food selection never falls back to another topic, and short budgets stay distinct', () => {
+  const historyOnly = nodes.slice(0, 2).map((node) => ({
+    ...node,
+    tags: ['chuyen xua'],
+    available: true,
+    visited: false,
+    visitMinutes: 20,
+  }));
+  const foodResult = pickPoints(historyOnly, { topic: 'an thuc', budgetMinutes: 30 });
+  assert.deepEqual(foodResult, { kind: 'empty', topic: 'an thuc' });
+  assert.equal(pickPoints(historyOnly, { topic: 'chuyen xua', budgetMinutes: 30 }).kind, 'ok');
+
+  const foodStop = [{
+    ...nodes[0],
+    id: 'existing-food-stop',
+    tags: ['an thuc'],
+    available: true,
+    visited: false,
+    visitMinutes: 25,
+  }];
+  assert.deepEqual(pickPoints(foodStop, { topic: 'an thuc', budgetMinutes: 15 }), {
+    kind: 'empty',
+    topic: 'an thuc',
+  });
+  const enoughTime = pickPoints(foodStop, { topic: 'an thuc', budgetMinutes: 25 });
+  assert.equal(enoughTime.kind, 'ok');
+  if (enoughTime.kind === 'ok') assert.deepEqual(enoughTime.picks.map((pick) => pick.node.id), ['existing-food-stop']);
+});
+
 // Regression: ordering and reason text must stay stable between runs, otherwise
 // the same answer looks different every time the user reopens the plan.
 test('repeated calls give the same order', () => {

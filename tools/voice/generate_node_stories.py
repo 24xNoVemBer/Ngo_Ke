@@ -55,6 +55,17 @@ def sha256(value: bytes | str) -> str:
     return hashlib.sha256(value if isinstance(value, bytes) else value.encode("utf-8", "strict")).hexdigest()
 
 
+def source_data_hashes(raw: bytes) -> dict[str, str]:
+    """Keep repository content identity stable across checkout EOLs and retain raw provenance."""
+    normalized = raw.replace(b"\r\n", b"\n")
+    if b"\r" in normalized:
+        raise ValueError("Localized source contains a bare carriage return")
+    return {
+        "sourceDataSha256": sha256(normalized),
+        "sourceDataRawSha256": sha256(raw),
+    }
+
+
 def atomic_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     partial = path.with_name(path.name + ".partial")
@@ -142,7 +153,7 @@ def read_rows() -> list[dict]:
             "textHash": text_hash,
             "datasetRevision": revision,
             "source": source.relative_to(ROOT).as_posix(),
-            "sourceDataSha256": sha256(raw),
+            **source_data_hashes(raw),
             "voiceId": VOICES[locale]["voiceId"],
         })
     counts = {locale: sum(row["locale"] == locale for row in result) for locale in VOICES}
@@ -354,7 +365,7 @@ def manifest_value(rows: list[dict], progress: dict) -> dict:
         state = progress["tracks"][track_key(row)]
         config = VOICES[row["locale"]]
         entry = {
-            **{name: row[name] for name in ("collectionId", "nodeId", "contentId", "locale", "source", "sourceDataSha256", "datasetRevision", "textHash", "characters", "utf8Bytes")},
+            **{name: row[name] for name in ("collectionId", "nodeId", "contentId", "locale", "source", "sourceDataSha256", "sourceDataRawSha256", "datasetRevision", "textHash", "characters", "utf8Bytes")},
             "path": audio_path(row).relative_to(ROOT).as_posix(),
             "voiceId": config["voiceId"],
             "voiceName": config["voiceName"],

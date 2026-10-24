@@ -5,9 +5,10 @@
   "kind": "simulated",
   "disclaimer": "Draft research dataset for Old Quarter alleys, not verified by on-site field survey or historical appraisal. Simulated data for tech demo purposes; alley geometry and coordinates from OpenStreetMap (ODbL). Photos from Google Maps for demo use, rights not officially confirmed.",
   "intro": {
-    "text": "Gach Alley is only about 128 metres long, lined with small cafes and guesthouses, and midway along it stands a communal house with a stele dated 1430.",
+    "text": "Explore Gạch Alley through two heritage stories: Thanh Hà Communal House and its dates of remembrance for Trần Lựu, and the two seated figures at Cầu Đông Pagoda. The pagoda stands on Hàng Đường Street, outside the alley, and is included here as a related stop.",
     "evidence": [
       "https://thanglong.chinhphu.vn/english/the-communal-house-with-oldest-stele-in-ha-noi-110196.htm",
+      "https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/dinh-thanh-ha.html",
       "https://www.openstreetmap.org/way/874133481"
     ]
   },
@@ -28,15 +29,15 @@
       "id": "ngo-gach-ca-phe-no1",
       "order": 1,
       "name": "Cafe No.1",
-      "summary": "A cafe at number 1, right at the eastern entrance. This is where the walk starts.",
+      "summary": "Cà Phê No.1 — the starting marker for the Gạch Alley experience.",
       "tags": [
         "kham pha tu do"
       ],
       "visitMinutes": 5,
       "available": true,
       "visited": false,
-      "story": "The walk starts at the coffee shop marked at number one, by the eastern end of Gạch Alley. The available route data gives its location only, so I will not add a story about the shop. Continue along the alley to the marker at number four A.",
-      "caption": "A cafe at number 1, right at the eastern entrance. This is where the walk starts.",
+      "story": "Cà Phê No.1 marks the beginning of the Gạch Alley experience. Our storytelling journey starts here.",
+      "caption": "Cà Phê No.1 — starting marker.",
       "latitude": 21.03627,
       "longitude": 105.85074,
       "alongAlleyMeters": 10,
@@ -46,25 +47,28 @@
       "id": "ngo-gach-ta-ca-phe-4",
       "order": 2,
       "name": "Ta Coffee 4",
-      "summary": "A small coffee shop at 4A, about thirty steps from the entrance.",
+      "summary": "Ta Cà Phê 4 — a stop listed at 4A Gạch Alley.",
       "tags": [
         "kham pha tu do"
       ],
       "visitMinutes": 5,
       "available": true,
       "visited": false,
-      "story": "Next is Ta Cà Phê at number four A, listed in the route data about thirty steps from the alley entrance. I use that only as an orientation cue; I found no independent source for a longer account of the shop. Farther along, the route reaches Thanh Hà Communal House at number ten Gạch Alley.",
-      "caption": "A small coffee shop at 4A, about thirty steps from the entrance.",
+      "story": "Ta Cà Phê 4, at number four A Gạch Alley, is a marker in this experience. The next story takes us to Thanh Hà Communal House, dedicated to Trần Lựu.",
+      "caption": "Ta Cà Phê 4 — 4A Gạch Alley.",
       "latitude": 21.0364,
       "longitude": 105.85057,
       "alongAlleyMeters": 28,
-      "pendingCheck": null
+      "pendingCheck": null,
+      "evidence": [
+        "https://www.tacaphe.vn/"
+      ]
     },
     {
       "id": "ngo-gach-dinh-thanh-ha",
       "order": 3,
       "name": "Thanh Ha Communal House",
-      "summary": "A communal house for Tran Luu, holding a stele dated 1430 that the press calls the oldest surviving in Hanoi.",
+      "summary": "Thanh Hà Communal House honors Trần Lựu, with dates of remembrance in the lunar year.",
       "tags": [
         "chuyen xua",
         "kham pha tu do"
@@ -72,29 +76,31 @@
       "visitMinutes": 15,
       "available": true,
       "visited": false,
-      "story": "Thanh Hà Communal House at number ten Gạch Alley is dedicated to Trần Lựu. Accounts tell a legend of his service at Vũ Ninh, but it remains a story passed down rather than an event I can verify. The house holds the Thanh Hà Ngọc Phả Bi Ký stele, erected in the year fourteen thirty; press reports call it Hanoi's oldest surviving stele. Sources list its festivals on the fourth day of the fourth lunar month and the fifteenth day of the ninth lunar month.",
-      "caption": "Thanh Ha communal house for Tran Luu, holding a stele dated 1430 at 10 Gach Alley.",
+      "story": "At number ten Gạch Alley, Thanh Hà Communal House has a gateway with three entrances of different widths. Beyond it, a small courtyard leads to the worship halls. Set within the Old Quarter, the building takes the form of a traditional village communal house. It honors Trần Lựu as the community's tutelary deity. Two dates in the lunar calendar also mark that remembrance: the fourth day of the fourth month, and the fifteenth day of the ninth.",
+      "caption": "Thanh Hà Communal House — honoring Trần Lựu.",
       "latitude": 21.036268,
       "longitude": 105.8503148,
       "alongAlleyMeters": 62,
       "pendingCheck": "Tu bổ khởi công 1/3/2024 theo kết quả tìm kiếm; chưa kiểm đình đã mở lại hay chưa.",
       "evidence": [
-        "https://thanglong.chinhphu.vn/english/the-communal-house-with-oldest-stele-in-ha-noi-110196.htm"
+        "https://thanglong.chinhphu.vn/english/the-communal-house-with-oldest-stele-in-ha-noi-110196.htm",
+        "https://hoankiem360.tourism.vn/chi_tiet_di_tich_lich_su/dinh-thanh-ha.html",
+        "https://dsvh.gov.vn/dinh-thanh-ha-thanh-pho-ha-noi-22263"
       ]
     },
     {
       "id": "ngo-gach-cafe-20",
       "order": 4,
       "name": "Cafe 20",
-      "summary": "A coffee shop at number 20, near the western end.",
+      "summary": "Cafe 20 — a marker in the Gạch Alley experience.",
       "tags": [
         "kham pha tu do"
       ],
       "visitMinutes": 5,
       "available": true,
       "visited": false,
-      "story": "Near the western end of Gạch Alley, the route data marks a coffee shop at number twenty. I found no source specific to the shop, so I keep this as an orientation point only. The available information does not confirm its history, menu, or opening hours.",
-      "caption": "A coffee shop at number 20, near the western end.",
+      "story": "Cafe 20 is a stop in the Gạch Alley experience. The next story introduces Cầu Đông Pagoda on Hàng Đường Street, a related heritage site outside the alley.",
+      "caption": "Cafe 20 — a stop in this experience.",
       "latitude": 21.03652,
       "longitude": 105.84998,
       "alongAlleyMeters": 92,
@@ -104,7 +110,7 @@
       "id": "ngo-gach-chua-cau-dong",
       "order": 5,
       "name": "Cau Dong Pagoda",
-      "summary": "Cầu Đông Pagoda on Hàng Đường Street, with wooden statues identified as Trần Thủ Độ and Trần Thị Dung.",
+      "summary": "Cầu Đông Pagoda on Hàng Đường Street, outside Gạch Alley — two figures identified as Trần Thủ Độ and Trần Thị Dung.",
       "tags": [
         "chuyen xua",
         "kham pha tu do"
@@ -112,8 +118,8 @@
       "visitMinutes": 15,
       "available": true,
       "visited": false,
-      "story": "A newspaper places Cầu Đông Pagoda at number thirty-eight B Hàng Đường Street. It reports that the pagoda has two wooden seated statues identified as Grand Chancellor Trần Thủ Độ and Trần Thị Dung; their origins and meaning remain unknown. Researchers quoted in the article date the statues to the first half of the eighteenth century. The report confirms the street address, but does not establish how close the pagoda is to Gạch Alley's western entrance.",
-      "caption": "Cầu Đông Pagoda is at 38B Hàng Đường Street; its position relative to Gạch Alley's western end is unverified.",
+      "story": "At Cầu Đông Pagoda on Hàng Đường Street, two wooden figures are identified as Trần Thủ Độ and Trần Thị Dung. Both are seated in meditation, dressed simply. The figure identified as Trần Thủ Độ has a downward gaze, giving it a contemplative expression.",
+      "caption": "Cầu Đông Pagoda — a related heritage stop outside the alley.",
       "latitude": 21.03587,
       "longitude": 105.84948,
       "alongAlleyMeters": 120,

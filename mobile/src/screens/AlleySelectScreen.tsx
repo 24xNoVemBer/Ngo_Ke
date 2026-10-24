@@ -21,9 +21,10 @@ import { NgoKeLogo } from '../components/NgoKeLogo';
 import {
   useEntranceFadeSlide,
 } from '../hooks/useMotion';
-import { radius, spacing } from '../theme';
+import { colors, radius, spacing } from '../theme';
 
 import { useLocale } from '../context/LocaleContext';
+import { recordImagePerfNavigationTap } from '../utils/imagePerformanceDiagnostics';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AlleySelect'> & {
   nodeCount: number;
@@ -118,6 +119,7 @@ export function AlleySelectScreen({
   });
 
   function handleSelectAlley(collectionId: string): void {
+    recordImagePerfNavigationTap('alley-select', 'home', collectionId);
     if (isCollectionId(collectionId)) {
       setCollectionId(collectionId);
     }
@@ -383,7 +385,7 @@ export function AlleySelectScreen({
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
-    backgroundColor: '#F5EFE6',
+    backgroundColor: colors.background,
   },
   topBar: {
     flexDirection: 'row',
@@ -391,9 +393,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.sm,
-    backgroundColor: '#FFFDF9',
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderColor: '#EAE1CE',
+    borderColor: colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1.5 },
     shadowOpacity: 0.04,

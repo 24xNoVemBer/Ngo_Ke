@@ -1,5 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useState, type ReactElement } from 'react';
+import { useIsFocused } from '@react-navigation/native';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 import {
   Animated,
   Image,
@@ -25,6 +26,15 @@ import { useEntranceFadeSlide } from '../hooks/useMotion';
 import { useLocale } from '../context/LocaleContext';
 import { getBundledDataset, getLocalizedCollections, isCollectionId } from '../data/collections';
 import { radius, spacing } from '../theme';
+import {
+  createImagePerfFirstLayoutReporter,
+  recordImagePerfLoadEnd,
+  recordImagePerfLoadError,
+  recordImagePerfLoadStart,
+  recordImagePerfLoadSuccess,
+  recordImagePerfNavigationTap,
+  recordImagePerfScreenFocus,
+} from '../utils/imagePerformanceDiagnostics';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Landing'> & {
   nodeCount: number;
@@ -44,6 +54,8 @@ export function LandingScreen({
   onRetryLive,
 }: Props): ReactElement {
   const insets = useSafeAreaInsets();
+  const isFocused = useIsFocused();
+  const reportFirstLayout = useRef(createImagePerfFirstLayoutReporter('landing')).current;
   const { width: screenWidth, fontScale } = useWindowDimensions();
   const { locale, setLocale, collectionId, setCollectionId, t } = useLocale();
   const collections = getLocalizedCollections(locale);
@@ -62,14 +74,22 @@ export function LandingScreen({
   const headerEntrance = useEntranceFadeSlide({ delay: 40, duration: 360, offsetY: 14 });
   const carouselEntrance = useEntranceFadeSlide({ delay: 130, duration: 380, offsetY: 16 });
 
+  useEffect(() => {
+    if (isFocused) recordImagePerfScreenFocus('landing');
+  }, [isFocused]);
+
   return (
-    <View style={styles.rootContainer}>
+    <View style={styles.rootContainer} onLayout={reportFirstLayout}>
       {/* 1. NỀN ẢNH ĐIỆN ẢNH PHỐ CỔ LÀM MỜ VỚI SCRIM RÊU ĐỒNG NHẤT (B1: blur~6, scrim a >= 0.62) */}
       <ImageBackground
         source={HERO_PHOTO}
         blurRadius={6}
         style={StyleSheet.absoluteFill}
         resizeMode="cover"
+        onLoadStart={() => recordImagePerfLoadStart('landing', 'hero')}
+        onLoad={() => recordImagePerfLoadSuccess('landing', 'hero')}
+        onLoadEnd={() => recordImagePerfLoadEnd('landing', 'hero')}
+        onError={() => recordImagePerfLoadError('landing', 'hero')}
       >
         <View style={styles.scrimOverlay} />
       </ImageBackground>
@@ -236,6 +256,7 @@ export function LandingScreen({
                     accessibilityRole="button"
                     accessibilityLabel={`${t('landing.explore_alley_label')} ${col.name}`}
                     onPress={() => {
+                      recordImagePerfNavigationTap('landing', 'home', col.id);
                       if (isCollectionId(col.id)) setCollectionId(col.id);
                       navigation.navigate('Home', { alleyId: col.id });
                     }}
@@ -246,7 +267,14 @@ export function LandingScreen({
                     ]}
                   >
                     {/* Ảnh nét riêng của con ngõ, không phủ scrim toàn thẻ */}
-                    <Image source={col.coverPhoto} style={styles.alleyCardImage} />
+                    <Image
+                      source={col.coverPhoto}
+                      style={styles.alleyCardImage}
+                      onLoadStart={() => recordImagePerfLoadStart('landing', `cover:${col.id}`)}
+                      onLoad={() => recordImagePerfLoadSuccess('landing', `cover:${col.id}`)}
+                      onLoadEnd={() => recordImagePerfLoadEnd('landing', `cover:${col.id}`)}
+                      onError={() => recordImagePerfLoadError('landing', `cover:${col.id}`)}
+                    />
 
                     {/* Badge chủ đề */}
                     <View style={styles.cardThemeTag}>

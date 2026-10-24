@@ -441,6 +441,13 @@ function mount(file, props = {}, overrides = {}, exportName) {
     if (id.includes('alleyGuide')) {
       return { readAlleyStory: () => null, readAlleyGuide: () => null };
     }
+    if (id.includes('imagePerformanceDiagnostics')) {
+      return {
+        createImagePerfFirstLayoutReporter: () => () => {},
+        recordImagePerfLoadEnd: () => {}, recordImagePerfLoadError: () => {}, recordImagePerfLoadStart: () => {},
+        recordImagePerfLoadSuccess: () => {}, recordImagePerfNavigationTap: () => {}, recordImagePerfScreenFocus: () => {},
+      };
+    }
     throw new Error(`Unexpected import: ${id}`);
   }, module, module.exports);
   const component = exportName ? module.exports[exportName] : module.exports.default ?? Object.values(module.exports)[0];
@@ -608,10 +615,14 @@ test('Q&A uses only the selected point, clears the previous answer and offers re
   showText().props.onPress();
   tree = view.render(props());
   assert.ok(hasText(tree, fixture.qa[0].answer));
-  tree = view.render({ ...props(), dataset: { ...fixture, qa: [] } });
+  const emptyDataset = { ...fixture, qa: [] };
+  tree = view.render({ ...props(), dataset: emptyDataset });
   assert.equal(hasText(tree, fixture.qa[0].answer), false, 'dataset refresh clears the old answer');
   assert.deepEqual(Array.from(elements(tree, 'ExpandableInputDrawer')[0].props.suggestedQuestions), []);
-  assert.ok(JSON.stringify(tree).includes('Chưa có câu hỏi cho điểm này'), 'missing Q&A still has an explicit fallback');
+  assert.ok(!JSON.stringify(tree).includes('Chưa có câu hỏi cho điểm này'), 'intentional qa=[] omits the empty notice');
+  elements(tree, 'ExpandableInputDrawer')[0].props.onSelectSuggestion('unlisted question 9876?');
+  tree = view.render({ ...props(), dataset: emptyDataset });
+  assert.ok(JSON.stringify(tree).includes('Chưa có câu trả lời phù hợp ở điểm này'), 'asking an unknown question at an empty-Q&A node shows contextual feedback');
 });
 
 test('voice answers play catalogue audio in Demo and known Live, and explain the Live text fallback when missing', async () => {
@@ -1372,6 +1383,43 @@ test('negated manual Plan input clears the previous topic and recommendations', 
   view.unmount();
 });
 
+test('Plan empty-state recovery is explicit and preserves the selected budget', () => {
+  let draft = { topic: 'an thuc', budgetMinutes: 30 };
+  const historyNodes = fixture.nodes.slice(0, 2).map((node) => ({
+    ...node,
+    tags: ['chuyen xua'],
+    available: true,
+    visited: false,
+    visitMinutes: 10,
+  }));
+  const props = () => ({
+    nodes: historyNodes,
+    draft,
+    onDraftChange: (next) => { draft = next; },
+    onSelectNode() {},
+  });
+  const view = mount('../src/screens/PlanScreen.tsx', props(), {}, 'PlanScreen');
+  let tree = view.render();
+
+  const message = elements(tree, 'Text').find((item) => item.props.testID === 'plan-empty-message');
+  assert.equal(
+    message.props.children,
+    translator.t('vi', 'plan.empty.missing_topic', { topic: translator.t('vi', 'plan.topic_food') }),
+  );
+  assert.deepEqual(draft, { topic: 'an thuc', budgetMinutes: 30 }, 'The topic is not changed before the user chooses recovery');
+
+  const recovery = elements(tree, 'Pressable').find((item) => item.props.testID === 'plan-empty-history-recovery');
+  assert.ok(recovery, 'History recovery is available only because its nodes fit the current budget');
+  recovery.props.onPress();
+  assert.equal(draft.topic, 'chuyen xua');
+  assert.equal(draft.budgetMinutes, 30);
+
+  tree = view.render(props());
+  assert.ok(elements(tree, 'Text').some((item) => item.props.children === translator.t('vi', 'plan.recommendations_header')),
+    'The explicit topic choice is reflected by the existing picker');
+  view.unmount();
+});
+
 test('PlanScreen applies English manual time budget text using current locale (R09)', () => {
   let draft = {};
   const props = () => ({
@@ -1445,6 +1493,12 @@ test('Home pins match ids after reordering and empty sources have working escape
   assert.equal(typeof empty.onBack, 'function');
   assert.equal(typeof empty.onSwitchToDemo, 'function');
   assert.equal(typeof empty.onRetry, 'function');
+  let retries = 0;
+  tree = view.render({ ...props, mode: 'live', source: { mode: 'live', status: 'error', title: 'Live failed', detail: 'HTTP 503' }, onRetryLive() { retries++; } });
+  const failed = elements(tree, 'UnavailableScreen')[0].props;
+  assert.ok(failed.detail.includes('HTTP 503'));
+  failed.onRetry();
+  assert.equal(retries, 1, 'source error retry remains wired');
 });
 
 test('leaving Camera closes it and ignores permission results from the old screen', async () => {
@@ -4311,6 +4365,39 @@ test('VoiceInteractionDock idle mic button uses subdued moss-green surface to pr
   assert.equal(recordingStarted, true, 'Tapping mic button starts recording');
 
   view.unmount();
+});
+
+test('VoiceInteractionDock renders localized story-control affordance in VI and EN without changing recording actions', () => {
+  for (const locale of ['vi', 'en']) {
+    let recordingStarted = false;
+    let inputOpened = false;
+    const view = mount('../src/components/VoiceInteractionDock.tsx', {
+      stage: 'idle', error: null, recordingDurationMs: 0,
+      idleTitle: translator.t(locale, 'qa.story_voice_title'),
+      idleSubtitle: translator.t(locale, 'qa.story_voice_subtitle'),
+      onStartRecording: () => { recordingStarted = true; },
+      onSubmitRecording() {}, onCancel() {}, onOpenInput: () => { inputOpened = true; },
+    }, {
+      '../context/LocaleContext': {
+        useLocale: () => ({ locale, t: (key, params) => translator.t(locale, key, params) }),
+      },
+      '../voice/metering': { meteringToLevel: () => 0 },
+    });
+    const tree = view.render();
+    const labels = elements(tree, 'Text').map((item) => [].concat(item.props.children).join(''));
+    assert.ok(labels.includes(translator.t(locale, 'qa.story_voice_title')));
+    assert.ok(labels.includes(translator.t(locale, 'qa.story_voice_subtitle')));
+    const pressables = elements(tree, 'Pressable');
+    const mic = pressables.find((item) => item.props.accessibilityLabel === translator.t(locale, 'voice.dock.start_recording'));
+    const type = pressables.find((item) => item.props.accessibilityLabel === translator.t(locale, 'voice.dock.type_question'));
+    assert.ok(mic, `microphone is available (${locale})`);
+    assert.ok(type, `typed-input action is available (${locale})`);
+    mic.props.onPress();
+    type.props.onPress();
+    assert.equal(recordingStarted, true);
+    assert.equal(inputOpened, true);
+    view.unmount();
+  }
 });
 
 test('PrologueScreen clips wave flanks to 28dp and deferred seek after navigation never plays audio', async () => {

@@ -15,7 +15,7 @@ import { getBundledDataset, type CollectionId } from '../data/collections';
 import { readAlleyGuide } from '../data/alleyGuide';
 import { AlleyGuideSection } from './AlleyGuideSection';
 import type { Mode, SourceState } from '../data/sourceState';
-import { radius, spacing } from '../theme';
+import { colors, radius, spacing } from '../theme';
 
 export type NotebookDrawerModalProps = {
   visible: boolean;
@@ -47,9 +47,11 @@ export function NotebookDrawerModal({
   const { fontScale } = useWindowDimensions();
 
   const activeDataset =
-    source?.status === 'ready'
-      ? source.dataset
-      : (collectionId ? getBundledDataset(collectionId, locale) : undefined);
+    mode === 'demo'
+      ? (collectionId ? getBundledDataset(collectionId, locale)
+        : source.mode === 'demo' && source.status === 'ready' ? source.dataset : undefined)
+      : source.mode === 'live' && source.status === 'ready'
+        ? source.dataset : undefined;
   const guide = activeDataset ? readAlleyGuide(activeDataset) : null;
 
   return (
@@ -218,9 +220,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   journalDrawerSheet: {
-    backgroundColor: '#FFFDF7',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
     maxHeight: '85%',
     paddingBottom: 24,
     shadowColor: '#000',
@@ -237,7 +239,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.lg,
     paddingBottom: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: '#EDE5D8',
+    borderBottomColor: colors.journalDivider,
   },
   drawerHeaderRowStacked: {
     flexDirection: 'column',
@@ -286,11 +288,11 @@ const styles = StyleSheet.create({
   },
   toolGridCard: {
     flex: 1,
-    backgroundColor: '#F7F2E7',
+    backgroundColor: colors.toolCardBg,
     borderRadius: radius.md,
     padding: spacing.sm,
     borderWidth: 1,
-    borderColor: '#E6DCC8',
+    borderColor: colors.toolCardBorder,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
@@ -304,7 +306,7 @@ const styles = StyleSheet.create({
   },
   toolGridDesc: {
     fontSize: 10,
-    color: '#8C7D70',
+    color: colors.toolCardDesc,
     textAlign: 'center',
     lineHeight: 12,
   },

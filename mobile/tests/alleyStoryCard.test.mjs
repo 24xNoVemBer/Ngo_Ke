@@ -133,6 +133,7 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
     'react-native-safe-area-context': {
       useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }),
     },
+    '@react-navigation/native': { useIsFocused: () => true },
     'react-native-svg': {
       default: 'Svg',
       Path: 'Path',
@@ -186,6 +187,11 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
         pins: [],
         splinePoints: [],
       }),
+    },
+    '../utils/imagePerformanceDiagnostics': {
+      createImagePerfFirstLayoutReporter: () => () => {},
+      recordImagePerfLoadEnd: () => {}, recordImagePerfLoadError: () => {}, recordImagePerfLoadStart: () => {},
+      recordImagePerfLoadSuccess: () => {}, recordImagePerfNavigationTap: () => {}, recordImagePerfScreenFocus: () => {},
     },
     './UnavailableScreen': { UnavailableScreen: 'UnavailableScreen' },
     '../components/CrossfadePhoto': { CrossfadePhoto: 'CrossfadePhoto' },

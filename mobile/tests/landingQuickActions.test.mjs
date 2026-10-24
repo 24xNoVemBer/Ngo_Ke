@@ -133,6 +133,12 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
       getBundledDataset: () => fixture,
     },
     '../data/sourceState': sources,
+    '@react-navigation/native': { useIsFocused: () => true },
+    '../utils/imagePerformanceDiagnostics': {
+      createImagePerfFirstLayoutReporter: () => () => {},
+      recordImagePerfLoadEnd: () => {}, recordImagePerfLoadError: () => {}, recordImagePerfLoadStart: () => {},
+      recordImagePerfLoadSuccess: () => {}, recordImagePerfNavigationTap: () => {}, recordImagePerfScreenFocus: () => {},
+    },
     '../assets/photoMap': {
       HERO_PHOTO: 1,
     },

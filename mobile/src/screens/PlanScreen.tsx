@@ -106,6 +106,41 @@ export function PlanScreen({
     && !hasTopicNegation(topicInput)
     && parseTopic(topicInput) === undefined;
   const typedTimeUnknown = timeInput.trim().length > 0 && parseTimeBudget(timeInput, locale) === undefined;
+  const emptyState = (() => {
+    if (result.kind !== 'empty' || topic === undefined || budgetMinutes === undefined) return null;
+
+    const matchingNodes = nodes.filter((node) => node.tags.includes(topic));
+    if (matchingNodes.length === 0) {
+      return { reason: 'missing-topic' as const, topic, budgetMinutes };
+    }
+
+    const availableNodes = matchingNodes.filter((node) => node.available);
+    if (availableNodes.length === 0) {
+      return { reason: 'unavailable' as const, topic, budgetMinutes };
+    }
+
+    const unvisitedNodes = availableNodes.filter((node) => !node.visited);
+    if (unvisitedNodes.length === 0) {
+      return { reason: 'all-visited' as const, topic, budgetMinutes };
+    }
+
+    const visitMinutes = unvisitedNodes
+      .map((node) => node.visitMinutes)
+      .filter((minutes) => Number.isFinite(minutes) && minutes > 0);
+    if (visitMinutes.length === 0) {
+      return { reason: 'no-usable-stops' as const, topic, budgetMinutes };
+    }
+
+    const minimumVisitMinutes = Math.min(...visitMinutes);
+    if (minimumVisitMinutes > budgetMinutes) {
+      return { reason: 'insufficient-budget' as const, topic, budgetMinutes, minimumVisitMinutes };
+    }
+
+    return { reason: 'no-usable-stops' as const, topic, budgetMinutes };
+  })();
+  const historyRecovery = emptyState?.reason === 'missing-topic'
+    ? pickPoints(nodes, { topic: 'chuyen xua', budgetMinutes: emptyState.budgetMinutes })
+    : null;
 
   return (
     <SafeAreaView style={styles.screen} edges={['left', 'right', 'bottom']}>
@@ -287,12 +322,54 @@ export function PlanScreen({
           {showResult && result.kind === 'empty' && (
             <View style={styles.resultNotice} accessibilityLiveRegion="polite">
               <Text style={styles.resultNoticeTitle}>{t('plan.recommendations_empty')}</Text>
-              <Text style={styles.body}>
-                {locale === 'en'
-                  ? 'No available stops match your selection in the current dataset. Try choosing another topic or duration.'
-                  : 'Trong nguồn hiện tại chưa có điểm mở phù hợp với lựa chọn này. Bạn có thể đổi chủ đề hoặc chọn khoảng thời gian khác.'}
+              <Text style={styles.body} testID="plan-empty-message">
+                {emptyState?.reason === 'missing-topic'
+                  ? t('plan.empty.missing_topic', { topic: getTopicLabel(emptyState.topic, t) })
+                  : emptyState?.reason === 'all-visited'
+                    ? t('plan.empty.all_visited', { topic: getTopicLabel(emptyState.topic, t) })
+                    : emptyState?.reason === 'insufficient-budget'
+                      ? t('plan.empty.insufficient_budget', {
+                          topic: getTopicLabel(emptyState.topic, t),
+                          minutes: emptyState.budgetMinutes,
+                          minimumMinutes: emptyState.minimumVisitMinutes,
+                        })
+                      : emptyState?.reason === 'unavailable'
+                        ? t('plan.empty.unavailable', { topic: getTopicLabel(emptyState.topic, t) })
+                        : t('plan.recommendations_empty')}
               </Text>
+              {emptyState?.reason === 'missing-topic' && historyRecovery?.kind === 'ok' && (
+                <Pressable
+                  testID="plan-empty-history-recovery"
+                  accessibilityRole="button"
+                  onPress={() => {
+                    onDraftChange({ topic: 'chuyen xua', budgetMinutes: emptyState.budgetMinutes });
+                    setShowResult(true);
+                  }}
+                  style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+                >
+                  <Text style={styles.secondaryText}>{t('plan.empty.alternative_history')}</Text>
+                </Pressable>
+              )}
+              {emptyState?.reason === 'insufficient-budget' && (
+                <Pressable
+                  testID="plan-empty-budget-recovery"
+                  accessibilityRole="button"
+                  onPress={() => {
+                    onDraftChange({
+                      topic: emptyState.topic,
+                      budgetMinutes: emptyState.minimumVisitMinutes,
+                    });
+                    setShowResult(true);
+                  }}
+                  style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+                >
+                  <Text style={styles.secondaryText}>
+                    {t('plan.empty.increase_budget', { minutes: emptyState.minimumVisitMinutes })}
+                  </Text>
+                </Pressable>
+              )}
               <Pressable
+                testID="plan-empty-change-selection"
                 accessibilityRole="button"
                 onPress={() => {
                   onDraftChange({ budgetMinutes });
@@ -300,7 +377,7 @@ export function PlanScreen({
                 }}
                 style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
               >
-                <Text style={styles.secondaryText}>{locale === 'en' ? 'Change selection' : 'Đổi lựa chọn'}</Text>
+                <Text style={styles.secondaryText}>{t('plan.empty.change_selection')}</Text>
               </Pressable>
             </View>
           )}

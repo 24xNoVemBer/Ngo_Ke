@@ -45,6 +45,48 @@ function loadTsModule(relPath, extraMocks = {}) {
 
 const collections = loadTsModule('../src/data/collections.ts');
 
+for (const locale of ['vi', 'en']) {
+  test(`Notebook source isolation and open-drawer mode/retry transitions (${locale})`, () => {
+    const dataset = collections.getBundledDataset('ngo-trung-yen', locale);
+    const serverDataset = structuredClone(dataset);
+    serverDataset.guide.eat[0].name = 'SERVER ONLY GUIDE';
+    let retries = 0;
+    const mount = createTestMount('../src/components/NotebookDrawerModal.tsx', {
+      visible: true, onClose() {}, navigation: { navigate() {} },
+      mode: 'demo', onModeChange() {}, collectionId: 'ngo-trung-yen',
+      source: { mode: 'demo', status: 'ready', dataset }, onRetryLive() { retries++; },
+    }, { __locale: locale });
+    const guide = (tree) => findElements(tree, 'View').filter((v) => v.props.testID === 'alley-guide-section');
+    assert.equal(guide(mount.render()).length, 1);
+    for (const [status, liveBusy, reason] of [['empty', false, 'no-config'], ['empty', false, 'no-data'], ['error', false, undefined], ['empty', true, 'no-data']]) {
+      const tree = mount.render({ mode: 'live', source: { mode: 'live', status, reason, title: 'Live', detail: 'unavailable' }, liveBusy });
+      assert.equal(guide(tree).length, 0, `${status}/busy=${liveBusy} must not show bundle guide`);
+      assert.ok(findElements(tree, 'Pressable').length > 0, 'tools remain available');
+    }
+    const ready = { mode: 'live', status: 'ready', dataset: serverDataset };
+    let tree = mount.render({ source: ready, liveBusy: false });
+    assert.equal(guide(tree).length, 1);
+    assert.ok(findElements(tree, 'Text').some((v) => v.props.children === 'SERVER ONLY GUIDE'));
+    const noGuide = { ...serverDataset, guide: undefined };
+    assert.equal(guide(mount.render({ source: { ...ready, dataset: noGuide } })).length, 0);
+    // A late Live result while Demo is selected must never replace its bundle.
+    tree = mount.render({ mode: 'demo', source: ready });
+    assert.equal(guide(tree).length, 1);
+    assert.ok(!findElements(tree, 'Text').some((v) => v.props.children === 'SERVER ONLY GUIDE'));
+    // Conversely a stale Demo result during a Live retry is not a Live guide.
+    tree = mount.render({ mode: 'live', source: { mode: 'demo', status: 'ready', dataset } });
+    assert.equal(guide(tree).length, 0);
+    tree = mount.render({ source: { mode: 'live', status: 'error', title: 'Live', detail: 'failed' } });
+    const retry = findElements(tree, 'Pressable').find((v) => v.props.testID === 'notebook-retry-live-btn');
+    assert.ok(retry);
+    retry.props.onPress();
+    tree = mount.render({ liveBusy: true, source: { mode: 'live', status: 'empty', reason: 'no-data' } });
+    assert.equal(guide(tree).length, 0);
+    assert.equal(guide(mount.render({ source: ready, liveBusy: false })).length, 1);
+    assert.equal(retries, 1);
+  });
+}
+
 function createTestMount(file, defaultProps = {}, overrides = {}) {
   const slots = [];
   let cursor = 0;

@@ -75,6 +75,7 @@ export type TranslationKey =
   // Drawer
   | 'drawer.title'
   | 'drawer.placeholder'
+  | 'drawer.command_placeholder'
   | 'drawer.close_backdrop'
   | 'drawer.collapse'
   | 'drawer.send'
@@ -262,6 +263,10 @@ export type TranslationKey =
   | 'qa.unmatched_question_body'
   | 'qa.no_match_title'
   | 'qa.no_match_body'
+  | 'qa.story_no_match_body'
+  | 'qa.story_no_match_title'
+  | 'qa.story_voice_title'
+  | 'qa.story_voice_subtitle'
   | 'qa.view_recognized_question'
   | 'qa.view_asked_question'
   | 'qa.verified_story_title'
@@ -357,6 +362,13 @@ export type TranslationKey =
   | 'plan.custom_time'
   | 'plan.recommendations_header'
   | 'plan.recommendations_empty'
+  | 'plan.empty.missing_topic'
+  | 'plan.empty.all_visited'
+  | 'plan.empty.insufficient_budget'
+  | 'plan.empty.unavailable'
+  | 'plan.empty.alternative_history'
+  | 'plan.empty.increase_budget'
+  | 'plan.empty.change_selection'
   | 'plan.go_to_stop'
   | 'plan.estimated_time'
   | 'plan.toggle_manual'
@@ -493,6 +505,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
 
     'drawer.title': 'Đặt câu hỏi cho người kể',
     'drawer.placeholder': 'Gõ câu hỏi…',
+    'drawer.command_placeholder': 'Gõ lệnh điều khiển (nghe, dừng, tiếp theo)…',
     'drawer.close_backdrop': 'Đóng khung gõ câu hỏi',
     'drawer.collapse': 'Thu gọn khung nhập',
     'drawer.send': 'Gửi câu hỏi',
@@ -679,6 +692,10 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'qa.unmatched_question_body': 'Người kể nhận được lời nói nhưng chưa khớp câu hỏi mẫu ở điểm này. Xem câu đã nhận dạng để kiểm tra, thử lại bằng mic hoặc chọn câu gợi ý bên dưới.',
     'qa.no_match_title': 'Chưa có lời kể cho câu này',
     'qa.no_match_body': 'Chưa có dữ liệu cho câu hỏi này trong nguồn hiện tại. Bạn có thể chọn các câu hỏi mẫu bên dưới.',
+    'qa.story_no_match_body': 'Điểm dừng này tập trung vào câu chuyện phía trên. Bạn có thể nói hoặc gõ lệnh để nghe lại, dừng hay chuyển trạm.',
+    'qa.story_no_match_title': 'Chưa có câu trả lời phù hợp ở điểm này',
+    'qa.story_voice_title': 'Điều khiển bằng giọng nói',
+    'qa.story_voice_subtitle': 'Nói: nghe lại, tiếp theo, mở sổ tay…',
     'qa.view_recognized_question': 'Xem câu đã nhận dạng',
     'qa.view_asked_question': 'Xem câu vừa hỏi',
     'qa.verified_story_title': 'LỜI KỂ TRONG TRUYỆN',
@@ -774,6 +791,13 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'plan.custom_time': 'Thời gian khác',
     'plan.recommendations_header': 'Gợi ý điểm dừng',
     'plan.recommendations_empty': 'Không tìm thấy điểm dừng phù hợp với lựa chọn này.',
+    'plan.empty.missing_topic': 'Trong dữ liệu ngõ này chưa có điểm dừng mang chủ đề {topic}.',
+    'plan.empty.all_visited': 'Bạn đã ghé thăm tất cả điểm dừng hiện có mang chủ đề {topic}.',
+    'plan.empty.insufficient_budget': 'Quỹ {minutes} phút chưa đủ cho điểm dừng ngắn nhất thuộc chủ đề {topic} ({minimumMinutes} phút). Thời gian này chưa tính đi bộ.',
+    'plan.empty.unavailable': 'Hiện chưa có điểm dừng nào khả dụng thuộc chủ đề {topic} trong dữ liệu hiện tại.',
+    'plan.empty.alternative_history': 'Khám phá Chuyện xưa',
+    'plan.empty.increase_budget': 'Tăng thời lượng lên {minutes} phút',
+    'plan.empty.change_selection': 'Đổi lựa chọn',
     'plan.go_to_stop': 'Đến điểm này',
     'plan.estimated_time': '~{minutes} phút',
     'plan.toggle_manual': '⌨ Nhập chủ đề hoặc thời gian khác...',
@@ -909,6 +933,7 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
 
     'drawer.title': 'Ask the storyteller',
     'drawer.placeholder': 'Type a question…',
+    'drawer.command_placeholder': 'Type a command (listen, stop, next)…',
     'drawer.close_backdrop': 'Close question input',
     'drawer.collapse': 'Collapse input drawer',
     'drawer.send': 'Send question',
@@ -1095,6 +1120,10 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'qa.unmatched_question_body': 'The storyteller heard your question but it did not match known questions for this stop. Review the transcript, try again with the mic, or select a suggestion below.',
     'qa.no_match_title': 'No story for this question',
     'qa.no_match_body': 'No data available for this question in the current source. You can choose from the suggestions below.',
+    'qa.story_no_match_body': 'This stop focuses on the story above. You can speak or type a command to replay, stop, or move to another stop.',
+    'qa.story_no_match_title': 'There is no answer for that at this stop',
+    'qa.story_voice_title': 'Voice controls',
+    'qa.story_voice_subtitle': 'Say: replay, next, open notebook…',
     'qa.view_recognized_question': 'View recognized question',
     'qa.view_asked_question': 'View asked question',
     'qa.verified_story_title': 'STORY PASSAGE',
@@ -1190,6 +1219,13 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'plan.custom_time': 'Other duration',
     'plan.recommendations_header': 'Suggested stops',
     'plan.recommendations_empty': 'No stops match your selection.',
+    'plan.empty.missing_topic': 'This alley dataset has no stops tagged with {topic}.',
+    'plan.empty.all_visited': 'You have visited all currently available stops tagged with {topic}.',
+    'plan.empty.insufficient_budget': 'The {minutes}-minute budget is too short for the shortest currently available stop tagged with {topic} ({minimumMinutes} minutes). Walking time is not included.',
+    'plan.empty.unavailable': 'No stops tagged with {topic} are currently available in this dataset.',
+    'plan.empty.alternative_history': 'Explore old stories',
+    'plan.empty.increase_budget': 'Increase time to {minutes} minutes',
+    'plan.empty.change_selection': 'Change selection',
     'plan.go_to_stop': 'Go to this stop',
     'plan.estimated_time': '~{minutes} min',
     'plan.toggle_manual': '⌨ Enter custom topic or duration...',
