@@ -227,3 +227,34 @@ test('development restoration does not grant release permission or expose unknow
     assert.equal(developmentVisuals.resolveNodeVisual(id, undefined, 'ngo-trung-yen').kind, 'placeholder');
   }
 });
+
+test('collection cover image dimensions override intrinsic asset size inside the unchanged card frame', () => {
+  const sourceSizes = {
+    'ngo-phat-loc': [960, 1280],
+    'ngo-tam-thuong': [1440, 1586],
+    'ngo-trung-yen': [1024, 1536],
+    'ngo-cam-chi': [700, 875],
+  };
+  for (const locale of ['vi', 'en']) {
+    for (const [collectionId, [sourceWidth, sourceHeight]] of Object.entries(sourceSizes)) {
+      const visual = developmentVisuals.resolveCollectionVisual(collectionId, locale);
+      for (const viewportWidth of [320, 360, 375, 430]) {
+        for (const [width, height] of [[Math.min(260, viewportWidth * 0.72), 330], [viewportWidth - 32, 220]]) {
+          const frame = { width, height };
+          const tree = components.NodeVisualImage({ visual, locale, ratio: '16:9', style: frame });
+          assert.equal(tree.props.style.at(-1), frame, 'caller still owns card geometry');
+          const image = elements(tree, 'Image')[0];
+          assert.equal(image.props.source, visual.source);
+          assert.equal(image.props.resizeMode, 'cover', 'aspect-preserving cover is retained');
+          // RN Image.ios/Image.android prepend intrinsic source dimensions before
+          // the supplied style. Absolute offsets alone do not override them.
+          const resolved = { width: sourceWidth, height: sourceHeight, ...image.props.style };
+          assert.equal(resolved.width, '100%', `${collectionId}: image width must fit its frame`);
+          assert.equal(resolved.height, '100%', `${collectionId}: image height must fit its frame`);
+          assert.equal(resolved.position, 'absolute');
+          assert.equal(resolved.transform, undefined, 'no artificial zoom or focal transform');
+        }
+      }
+    }
+  }
+});

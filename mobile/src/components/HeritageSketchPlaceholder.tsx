@@ -55,7 +55,7 @@ export function NodeVisualImage({ visual, locale = 'vi', siteName, ratio = '1:1'
   return <View style={[styles.photoFrame, style]}>
     {visual.kind === 'placeholder'
       ? <HeritageSketchPlaceholder visual={visual} locale={locale} siteName={siteName} ratio={ratio} showAnnotations={showAnnotations} style={styles.fillFrame} />
-      : <Image {...events} source={visual.source} style={StyleSheet.absoluteFill} resizeMode={resizeMode}
+      : <Image {...events} source={visual.source} style={styles.fillFrame} resizeMode={resizeMode}
         accessibilityLabel={`${siteName ?? ''} · ${visual.isIllustrative ? t(language, 'common.photo_illustration') : t(language, 'common.photo_author', { author: visual.photographer })}`} />}
   </View>;
 }
