@@ -2,7 +2,6 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState, type ReactElement } from 'react';
 import {
   Animated,
-  Image,
   type ImageSourcePropType,
   Pressable,
   ScrollView,
@@ -16,6 +15,8 @@ import type { Mode, SourceState } from '../data/sourceState';
 import type { RootStackParamList } from '../navigation';
 import { AVAILABLE_COLLECTIONS, getLocalizedCollections, isCollectionId } from '../data/collections';
 import { HERO_PHOTO } from '../assets/photoMap';
+import { resolveCollectionVisual } from '../assets/nodeVisual';
+import { NodeVisualImage } from '../components/HeritageSketchPlaceholder';
 import { normalizeQuestion } from '../qa/match';
 import { NgoKeLogo } from '../components/NgoKeLogo';
 import {
@@ -340,7 +341,10 @@ export function AlleySelectScreen({
             </Pressable>
           </View>
         ) : (
-          filteredCollections.map((col) => (
+          filteredCollections.map((col) => {
+            const coverVisual = resolveCollectionVisual(col.id, locale);
+            const missingCover = coverVisual.kind === 'placeholder';
+            return (
             <Animated.View
               key={col.id}
               style={{
@@ -352,22 +356,23 @@ export function AlleySelectScreen({
                 accessibilityRole="button"
                 accessibilityLabel={t('alley_select.open_label', { name: col.name })}
                 onPress={() => handleSelectAlley(col.id)}
-                style={({ pressed }) => [styles.cinematicCard, pressed && styles.cardPressed]}
+                style={({ pressed }) => [styles.cinematicCard, missingCover && styles.placeholderCard, pressed && styles.cardPressed]}
               >
-                <Image source={col.coverPhoto} style={styles.cardCoverImage} resizeMode="cover" />
-                <View style={styles.cardScrim} />
+                <NodeVisualImage visual={coverVisual} locale={locale} siteName={col.name} ratio="16:9" style={[styles.cardCoverImage, missingCover && styles.placeholderCoverImage]} />
+                {!missingCover && <View style={styles.cardScrim} />}
                 <View style={styles.cardHeaderBadges}>
                   <View style={styles.themeBadge}>
                     <Text style={styles.themeBadgeText}>{col.theme}</Text>
                   </View>
                 </View>
-                <View style={styles.cardBottomBar}>
+                <View style={[styles.cardBottomBar, missingCover && styles.placeholderBottomBar]}>
                   <View style={styles.cardTextCol}>
                     <Text style={styles.cardDistrictText}>{col.district}</Text>
                     <Text style={styles.cardNameText}>{col.name}</Text>
                     <Text style={styles.cardBriefMeta}>
                       {t('alley_select.meta_info', { count: col.nodeCount })}
                     </Text>
+                    {missingCover && <Text style={styles.cardBriefMeta}>{t('common.photo_updating')}</Text>}
                   </View>
                   <View style={styles.cardForwardBtn}>
                     <Text style={styles.cardForwardIcon}>→</Text>
@@ -375,7 +380,8 @@ export function AlleySelectScreen({
                 </View>
               </Pressable>
             </Animated.View>
-          ))
+            );
+          })
         )}
       </ScrollView>
     </View>
@@ -684,6 +690,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.16,
     shadowRadius: 10,
     elevation: 4,
+  },
+  placeholderCard: {
+    height: undefined,
+    minHeight: 220,
+  },
+  placeholderCoverImage: {
+    position: 'relative',
+    height: 120,
+    flexShrink: 0,
+  },
+  placeholderBottomBar: {
+    position: 'relative',
   },
   cardPressed: {
     opacity: 0.88,

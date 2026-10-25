@@ -1,3 +1,4 @@
+import { nodeVisualModule, visualComponentStubs } from './helpers/nodeVisualModules.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
@@ -23,6 +24,8 @@ const actualCollectionsCode = ts.transpileModule(readFileSync(new URL('../src/da
 }).outputText;
 const actualCollectionsMod = { exports: {} };
 runInNewContext('(function(require,module,exports){' + actualCollectionsCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
   if (id === 'react-native') return {};
   if (id === './locale') return { isLocale: (v) => v === 'vi' || v === 'en' };
   if (id === './sourceState') return sources;
@@ -39,6 +42,25 @@ runInNewContext('(function(require,module,exports){' + actualCollectionsCode + '
 const actualCollections = actualCollectionsMod.exports;
 
 const fixture = JSON.parse(readFileSync(new URL('../../data/demo.json', import.meta.url), 'utf8'));
+
+test('UI-05B: unknown or absent Live collection scope never selects fictional node or cover photos', () => {
+  for (const collectionId of [undefined, 'unknown-live-collection']) {
+    const dataset = { ...fixture, collectionId };
+    const source = { ...sources.getSourceState('demo', fixture), mode: 'live', dataset };
+    const shared = { mode: 'live', source, currentNodeId: 'demo-01', onSelectNode() {}, onReadNode() {}, onModeChange() {}, readNodeIds: new Set() };
+    const home = mount('../src/screens/HomeScreen.tsx', { ...shared, navigation: { navigate() {}, goBack() {} }, route: { params: {} } });
+    const homeTree = home.render();
+    assert.equal(elements(homeTree, 'ImageBackground').length, 0);
+    assert.ok(elements(homeTree, 'HeritageSketchPlaceholder').length > 0);
+    assert.equal(elements(homeTree, 'CrossfadePhoto').length, 0);
+    home.unmount();
+    const qaView = mount('../src/screens/QaScreen.tsx', { ...shared, dataset, onBack() {}, datasetRevision: 'test' });
+    const qaTree = qaView.render();
+    assert.equal(elements(qaTree, 'Image').length, 0);
+    assert.equal(elements(qaTree, 'HeritageSketchPlaceholder')[0].props.visual.kind, 'placeholder');
+    qaView.unmount();
+  }
+});
 
 // Execute screen handlers and state transitions without a native renderer.
 // Native layout, permissions and hardware are checked separately on devices.
@@ -432,6 +454,8 @@ function mount(file, props = {}, overrides = {}, exportName) {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
   }).outputText;
   runInNewContext('(function(require,module,exports){' + code + '\n})', { process: { env: {} }, setTimeout, clearTimeout, AbortController: globalThis.AbortController, ...overrides.__globals })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
     if (modules[id]) return modules[id];
     if (/\.(png|jpe?g|gif|webp|wav|mp3)$/i.test(id)) return 1;
     if (/\/screens\//.test(id) || /\/components\//.test(id) || id === './UnavailableScreen' || id.includes('AlleyGuideSection') || id.includes('AlleyStoryCard')) {
@@ -476,6 +500,60 @@ function elements(tree, type) {
 function screen(tree, name, navigation = { goBack() {}, navigate() {}, replace() {}, popTo() {} }, params) {
   return elements(tree, 'Screen').find((item) => item.props.name === name).props.children({ navigation, route: { params } }).props;
 }
+
+test('safe undo: collection placeholders have bounded art and separate flowing labels in VI/EN', () => {
+  const style = (value) => {
+    if (typeof value === 'function') return style(value({ pressed: false }));
+    if (Array.isArray(value)) return Object.assign({}, ...value.map(style));
+    return value || {};
+  };
+  for (const locale of ['vi', 'en']) {
+    for (const width of [320, 430]) {
+      for (const fontScale of [1, 2]) {
+        const overrides = {
+          __windowDimensions: { width, height: 850, fontScale },
+          '../data/collections': actualCollections,
+          'react-native': { StyleSheet: { absoluteFill: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 } } },
+          '../context/LocaleContext': { useLocale: () => ({ locale, collectionId: 'ngo-gach', setCollectionId() {}, setLocale() {}, t: (key, params) => translator.t(locale, key, params) }) },
+        };
+        const navigation = { navigate() {}, goBack() {} };
+        for (const file of ['LandingScreen', 'AlleySelectScreen']) {
+          const view = mount(`../src/screens/${file}.tsx`, { mode: 'demo', navigation, route: { params: {} } }, overrides);
+          const tree = view.render();
+          const cards = elements(tree, 'Pressable').filter((node) => elements(node, 'NodeVisualImage').length === 1);
+          assert.equal(cards.length, 8);
+          for (const card of cards) {
+            const image = elements(card, 'NodeVisualImage')[0];
+            const frame = style(image.props.style);
+            if (image.props.visual.kind === 'placeholder') {
+              assert.equal(frame.position, 'relative');
+              assert.equal(frame.height, file === 'LandingScreen' ? 182 : 120);
+              const body = card.props.children.filter(Boolean).at(-1);
+              assert.notEqual(style(body.props.style).position, 'absolute', 'image and text are separate flow boxes');
+              const texts = elements(body, 'Text');
+              assert.equal(texts.filter((node) => node.props.children === translator.t(locale, 'common.photo_updating')).length, 1);
+              assert.equal(style(card.props.style).height, undefined, 'placeholder card can grow with text');
+            } else {
+              assert.equal(frame.position, 'absolute', 'licensed cover retains its original presentation');
+              assert.equal(image.props.visual.isIllustrative, true);
+            }
+          }
+          view.unmount();
+        }
+        const dataset = actualCollections.getBundledDataset('ngo-gach', locale);
+        const home = mount('../src/screens/HomeScreen.tsx', { mode: 'demo', source: sources.getSourceState('demo', dataset), currentNodeId: dataset.nodes[0].id, onSelectNode() {}, readNodeIds: new Set(), onModeChange() {}, route: { params: { alleyId: 'ngo-gach' } }, navigation }, overrides);
+        const homeTree = home.render();
+        assert.equal(elements(homeTree, 'NodeVisualCredit').length, 0, 'compact preview keeps its pre-UI05B text rows');
+        assert.equal(elements(homeTree, 'HeritageSketchPlaceholder').filter((node) => node.props.ratio === 'full').length, 0, 'no oversized full-screen sketch behind the trail');
+        home.unmount();
+        const postcard = mount('../src/components/PostcardCard.tsx', { node: dataset.nodes[0] }, overrides);
+        const postcardTree = postcard.render();
+        assert.ok(elements(postcardTree, 'View').some((node) => style(node.props.style).height === 190), 'Postcard image restores its stable 190pt frame at every font scale');
+        postcard.unmount();
+      }
+    }
+  }
+});
 
 test('status bar follows navigation and unavailable pages without iOS native-stack overrides', () => {
   const app = mount('../App.tsx');
@@ -2997,7 +3075,8 @@ test('AlleyTrailView and PostcardCard branch visit time on collectionKind', () =
   assert.ok(textCardReviewed.includes('Suggested visit: 10 min (unmeasured)'), 'reviewed PostcardCard displays suggested visit time');
   assert.equal(textCardReviewed.includes('min simulated'), false);
   assert.equal(textCardReviewed.includes('Illustration photo'), false, 'photo disclaimer removed');
-  assert.ok(textCardReviewed.includes('Photo:'), 'photo author credit retained');
+  assert.ok(textCardReviewed.includes('Field photo update in progress'), 'missing-photo status retained');
+  assert.equal(textCardReviewed.includes('Photo:'), false, 'placeholder has no invented credit');
   viewCardReviewed.unmount();
 
   // 5. PostcardCard simulated in EN
@@ -3010,7 +3089,8 @@ test('AlleyTrailView and PostcardCard branch visit time on collectionKind', () =
   assert.ok(textCardSim.includes('Suggested visit: 10 min (unmeasured)'), 'simulated PostcardCard displays suggested visit minutes');
   assert.equal(textCardSim.includes('10 min simulated'), false, 'simulated minutes removed');
   assert.equal(textCardSim.includes('Illustration photo'), false, 'photo disclaimer removed');
-  assert.ok(textCardSim.includes('Photo:'), 'photo author credit retained');
+  assert.ok(textCardSim.includes('Field photo update in progress'), 'missing-photo status retained');
+  assert.equal(textCardSim.includes('Photo:'), false, 'simulated kind does not bypass photo policy');
   viewCardSim.unmount();
 
   // 6. PostcardCard reviewed in VI
@@ -3022,7 +3102,8 @@ test('AlleyTrailView and PostcardCard branch visit time on collectionKind', () =
   const textCardReviewedVi = JSON.stringify(treeCardReviewedVi);
   assert.ok(textCardReviewedVi.includes('Gợi ý tham quan: 10 phút (chưa đo)'));
   assert.equal(textCardReviewedVi.includes('Ảnh minh họa'), false, 'photo disclaimer removed');
-  assert.ok(textCardReviewedVi.includes('Tác giả:'), 'photo author credit retained');
+  assert.ok(textCardReviewedVi.includes('Đang cập nhật ảnh thực địa'), 'missing-photo status retained');
+  assert.equal(textCardReviewedVi.includes('Tác giả:'), false, 'placeholder has no invented credit');
   assert.equal(textCardReviewedVi.includes('điểm mô phỏng'), false);
   viewCardReviewedVi.unmount();
 
@@ -3036,7 +3117,8 @@ test('AlleyTrailView and PostcardCard branch visit time on collectionKind', () =
   assert.ok(textCardSimVi.includes('Gợi ý tham quan: 10 phút (chưa đo)'));
   assert.equal(textCardSimVi.includes('10 phút mô phỏng'), false, 'simulated label removed');
   assert.equal(textCardSimVi.includes('Ảnh minh họa'), false, 'photo disclaimer removed');
-  assert.ok(textCardSimVi.includes('Tác giả:'), 'photo author credit retained');
+  assert.ok(textCardSimVi.includes('Đang cập nhật ảnh thực địa'), 'missing-photo status retained');
+  assert.equal(textCardSimVi.includes('Tác giả:'), false, 'simulated kind does not bypass photo policy');
   viewCardSimVi.unmount();
 
   // 8. PostcardCard simulated kind wins over selected new collection (old-quarter-three-lenses)
@@ -4041,6 +4123,8 @@ test('motion tokens obey Premium archetype hierarchy, bounded choreography budge
   }).outputText;
   const motionExports = {};
   runInNewContext('(function(require, exports){' + code + '\n})')((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
     if (id === 'react-native') {
       return {
         Easing: {
@@ -4112,6 +4196,8 @@ test('useEntranceFadeSlide preserves legitimate staggered delays (40, 130, 220, 
   }).outputText;
   const motionExports = {};
   runInNewContext('(function(require, exports){' + code + '\n})')((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
     if (id === 'react-native') {
       return {
         Easing: {
@@ -4739,7 +4825,7 @@ test('QaScreen drawer uses short input placeholder while preserving rich context
   view.unmount();
 });
 
-test('QaScreen Three Lenses multi-chapter journey mounts chapter tabs, updates story/photo/QA on the same node, dispatches intro/story audio, and clears old playback and answers on chapter switch', () => {
+test('QaScreen Three Lenses multi-chapter journey mounts chapter tabs, updates story/QA while preserving quarantined imagery on the same node, dispatches intro/story audio, and clears old playback and answers on chapter switch', () => {
   const threeLensesViCore = JSON.parse(readFileSync(new URL('../../data/localized/three-lenses.vi.json', import.meta.url), 'utf8'));
   const viRev = threeLensesModule.getThreeLensesDatasetRevision('vi');
   const dongXuanNode = threeLensesViCore.nodes.find((n) => n.id === 'oldquarter-dong-xuan');
@@ -4838,7 +4924,9 @@ test('QaScreen Three Lenses multi-chapter journey mounts chapter tabs, updates s
   assert.equal(chapterTabs[0].props.accessibilityState?.selected, true, 'Chapter 1 (Timeline) is selected initially');
 
   // Verify initial chapter (Timeline) text, photo, and QA chips
-  const rootsPhoto = elements(tree, 'ImageBackground')[0].props.source;
+  const rootsVisual = elements(tree, 'HeritageSketchPlaceholder')[0].props.visual;
+  assert.equal(rootsVisual.kind, 'placeholder', 'unverified Timeline photo is not shown');
+  assert.equal(elements(tree, 'Image').length, 0);
   const initialChips = elements(tree, 'Pressable').filter((p) => p.props.accessibilityLabel?.startsWith('Hỏi:'));
   assert.equal(initialChips.length, 3, 'Timeline chapter displays its 3 mapped QA chips');
   assert.ok(JSON.stringify(tree).includes('1890'), 'Timeline chapter contains 1890 foundation history');
@@ -4849,8 +4937,10 @@ test('QaScreen Three Lenses multi-chapter journey mounts chapter tabs, updates s
 
   assert.equal(selectedNodeId, dongXuanNode.id, 'Node does NOT change when switching chapters');
   assert.equal(elements(tree, 'Pressable').filter((p) => p.props.accessibilityRole === 'tab')[1].props.accessibilityState?.selected, true);
-  const firePhoto = elements(tree, 'ImageBackground')[0].props.source;
-  assert.notEqual(firePhoto.uri, rootsPhoto.uri, 'Background photo updates to Fire chapter photo');
+  const fireVisual = elements(tree, 'HeritageSketchPlaceholder')[0].props.visual;
+  assert.equal(fireVisual.kind, 'placeholder', 'unverified Fire photo is not shown');
+  assert.equal(fireVisual.siteName, rootsVisual.siteName, 'chapter switch retains the same stop context');
+  assert.equal(elements(tree, 'Image').length, 0);
   assert.ok(JSON.stringify(tree).includes('1994'), 'Story updates to Fire chapter content');
 
   const fireChips = elements(tree, 'Pressable').filter((p) => p.props.accessibilityLabel?.startsWith('Hỏi:'));

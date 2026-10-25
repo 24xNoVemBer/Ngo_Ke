@@ -1,3 +1,4 @@
+import { nodeVisualModule, visualComponentStubs } from './helpers/nodeVisualModules.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
@@ -157,6 +158,8 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
   // Build ToolDock module
   const toolDockMod = { exports: {} };
   runInNewContext('(function(require,module,exports){' + toolDockCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
     if (modules[id]) return modules[id];
     if (id === './AppIcon' || id === '../components/AppIcon') {
       return { AppIcon: 'AppIcon' };
@@ -168,6 +171,8 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
   // Build AlleyPassportModal module
   const passportMod = { exports: {} };
   runInNewContext('(function(require,module,exports){' + passportCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
     if (modules[id]) return modules[id];
     if (id === './AppIcon' || id === '../components/AppIcon') {
       return { AppIcon: 'AppIcon' };
@@ -179,6 +184,8 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
   // Build Drawer module
   const drawerMod = { exports: {} };
   runInNewContext('(function(require,module,exports){' + drawerCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
     if (modules[id]) return modules[id];
     if (id === './AppIcon' || id === '../components/AppIcon' || /\/components\//.test(id) || id.includes('AlleyGuideSection')) {
       return { AppIcon: 'AppIcon', AlleyGuideSection: 'AlleyGuideSection' };
@@ -197,6 +204,8 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
 
   const screenMod = { exports: {} };
   runInNewContext('(function(require,module,exports){' + screenCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
     if (modules[id]) return modules[id];
     if (/\.(png|jpe?g|gif|webp|wav|mp3)$/i.test(id)) return 1;
     if (id === './AppIcon' || id === '../components/AppIcon' || id === '../components/NgoKeLogo' || id.includes('NgoKeLogo') || /\/components\//.test(id) || id.includes('AlleyStoryCard') || id.includes('AlleyGuideSection')) {

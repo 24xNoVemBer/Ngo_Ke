@@ -3,11 +3,12 @@ import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation';
-import { Animated, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Animated, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { DemoNode } from '../data/sourceState';
 import { confirmByQr, selectManually } from '../qr/confirmPoint';
-import { getNodePhoto, getNodePhotographer } from '../assets/photoMap';
+import { resolveNodeVisual } from '../assets/nodeVisual';
+import { NodeVisualImage, NodeVisualCredit } from '../components/HeritageSketchPlaceholder';
 import { useMotionState } from '../hooks/MotionPreferences';
 import { useLaserScanner, usePulseLoop } from '../hooks/useMotion';
 import { colors, radius, spacing, typography } from '../theme';
@@ -37,6 +38,7 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
   const [scanNote, setScanNote] = useState<string | undefined>();
   const [pending, setPending] = useState<DemoNode | undefined>();
   const [active, setActive] = useState<DemoNode | undefined>();
+  const activeVisual = resolveNodeVisual(active?.id, undefined, effectiveCollectionId, locale);
   useEffect(() => {
     if (!isFocused) {
       cameraRequest.current += 1;
@@ -293,13 +295,13 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
           <View style={styles.activeCard}>
             {/* Ảnh điểm ngõ đã kích hoạt */}
             <View style={[styles.activeImageWrapper, isThreeLenses && { backgroundColor: '#1E1E1E' }]}>
-              <Image
-                source={getNodePhoto(active.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined)}
+              <NodeVisualImage
+                visual={activeVisual} locale={locale} siteName={active.name} ratio="16:9"
                 style={styles.activeImage}
                 resizeMode={isThreeLenses ? 'contain' : 'cover'}
               />
               <View style={styles.creditBadge}>
-                <Text style={styles.creditText}>{t('common.photo_author', { author: getNodePhotographer(active.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined, locale) })}</Text>
+                <NodeVisualCredit visual={activeVisual} locale={locale} style={styles.creditText} />
               </View>
             </View>
 
@@ -355,8 +357,8 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
                   onPress={() => chooseManually(node.id)}
                   style={({ pressed }) => [styles.pointRow, pressed && styles.pressed]}
                 >
-                  <Image
-                    source={getNodePhoto(node.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined)}
+                  <NodeVisualImage
+                    visual={resolveNodeVisual(node.id, undefined, effectiveCollectionId, locale)} locale={locale} siteName={node.name}
                     style={[styles.thumbnail, isThreeLenses && { backgroundColor: '#1E1E1E' }]}
                     resizeMode={isThreeLenses ? 'contain' : 'cover'}
                   />
@@ -366,7 +368,7 @@ export function CameraScreen({ nodes, onConfirmNode, collectionKind, collectionI
                       {t('location.suggested_visit_minutes', {
                         minutes: node.visitMinutes,
                       })}{' '}
-                      · {getNodePhotographer(node.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined, locale)}
+                      · <NodeVisualCredit visual={resolveNodeVisual(node.id, undefined, effectiveCollectionId, locale)} locale={locale} />
                     </Text>
                   </View>
                   <Text style={styles.chevron}>{node.available ? '→' : (locale === 'en' ? 'Locked' : 'Chưa mở')}</Text>

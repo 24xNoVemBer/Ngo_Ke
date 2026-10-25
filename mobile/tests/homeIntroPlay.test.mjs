@@ -1,3 +1,4 @@
+import { nodeVisualModule, visualComponentStubs } from './helpers/nodeVisualModules.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
@@ -15,6 +16,8 @@ const actualCollectionsCode = ts.transpileModule(readFileSync(new URL('../src/da
 }).outputText;
 const actualCollectionsMod = { exports: {} };
 runInNewContext('(function(require,module,exports){' + actualCollectionsCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
   if (id === 'react-native') return {};
   if (id === './locale') return { isLocale: (v) => v === 'vi' || v === 'en' };
   if (id === './threeLensesCompanion.ts' || id === './threeLensesCompanion') return { getThreeLensesDatasetRevision: () => 'three-lenses-rev', THREE_LENSES_COLLECTION_ID: 'old-quarter-three-lenses' };
@@ -217,6 +220,8 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
 
   const screenMod = { exports: {} };
   runInNewContext('(function(require,module,exports){' + screenCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
     if (modules[id]) return modules[id];
     if (/\.(png|jpe?g|gif|webp|wav|mp3)$/i.test(id)) return id;
     if (/\/components\//.test(id) || id.startsWith('./') || id.includes('AlleyStoryCard') || id.includes('AlleyGuideSection')) {

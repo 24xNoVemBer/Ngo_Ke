@@ -1,3 +1,4 @@
+import { nodeVisualModule, visualComponentStubs } from './helpers/nodeVisualModules.mjs';
 import assert from 'node:assert/strict';
 
 
@@ -1605,6 +1606,8 @@ function createTestHarness(file, defaultProps = {}, overrides = {}) {
 
 
   )((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
 
 
 

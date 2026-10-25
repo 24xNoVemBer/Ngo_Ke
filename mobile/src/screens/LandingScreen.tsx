@@ -3,7 +3,6 @@ import { useIsFocused } from '@react-navigation/native';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import {
   Animated,
-  Image,
   ImageBackground,
   Pressable,
   ScrollView,
@@ -17,6 +16,8 @@ import type { Mode } from '../data/sourceState';
 import { getSourceState, type SourceState } from '../data/sourceState';
 import type { RootStackParamList } from '../navigation';
 import { HERO_PHOTO } from '../assets/photoMap';
+import { resolveCollectionVisual } from '../assets/nodeVisual';
+import { NodeVisualImage } from '../components/HeritageSketchPlaceholder';
 import { AppIcon } from '../components/AppIcon';
 import { NgoKeLogo } from '../components/NgoKeLogo';
 import { NotebookDrawerModal } from '../components/NotebookDrawerModal';
@@ -249,7 +250,10 @@ export function LandingScreen({
                       kind: 'kind' in effectiveSource.dataset && effectiveSource.dataset.kind === 'reviewed' ? 'reviewed' : 'simulated',
                     }]
                   : collections
-                ).map((col) => (
+                ).map((col) => {
+                  const coverVisual = resolveCollectionVisual(col.id, locale);
+                  const missingCover = coverVisual.kind === 'placeholder';
+                  return (
                   <Pressable
                     key={col.id}
                     testID={`landing-alley-card-${col.id}`}
@@ -267,9 +271,9 @@ export function LandingScreen({
                     ]}
                   >
                     {/* Ảnh nét riêng của con ngõ, không phủ scrim toàn thẻ */}
-                    <Image
-                      source={col.coverPhoto}
-                      style={styles.alleyCardImage}
+                    <NodeVisualImage
+                      visual={coverVisual} locale={locale} siteName={col.name} ratio="16:9"
+                      style={[styles.alleyCardImage, missingCover && styles.placeholderCoverImage]}
                       onLoadStart={() => recordImagePerfLoadStart('landing', `cover:${col.id}`)}
                       onLoad={() => recordImagePerfLoadSuccess('landing', `cover:${col.id}`)}
                       onLoadEnd={() => recordImagePerfLoadEnd('landing', `cover:${col.id}`)}
@@ -288,6 +292,7 @@ export function LandingScreen({
                       <Text style={styles.alleyCardTagline} numberOfLines={2}>
                         {col.tagline}
                       </Text>
+                      {missingCover && <Text style={styles.photoUpdateText}>{t('common.photo_updating')}</Text>}
 
                       <View style={styles.alleyCardMetaRow}>
                         <Text style={styles.cardStoryCount}>
@@ -296,7 +301,8 @@ export function LandingScreen({
                       </View>
                     </View>
                   </Pressable>
-                ))}
+                  );
+                })}
               </ScrollView>
             )}
           </Animated.View>
@@ -545,7 +551,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   alleyPreviewCard: {
-    height: 330,
+    minHeight: 330,
     borderRadius: radius.lg,
     overflow: 'hidden',
     backgroundColor: '#2A2D24',
@@ -561,6 +567,16 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     position: 'absolute',
+  },
+  placeholderCoverImage: {
+    position: 'relative',
+    height: 182,
+    flexShrink: 0,
+  },
+  photoUpdateText: {
+    fontSize: 12,
+    color: 'rgba(255, 253, 247, 0.75)',
+    flexShrink: 1,
   },
   cardThemeTag: {
     position: 'absolute',

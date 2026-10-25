@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import {
-  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -8,7 +7,8 @@ import {
   View,
 } from 'react-native';
 import type { DemoNode } from '../data/sourceState';
-import { getNodePhoto, getNodePhotographer } from '../assets/photoMap';
+import { resolveNodeVisual } from '../assets/nodeVisual';
+import { NodeVisualImage, NodeVisualCredit } from './HeritageSketchPlaceholder';
 import { colors, radius, spacing, typography } from '../theme';
 import { useLocale } from '../context/LocaleContext';
 
@@ -34,14 +34,13 @@ export function PostcardCard({
   const isReviewed = collectionKind === 'reviewed';
   const isThreeLenses = collectionId === 'old-quarter-three-lenses' && isReviewed;
   const resolvedActionLabel = actionLabel ?? t('common.explore_this_point');
-  const photo = getNodePhoto(node.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined);
-  const credit = getNodePhotographer(node.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined, locale);
+  const visual = resolveNodeVisual(node.id, undefined, collectionId, locale);
 
   return (
     <View style={[styles.card, isActive && styles.cardActive]}>
       {/* Khung ảnh chụp chân thực */}
       <View style={[styles.imageContainer, isThreeLenses && { backgroundColor: '#1E1E1E' }]}>
-        <Image source={photo} style={styles.image} resizeMode={isThreeLenses ? 'contain' : 'cover'} />
+        <NodeVisualImage visual={visual} locale={locale} siteName={node.name} ratio="4:3" style={styles.image} resizeMode={isThreeLenses ? 'contain' : 'cover'} />
 
         {/* Dấu mộc son gạch nung */}
         {node.visited && (
@@ -70,7 +69,7 @@ export function PostcardCard({
           {subReason ?? node.summary}
         </Text>
 
-        <Text style={styles.creditText}>{t('common.photo_author', { author: credit })}</Text>
+        <NodeVisualCredit visual={visual} locale={locale} style={styles.creditText} />
 
         {onSelect && (
           <Pressable

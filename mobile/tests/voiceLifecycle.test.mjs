@@ -18,6 +18,8 @@ test('a permission result only continues into recording while the app is active'
   assert.equal(canContinueVoiceStart('active'), true);
   assert.equal(canContinueVoiceStart('inactive'), false);
   assert.equal(canContinueVoiceStart('background'), false);
+  assert.equal(canContinueVoiceStart(null), false);
+  assert.equal(canContinueVoiceStart(undefined), false);
 });
 
 test('changing chapter, mode or dataset revision invalidates the active voice scope', () => {

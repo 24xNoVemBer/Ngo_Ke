@@ -3,11 +3,12 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation';
 import * as Location from 'expo-location';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
-import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View, type ScrollViewInstance } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { DemoNode } from '../data/sourceState';
 import { pickCandidate, type Candidate } from '../location/nearest';
-import { getNodePhoto, getNodePhotographer } from '../assets/photoMap';
+import { resolveNodeVisual } from '../assets/nodeVisual';
+import { NodeVisualImage, NodeVisualCredit } from '../components/HeritageSketchPlaceholder';
 import { colors, radius, spacing, typography } from '../theme';
 import { useLocale } from '../context/LocaleContext';
 import { useMotionState } from '../hooks/MotionPreferences';
@@ -50,7 +51,7 @@ export function LocationScreen({
 }: Props): ReactElement {
   const isReviewed = collectionKind === 'reviewed';
   const motion = useMotionState();
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
   const { t, locale, collectionId: ctxCollectionId } = useLocale();
   const effectiveCollectionId = collectionId ?? ctxCollectionId;
   const isThreeLenses = effectiveCollectionId === 'old-quarter-three-lenses' && isReviewed;
@@ -70,6 +71,7 @@ export function LocationScreen({
   const [result, setResult] = useState<Candidate | undefined>();
   const [busy, setBusy] = useState(false);
   const current = nodes.find((node) => node.id === currentNodeId);
+  const currentVisual = resolveNodeVisual(currentNodeId, undefined, effectiveCollectionId, locale);
 
   async function readPosition(): Promise<void> {
     if (!focused || waiting.current) return;
@@ -177,8 +179,8 @@ export function LocationScreen({
         {/* Thẻ điểm hiện tại */}
         <View style={styles.currentCard}>
           <View style={styles.currentRow}>
-            <Image
-              source={getNodePhoto(currentNodeId ?? '', undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined)}
+            <NodeVisualImage
+              visual={currentVisual} locale={locale} siteName={current?.name}
               style={[styles.currentThumb, isThreeLenses && { backgroundColor: '#1E1E1E' }]}
               resizeMode={isThreeLenses ? 'contain' : 'cover'}
             />
@@ -189,9 +191,7 @@ export function LocationScreen({
               <Text accessibilityRole="header" style={styles.currentName}>
                 {current?.name ?? (locale === 'en' ? 'Unconfirmed stop' : 'Chưa xác nhận điểm')}
               </Text>
-              <Text style={styles.currentPhotographer}>
-                {t('common.photo_author', { author: getNodePhotographer(currentNodeId ?? '', undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined, locale) })}
-              </Text>
+              <NodeVisualCredit visual={currentVisual} locale={locale} style={styles.currentPhotographer} />
             </View>
           </View>
           <Text style={styles.currentNote}>
@@ -243,8 +243,8 @@ export function LocationScreen({
               </View>
 
               <View style={styles.candidatePreviewRow}>
-                <Image
-                  source={getNodePhoto(result.node.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined)}
+                <NodeVisualImage
+                  visual={resolveNodeVisual(result.node.id, undefined, effectiveCollectionId, locale)} locale={locale} siteName={result.node.name}
                   style={[styles.candidateImage, isThreeLenses && { backgroundColor: '#1E1E1E' }]}
                   resizeMode={isThreeLenses ? 'contain' : 'cover'}
                 />
@@ -360,8 +360,8 @@ export function LocationScreen({
                     pressed && styles.pressed,
                   ]}
                 >
-                  <Image
-                    source={getNodePhoto(node.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined)}
+                  <NodeVisualImage
+                    visual={resolveNodeVisual(node.id, undefined, effectiveCollectionId, locale)} locale={locale} siteName={node.name}
                     style={[styles.thumbnail, isThreeLenses && { backgroundColor: '#1E1E1E' }]}
                     resizeMode={isThreeLenses ? 'contain' : 'cover'}
                   />

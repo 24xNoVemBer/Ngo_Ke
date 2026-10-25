@@ -1,3 +1,4 @@
+import { nodeVisualModule, visualComponentStubs } from './helpers/nodeVisualModules.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
@@ -211,6 +212,8 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
 
   const screenMod = { exports: {} };
   runInNewContext('(function(require,module,exports){' + screenCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
     if (modules[id]) return modules[id];
     if (/\.(png|jpe?g|gif|webp|wav|mp3)$/i.test(id)) return 1;
     if (id === './AppIcon' || id === '../components/AppIcon' || /\/components\//.test(id) || /\/screens\//.test(id) || id.includes('AlleyGuideSection') || id.includes('AlleyStoryCard') || id.includes('UnavailableScreen')) {
@@ -447,7 +450,7 @@ test('NotebookDrawerModal removes sourceStateTag and disclaimerNote while preser
   view.unmount();
 });
 
-test('PostcardCard removes photo disclaimer badge while preserving photo credit and unmeasured duration', () => {
+test('PostcardCard keeps unmeasured duration and uses honest placeholder metadata when no photo is allowed', () => {
   const viewReviewed = createTestMount('../src/components/PostcardCard.tsx', {
     node: reviewedPilotVi.nodes[0],
     collectionKind: 'reviewed',
@@ -466,12 +469,13 @@ test('PostcardCard removes photo disclaimer badge while preserving photo credit 
   const textReviewed = JSON.stringify(viewReviewed.render());
   assert.equal(textReviewed.includes('Ảnh minh họa · điểm đã duyệt'), false, 'disclaimerBadge removed');
   assert.equal(textReviewed.includes('Ảnh minh họa · điểm mô phỏng'), false, 'simulated disclaimerBadge removed');
-  assert.ok(textReviewed.includes('Tác giả: Nguyễn Văn A'), 'photo author credit preserved');
+  assert.ok(textReviewed.includes('Đang cập nhật ảnh thực địa'), 'missing reviewed photo uses neutral update label');
+  assert.equal(textReviewed.includes('Tác giả:'), false, 'placeholder has no fabricated photo author');
   assert.ok(textReviewed.includes('Gợi ý tham quan: 10 phút (chưa đo)'), 'unmeasured visit minutes preserved');
   viewReviewed.unmount();
 });
 
-test('CameraScreen removes bottom disclaimerBox and photo disclaimer badge while preserving credit and stop title', () => {
+test('CameraScreen preserves stop title and manual flow while missing photos use neutral placeholder metadata', () => {
   const view = createTestMount('../src/screens/CameraScreen.tsx', {
     nodes: reviewedPilotVi.nodes,
     onConfirmNode() {},
@@ -508,7 +512,8 @@ test('CameraScreen removes bottom disclaimerBox and photo disclaimer badge while
 
   const treeWithActive = view.render();
   const textWithActive = JSON.stringify(treeWithActive);
-  assert.ok(textWithActive.includes('Tác giả: Nguyễn Văn A'), 'photo credit retained on active stop');
+  assert.ok(textWithActive.includes('Đang cập nhật ảnh thực địa'), 'active stop without an approved photo keeps the update label');
+  assert.equal(textWithActive.includes('Tác giả:'), false, 'active placeholder does not invent an author');
   assert.equal(textWithActive.includes('Ảnh minh họa · điểm mô phỏng'), false, 'active photo disclaimerBadge removed');
   assert.ok(textWithActive.includes(reviewedPilotVi.nodes[0].name), 'stop name retained');
   view.unmount();

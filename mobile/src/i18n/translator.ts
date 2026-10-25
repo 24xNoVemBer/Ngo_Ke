@@ -115,6 +115,10 @@ export type TranslationKey =
   | 'common.minutes'
   | 'common.photo_disclaimer'
   | 'common.photo_disclaimer_reviewed'
+  | 'common.photo_updating'
+  | 'common.photo_illustration'
+  | 'common.sketch_a11y'
+  | 'common.sketch_a11y_alley'
   | 'common.photo_author'
   | 'common.visited_stamp'
   | 'common.simulated_minutes'
@@ -545,6 +549,10 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'common.minutes': '{minutes} phút',
     'common.photo_disclaimer': 'Ảnh minh họa · điểm mô phỏng',
     'common.photo_disclaimer_reviewed': 'Ảnh minh họa · điểm đã duyệt',
+    'common.photo_updating': 'Đang cập nhật ảnh thực địa',
+    'common.photo_illustration': 'Ảnh minh họa',
+    'common.sketch_a11y': 'Ký họa minh họa trung tính cho {name}. Đang cập nhật ảnh thực địa.',
+    'common.sketch_a11y_alley': 'Ký họa minh họa trung tính cho {name}, thuộc {alley}. Đang cập nhật ảnh thực địa.',
     'common.photo_author': 'Tác giả: {author}',
     'common.visited_stamp': 'ĐÃ GHÉ THĂM',
     'common.simulated_minutes': '{minutes} phút mô phỏng',
@@ -973,6 +981,10 @@ export const DICTIONARY: Record<Locale, Record<TranslationKey, string>> = {
     'common.minutes': '{minutes} min',
     'common.photo_disclaimer': 'Illustration photo · simulated point',
     'common.photo_disclaimer_reviewed': 'Illustration photo · reviewed stops',
+    'common.photo_updating': 'Field photo update in progress',
+    'common.photo_illustration': 'Illustration photo',
+    'common.sketch_a11y': 'Generic illustrative sketch for {name}. Field photo update in progress.',
+    'common.sketch_a11y_alley': 'Generic illustrative sketch for {name}, in {alley}. Field photo update in progress.',
     'common.photo_author': 'Photo: {author}',
     'common.visited_stamp': 'VISITED',
     'common.simulated_minutes': '{minutes} min simulated',

@@ -6,12 +6,13 @@ import { NotebookDrawerModal } from '../components/NotebookDrawerModal';
 import { getSourceState, type SourceState } from '../data/sourceState';
 import {
   Animated,
-  ImageBackground,
+  Image,
   KeyboardAvoidingView,
   Linking,
   Platform,
   Pressable,
   ScrollView,
+  type ScrollViewInstance,
   StyleSheet,
   Text,
   View,
@@ -20,7 +21,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TOPICS, type AnyDemoDataset, type Mode, type Topic } from '../data/sourceState';
 import { findAnswer, type QaEntry, type QaMatch } from '../qa/match';
 import { pickPoints, type PlanDraft } from '../recommendation/pick';
-import { HERO_PHOTO, getNodePhoto } from '../assets/photoMap';
+import { resolveNodeVisual } from '../assets/nodeVisual';
+import { HeritageSketchPlaceholder, NodeVisualCredit } from '../components/HeritageSketchPlaceholder';
 import { VoiceInteractionDock } from '../components/VoiceInteractionDock';
 import { VoicePlayerBar } from '../components/VoicePlayerBar';
 import { AppIcon } from '../components/AppIcon';
@@ -132,7 +134,7 @@ export function QaScreen({
   const [dockHeight, setDockHeight] = useState(0);
   const [voiceActionCard, setVoiceActionCard] = useState<VoiceActionCard | null>(null);
   const motion = useMotionState();
-  const scroll = useRef<ScrollView>(null);
+  const scroll = useRef<ScrollViewInstance>(null);
   const answerY = useRef(0);
   const revealAnswer = useRef(false);
   const voiceOptionContext = useRef<VoiceOptionContext | null>(null);
@@ -274,9 +276,10 @@ export function QaScreen({
     };
   })();
 
-  const currentPhoto = activeChapter
-    ? getNodePhoto(currentNode?.id, activeChapter.photoKey)
-    : (currentNode ? getNodePhoto(currentNode.id) : HERO_PHOTO);
+  const visualCollectionId = mode === 'live'
+    ? ('collectionId' in dataset && typeof dataset.collectionId === 'string' ? dataset.collectionId : undefined)
+    : actualCollectionId;
+  const currentVisual = resolveNodeVisual(currentNode?.id, activeChapter?.photoKey, visualCollectionId, locale);
 
   const chapterQa = (activeChapter && activeChapter.qaIds && activeChapter.qaIds.length > 0)
     ? nodeQa.filter((q) => activeChapter.qaIds.includes(q.id))
@@ -540,16 +543,17 @@ export function QaScreen({
   return (
     <View style={styles.rootContainer} onLayout={reportFirstLayout}>
       {/* ẢNH NỀN FULL TOÀN MÀN HÌNH CỦA ĐIỂM ĐANG KHÁM PHÁ */}
-      <ImageBackground
-        source={currentPhoto}
-        style={styles.fullBleedBackground}
-        resizeMode="cover"
-        onLoadStart={() => recordImagePerfLoadStart('qa', `background:${currentNode?.id ?? 'intro'}`)}
-        onLoad={() => recordImagePerfLoadSuccess('qa', `background:${currentNode?.id ?? 'intro'}`)}
-        onLoadEnd={() => recordImagePerfLoadEnd('qa', `background:${currentNode?.id ?? 'intro'}`)}
-        onError={() => recordImagePerfLoadError('qa', `background:${currentNode?.id ?? 'intro'}`)}
-      >
-        <View style={styles.scrimOverlay} />
+      <View style={styles.fullBleedBackground}>
+        {currentVisual.kind === 'photo' ? <Image
+          source={currentVisual.source}
+          style={StyleSheet.absoluteFill}
+          resizeMode="cover"
+          onLoadStart={() => recordImagePerfLoadStart('qa', `background:${currentNode?.id ?? 'intro'}`)}
+          onLoad={() => recordImagePerfLoadSuccess('qa', `background:${currentNode?.id ?? 'intro'}`)}
+          onLoadEnd={() => recordImagePerfLoadEnd('qa', `background:${currentNode?.id ?? 'intro'}`)}
+          onError={() => recordImagePerfLoadError('qa', `background:${currentNode?.id ?? 'intro'}`)}
+        /> : <HeritageSketchPlaceholder visual={currentVisual} locale={locale} siteName={currentNode?.name} ratio="full" />}
+        <View pointerEvents="none" style={[styles.scrimOverlay, currentVisual.kind === 'placeholder' && { backgroundColor: 'rgba(20,22,18,0.68)' }]} />
 
         {/* TOP BAR: NÚT QUAY LẠI BẢN ĐỒ NGÕ & VẠCH TIẾN TRÌNH 6 ĐIỂM */}
         <View style={[styles.topBar, { paddingTop: topInset }]}>
@@ -602,6 +606,7 @@ export function QaScreen({
           >
             {/* THẺ NGƯỜI KỂ CHUYỆN NỔI (FLOATING STORYTELLER CARD) */}
             <View style={styles.floatingStoryCard}>
+              <NodeVisualCredit visual={currentVisual} locale={locale} style={{ color: '#626559', fontSize: 12 }} />
               <View style={styles.storyCardHeader}>
                 <View style={styles.narratorIconCircle}>
                   <Text style={styles.narratorIconText}>{t('qa.narrator_badge')}</Text>
@@ -1090,7 +1095,7 @@ export function QaScreen({
             idleSubtitle={nodeQa.length === 0 ? t('qa.story_voice_subtitle') : undefined}
           />
         </View>
-      </ImageBackground>
+      </View>
 
       {/* DRAWER BÀN PHÍM THU GỌN */}
       <ExpandableInputDrawer

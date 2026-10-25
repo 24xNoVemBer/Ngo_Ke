@@ -16,7 +16,9 @@ import Svg, { Path } from 'react-native-svg';
 import { useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync, type AudioSource } from 'expo-audio';
 import type { DemoNode, Mode, SourceState } from '../data/sourceState';
 import type { RootStackParamList } from '../navigation';
-import { getNodePhoto, getAlleyMeta } from '../assets/photoMap';
+import { getAlleyMeta } from '../assets/photoMap';
+import { resolveNodeVisual, resolveCollectionVisual } from '../assets/nodeVisual';
+import { HeritageSketchPlaceholder } from '../components/HeritageSketchPlaceholder';
 import { AVAILABLE_COLLECTIONS, DEFAULT_COLLECTION_ID, getBundledDataset, getCollectionRevision, getLocalizedCollections, isCollectionId, type CollectionId } from '../data/collections';
 import { lookupVoiceTrack } from '../voice/localizedCatalog';
 import { readAlleyStory } from '../data/alleyGuide';
@@ -215,10 +217,11 @@ export function HomeScreen({
 
   const currentNode: DemoNode | undefined = nodes[selectedIndex] ?? nodes[0];
   const visitedCount = nodes.filter((n) => readNodeIds.has(n.id)).length;
-  const collectionCover = activeCollection?.coverPhoto ?? knownMeta?.coverPhoto ?? alleyMeta.coverPhoto;
-  const isReviewed = collectionKind === 'reviewed';
-  const isThreeLenses = activeCollectionId === 'old-quarter-three-lenses' && isReviewed;
-  const currentPhoto = currentNode ? getNodePhoto(currentNode.id, undefined, isThreeLenses ? 'old-quarter-three-lenses' : undefined) : collectionCover;
+  const visualCollectionId = mode === 'live'
+    ? (source.status === 'ready' && 'collectionId' in source.dataset && typeof source.dataset.collectionId === 'string' ? source.dataset.collectionId : undefined)
+    : activeCollectionId;
+  const coverVisual = resolveCollectionVisual(visualCollectionId, locale);
+  const currentVisual = currentNode ? resolveNodeVisual(currentNode.id, undefined, visualCollectionId, locale) : coverVisual;
 
   useEffect(() => {
     if (isFocused) recordImagePerfScreenFocus('home');
@@ -349,8 +352,8 @@ export function HomeScreen({
   return (
     <View style={styles.rootContainer} onLayout={reportFirstLayout}>
       {/* 1. NỀN ẢNH CHỤP THẬT TRÀN TOÀN BỘ MÀN HÌNH (B2: scrim 0.40 mộc mạc) */}
-      <ImageBackground
-        source={collectionCover}
+      {coverVisual.kind === 'photo' ? <ImageBackground
+        source={coverVisual.source}
         style={StyleSheet.absoluteFill}
         resizeMode="cover"
         onLoadStart={() => recordImagePerfLoadStart('home', `cover:${activeCollectionId}`)}
@@ -359,7 +362,7 @@ export function HomeScreen({
         onError={() => recordImagePerfLoadError('home', `cover:${activeCollectionId}`)}
       >
         <View style={styles.scrimOverlay} />
-      </ImageBackground>
+      </ImageBackground> : <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.missingCoverBackground]} />}
 
       {/* 2. THANH TIÊU ĐỀ TRÊN CÙNG: LOCAL BACKDROP (B2: rgba(20,24,19,0.58)), B4: Back 44, Title/Progress, Lang */}
       <View testID="home-header-bar" style={[styles.topHeader, { paddingTop: topHeaderPadding }]}>
@@ -642,7 +645,8 @@ export function HomeScreen({
           >
             {fontScale <= 1.3 && (
               <View style={styles.previewThumbWrapper}>
-                <CrossfadePhoto source={currentPhoto} style={styles.previewThumb} />
+                {currentVisual.kind === 'photo' ? <CrossfadePhoto source={currentVisual.source} style={styles.previewThumb} />
+                  : <HeritageSketchPlaceholder visual={currentVisual} locale={locale} siteName={currentNode.name} ratio="1:1" showAnnotations={false} style={styles.previewThumb} />}
               </View>
             )}
 
@@ -741,6 +745,9 @@ const styles = StyleSheet.create({
   scrimOverlay: {
     ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(22, 24, 18, 0.40)',
+  },
+  missingCoverBackground: {
+    backgroundColor: '#1E2019',
   },
   scrollCanvas: {
     flex: 1,

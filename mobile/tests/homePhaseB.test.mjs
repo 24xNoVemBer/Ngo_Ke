@@ -1,3 +1,4 @@
+import { nodeVisualModule, visualComponentStubs } from './helpers/nodeVisualModules.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync, existsSync } from 'node:fs';
@@ -15,6 +16,8 @@ const actualCollectionsCode = ts.transpileModule(readFileSync(new URL('../src/da
 }).outputText;
 const actualCollectionsMod = { exports: {} };
 runInNewContext('(function(require,module,exports){' + actualCollectionsCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
   if (id === 'react-native') return {};
   if (id === './locale') return { isLocale: (v) => v === 'vi' || v === 'en' };
   if (id === './threeLensesCompanion.ts' || id === './threeLensesCompanion') return {};
@@ -35,6 +38,8 @@ const actualPhotoMapCode = ts.transpileModule(readFileSync(new URL('../src/asset
 }).outputText;
 const actualPhotoMapMod = { exports: {} };
 runInNewContext('(function(require,module,exports){' + actualPhotoMapCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
   if (id === 'react-native') return {};
   if (/\.(png|jpe?g|gif|webp|wav|mp3)$/i.test(id)) return id;
   throw new Error('Unexpected import in photoMap.ts: ' + id);
@@ -217,6 +222,8 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
   // Build ToolDock
   const toolDockMod = { exports: {} };
   runInNewContext('(function(require,module,exports){' + toolDockCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
     if (modules[id]) return modules[id];
     if (id === './AppIcon' || id === '../components/AppIcon') return { AppIcon: 'AppIcon' };
     throw new Error(`Unexpected import in toolDock: ${id}`);
@@ -226,6 +233,8 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
   // Build AlleyPassportModal
   const passportMod = { exports: {} };
   runInNewContext('(function(require,module,exports){' + passportCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
     if (modules[id]) return modules[id];
     if (id === './AppIcon' || id === '../components/AppIcon') return { AppIcon: 'AppIcon' };
     throw new Error(`Unexpected import in passport: ${id}`);
@@ -235,6 +244,8 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
   // Build Drawer
   const drawerMod = { exports: {} };
   runInNewContext('(function(require,module,exports){' + drawerCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
     if (modules[id]) return modules[id];
     if (id === './AppIcon' || id === '../components/AppIcon' || /\/components\//.test(id) || id.includes('AlleyGuideSection')) {
       return { AppIcon: 'AppIcon', AlleyGuideSection: 'AlleyGuideSection' };
@@ -256,6 +267,8 @@ function createTestMount(file, defaultProps = {}, overrides = {}) {
 
   const screenMod = { exports: {} };
   runInNewContext('(function(require,module,exports){' + screenCode + '\n})', { process: { env: {} }, setTimeout, clearTimeout })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
     if (modules[id]) return modules[id];
     if (/\.(png|jpe?g|gif|webp|wav|mp3)$/i.test(id)) return 1;
     if (/\/components\//.test(id) || id.startsWith('./') || id.includes('AlleyStoryCard') || id.includes('AlleyGuideSection')) {
@@ -334,7 +347,7 @@ test('B1: Landing background blur is 6 and scrim alpha is >= 0.62', () => {
 test('B2: Home sharp photo base retains scrim 0.40 and local header backdrop rgba(20,24,19,.58)', () => {
   const mountObj = createTestMount('../src/screens/HomeScreen.tsx', {
     navigation: { navigate() {}, goBack() {} },
-    route: { params: {} },
+    route: { params: { alleyId: 'fiction-letter' } },
     mode: 'demo',
     source: sources.getSourceState('demo', fixture),
     currentNodeId: 'demo-01',
@@ -474,7 +487,7 @@ test('B3 layout flow: Landing and Home ToolDock is bottom normal sibling in root
   // 2. HomeScreen render & style flow contract
   const homeMount = createTestMount('../src/screens/HomeScreen.tsx', {
     navigation: { navigate() {}, goBack() {} },
-    route: { params: {} },
+    route: { params: { alleyId: 'fiction-letter' } },
     mode: 'demo',
     source: sources.getSourceState('demo', fixture),
     currentNodeId: 'demo-01',
@@ -636,11 +649,11 @@ test('B6: Parameterized 8-alley order and dimension contracts across VI and EN a
       const renderedIds = alleyCards.map((p) => p.props.testID.replace('landing-alley-card-', ''));
       assert.deepEqual(renderedIds, expectedOrder, `Carousel order matches exact 8-alley order for ${loc} at scale ${scale}`);
 
-      // Check Card height = 330 and Footer minHeight = 148 contracts
+      // Preserve normal 330pt proportions, but allow the footer to grow with text.
       for (const card of alleyCards) {
         const cardStyles = resolveStyle(card.props.style);
-        const mainCardStyle = cardStyles.find((s) => s.height === 330);
-        assert.ok(mainCardStyle, `Card has stable fixed height 330 for ${loc} at scale ${scale}`);
+        const mainCardStyle = cardStyles.find((s) => s.minHeight === 330 && s.height === undefined);
+        assert.ok(mainCardStyle, `Card retains minimum height 330 and can grow for ${loc} at scale ${scale}`);
 
         const footer = elements(card, 'View').find((v) => {
           const s = resolveStyle(v.props.style);

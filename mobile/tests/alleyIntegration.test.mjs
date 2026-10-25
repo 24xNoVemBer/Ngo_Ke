@@ -1,3 +1,4 @@
+import { nodeVisualModule, visualComponentStubs } from './helpers/nodeVisualModules.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -23,6 +24,8 @@ function loadTsModule(relPath, extraMocks = {}) {
     setTimeout,
     clearTimeout,
   })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
     if (extraMocks[id]) return extraMocks[id];
     if (id === 'react-native') return { StyleSheet: { create: (s) => s } };
     if (id === './locale' || id === '../data/locale') return { isLocale: (v) => v === 'vi' || v === 'en' };
@@ -212,6 +215,8 @@ function mount(file, props, overrides = {}) {
     setTimeout,
     clearTimeout,
   })((id) => {
+    if (id === '../assets/nodeVisual') return nodeVisualModule;
+    if (id.endsWith('/HeritageSketchPlaceholder')) return visualComponentStubs;
     if (modules[id]) return modules[id];
     if (/\.(png|jpe?g|gif|webp|wav|mp3)$/i.test(id)) return 1;
     throw new Error(`Unexpected import in test mount: ${id}`);
